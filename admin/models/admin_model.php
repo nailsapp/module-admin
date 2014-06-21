@@ -43,7 +43,7 @@ class NAILS_Admin_Model extends NAILS_Model
 		 **/
 
 		$this->search_paths[] = FCPATH . APPPATH . 'modules/admin/controllers/';	//	Admin controllers specific for this app only.
-		$this->search_paths[] = NAILS_PATH . 'modules/admin/controllers/';
+		$this->search_paths[] = FCPATH . 'vendor/nailsapp/module-admin/admin/controllers/';
 	}
 
 
@@ -61,7 +61,7 @@ class NAILS_Admin_Model extends NAILS_Model
 	 **/
 	public function find_module( $module )
 	{
-		$_out = new stdClass();
+		$_out = FALSE;
 
 		// --------------------------------------------------------------------------
 
@@ -72,12 +72,11 @@ class NAILS_Admin_Model extends NAILS_Model
 
 				require_once $path . $module . '.php';
 
-				$_details = $module::announce();
+				$_out = $module::announce();
 
-				if ( $_details ) :
+				if ( $_out ) :
 
-					$_out				= $_details;
-					$_out->class_name	= $module;
+					$_out->class_name = $module;
 
 					//	List the public methods of this module (can't rely on the ['funcs'] array as it
 					//	might not list a method which the active user needs in their ACL)

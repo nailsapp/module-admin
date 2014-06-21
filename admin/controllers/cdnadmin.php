@@ -7,7 +7,7 @@
 */
 
 //	Include Admin_Controller; executes common admin functionality.
-require_once NAILS_PATH . 'modules/admin/controllers/_admin.php';
+require_once '_admin.php';
 
 /**
  * OVERLOADING NAILS' ADMIN MODULES

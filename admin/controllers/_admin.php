@@ -85,7 +85,7 @@ class NAILS_Admin_Controller extends NAILS_Controller
 		//	Load admin helper and config
 		$this->load->model( 'admin_model' );
 		$this->config->load( 'admin' );
-		if ( file_exists( FCPATH . 'application/config/admin.php' ) ) :
+		if ( file_exists( FCPATH . APPPATH . 'config/admin.php' ) ) :
 
 			$this->config->load( 'admin' );
 
@@ -152,13 +152,31 @@ class NAILS_Admin_Controller extends NAILS_Controller
 
 			endif;
 
+		elseif ( $this->user_model->is_superuser() ) :
+
+			//	OK, this user is a super user and has been given a free ticket
+			//	thus far. However, if the module isn't available then even these
+			//	guys are bang out of luck.
+
+			$_modules_potential		= get_potential_modules();
+			$_modules_unavailable	= get_unavailable_modules();
+
+			if ( array_search( 'module-' . $_active_module, $_modules_potential ) !== FALSE ) :
+
+				if ( array_search( 'module-' . $_active_module, $_modules_unavailable ) !== FALSE ) :
+
+					show_404();
+
+				endif;
+
+			endif;
+
 		endif;
 
 		// --------------------------------------------------------------------------
 
-		//	Load libraries and helpers
+		//	Load libraries
 		$this->load->library( 'cdn' );
-		$this->load->helper( 'admin' );
 
 		// --------------------------------------------------------------------------
 
@@ -240,7 +258,8 @@ class NAILS_Admin_Controller extends NAILS_Controller
 
 		// --------------------------------------------------------------------------
 
-		//	Initialise the admin change log model
+		//	Initialise the admin models
+		$this->load->model( 'admin_help_model' );
 		$this->load->model( 'admin_changelog_model' );
 	}
 
@@ -300,7 +319,43 @@ class NAILS_Admin_Controller extends NAILS_Controller
 	 **/
 	private function _load_active_modules()
 	{
-		$_modules = get_loaded_modules();
+		$_modules_potential		= get_potential_modules();
+		$_modules_unavailable	= get_unavailable_modules();
+		$_modules_available		= array();
+
+		// --------------------------------------------------------------------------
+
+		//	Look for controllers
+		$_controllers	= scandir( FCPATH . 'vendor/nailsapp/module-admin/admin/controllers/' );
+		$_regex			= '/^[a-zA-Z]+\.php$/';
+
+		foreach ( $_controllers AS $controller ) :
+
+			if ( preg_match( $_regex, $controller ) ) :
+
+				$_module = pathinfo( $controller );
+				$_module = $_module['filename'];
+
+				//	O looks valid, is it a potential module, and if so, is it available?
+
+				if ( array_search( 'module-' . $_module, $_modules_potential ) !== FALSE ) :
+
+					if ( array_search( 'module-' . $_module, $_modules_unavailable ) !== FALSE ) :
+
+						//	Not installed
+						continue;
+
+					endif;
+
+				endif;
+
+				// --------------------------------------------------------------------------
+
+				$_modules_available[] = $_module;
+
+			endif;
+
+		endforeach;
 
 		// --------------------------------------------------------------------------
 
@@ -309,44 +364,17 @@ class NAILS_Admin_Controller extends NAILS_Controller
 
 		// --------------------------------------------------------------------------
 
-		//	Handle wildcard
-		reset( $_modules );
-		if ( key( $_modules ) == '*' ) :
+		foreach( $_modules_available AS $module ) :
 
-			$_modules['admin']	= array();
-			$_controllers		= scandir( NAILS_PATH . 'modules/admin/controllers/' );
-			$_ignore			= array( '.','..','_admin.php' );
+			$_module =  $this->admin_model->find_module( $module );
 
-			foreach ( $_controllers AS $controller ) :
+			if ( ! empty( $_module ) ) :
 
-				if ( array_search( $controller, $_ignore ) === FALSE ) :
+				$this->_loaded_modules[$module] = $_module;
 
-					$_temp					= pathinfo( $controller );
-					$_modules['admin'][]	= $_temp['filename'];
+			endif;
 
-				endif;
-
-			endforeach;
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		if ( isset( $_modules['admin'] ) && $_modules['admin'] ) :
-
-			foreach( $_modules['admin'] AS $module ) :
-
-				$_module = $this->admin_model->find_module( $module );
-
-				if ( (array) $_module ) :
-
-					$this->_loaded_modules[$module] = $_module;
-
-				endif;
-
-			endforeach;
-
-		endif;
+		endforeach;
 	}
 
 

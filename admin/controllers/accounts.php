@@ -411,7 +411,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 					endif;
 
-					_ADMIN_CHANGE_ADD( 'created', 'a', 'user', $_new_user->id,  $_name, 'admin/accounts/edit/' . $_new_user->id );
+					$this->admin_changelog_model->add( 'created', 'a', 'user', $_new_user->id,  $_name, 'admin/accounts/edit/' . $_new_user->id );
 
 					// --------------------------------------------------------------------------
 
@@ -743,7 +743,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 							if ( isset( $_user->$field ) ) :
 
-								_ADMIN_CHANGE_ADD( 'updated', 'a', 'user', $this->input->post( 'id' ),  $_name, 'admin/accounts/edit/' . $this->input->post( 'id' ), $field, $_user->$field, $value, FALSE );
+								$this->admin_changelog_model->add( 'updated', 'a', 'user', $this->input->post( 'id' ),  $_name, 'admin/accounts/edit/' . $this->input->post( 'id' ), $field, $_user->$field, $value, FALSE );
 
 							endif;
 
@@ -915,7 +915,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Update admin changelog
-		_ADMIN_CHANGE_ADD( 'suspended', 'a', 'user', $_uid,  '#' . number_format( $_uid ) . ' ' . $_user->first_name . ' ' . $_user->last_name, 'admin/accounts/edit/' . $_uid, 'is_suspended', $_old_value, $_new_value, FALSE );
+		$this->admin_changelog_model->add( 'suspended', 'a', 'user', $_uid,  '#' . number_format( $_uid ) . ' ' . $_user->first_name . ' ' . $_user->last_name, 'admin/accounts/edit/' . $_uid, 'is_suspended', $_old_value, $_new_value, FALSE );
 
 		// --------------------------------------------------------------------------
 
@@ -978,7 +978,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Update admin changelog
-		_ADMIN_CHANGE_ADD( 'unsuspended', 'a', 'user', $_uid,  '#' . number_format( $_uid ) . ' ' . $_user->first_name . ' ' . $_user->last_name, 'admin/accounts/edit/' . $_uid, 'is_suspended', $_old_value, $_new_value, FALSE );
+		$this->admin_changelog_model->add( 'unsuspended', 'a', 'user', $_uid,  '#' . number_format( $_uid ) . ' ' . $_user->first_name . ' ' . $_user->last_name, 'admin/accounts/edit/' . $_uid, 'is_suspended', $_old_value, $_new_value, FALSE );
 
 		// --------------------------------------------------------------------------
 
@@ -1034,7 +1034,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 			$this->session->set_flashdata( 'success', lang( 'accounts_delete_success', title_case( $_user->first_name . ' ' . $_user->last_name ) ) );
 
 			//	Update admin changelog
-			_ADMIN_CHANGE_ADD( 'deleted', 'a', 'user', $_uid,  '#' . number_format( $_uid ) . ' ' . $_user->first_name . ' ' . $_user->last_name );
+			$this->admin_changelog_model->add( 'deleted', 'a', 'user', $_uid,  '#' . number_format( $_uid ) . ' ' . $_user->first_name . ' ' . $_user->last_name );
 
 		else :
 

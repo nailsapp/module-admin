@@ -82,16 +82,44 @@
 				//	Login as?
 				if ( $member->id != active_user( 'id' ) && user_has_permission( 'admin.accounts.can_login_as' ) ) :
 
-					$_buttons[] = login_as_button( $member->id, $member->password );
+					//	Generate the return string
+					$_url = uri_string();
+
+					if ( $_GET ) :
+
+						//	Remove common problematic GET vars (for instance, we don't want is_fancybox when we return)
+						$_get = $_GET;
+						unset( $_get['is_fancybox'] );
+						unset( $_get['inline'] );
+
+						if ( $_get ) :
+
+							$_url .= '?' . http_build_query( $_get );
+
+						endif;
+
+					endif;
+
+					$_return_string = '?return_to=' . urlencode( $_url );
+
+					// --------------------------------------------------------------------------
+
+					$_url = site_url( 'auth/override/login_as/' . md5( $member->id ) . '/' . md5( $member->password ) . $_return_string );
+
+					$_buttons[] = anchor( $_url, lang( 'admin_login_as' ), 'class="awesome small"' );
 
 				endif;
 
 				// --------------------------------------------------------------------------
 
 				//	Edit
-				if ( $member->id == active_user( 'id' ) || user_has_permission( 'admin.accounts.can_edit_others' ) ) :
+				if ( user_has_permission('admin.accounts.edit') ) :
 
-					$_buttons[] = anchor( 'admin/accounts/edit/' . $member->id . $_return, lang( 'action_edit' ), 'data-fancybox-type="iframe" class="edit fancybox-max awesome small grey"' );
+					if ( $member->id == active_user( 'id' ) || user_has_permission( 'admin.accounts.can_edit_others' ) ) :
+
+						$_buttons[] = anchor( 'admin/accounts/edit/' . $member->id . $_return, lang( 'action_edit' ), 'data-fancybox-type="iframe" class="edit fancybox-max awesome small grey"' );
+
+					endif;
 
 				endif;
 

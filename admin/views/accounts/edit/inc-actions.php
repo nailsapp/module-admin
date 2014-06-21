@@ -8,7 +8,31 @@
 	//	Login as
 	if ( $user_edit->id != active_user( 'id' ) && user_has_permission( 'admin.accounts.can_login_as' ) ) :
 
-		$_buttons[] = login_as_button( $user_edit->id, $user_edit->password, lang( 'admin_login_as' ) . ' ' . $user_edit->first_name, 'class="awesome" target="_parent"' );
+		//	Generate the return string
+		$_url = uri_string();
+
+		if ( $_GET ) :
+
+			//	Remove common problematic GET vars (for instance, we don't want is_fancybox when we return)
+			$_get = $_GET;
+			unset( $_get['is_fancybox'] );
+			unset( $_get['inline'] );
+
+			if ( $_get ) :
+
+				$_url .= '?' . http_build_query( $_get );
+
+			endif;
+
+		endif;
+
+		$_return_string = '?return_to=' . urlencode( $_url );
+
+		// --------------------------------------------------------------------------
+
+		$_url = site_url( 'auth/override/login_as/' . md5( $user_edit->id ) . '/' . md5( $user_edit->password ) . $_return_string );
+
+		$_buttons[] = anchor( $_url, lang( 'admin_login_as' ) . ' ' . $user_edit->first_name, 'class="awesome" target="_parent"' );
 
 	endif;
 

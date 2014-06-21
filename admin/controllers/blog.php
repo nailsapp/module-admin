@@ -211,7 +211,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 				if ( $_post_id ) :
 
 					//	Update admin changelog
-					_ADMIN_CHANGE_ADD( 'created', 'a', 'blog post', $_post_id, $_data['title'], 'admin/blog/edit/' . $_post_id );
+					$this->admin_changelog_model->add( 'created', 'a', 'blog post', $_post_id, $_data['title'], 'admin/blog/edit/' . $_post_id );
 
 					// --------------------------------------------------------------------------
 
@@ -394,7 +394,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 									$_old_categories = implode( ',', $_old_categories );
 									$_new_categories = implode( ',', $_new_categories );
 
-									_ADMIN_CHANGE_ADD( 'updated', 'a', 'blog post', $_post_id,  $_data['title'], 'admin/accounts/edit/' . $_post_id, $field, $_old_categories, $_new_categories, FALSE );
+									$this->admin_changelog_model->add( 'updated', 'a', 'blog post', $_post_id,  $_data['title'], 'admin/accounts/edit/' . $_post_id, $field, $_old_categories, $_new_categories, FALSE );
 
 								break;
 
@@ -431,13 +431,13 @@ class NAILS_Blog extends NAILS_Admin_Controller
 									$_old_tags = implode( ',', $_old_tags );
 									$_new_tags = implode( ',', $_new_tags );
 
-									_ADMIN_CHANGE_ADD( 'updated', 'a', 'blog post', $_post_id,  $_data['title'], 'admin/accounts/edit/' . $_post_id, $field, $_old_tags, $_new_tags, FALSE );
+									$this->admin_changelog_model->add( 'updated', 'a', 'blog post', $_post_id,  $_data['title'], 'admin/accounts/edit/' . $_post_id, $field, $_old_tags, $_new_tags, FALSE );
 
 								break;
 
 								default :
 
-										_ADMIN_CHANGE_ADD( 'updated', 'a', 'blog post', $_post_id,  $_data['title'], 'admin/accounts/edit/' . $_post_id, $field, $this->data['post']->$field, $value, FALSE );
+									$this->admin_changelog_model->add( 'updated', 'a', 'blog post', $_post_id,  $_data['title'], 'admin/accounts/edit/' . $_post_id, $field, $this->data['post']->$field, $value, FALSE );
 
 								break;
 
@@ -528,7 +528,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 			$this->session->set_flashdata( 'success', '<strong>Success!</strong> Post was deleted successfully. ' . anchor( 'admin/blog/restore/' . $_post_id, 'Undo?' ) );
 
 			//	Update admin changelog
-			_ADMIN_CHANGE_ADD( 'deleted', 'a', 'blog post', $_post_id, $_post->title );
+			$this->admin_changelog_model->add( 'deleted', 'a', 'blog post', $_post_id, $_post->title );
 
 		else :
 
@@ -559,7 +559,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 			$this->session->set_flashdata( 'success', '<strong>Success!</strong> Post was restored successfully. ' );
 
 			//	Update admin changelog
-			_ADMIN_CHANGE_ADD( 'restored', 'a', 'blog post', $_post_id, $_post->title, 'admin/blog/edit/' . $_post_id );
+			$this->admin_changelog_model->add( 'restored', 'a', 'blog post', $_post_id, $_post->title, 'admin/blog/edit/' . $_post_id );
 
 		else :
 
