@@ -326,7 +326,7 @@ class NAILS_Admin_Controller extends NAILS_Controller
 		// --------------------------------------------------------------------------
 
 		//	Look for controllers
-		$_controllers	= scandir( FCPATH . 'vendor/nailsapp/module-admin/admin/controllers/' );
+		$_controllers	= scandir( NAILS_PATH . 'module-admin/admin/controllers/' );
 		$_regex			= '/^[a-zA-Z]+\.php$/';
 
 		foreach ( $_controllers AS $controller ) :

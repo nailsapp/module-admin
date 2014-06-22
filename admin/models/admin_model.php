@@ -43,7 +43,7 @@ class NAILS_Admin_Model extends NAILS_Model
 		 **/
 
 		$this->search_paths[] = FCPATH . APPPATH . 'modules/admin/controllers/';	//	Admin controllers specific for this app only.
-		$this->search_paths[] = FCPATH . 'vendor/nailsapp/module-admin/admin/controllers/';
+		$this->search_paths[] = NAILS_PATH . 'module-admin/admin/controllers/';
 	}
 
 
