@@ -18,15 +18,17 @@
 				foreach ( $testimonials AS $testimonial ) :
 
 					echo '<tr>';
-					echo '<td class="quote">';
-					echo $testimonial->quote;
-					echo '<small>' . $testimonial->quote_by . '</small>';
-					echo '</td>';
-					echo '<td class="order">' . $testimonial->order . '</td>';
-					echo '<td class="actions">';
-					echo anchor( 'admin/testimonials/edit/' . $testimonial->id, lang( 'action_edit' ), 'class="awesome small"' );
-					echo anchor( 'admin/testimonials/delete/' . $testimonial->id, lang( 'action_delete' ), 'class="awesome red small confirm" data-title="Are you sure?" data-body="You cannot undo this action"' );
-					echo '</td>';
+						echo '<td class="quote">';
+							echo $testimonial->quote;
+							echo '<small>' . $testimonial->quote_by . '</small>';
+						echo '</td>';
+						echo '<td class="order">';
+							echo $testimonial->order;
+						echo '</td>';
+						echo '<td class="actions">';
+							echo anchor( 'admin/testimonial/edit/' . $testimonial->id, lang( 'action_edit' ), 'class="awesome small"' );
+							echo anchor( 'admin/testimonial/delete/' . $testimonial->id, lang( 'action_delete' ), 'class="awesome red small confirm" data-title="Are you sure?" data-body="You cannot undo this action"' );
+						echo '</td>';
 					echo '<tr>';
 
 				endforeach;
