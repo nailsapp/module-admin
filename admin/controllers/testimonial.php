@@ -17,7 +17,7 @@ require_once '_admin.php';
  *
  **/
 
-class NAILS_Testimonials extends NAILS_Admin_Controller
+class NAILS_Testimonial extends NAILS_Admin_Controller
 {
 
 	/**
@@ -71,7 +71,7 @@ class NAILS_Testimonials extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		$this->load->model( 'testimonials/testimonial_model' );
+		$this->load->model( 'testimonial/testimonial_model' );
 	}
 
 
@@ -98,7 +98,7 @@ class NAILS_Testimonials extends NAILS_Admin_Controller
 
 		//	Load views
 		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/testimonials/index',	$this->data );
+		$this->load->view( 'admin/testimonial/index',	$this->data );
 		$this->load->view( 'structure/footer',			$this->data );
 	}
 
@@ -154,7 +154,7 @@ class NAILS_Testimonials extends NAILS_Admin_Controller
 
 		//	Load views
 		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/testimonials/create',	$this->data );
+		$this->load->view( 'admin/testimonial/create',	$this->data );
 		$this->load->view( 'structure/footer',			$this->data );
 	}
 
@@ -222,7 +222,7 @@ class NAILS_Testimonials extends NAILS_Admin_Controller
 
 		//	Load views
 		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/testimonials/edit',	$this->data );
+		$this->load->view( 'admin/testimonial/edit',	$this->data );
 		$this->load->view( 'structure/footer',			$this->data );
 	}
 

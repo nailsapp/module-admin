@@ -336,8 +336,7 @@ class NAILS_Admin_Controller extends NAILS_Controller
 				$_module = pathinfo( $controller );
 				$_module = $_module['filename'];
 
-				//	O looks valid, is it a potential module, and if so, is it available?
-
+				//	Module looks valid, is it a potential module, and if so, is it available?
 				if ( array_search( 'module-' . $_module, $_modules_potential ) !== FALSE ) :
 
 					if ( array_search( 'module-' . $_module, $_modules_unavailable ) !== FALSE ) :
@@ -348,6 +347,27 @@ class NAILS_Admin_Controller extends NAILS_Controller
 					endif;
 
 				endif;
+
+				// --------------------------------------------------------------------------
+
+				$_modules_available[] = $_module;
+
+			endif;
+
+		endforeach;
+
+		// --------------------------------------------------------------------------
+
+		//	Look for App Admin modules too
+		$_controllers	= scandir( FCPATH . APPPATH . 'modules/admin/controllers/' );
+		$_regex			= '/^[a-zA-Z]+\.php$/';
+
+		foreach ( $_controllers AS $controller ) :
+
+			if ( preg_match( $_regex, $controller ) ) :
+
+				$_module = pathinfo( $controller );
+				$_module = $_module['filename'];
 
 				// --------------------------------------------------------------------------
 
