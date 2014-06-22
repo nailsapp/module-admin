@@ -133,7 +133,7 @@ class NAILS_Testimonial extends NAILS_Admin_Controller
 				if ( $this->testimonial_model->create( $_data ) ) :
 
 					$this->session->set_flashdata( 'success', lang( 'testimonials_create_ok' ) );
-					redirect( 'admin/testimonials' );
+					redirect( 'admin/testimonial' );
 					return;
 
 				else :
@@ -169,7 +169,7 @@ class NAILS_Testimonial extends NAILS_Admin_Controller
 		if ( ! $this->data['testimonial'] ) :
 
 			$this->session->set_flashdata( 'error', lang( 'testimonials_common_bad_id' ) );
-			redirect( 'admin/testimonials' );
+			redirect( 'admin/testimonial' );
 			return;
 
 		endif;
@@ -201,7 +201,7 @@ class NAILS_Testimonial extends NAILS_Admin_Controller
 				if ( $this->testimonial_model->update( $this->data['testimonial']->id, $_data ) ) :
 
 					$this->session->set_flashdata( 'success', lang( 'testimonials_edit_ok' ) );
-					redirect( 'admin/testimonials' );
+					redirect( 'admin/testimonial' );
 					return;
 
 				else :
@@ -237,7 +237,7 @@ class NAILS_Testimonial extends NAILS_Admin_Controller
 		if ( ! $_testimonial ) :
 
 			$this->session->set_flashdata( 'error', lang( 'testimonials_common_bad_id' ) );
-			redirect( 'admin/testimonials' );
+			redirect( 'admin/testimonial' );
 			return;
 
 		endif;
@@ -256,7 +256,7 @@ class NAILS_Testimonial extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		redirect( 'admin/testimonials' );
+		redirect( 'admin/testimonial' );
 	}
 }
 
@@ -288,14 +288,14 @@ class NAILS_Testimonial extends NAILS_Admin_Controller
  *
  **/
 
-if ( ! defined( 'NAILS_ALLOW_EXTENSION_DASHBOARD' ) ) :
+if ( ! defined( 'NAILS_ALLOW_EXTENSION_TESTIMONIAL' ) ) :
 
-	class Testimonials extends NAILS_Testimonials
+	class Testimonial extends NAILS_Testimonial
 	{
 	}
 
 endif;
 
 
-/* End of file testimonials.php */
-/* Location: ./modules/admin/controllers/testimonials.php */
+/* End of file testimonial.php */
+/* Location: ./modules/admin/controllers/testimonial.php */

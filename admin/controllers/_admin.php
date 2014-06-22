@@ -326,31 +326,52 @@ class NAILS_Admin_Controller extends NAILS_Controller
 		// --------------------------------------------------------------------------
 
 		//	Look for controllers
-		$_controllers	= scandir( NAILS_PATH . 'module-admin/admin/controllers/' );
-		$_regex			= '/^[a-zA-Z]+\.php$/';
+		//	[0] => Path to search
+		//	[1] => Whether to test against $_modules_unavailable
 
-		foreach ( $_controllers AS $controller ) :
+		$_paths		= array();
+		$_paths[]	= array( NAILS_PATH . 'module-admin/admin/controllers/',	TRUE );
+		$_paths[]	= array( FCPATH . APPPATH . 'modules/admin/controllers/',	FALSE );
 
-			if ( preg_match( $_regex, $controller ) ) :
+		//	Filter out non PHP files
+		$_regex = '/^[a-zA-Z]+\.php$/';
 
-				$_module = pathinfo( $controller );
-				$_module = $_module['filename'];
+		foreach ( $_paths AS $path ) :
 
-				//	Module looks valid, is it a potential module, and if so, is it available?
-				if ( array_search( 'module-' . $_module, $_modules_potential ) !== FALSE ) :
+			$_controllers = @scandir( $path[0] );
 
-					if ( array_search( 'module-' . $_module, $_modules_unavailable ) !== FALSE ) :
+			if ( is_array( $_controllers ) ) :
 
-						//	Not installed
-						continue;
+				foreach ( $_controllers AS $controller ) :
+
+					if ( preg_match( $_regex, $controller ) ) :
+
+						$_module = pathinfo( $controller );
+						$_module = $_module['filename'];
+
+						if ( ! empty( $path[1] ) ) :
+
+							//	Module looks valid, is it a potential module, and if so, is it available?
+							if ( array_search( 'module-' . $_module, $_modules_potential ) !== FALSE ) :
+
+								if ( array_search( 'module-' . $_module, $_modules_unavailable ) !== FALSE ) :
+
+									//	Not installed
+									continue;
+
+								endif;
+
+							endif;
+
+						endif;
+
+						// --------------------------------------------------------------------------
+
+						$_modules_available[] = $_module;
 
 					endif;
 
-				endif;
-
-				// --------------------------------------------------------------------------
-
-				$_modules_available[] = $_module;
+				endforeach;
 
 			endif;
 
@@ -358,31 +379,7 @@ class NAILS_Admin_Controller extends NAILS_Controller
 
 		// --------------------------------------------------------------------------
 
-		//	Look for App Admin modules too
-		$_controllers	= scandir( FCPATH . APPPATH . 'modules/admin/controllers/' );
-		$_regex			= '/^[a-zA-Z]+\.php$/';
-
-		foreach ( $_controllers AS $controller ) :
-
-			if ( preg_match( $_regex, $controller ) ) :
-
-				$_module = pathinfo( $controller );
-				$_module = $_module['filename'];
-
-				// --------------------------------------------------------------------------
-
-				$_modules_available[] = $_module;
-
-			endif;
-
-		endforeach;
-
-		// --------------------------------------------------------------------------
-
-		//	Dashboard, always present, and always first
-		$this->_loaded_modules['dashboard'] = $this->admin_model->find_module( 'dashboard' );
-
-		// --------------------------------------------------------------------------
+		$_loaded_modules = array();
 
 		foreach( $_modules_available AS $module ) :
 
@@ -390,11 +387,94 @@ class NAILS_Admin_Controller extends NAILS_Controller
 
 			if ( ! empty( $_module ) ) :
 
-				$this->_loaded_modules[$module] = $_module;
+				$_loaded_modules[$module] = $_module;
 
 			endif;
 
 		endforeach;
+
+		// --------------------------------------------------------------------------
+
+		//	If the user has a custom order specified then use that, otherwise fall back to
+		//	APP_ADMIN_NAV if it's defined. Failing that, sort alphabetically by name.
+
+		$_user_nav_pref = @unserialize( active_user( 'admin_nav' ) );
+
+		if ( defined( 'APP_ADMIN_NAV' ) && APP_ADMIN_NAV ) :
+
+			//	Can set a default app wide preference if needed,
+			//	takes the same form as the user's preference
+
+			$_app_nav_pref = @unserialize( APP_ADMIN_NAV );
+
+		endif;
+
+		if ( ! empty( $_user_nav_pref ) ) :
+
+			//	User's preference first
+			foreach( $_user_nav_pref AS $module => $options ) :
+
+				if ( ! empty( $_loaded_modules[$module] ) ) :
+
+					$this->_loaded_modules[$module] = $_loaded_modules[$module];
+
+				endif;
+
+			endforeach;
+
+			//	Anything left over goes to the end.
+			foreach( $_loaded_modules AS $module ) :
+
+				if ( ! isset( $this->_loaded_modules[$module->class_name] ) ) :
+
+					$this->_loaded_modules[$module->class_name] = $module;
+
+				endif;
+
+			endforeach;
+
+		elseif ( ! empty( $_app_nav_pref ) ) :
+
+			foreach( $_app_nav_pref AS $module => $options ) :
+
+				if ( ! empty( $_loaded_modules[$module] ) ) :
+
+					$this->_loaded_modules[$module] = $_loaded_modules[$module];
+
+				endif;
+
+			endforeach;
+
+			//	Anything left over goes to the end.
+			foreach( $_loaded_modules AS $module ) :
+
+				if ( ! isset( $this->_loaded_modules[$module->class_name] ) ) :
+
+					$this->_loaded_modules[$module->class_name] = $module;
+
+				endif;
+
+			endforeach;
+
+		else :
+
+			$this->load->helper( 'array' );
+			array_sort_multi( $_loaded_modules, 'name' );
+
+			foreach( $_loaded_modules AS $module ) :
+
+				$this->_loaded_modules[$module->class_name] = $module;
+
+			endforeach;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Place the dashboard at the top of the list, always
+		//	Hit tip: http://stackoverflow.com/a/11276338/789224
+
+		$this->_loaded_modules = array( 'dashboard' => $this->_loaded_modules['dashboard']) + $this->_loaded_modules;
 	}
 
 
