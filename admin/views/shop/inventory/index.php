@@ -16,7 +16,7 @@
 	<?php
 
 		$this->load->view( 'admin/shop/inventory/utilities/search' );
-		$this->load->view( 'admin/shop/inventory/utilities/pagination' );
+		$this->load->view( 'admin/_utilities/pagination' );
 
 	?>
 
@@ -35,9 +35,9 @@
 		<tbody>
 			<?php
 
-				if ( $items->data ) :
+				if ( ! empty( $products ) ) :
 
-					foreach ( $items->data AS $item ) :
+					foreach ( $products AS $item ) :
 
 						?>
 						<tr id="product-<?=$item->id?>">
@@ -133,7 +133,7 @@
 					?>
 					<tr>
 						<td colspan="7" class="no-data">
-							<p>No Orders found</p>
+							<p>No Products Found</p>
 						</td>
 					</tr>
 					<?php
@@ -144,7 +144,7 @@
 	</table>
 	<?php
 
-		$this->load->view( 'admin/shop/inventory/utilities/pagination' );
+		$this->load->view( 'admin/_utilities/pagination' );
 
 	?>
 </div>

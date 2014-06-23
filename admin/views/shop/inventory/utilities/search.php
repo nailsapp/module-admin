@@ -13,14 +13,13 @@
 
 		// --------------------------------------------------------------------------
 
-		$_sort = array();
-		foreach ( $sortfields AS $field ) :
-
-			$_sort[$field['col']] = $field['label'];
-
-		endforeach;
-
-		echo lang( 'admin_search_sort' ) . form_dropdown( 'sort', $_sort, $search->sort );
+		$_sort = array(
+			'p.label'		=> 'Label',
+			'p.modified'	=> 'Modified Date',
+			'pt.label'		=> 'Type',
+			'p.is_active'	=> 'Active State'
+		);
+		echo lang( 'admin_search_sort' ) . form_dropdown( 'sort_on', $_sort, $sort_on );
 
 		// --------------------------------------------------------------------------
 
@@ -28,7 +27,7 @@
 			'asc'	=> 'Ascending',
 			'desc'	=> 'Descending'
 		);
-		echo lang( 'admin_search_order_1' ) . form_dropdown( 'order', $_order, $search->order ) . lang( 'admin_search_order_2' );
+		echo lang( 'admin_search_order_1' ) . form_dropdown( 'order', $_order, $sort_order ) . lang( 'admin_search_order_2' );
 
 		// --------------------------------------------------------------------------
 
@@ -39,11 +38,12 @@
 			75 => 75,
 			100 => 100
 		);
-		echo form_dropdown( 'per_page', $_perpage, $search->per_page );
+		echo form_dropdown( 'per_page', $_perpage, $pagination->per_page );
 		echo lang( 'admin_search_per_page' );
 
+		// --------------------------------------------------------------------------
 
-		echo anchor( uri_string() . '?reset=true', lang( 'action_reset' ), 'class="awesome small right"' );
+		echo anchor( uri_string(), lang( 'action_reset' ), 'class="awesome small right"' );
 		echo form_submit( 'submit', lang( 'action_search' ), 'class="awesome small right"' );
 
 

@@ -202,9 +202,8 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		$this->shop_inventory_sortfields[] = array( 'label' => 'ID',				'col' => 'p.id' );
-		$this->shop_inventory_sortfields[] = array( 'label' => 'Title',				'col' => 'p.title' );
+		$this->shop_inventory_sortfields[] = array( 'label' => 'Title',				'col' => 'p.label' );
 		$this->shop_inventory_sortfields[] = array( 'label' => 'Type',				'col' => 'pt.label' );
-		$this->shop_inventory_sortfields[] = array( 'label' => 'Price',				'col' => 'p.price' );
 		$this->shop_inventory_sortfields[] = array( 'label' => 'Active',			'col' => 'p.is_active' );
 		$this->shop_inventory_sortfields[] = array( 'label' => 'Modified',			'col' => 'p.modified' );
 
@@ -297,74 +296,31 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		//	Set method info
 		$this->data['page']->title = 'Manage Inventory';
 
-		// --------------------------------------------------------------------------
-
-		//	Searching, sorting, ordering and paginating.
-		$_hash = 'search_' . md5( uri_string() ) . '_';
-
-		if ( $this->input->get( 'reset' ) ) :
-
-			$this->session->unset_userdata( $_hash . 'per_page' );
-			$this->session->unset_userdata( $_hash . 'sort' );
-			$this->session->unset_userdata( $_hash . 'order' );
-
-		endif;
-
-		$_default_per_page	= $this->session->userdata( $_hash . 'per_page' ) ? $this->session->userdata( $_hash . 'per_page' ) : 50;
-		$_default_sort		= $this->session->userdata( $_hash . 'sort' ) ? 	$this->session->userdata( $_hash . 'sort' ) : 'p.id';
-		$_default_order		= $this->session->userdata( $_hash . 'order' ) ? 	$this->session->userdata( $_hash . 'order' ) : 'desc';
-
-		//	Define vars
-		$_search = array( 'keywords' => $this->input->get( 'search' ), 'columns' => array() );
-
-		foreach ( $this->shop_inventory_sortfields AS $field ) :
-
-			$_search['columns'][strtolower( $field['label'] )] = $field['col'];
-
-		endforeach;
-
-		$_limit		= array(
-						$this->input->get( 'per_page' ) ? $this->input->get( 'per_page' ) : $_default_per_page,
-						$this->input->get( 'offset' ) ? $this->input->get( 'offset' ) : 0
-					);
-		$_order		= array(
-						$this->input->get( 'sort' ) ? $this->input->get( 'sort' ) : $_default_sort,
-						$this->input->get( 'order' ) ? $this->input->get( 'order' ) : $_default_order
-					);
-
-		//	Set sorting and ordering info in session data so it's remembered for when user returns
-		$this->session->set_userdata( $_hash . 'per_page', $_limit[0] );
-		$this->session->set_userdata( $_hash . 'sort', $_order[0] );
-		$this->session->set_userdata( $_hash . 'order', $_order[1] );
-
-		//	Set values for the page
-		$this->data['search']				= new stdClass();
-		$this->data['search']->per_page		= $_limit[0];
-		$this->data['search']->sort			= $_order[0];
-		$this->data['search']->order		= $_order[1];
+		//	Define the $_data variable, this'll be passed to the get_all() and count_all() methods
+		$_data = array( 'where' => array(), 'sort' => array() );
 
 		// --------------------------------------------------------------------------
 
-		//	Prepare the $_where
-		$_where = NULL;
+		//	Set useful vars
+		$_page			= $this->input->get( 'page' )		? $this->input->get( 'page' )		: 0;
+		$_per_page		= $this->input->get( 'per_page' )	? $this->input->get( 'per_page' )	: 50;
+		$_sort_on		= $this->input->get( 'sort_on' )	? $this->input->get( 'sort_on' )	: 'p.label';
+		$_sort_order	= $this->input->get( 'order' )		? $this->input->get( 'order' )		: 'desc';
+		$_search		= $this->input->get( 'search' )		? $this->input->get( 'search' )		: '';
 
-		// --------------------------------------------------------------------------
+		//	Set sort variables for view and for $_data
+		$this->data['sort_on']		= $_data['sort']['column']	= $_sort_on;
+		$this->data['sort_order']	= $_data['sort']['order']	= $_sort_order;
+		$this->data['search']		= $_data['search']			= $_search;
 
-		//	Pass any extra data to the view
-		$this->data['actions']		= $this->shop_inventory_actions;
-		$this->data['sortfields']	= $this->shop_inventory_sortfields;
+		//	Define and populate the pagination object
+		$this->data['pagination']				= new stdClass();
+		$this->data['pagination']->page			= $_page;
+		$this->data['pagination']->per_page		= $_per_page;
+		$this->data['pagination']->total_rows	= $this->shop_product_model->count_all( $_data );
 
-		// --------------------------------------------------------------------------
-
-		//	Fetch orders
-		$this->load->model( 'shop/shop_product_model' );
-
-		$this->data['items']		= new stdClass();
-		$this->data['items']->data	= $this->shop_product_model->get_all( FALSE, $_order, $_limit, $_where, $_search );
-
-		//	Work out pagination
-		$this->data['items']->pagination				= new stdClass();
-		$this->data['items']->pagination->total_results	= $this->shop_product_model->count_all( FALSE, $_where, $_search );
+		//	Fetch all the items for this page
+		$this->data['products'] = $this->shop_product_model->get_all( $_page, $_per_page, $_data );
 
 		// --------------------------------------------------------------------------
 

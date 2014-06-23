@@ -16,7 +16,7 @@
 		$_sort = array(
 			'published'	=> 'Published Date',
 			'modified'	=> 'Modified Date',
-			'Title'		=> 'Title'
+			'title'		=> 'Title'
 		);
 		echo lang( 'admin_search_sort' ) . form_dropdown( 'sort_on', $_sort, $sort_on );
 

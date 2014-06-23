@@ -42,26 +42,26 @@ class NAILS_Blog extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Configurations
-		$d->name = 'Blog';	//	Display name.
+		$d->name = 'Blog';
 
 		// --------------------------------------------------------------------------
 
 		//	Navigation options
-		$d->funcs				= array();
-		$d->funcs['index']		= 'Manage Posts';		//	Sub-nav function.
-		$d->funcs['create']		= 'Create New Post';	//	Sub-nav function.
+		$d->funcs			= array();
+		$d->funcs['index']	= 'Manage Posts';
+		$d->funcs['create']	= 'Create New Post';
 
 		get_instance()->load->helper( 'blog_helper' );
 
 		if ( app_setting( 'categories_enabled', 'blog' ) ) :
 
-			$d->funcs['manage/categories']	= 'Manage Categories';	//	Sub-nav function.
+			$d->funcs['manage/categories'] = 'Manage Categories';
 
 		endif;
 
 		if ( app_setting( 'tags_enabled', 'blog' ) ) :
 
-			$d->funcs['manage/tags']		= 'Manage Tags';		//	Sub-nav function.
+			$d->funcs['manage/tags'] = 'Manage Tags';
 
 		endif;
 
