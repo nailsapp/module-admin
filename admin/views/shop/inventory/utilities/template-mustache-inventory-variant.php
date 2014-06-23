@@ -234,8 +234,8 @@
 
 							foreach( $variation->price AS $price ) :
 
-								$_price[$price->id]			= $price->price;
-								$_sale_price[$price->id]	= $price->sale_price;
+								$_price[$price->currency]			= $price->price;
+								$_sale_price[$price->currency]	= $price->sale_price;
 
 							endforeach;
 
@@ -248,8 +248,8 @@
 
 								echo SHOP_BASE_CURRENCY_CODE;
 
-								$_key = 'variation[' . $_counter . '][pricing][0][currency_id]';
-								echo form_hidden( $_key, SHOP_BASE_CURRENCY_ID );
+								$_key = 'variation[' . $_counter . '][pricing][0][currency]';
+								echo form_hidden( $_key, SHOP_BASE_CURRENCY_CODE );
 
 							?>
 						</td>
@@ -259,7 +259,7 @@
 								$_key		= 'variation[' . $_counter . '][pricing][0][price]';
 								$_error		= form_error( $_key, '<span class="error show-in-tabs">', '</span>' );
 								$_class		= $_class_price;
-								$_default	= ! empty( $_price[SHOP_BASE_CURRENCY_ID] ) ? $_price[SHOP_BASE_CURRENCY_ID] : '';
+								$_default	= ! empty( $_price[SHOP_BASE_CURRENCY_CODE] ) ? $_price[SHOP_BASE_CURRENCY_CODE] : '';
 
 								if ( $_error ) :
 
@@ -280,7 +280,7 @@
 								$_key		= 'variation[' . $_counter . '][pricing][0][sale_price]';
 								$_error		= form_error( $_key, '<span class="error show-in-tabs">', '</span>' );
 								$_class		= $_class_price_sale;
-								$_default	= ! empty( $_sale_price[SHOP_BASE_CURRENCY_ID] ) ? $_sale_price[SHOP_BASE_CURRENCY_ID] : '';
+								$_default	= ! empty( $_sale_price[SHOP_BASE_CURRENCY_CODE] ) ? $_sale_price[SHOP_BASE_CURRENCY_CODE] : '';
 
 								if ( $_error ) :
 
@@ -303,7 +303,7 @@
 						$_counter_inside = 1;
 						foreach ( $currencies AS $currency ) :
 
-							if ( $currency->id != SHOP_BASE_CURRENCY_ID ) :
+							if ( $currency->code != SHOP_BASE_CURRENCY_CODE ) :
 
 								if ( $is_first ) :
 
@@ -330,8 +330,8 @@
 
 											echo $currency->code;
 
-											$_key = 'variation[' . $_counter . '][pricing][' . $_counter_inside . '][currency_id]';
-											echo form_hidden( $_key, $currency->id );
+											$_key = 'variation[' . $_counter . '][pricing][' . $_counter_inside . '][currency]';
+											echo form_hidden( $_key, $currency->code );
 
 										?>
 									</td>
@@ -341,7 +341,7 @@
 											$_key		= 'variation[' . $_counter . '][pricing][' . $_counter_inside . '][price]';
 											$_error		= form_error( $_key, '<span class="error show-in-tabs">', '</span>' );
 											$_class		= $_class_price;
-											$_default	= ! empty( $_price[$currency->id] ) ? $_price[$currency->id] : '';
+											$_default	= ! empty( $_price[$currency->code] ) ? $_price[$currency->code] : '';
 
 											if ( $_error ) :
 
@@ -362,7 +362,7 @@
 											$_key		= 'variation[' . $_counter . '][pricing][' . $_counter_inside . '][sale_price]';
 											$_error		= form_error( $_key, '<span class="error show-in-tabs">', '</span>' );
 											$_class		= $_class_price_sale;
-											$_default	= ! empty( $_sale_price[$currency->id] ) ? $_sale_price[$currency->id] : '';
+											$_default	= ! empty( $_sale_price[$currency->code] ) ? $_sale_price[$currency->code] : '';
 
 											if ( $_error ) :
 

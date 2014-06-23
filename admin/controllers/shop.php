@@ -42,18 +42,19 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Configurations
-		$d->name				= 'Shop';					//	Display name.
+		$d->name = 'Shop';
 
 		// --------------------------------------------------------------------------
 
 		//	Navigation options
 		$d->funcs				= array();
-		$d->funcs['inventory']	= 'Manage Inventory';		//	Sub-nav function.
-		$d->funcs['orders']		= 'Manage Orders';			//	Sub-nav function.
-		$d->funcs['vouchers']	= 'Manage Vouchers';		//	Sub-nav function.
-		$d->funcs['sales']		= 'Manage Sales';			//	Sub-nav function.
-		$d->funcs['manage']		= 'Other Managers';			//	Sub-nav function.
-		$d->funcs['reports']	= 'Generate Reports';		//	Sub-nav function.
+		$d->funcs['featured']	= 'Manage Featured Items';
+		$d->funcs['inventory']	= 'Manage Inventory';
+		$d->funcs['orders']		= 'Manage Orders';
+		$d->funcs['vouchers']	= 'Manage Vouchers';
+		$d->funcs['sales']		= 'Manage Sales';
+		$d->funcs['manage']		= 'Other Managers';
+		$d->funcs['reports']	= 'Generate Reports';
 
 		// --------------------------------------------------------------------------
 
@@ -100,6 +101,9 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		$_permissions = array();
 
 		// --------------------------------------------------------------------------
+
+		//	Featured
+		$_permissions['featured_edit']			= 'Featured Items: Edit';
 
 		//	Inventory
 		$_permissions['inventory_create']		= 'Inventory: Create';
@@ -222,6 +226,42 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		$this->load->model( 'shop/shop_tax_rate_model' );
 	}
 
+
+	// --------------------------------------------------------------------------
+
+
+	public function featured()
+	{
+		$_method = $this->uri->segment( 4 ) ? $this->uri->segment( 4 ) : 'home';
+
+		if ( method_exists( $this, '_featured_' . $_method ) ) :
+
+			$this->data['page']->title = 'Manage Featured Items &rsaquo; ';
+
+			$this->{'_featured_' . $_method}();
+
+		else :
+
+			show_404();
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _featured_home()
+	{
+		$this->data['page']->title .= 'Shop Home Page';
+
+		// --------------------------------------------------------------------------
+
+		//	Load Views
+		$this->load->view( 'structure/header',			$this->data );
+		$this->load->view( 'admin/shop/featured/home',	$this->data );
+		$this->load->view( 'structure/footer',			$this->data );
+	}
 
 	// --------------------------------------------------------------------------
 
@@ -354,7 +394,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		endif;
 
-		$this->data['currencies'] = $this->shop_currency_model->get_all();
+		$this->data['currencies'] = $this->shop_currency_model->get_all_supported();
 
 		//	Fetch product meta fields
 		$this->data['product_types_meta'] = array();
@@ -545,7 +585,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 				foreach( $v['pricing'] AS $price_index => $price ) :
 
-					$_required	= $price['currency_id'] == SHOP_BASE_CURRENCY_ID ? '|required' : '';
+					$_required = $price['currency'] == SHOP_BASE_CURRENCY_CODE ? '|required' : '';
 
 					$this->form_validation->set_rules( 'variation[' . $index . '][pricing][' . $price_index . '][price]',		'',	'xss_clean|callback__callback_inventory_valid_price' . $_required );
 					$this->form_validation->set_rules( 'variation[' . $index . '][pricing][' . $price_index . '][sale_price]',	'',	'xss_clean|callback__callback_inventory_valid_price' . $_required );
@@ -634,6 +674,25 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _inventory_import()
 	{
+		$_method = $this->uri->segment( 5 ) ? $this->uri->segment( 5 ) : 'index';
+
+		if ( method_exists( $this, '_inventory_import_' . $_method ) ) :
+
+			$this->{'_inventory_import_' . $_method}();
+
+		else :
+
+			show_404();
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _inventory_import_index()
+	{
 		$this->data['page']->title = 'Import Inventory Items';
 
 		// --------------------------------------------------------------------------
@@ -647,81 +706,9 @@ class NAILS_Shop extends NAILS_Admin_Controller
 	// --------------------------------------------------------------------------
 
 
-	public function _callback_inventory_valid_price( $str )
+	protected function _inventory_import_download()
 	{
-		$str = trim( $str );
-
-		if ( $str && ! is_numeric( $str ) ) :
-
-			$this->form_validation->set_message( '_callback_inventory_valid_price', 'This is not a valid price' );
-			return FALSE;
-
-		else :
-
-			return TRUE;
-
-		endif;
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	public function _callback_inventory_valid_quantity( $str )
-	{
-		$str = trim( $str );
-
-		if ( $str && ! is_numeric( $str ) ) :
-
-			$this->form_validation->set_message( '_callback_inventory_valid_quantity', 'This is not a valid quantity' );
-			return FALSE;
-
-		elseif ( $str && is_numeric( $str ) && $str < 0 ) :
-
-			$this->form_validation->set_message( '_callback_inventory_valid_quantity', lang( 'fv_is_natural' ) );
-			return FALSE;
-
-		else :
-
-			return TRUE;
-
-		endif;
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	public function _callback_inventory_valid_sku( $str, $variation_id )
-	{
-		$str = trim( $str );
-
-		if ( empty( $str ) ) :
-
-			return TRUE;
-
-		endif;
-
-		if ( $variation_id ) :
-
-			$this->db->where( 'id !=', $variation_id );
-
-		endif;
-
-		$this->db->where( 'is_deleted', FALSE );
-		$this->db->where( 'sku', $str );
-		$_result = $this->db->get( NAILS_DB_PREFIX . 'shop_product_variation' )->row();
-
-		if ( $_result ) :
-
-			$this->form_validation->set_message( '_callback_inventory_valid_sku', 'This SKU is already in use.' );
-			return FALSE;
-
-		else :
-
-			return TRUE;
-
-		endif;
+		echo 'TODO: Generate the spreadsheet.';
 	}
 
 
@@ -757,7 +744,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		endif;
 
-		$this->data['currencies'] = $this->shop_currency_model->get_all();
+		$this->data['currencies'] = $this->shop_currency_model->get_all_supported();
 
 		//	Fetch product meta fields
 		$this->data['product_types_meta'] = array();
@@ -3827,6 +3814,87 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		$this->load->view( 'structure/header',			$this->data );
 		$this->load->view( 'admin/shop/reports/index',	$this->data );
 		$this->load->view( 'structure/footer',			$this->data );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	public function _callback_inventory_valid_price( $str )
+	{
+		$str = trim( $str );
+
+		if ( $str && ! is_numeric( $str ) ) :
+
+			$this->form_validation->set_message( '_callback_inventory_valid_price', 'This is not a valid price' );
+			return FALSE;
+
+		else :
+
+			return TRUE;
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	public function _callback_inventory_valid_quantity( $str )
+	{
+		$str = trim( $str );
+
+		if ( $str && ! is_numeric( $str ) ) :
+
+			$this->form_validation->set_message( '_callback_inventory_valid_quantity', 'This is not a valid quantity' );
+			return FALSE;
+
+		elseif ( $str && is_numeric( $str ) && $str < 0 ) :
+
+			$this->form_validation->set_message( '_callback_inventory_valid_quantity', lang( 'fv_is_natural' ) );
+			return FALSE;
+
+		else :
+
+			return TRUE;
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	public function _callback_inventory_valid_sku( $str, $variation_id )
+	{
+		$str = trim( $str );
+
+		if ( empty( $str ) ) :
+
+			return TRUE;
+
+		endif;
+
+		if ( $variation_id ) :
+
+			$this->db->where( 'id !=', $variation_id );
+
+		endif;
+
+		$this->db->where( 'is_deleted', FALSE );
+		$this->db->where( 'sku', $str );
+		$_result = $this->db->get( NAILS_DB_PREFIX . 'shop_product_variation' )->row();
+
+		if ( $_result ) :
+
+			$this->form_validation->set_message( '_callback_inventory_valid_sku', 'This SKU is already in use.' );
+			return FALSE;
+
+		else :
+
+			return TRUE;
+
+		endif;
 	}
 }
 

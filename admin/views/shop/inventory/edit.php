@@ -667,7 +667,7 @@
 		</td>						<td class="price">
 			<?php
 
-				echo form_hidden( 'variation[{{counter}}][shipping][{{shipping_counter}}][0][currency_id]', SHOP_BASE_CURRENCY_ID );
+				echo form_hidden( 'variation[{{counter}}][shipping][{{shipping_counter}}][0][currency]', SHOP_BASE_CURRENCY_CODE );
 				echo form_input( 'variation[{{counter}}][shipping][{{shipping_counter}}][0][price]', NULL, 'data-prefix="' . SHOP_BASE_CURRENCY_SYMBOL . '" placeholder="Price"' );
 
 				//	Other currencies
@@ -675,10 +675,10 @@
 				$_counter = 1;
 				foreach ( $currencies AS $currency ) :
 
-					if ( $currency->id != SHOP_BASE_CURRENCY_ID ) :
+					if ( $currency->code != SHOP_BASE_CURRENCY_CODE ) :
 
 
-						echo form_hidden( 'variation[{{counter}}][shipping][{{shipping_counter}}][' . $_counter . '][currency_id]', $currency->id );
+						echo form_hidden( 'variation[{{counter}}][shipping][{{shipping_counter}}][' . $_counter . '][currency]', $currency->code );
 						echo form_input( 'variation[{{counter}}][shipping][{{shipping_counter}}][' . $_counter . '][price]', NULL, 'data-prefix="' . $currency->symbol . '" placeholder="Calculate automatically"' );
 
 						$_counter++;
@@ -699,7 +699,7 @@
 				$_counter = 1;
 				foreach ( $currencies AS $currency ) :
 
-					if ( $currency->id != SHOP_BASE_CURRENCY_ID ) :
+					if ( $currency->code != SHOP_BASE_CURRENCY_CODE ) :
 
 
 						echo form_input( 'variation[{{counter}}][shipping][{{shipping_counter}}][' . $_counter . '][price_additional]', NULL, 'data-prefix="' . $currency->symbol . '" placeholder="Calculate automatically"' );

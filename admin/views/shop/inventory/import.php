@@ -3,7 +3,7 @@
 </p>
 <div class="group-shop inventory import">
 	<p>
-		This facility allows multiple shop items to be imported at once. You must use the <?=anchor( '', APP_NAME . ' Shop Import Template' )?>.
+		This facility allows multiple shop items to be imported at once. You must use the <?=anchor( 'admin/shop/inventory/import/download', APP_NAME . ' Shop Import Template' )?>.
 	</p>
 	<hr />
 	<?=form_open()?>

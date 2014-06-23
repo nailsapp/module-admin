@@ -148,7 +148,7 @@
 
 				if ( user_has_permission( 'admin.accounts.delete' ) && $member->id != active_user( 'id' ) && $member->group_id != 1 ) :
 
-					$_buttons[] = anchor( 'admin/accounts/delete/' . $member->id . $_return, lang( 'action_delete' ), 'class="confirm awesome small red" data-title="Delete user &quot;' . $member->first_name . ' ' . $member->last_name . '&quot?" data-body="' . lang( 'admin_confirm_delete' ) . '"' );
+					$_buttons[] = anchor( 'admin/accounts/delete/' . $member->id . $_return, lang( 'action_delete' ), 'class="confirm awesome small red" data-title="Delete user &quot;' . $member->first_name . ' ' . $member->last_name . '&quot?" data-body="Are you sure you want to delete this user? This action is not undoable."' );
 
 				endif;
 
