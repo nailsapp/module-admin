@@ -97,8 +97,6 @@ class NAILS_Notification extends NAILS_Admin_Controller
 
 			if ( is_array( $_notification ) ) :
 
-				$this->load->helper( 'email' );
-
 				$_set = array();
 
 				foreach( $_notification AS $grouping => $options ) :

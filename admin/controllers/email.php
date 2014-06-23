@@ -89,26 +89,6 @@ class NAILS_Email extends NAILS_Admin_Controller
 
 
 	/**
-	 * Constructor
-	 *
-	 * @access	public
-	 * @param	none
-	 * @return	void
-	 **/
-	public function __construct()
-	{
-		parent::__construct();
-
-		// --------------------------------------------------------------------------
-
-		$this->load->library( 'emailer' );
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	/**
 	 * Email archive browser
 	 *
 	 * @access	public

@@ -66,6 +66,7 @@ class NAILS_Admin_Model extends NAILS_Model
 		// --------------------------------------------------------------------------
 
 		//	Look in our search paths for a controller of the same name as the module.
+
 		foreach ( $this->search_paths AS $path ) :
 
 			if ( file_exists( $path . $module . '.php' ) ) :

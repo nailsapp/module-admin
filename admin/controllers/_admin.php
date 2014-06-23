@@ -176,7 +176,7 @@ class NAILS_Admin_Controller extends NAILS_Controller
 		// --------------------------------------------------------------------------
 
 		//	Load libraries
-		$this->load->library( 'cdn' );
+		$this->load->library( 'cdn/cdn' );
 
 		// --------------------------------------------------------------------------
 
@@ -352,9 +352,9 @@ class NAILS_Admin_Controller extends NAILS_Controller
 						if ( ! empty( $path[1] ) ) :
 
 							//	Module looks valid, is it a potential module, and if so, is it available?
-							if ( array_search( 'module-' . $_module, $_modules_potential ) !== FALSE ) :
+							if ( array_search( 'nailsapp/module-' . $_module, $_modules_potential ) !== FALSE ) :
 
-								if ( array_search( 'module-' . $_module, $_modules_unavailable ) !== FALSE ) :
+								if ( array_search( 'nailsapp/module-' . $_module, $_modules_unavailable ) !== FALSE ) :
 
 									//	Not installed
 									continue;

@@ -145,8 +145,6 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 				$_email->data		= array();
 
 				//	Send the email
-				$this->load->library( 'emailer' );
-
 				if ( $this->emailer->send( $_email ) ) :
 
 					$this->data['success'] = lang( 'utilities_test_email_success', array( $_email->to_email, date( 'Y-m-d H:i:s' ) ) );
