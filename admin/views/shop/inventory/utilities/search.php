@@ -19,7 +19,7 @@
 			'pt.label'		=> 'Type',
 			'p.is_active'	=> 'Active State'
 		);
-		echo lang( 'admin_search_sort' ) . form_dropdown( 'sort_on', $_sort, $sort_on );
+		echo lang( 'admin_search_sort' ) . form_dropdown( 'sort_on', $_sort, $sort_on, 'class="select2"' );
 
 		// --------------------------------------------------------------------------
 
@@ -27,7 +27,7 @@
 			'asc'	=> 'Ascending',
 			'desc'	=> 'Descending'
 		);
-		echo lang( 'admin_search_order_1' ) . form_dropdown( 'order', $_order, $sort_order ) . lang( 'admin_search_order_2' );
+		echo lang( 'admin_search_order_1' ) . form_dropdown( 'order', $_order, $sort_order, 'class="select2"' ) . lang( 'admin_search_order_2' );
 
 		// --------------------------------------------------------------------------
 
@@ -38,7 +38,7 @@
 			75 => 75,
 			100 => 100
 		);
-		echo form_dropdown( 'per_page', $_perpage, $pagination->per_page );
+		echo form_dropdown( 'per_page', $_perpage, $pagination->per_page, 'class="select2" style="width:75px;' );
 		echo lang( 'admin_search_per_page' );
 
 		// --------------------------------------------------------------------------

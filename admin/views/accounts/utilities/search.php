@@ -20,7 +20,7 @@
 
 		endforeach;
 
-		echo lang( 'admin_search_sort' ) . form_dropdown( 'sort', $_sort, $search->sort );
+		echo lang( 'admin_search_sort' ) . form_dropdown( 'sort', $_sort, $search->sort, 'class="select2"' );
 
 		// --------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@
 			'asc'	=> 'Ascending',
 			'desc'	=> 'Descending'
 		);
-		echo lang( 'admin_search_order_1' ) . form_dropdown( 'order', $_order, $search->order ) . lang( 'admin_search_order_2' );
+		echo lang( 'admin_search_order_1' ) . form_dropdown( 'order', $_order, $search->order, 'class="select2"' ) . lang( 'admin_search_order_2' );
 
 		// --------------------------------------------------------------------------
 
@@ -39,7 +39,7 @@
 			75 => 75,
 			100 => 100
 		);
-		echo form_dropdown( 'per_page', $_perpage, $search->per_page );
+		echo form_dropdown( 'per_page', $_perpage, $search->per_page, 'class="select2" style="width:75px;' );
 		echo lang( 'admin_search_per_page' );
 
 		// --------------------------------------------------------------------------
@@ -58,7 +58,7 @@
 
 		// --------------------------------------------------------------------------
 
-		echo 'Filter by Group Type ' . form_dropdown( 'filter', $_groups, $this->input->get( 'filter' ) );
+		echo 'Filter by Group Type ' . form_dropdown( 'filter', $_groups, $this->input->get( 'filter' ), 'class="select2"' );
 
 		// --------------------------------------------------------------------------
 

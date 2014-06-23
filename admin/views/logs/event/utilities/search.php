@@ -54,14 +54,14 @@
 		echo '<span class="label">';
 
 			//	Date range
-			echo '<span class="text">Date range:</span>';
+			echo '<span class="text">Dated:</span>';
 			echo '<input type="text" name="date_from" value="' . $this->input->get( 'date_from' ) . '" class="datetime from" placeholder="YYYY-MM-DD HH:MM:SS"/>';
 
 			echo '<span class="text and">-</span>';
 			echo '<input type="text" name="date_to" value="' . $this->input->get( 'date_to' ) . '" class="datetime to" placeholder="YYYY-MM-DD HH:MM:SS"/>';
 
 			//	Sort by
-			echo '<span class="text and">sort by </span>';
+			echo '<span class="text and">sort by</span>';
 			$_options					= array();
 			$_options['e.created']		= 'Date';
 			$_options['u.first_name']	= 'First Name';
@@ -71,7 +71,7 @@
 			echo form_dropdown( 'sort', $_options, $this->input->get( 'sort' ), 'class="select2" style="width:100px;"' );
 
 			//	Order by
-			echo '<span class="text and">order by </span>';
+			echo '<span class="text and">order</span>';
 			$_options			= array();
 			$_options['desc']	= 'Descending';
 			$_options['asc']	= 'Ascending';
@@ -87,7 +87,7 @@
 			$_options[75]	= 75;
 			$_options[100]	= 100;
 
-			echo form_dropdown( 'per_page', $_options, $this->input->get( 'per_page' ), 'class="select2" style="width:100px;"' );
+			echo form_dropdown( 'per_page', $_options, $this->input->get( 'per_page' ), 'class="select2" style="width:65px;"' );
 
 			echo '<span class="text and">per page</span>';
 

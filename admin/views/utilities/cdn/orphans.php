@@ -28,7 +28,7 @@
 
 				$_options = array(
 					'db'	=>	'Database objects for which the file does not exist.',
-					'file'	=>	'Files whch do not exist in the database.'
+					'file'	=>	'Files which do not exist in the database.'
 				);
 
 				echo form_field_dropdown( $_field, $_options );
