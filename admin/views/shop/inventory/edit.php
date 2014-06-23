@@ -78,7 +78,7 @@
 				$_field['default']		= TRUE;
 				$_field['text_on']		= strtoupper( lang( 'yes' ) );
 				$_field['text_off']		= strtoupper( lang( 'no' ) );
-				$_field['default']		= ! empty( $item->is_active ) ? $item->is_active : TRUE;
+				$_field['default']		= isset( $item->is_active ) ? $item->is_active : TRUE;
 
 				echo form_field_boolean( $_field );
 
