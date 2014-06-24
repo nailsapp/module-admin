@@ -2442,7 +2442,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Page data
-		$this->data['page']->title = '&rsaquo; Create';
+		$this->data['page']->title .= '&rsaquo; Create';
 
 		// --------------------------------------------------------------------------
 

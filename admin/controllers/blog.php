@@ -55,13 +55,13 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 		if ( app_setting( 'categories_enabled', 'blog' ) ) :
 
-			$d->funcs['manage/categories'] = 'Manage Categories';
+			$d->funcs['manage/category'] = 'Manage Categories';
 
 		endif;
 
 		if ( app_setting( 'tags_enabled', 'blog' ) ) :
 
-			$d->funcs['manage/tags'] = 'Manage Tags';
+			$d->funcs['manage/tag'] = 'Manage Tags';
 
 		endif;
 
@@ -69,6 +69,37 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 		//	Only announce the controller if the user has permission to know about it
 		return self::_can_access( $d, __FILE__ );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	static function permissions()
+	{
+		$_permissions = array();
+
+		// --------------------------------------------------------------------------
+
+		//	Posts
+		$_permissions['post_create']		= 'Posts: Create';
+		$_permissions['post_edit']			= 'Posts: Edit';
+		$_permissions['post_delete']		= 'Posts: Delete';
+		$_permissions['post_restore']		= 'Posts: Restore';
+
+		//	Categories
+		$_permissions['category_create']	= 'Category: Create';
+		$_permissions['category_edit']		= 'Category: Edit';
+		$_permissions['category_delete']	= 'Category: Delete';
+
+		//	Tags
+		$_permissions['tag_create']			= 'Tag: Create';
+		$_permissions['tag_edit']			= 'Tag: Edit';
+		$_permissions['tag_delete']			= 'Tag: Delete';
+
+		// --------------------------------------------------------------------------
+
+		return $_permissions;
 	}
 
 
@@ -578,44 +609,124 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 	public function manage()
 	{
-		switch ( $this->uri->segment( 4 ) ) :
+		$_method = $this->uri->segment( 4 ) ? $this->uri->segment( 4 ) : 'index';
 
-			case 'categories'	: $this->_manage_categories();	break;
-			case 'tags'			: $this->_manage_tags();		break;
-			default				: show_404();					break;
+		if ( method_exists( $this, '_manage_' . $_method ) ) :
 
-		endswitch;
+			//	Is fancybox?
+			$this->data['is_fancybox']	= $this->input->get( 'is_fancybox' ) ? '?is_fancybox=1' : '';
+
+			//	Override the header and footer
+			if ( $this->data['is_fancybox'] ) :
+
+				$this->data['header_override'] = 'structure/header/blank';
+				$this->data['footer_override'] = 'structure/footer/blank';
+
+			endif;
+
+			//	Start the page title
+			$this->data['page']->title = 'Manage &rsaquo; ';
+
+			//	Call method
+			$this->{'_manage_' . $_method}();
+
+		else :
+
+			show_404();
+
+		endif;
 	}
 
 
 	// --------------------------------------------------------------------------
 
 
-	protected function _manage_categories()
+	protected function _manage_category()
 	{
-		$this->data['page']->title = 'Category Manager';
+		//	Load model
+		$this->load->model( 'blog/blog_category_model' );
+
+		$_method = $this->uri->segment( 5 ) ? $this->uri->segment( 5 ) : 'index';
+
+		if ( method_exists( $this, '_manage_category_' . $_method ) ) :
+
+			//	Extend the title
+			$this->data['page']->title .= 'Categories ';
+
+			$this->{'_manage_category_' . $_method}();
+
+		else :
+
+			show_404();
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _manage_category_index()
+	{
+		$this->data['categories'] = $this->blog_category_model->get_all( TRUE );
 
 		// --------------------------------------------------------------------------
 
-		if ( $this->input->get( 'is_fancybox' ) ) :
+		$this->load->view( 'structure/header',					$this->data );
+		$this->load->view( 'admin/blog/manage/category/index',	$this->data );
+		$this->load->view( 'structure/footer',					$this->data );
+	}
 
-			$this->data['header_override'] = 'structure/header/blank';
-			$this->data['footer_override'] = 'structure/footer/blank';
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _manage_category_create()
+	{
+		if ( ! user_has_permission( 'admin.blog.category_create' ) ) :
+
+			unauthorised();
 
 		endif;
 
 		// --------------------------------------------------------------------------
 
-		//	Handle POST
 		if ( $this->input->post() ) :
 
-			if ( $this->blog_category_model->create( $this->input->post( 'category' ) ) ) :
+			$this->load->library( 'form_validation' );
 
-				$this->data['success'] = '<strong>Success!</strong> Category created.';
+			$this->form_validation->set_rules( 'label',				'',	'xss_clean|required' );
+			$this->form_validation->set_rules( 'description',		'',	'xss_clean' );
+			$this->form_validation->set_rules( 'seo_title',			'',	'xss_clean|max_length[150]' );
+			$this->form_validation->set_rules( 'seo_description',	'',	'xss_clean|max_length[300]' );
+			$this->form_validation->set_rules( 'seo_keywords',		'',	'xss_clean|max_length[150]' );
+
+			$this->form_validation->set_message( 'required',	lang( 'fv_required' ) );
+			$this->form_validation->set_message( 'max_length',	lang( 'fv_max_length' ) );
+
+			if ( $this->form_validation->run() ) :
+
+				$_data					= new stdClass();
+				$_data->label			= $this->input->post( 'label' );
+				$_data->description		= $this->input->post( 'description' );
+				$_data->seo_title		= $this->input->post( 'seo_title' );
+				$_data->seo_description	= $this->input->post( 'seo_description' );
+				$_data->seo_keywords	= $this->input->post( 'seo_keywords' );
+
+				if ( $this->blog_category_model->create( $_data ) ) :
+
+					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Category created successfully.' );
+					redirect( 'admin/blog/manage/category' . $this->data['is_fancybox'] );
+
+				else :
+
+					$this->data['error'] = '<strong>Sorry,</strong> there was a problem creating the Category. ' . $this->blog_category_model->last_error();
+
+				endif;
 
 			else :
 
-				$this->data['error'] = '<strong>Sorry,</strong> could not create category.';
+				$this->data['error'] = lang( 'fv_there_were_errors' );
 
 			endif;
 
@@ -623,12 +734,171 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		$this->data['categories']	= $this->blog_category_model->get_all( TRUE );
+		//	Page data
+		$this->data['page']->title .= '&rsaquo; Create';
+
+		// --------------------------------------------------------------------------
+
+		//	Fetch data
+		$this->data['categories'] = $this->blog_category_model->get_all();
+
+		// --------------------------------------------------------------------------
+
+		//	Load views
+		$this->load->view( 'structure/header',					$this->data );
+		$this->load->view( 'admin/blog/manage/category/edit',	$this->data );
+		$this->load->view( 'structure/footer',					$this->data );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _manage_category_edit()
+	{
+		if ( ! user_has_permission( 'admin.blog.category_edit' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$this->data['category'] = $this->blog_category_model->get_by_id( $this->uri->segment( 6 ) );
+
+		if ( empty( $this->data['category'] ) ) :
+
+			show_404();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		if ( $this->input->post() ) :
+
+			$this->load->library( 'form_validation' );
+
+			$this->form_validation->set_rules( 'label',				'',	'xss_clean|required' );
+			$this->form_validation->set_rules( 'description',		'',	'xss_clean' );
+			$this->form_validation->set_rules( 'seo_title',			'',	'xss_clean|max_length[150]' );
+			$this->form_validation->set_rules( 'seo_description',	'',	'xss_clean|max_length[300]' );
+			$this->form_validation->set_rules( 'seo_keywords',		'',	'xss_clean|max_length[150]' );
+
+			$this->form_validation->set_message( 'required',	lang( 'fv_required' ) );
+			$this->form_validation->set_message( 'max_length',	lang( 'fv_max_length' ) );
+
+			if ( $this->form_validation->run() ) :
+
+				$_data					= new stdClass();
+				$_data->label			= $this->input->post( 'label' );
+				$_data->description		= $this->input->post( 'description' );
+				$_data->seo_title		= $this->input->post( 'seo_title' );
+				$_data->seo_description	= $this->input->post( 'seo_description' );
+				$_data->seo_keywords	= $this->input->post( 'seo_keywords' );
+
+				if ( $this->blog_category_model->update( $this->data['category']->id, $_data ) ) :
+
+					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Category saved successfully.' );
+					redirect( 'admin/blog/manage/category' . $this->data['is_fancybox'] );
+
+				else :
+
+					$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving the Category. ' . $this->blog_category_model->last_error();
+
+				endif;
+
+			else :
+
+				$this->data['error'] = lang( 'fv_there_were_errors' );
+
+			endif;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Page data
+		$this->data['page']->title = 'Edit &rsaquo; ' . $this->data['category']->label;
+
+		// --------------------------------------------------------------------------
+
+		//	Fetch data
+		$this->data['categories'] = $this->blog_category_model->get_all();
+
+		// --------------------------------------------------------------------------
+
+		//	Load views
+		$this->load->view( 'structure/header',					$this->data );
+		$this->load->view( 'admin/blog/manage/category/edit',	$this->data );
+		$this->load->view( 'structure/footer',					$this->data );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _manage_category_delete()
+	{
+		if ( ! user_has_permission( 'admin.blog.category_delete' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$_id = $this->uri->segment( 6 );
+
+		if ( $this->blog_category_model->delete( $_id ) ) :
+
+			$this->session->set_flashdata( 'success', '<strong>Success!</strong> Category was deleted successfully.' );
+
+		else :
+
+			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> there was a problem deleting the Category. ' . $this->blog_category_model->last_error() );
+
+		endif;
+
+		redirect( 'admin/blog/manage/category' . $this->data['is_fancybox'] );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _manage_tag()
+	{
+		//	Load model
+		$this->load->model( 'blog/blog_tag_model' );
+
+		$_method = $this->uri->segment( 5 ) ? $this->uri->segment( 5 ) : 'index';
+
+		if ( method_exists( $this, '_manage_tag_' . $_method ) ) :
+
+			//	Extend the title
+			$this->data['page']->title .= 'Tags ';
+
+			$this->{'_manage_tag_' . $_method}();
+
+		else :
+
+			show_404();
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _manage_tag_index()
+	{
+		$this->data['tags'] = $this->blog_tag_model->get_all( TRUE );
 
 		// --------------------------------------------------------------------------
 
 		$this->load->view( 'structure/header',				$this->data );
-		$this->load->view( 'admin/blog/manage/category',	$this->data );
+		$this->load->view( 'admin/blog/manage/tag/index',	$this->data );
 		$this->load->view( 'structure/footer',				$this->data );
 	}
 
@@ -636,54 +906,52 @@ class NAILS_Blog extends NAILS_Admin_Controller
 	// --------------------------------------------------------------------------
 
 
-	public function delete_category()
+	protected function _manage_tag_create()
 	{
-		if ( $this->blog_category_model->delete( $this->uri->segment( 4 ) ) ) :
+		if ( ! user_has_permission( 'admin.blog.tag_create' ) ) :
 
-			$this->session->set_flashdata( 'success', '<strong>Success!</strong> Category Deleted.' );
-
-		else :
-
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> there was a problem deleting that category.' );
+			unauthorised();
 
 		endif;
 
 		// --------------------------------------------------------------------------
 
-		$_fancybox = $this->input->get( 'is_fancybox' ) ? '?is_fancybox=true' : '';
-
-		redirect( 'admin/blog/manage/categories' . $_fancybox );
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _manage_tags()
-	{
-		$this->data['page']->title = 'Tag Manager';
-
-		// --------------------------------------------------------------------------
-
-		if ( $this->input->get( 'is_fancybox' ) ) :
-
-			$this->data['header_override'] = 'structure/header/blank';
-			$this->data['footer_override'] = 'structure/footer/blank';
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		//	Handle POST
 		if ( $this->input->post() ) :
 
-			if ( $this->blog_tag_model->create( $this->input->post( 'tag' ) ) ) :
+			$this->load->library( 'form_validation' );
 
-				$this->data['success'] = '<strong>Success!</strong> Tag created.';
+			$this->form_validation->set_rules( 'label',				'',	'xss_clean|required' );
+			$this->form_validation->set_rules( 'description',		'',	'xss_clean' );
+			$this->form_validation->set_rules( 'seo_title',			'',	'xss_clean|max_length[150]' );
+			$this->form_validation->set_rules( 'seo_description',	'',	'xss_clean|max_length[300]' );
+			$this->form_validation->set_rules( 'seo_keywords',		'',	'xss_clean|max_length[150]' );
+
+			$this->form_validation->set_message( 'required',	lang( 'fv_required' ) );
+			$this->form_validation->set_message( 'max_length',	lang( 'fv_max_length' ) );
+
+			if ( $this->form_validation->run() ) :
+
+				$_data					= new stdClass();
+				$_data->label			= $this->input->post( 'label' );
+				$_data->description		= $this->input->post( 'description' );
+				$_data->seo_title		= $this->input->post( 'seo_title' );
+				$_data->seo_description	= $this->input->post( 'seo_description' );
+				$_data->seo_keywords	= $this->input->post( 'seo_keywords' );
+
+				if ( $this->blog_tag_model->create( $_data ) ) :
+
+					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Tag created successfully.' );
+					redirect( 'admin/blog/manage/tag' . $this->data['is_fancybox'] );
+
+				else :
+
+					$this->data['error'] = '<strong>Sorry,</strong> there was a problem creating the Tag. ' . $this->blog_tag_model->last_error();
+
+				endif;
 
 			else :
 
-				$this->data['error'] = '<strong>Sorry,</strong> could not create tag.';
+				$this->data['error'] = lang( 'fv_there_were_errors' );
 
 			endif;
 
@@ -691,37 +959,132 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		//	Load Tags
-		$this->data['tags']	= $this->blog_tag_model->get_all( TRUE );
+		//	Page data
+		$this->data['page']->title .= '&rsaquo; Create';
 
 		// --------------------------------------------------------------------------
 
-		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/blog/manage/tag',	$this->data );
-		$this->load->view( 'structure/footer',			$this->data );
+		//	Fetch data
+		$this->data['categories'] = $this->blog_tag_model->get_all();
+
+		// --------------------------------------------------------------------------
+
+		//	Load views
+		$this->load->view( 'structure/header',				$this->data );
+		$this->load->view( 'admin/blog/manage/tag/edit',	$this->data );
+		$this->load->view( 'structure/footer',				$this->data );
 	}
 
 
 	// --------------------------------------------------------------------------
 
 
-	public function delete_tag()
+	protected function _manage_tag_edit()
 	{
-		if ( $this->blog_tag_model->delete( $this->uri->segment( 4 ) ) ) :
+		if ( ! user_has_permission( 'admin.blog.tag_edit' ) ) :
 
-			$this->session->set_flashdata( 'success', '<strong>Success!</strong> Tag Deleted.' );
-
-		else :
-
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> there was a problem deleting that tag.' );
+			unauthorised();
 
 		endif;
 
 		// --------------------------------------------------------------------------
 
-		$_fancybox = $this->input->get( 'is_fancybox' ) ? '?is_fancybox=true' : '';
+		$this->data['tag'] = $this->blog_tag_model->get_by_id( $this->uri->segment( 6 ) );
 
-		redirect( 'admin/blog/manage/tags' . $_fancybox );
+		if ( empty( $this->data['tag'] ) ) :
+
+			show_404();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		if ( $this->input->post() ) :
+
+			$this->load->library( 'form_validation' );
+
+			$this->form_validation->set_rules( 'label',				'',	'xss_clean|required' );
+			$this->form_validation->set_rules( 'description',		'',	'xss_clean' );
+			$this->form_validation->set_rules( 'seo_title',			'',	'xss_clean|max_length[150]' );
+			$this->form_validation->set_rules( 'seo_description',	'',	'xss_clean|max_length[300]' );
+			$this->form_validation->set_rules( 'seo_keywords',		'',	'xss_clean|max_length[150]' );
+
+			$this->form_validation->set_message( 'required',	lang( 'fv_required' ) );
+			$this->form_validation->set_message( 'max_length',	lang( 'fv_max_length' ) );
+
+			if ( $this->form_validation->run() ) :
+
+				$_data					= new stdClass();
+				$_data->label			= $this->input->post( 'label' );
+				$_data->description		= $this->input->post( 'description' );
+				$_data->seo_title		= $this->input->post( 'seo_title' );
+				$_data->seo_description	= $this->input->post( 'seo_description' );
+				$_data->seo_keywords	= $this->input->post( 'seo_keywords' );
+
+				if ( $this->blog_tag_model->update( $this->data['tag']->id, $_data ) ) :
+
+					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Tag saved successfully.' );
+					redirect( 'admin/blog/manage/tag' . $this->data['is_fancybox'] );
+
+				else :
+
+					$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving the Tag. ' . $this->blog_tag_model->last_error();
+
+				endif;
+
+			else :
+
+				$this->data['error'] = lang( 'fv_there_were_errors' );
+
+			endif;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Page data
+		$this->data['page']->title = 'Edit &rsaquo; ' . $this->data['tag']->label;
+
+		// --------------------------------------------------------------------------
+
+		//	Fetch data
+		$this->data['tags'] = $this->blog_tag_model->get_all();
+
+		// --------------------------------------------------------------------------
+
+		//	Load views
+		$this->load->view( 'structure/header',				$this->data );
+		$this->load->view( 'admin/blog/manage/tag/edit',	$this->data );
+		$this->load->view( 'structure/footer',				$this->data );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _manage_tag_delete()
+	{
+		if ( ! user_has_permission( 'admin.blog.tag_delete' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$_id = $this->uri->segment( 6 );
+
+		if ( $this->blog_tag_model->delete( $_id ) ) :
+
+			$this->session->set_flashdata( 'success', '<strong>Success!</strong> Tag was deleted successfully.' );
+
+		else :
+
+			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> there was a problem deleting the Tag. ' . $this->blog_tag_model->last_error() );
+
+		endif;
+
+		redirect( 'admin/blog/manage/tag' . $this->data['is_fancybox'] );
 	}
 }
 
