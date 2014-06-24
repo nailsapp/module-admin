@@ -40,6 +40,7 @@
 				<thead>
 					<tr>
 						<th class="label">Label</th>
+						<th class="count">Posts</th>
 						<th class="modified">Modified</th>
 						<th class="actions">Actions</th>
 					</tr>
@@ -55,6 +56,9 @@
 								echo '<td class="label">';
 									echo $tag->label;
 									echo $tag->description ? '<small>' . character_limiter( strip_tags( $tag->description ), 225 ) . '</small>' : '';
+								echo '</td>';
+								echo '<td class="count">';
+									echo isset( $tag->post_count ) ? $tag->post_count : '&mdash;';
 								echo '</td>';
 								echo $this->load->view( '_utilities/table-cell-datetime', array( 'datetime' => $tag->modified ), TRUE );
 								echo '<td class="actions">';

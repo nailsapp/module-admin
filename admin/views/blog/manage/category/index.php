@@ -40,6 +40,7 @@
 				<thead>
 					<tr>
 						<th class="label">Label</th>
+						<th class="count">Posts</th>
 						<th class="modified">Modified</th>
 						<th class="actions">Actions</th>
 					</tr>
@@ -55,6 +56,9 @@
 								echo '<td class="label">';
 									echo $category->label;
 									echo $category->description ? '<small>' . character_limiter( strip_tags( $category->description ), 225 ) . '</small>' : '';
+								echo '</td>';
+								echo '<td class="count">';
+									echo isset( $category->post_count ) ? $category->post_count : '&mdash;';
 								echo '</td>';
 								echo $this->load->view( '_utilities/table-cell-datetime', array( 'datetime' => $category->modified ), TRUE );
 								echo '<td class="actions">';

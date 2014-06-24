@@ -668,7 +668,8 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 	protected function _manage_category_index()
 	{
-		$this->data['categories'] = $this->blog_category_model->get_all( TRUE );
+		$_data = array( 'include_count' => TRUE );
+		$this->data['categories'] = $this->blog_category_model->get_all( NULL, NULL, $_data );
 
 		// --------------------------------------------------------------------------
 
@@ -893,7 +894,8 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 	protected function _manage_tag_index()
 	{
-		$this->data['tags'] = $this->blog_tag_model->get_all( TRUE );
+		$_data = array( 'include_count' => TRUE );
+		$this->data['tags'] = $this->blog_tag_model->get_all( NULL, NULL, $_data );
 
 		// --------------------------------------------------------------------------
 
