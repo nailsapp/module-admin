@@ -1,4 +1,4 @@
-<div class="group-blog settings">
+<div class="group-settings blog">
 	<p>
 		Configure various aspects of the blog.
 	</p>

@@ -16,7 +16,7 @@
 	$this->load->view( 'accounts/edit/inc-emails' );
 	$this->load->view( 'accounts/edit/inc-password' );
 
-	$this->config->load( 'auth' );
+	$this->config->load( 'auth/auth' );
 
 	if ( $this->config->item( 'auth_two_factor_enable' ) ) :
 

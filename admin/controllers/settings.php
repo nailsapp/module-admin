@@ -123,6 +123,9 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		$this->asset->load( 'nails.admin.site.settings.min.js', TRUE );
 		$this->asset->inline( '<script>_nails_settings = new NAILS_Admin_Site_Settings();</script>' );
 
+		$this->load->library( 'auth/social_signon' );
+		$this->data['providers'] = $this->social_signon->get_providers();
+
 		// --------------------------------------------------------------------------
 
 		$this->load->view( 'structure/header',		$this->data );
@@ -160,64 +163,113 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
 	protected function _site_update_auth()
 	{
-		//	Prepare update
-		$_settings										= array();
-		$_settings['user_registration_enabled']			= $this->input->post( 'user_registration_enabled' );
-		$_settings['social_signin_fb_enabled']			= $this->input->post( 'social_signin_fb_enabled' );
-		$_settings['social_signin_fb_app_id']			= $this->input->post( 'social_signin_fb_app_id' );
-		$_settings['social_signin_fb_app_secret']		= $this->input->post( 'social_signin_fb_app_secret' );
-		$_settings['social_signin_fb_app_scope']		= array_filter( explode( ',', $this->input->post( 'social_signin_fb_app_scope' ) ) );
-		$_settings['social_signin_fb_settings_page']	= $this->input->post( 'social_signin_fb_settings_page' );
-		$_settings['social_signin_tw_enabled']			= $this->input->post( 'social_signin_tw_enabled' );
-		$_settings['social_signin_tw_app_key']			= $this->input->post( 'social_signin_tw_app_key' );
-		$_settings['social_signin_tw_app_secret']		= $this->input->post( 'social_signin_tw_app_secret' );
-		$_settings['social_signin_tw_settings_page']	= $this->input->post( 'social_signin_tw_settings_page' );
-		$_settings['social_signin_li_enabled']			= $this->input->post( 'social_signin_li_enabled' );
-		$_settings['social_signin_li_app_key']			= $this->input->post( 'social_signin_li_app_key' );
-		$_settings['social_signin_li_app_secret']		= $this->input->post( 'social_signin_li_app_secret' );
-		$_settings['social_signin_li_settings_page']	= $this->input->post( 'social_signin_li_settings_page' );
-
-		if ( $_settings['social_signin_fb_enabled'] || $_settings['social_signin_tw_enabled'] || $_settings['social_signin_li_enabled'] ) :
-
-			$_settings['social_signin_enabled'] = TRUE;
-
-		else :
-
-			$_settings['social_signin_enabled'] = FALSE;
-
-		endif;
+		$this->load->library( 'auth/social_signon' );
+		$_providers = $this->social_signon->get_providers();
 
 		// --------------------------------------------------------------------------
 
-		//	Encryptsecrets
-		if ( $_settings['social_signin_fb_app_secret'] ) :
+		//	Prepare update
+		$_settings				= array();
+		$_settings_encrypted	= array();
 
-			$_settings['social_signin_fb_app_secret'] = $this->encrypt->encode( $_settings['social_signin_fb_app_secret'], APP_PRIVATE_KEY );
+		$_settings['user_registration_enabled']	= $this->input->post( 'user_registration_enabled' );
 
-		endif;
+		//	Disable social signon, if any providers are proeprly enabled it'll turn itself on again.
+		$_settings['auth_social_signon_enabled'] = FALSE;
 
-		if ( $_settings['social_signin_tw_app_secret'] ) :
+		foreach( $_providers AS $provider ) :
 
-			$_settings['social_signin_tw_app_secret'] = $this->encrypt->encode( $_settings['social_signin_tw_app_secret'], APP_PRIVATE_KEY );
+			$_settings['auth_social_signon_' . $provider['slug'] . '_enabled'] = (bool) $this->input->post( 'auth_social_signon_' . $provider['slug'] . '_enabled' );
 
-		endif;
+			if ( $_settings['auth_social_signon_' . $provider['slug'] . '_enabled'] ) :
 
-		if ( $_settings['social_signin_li_app_secret'] ) :
+				//	NULL out each key
+				if ( $provider['fields'] ) :
 
-			$_settings['social_signin_li_app_secret'] = $this->encrypt->encode( $_settings['social_signin_li_app_secret'], APP_PRIVATE_KEY );
+					foreach( $provider['fields'] AS $key => $label ) :
 
-		endif;
+						$_settings_encrypted['auth_social_signon_' . $provider['slug'] . '_' . $key] = $this->input->post( 'auth_social_signon_' . $provider['slug'] . '_' . $key );
+
+						if ( empty( $_settings_encrypted['auth_social_signon_' . $provider['slug'] . '_' . $key] ) ) :
+
+							//	Empty value, disable the provider and NULL out all the fields
+							$_settings['auth_social_signon_' . $provider['slug'] . '_enabled'] = FALSE;
+
+							foreach( $provider['fields'] AS $key2 => $label2 ) :
+
+								unset($_settings_encrypted['auth_social_signon_' . $provider['slug'] . '_' . $key2]);
+								$_settings['auth_social_signon_' . $provider['slug'] . '_' . $key2] = NULL;
+
+							endforeach;
+
+							$_error = 'Provider "' . $provider['label'] . '" was enabled, but was missing configuration items.';
+
+							break 2;
+
+						endif;
+
+					endforeach;
+
+				endif;
+
+				//	Turn on social signon
+				$_settings['auth_social_signon_enabled'] = TRUE;
+
+			else :
+
+				//	NULL out each key
+				if ( $provider['fields'] ) :
+
+					foreach( $provider['fields'] AS $key => $label ) :
+
+						$_settings['auth_social_signon_' . $provider['slug'] . '_' . $key] = NULL;
+
+					endforeach;
+
+				endif;
+
+			endif;
+
+		endforeach;
 
 		// --------------------------------------------------------------------------
 
 		//	Save
-		if ( $this->app_setting_model->set( $_settings, 'app' ) ) :
+		if ( empty( $_error ) ) :
 
-			$this->data['success'] = '<strong>Success!</strong> Site authentication settings have been saved.';
+			$this->db->trans_begin();
+			$_rollback = FALSE;
+
+			if ( ! $this->app_setting_model->set( $_settings, 'app' ) ) :
+
+				$_error		= $this->app_setting_model->last_error();
+				$_rollback	= TRUE;
+
+			endif;
+
+
+			if ( ! $this->app_setting_model->set( $_settings_encrypted, 'app', NULL, TRUE ) ) :
+
+				$_error		= $this->app_setting_model->last_error();
+				$_rollback	= TRUE;
+
+			endif;
+
+			if ( $_rollback ) :
+
+				$this->db->trans_rollback();
+				$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving authentication settings. ' . $_error;
+
+			else :
+
+				$this->db->trans_commit();
+				$this->data['success'] = '<strong>Success!</strong> authentication settings were saved.';
+
+			endif;
 
 		else :
 
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving authentication settings.';
+			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving authentication settings. ' . $_error;
 
 		endif;
 	}

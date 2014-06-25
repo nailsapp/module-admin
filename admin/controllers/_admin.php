@@ -84,7 +84,7 @@ class NAILS_Admin_Controller extends NAILS_Controller
 
 		//	Load admin helper and config
 		$this->load->model( 'admin_model' );
-		$this->config->load( 'admin' );
+		$this->config->load( 'admin/admin' );
 		if ( file_exists( FCPATH . APPPATH . 'config/admin.php' ) ) :
 
 			$this->config->load( 'admin' );

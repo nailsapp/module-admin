@@ -1,4 +1,4 @@
-<div class="group-shop settings">
+<div class="group-settings shop">
 	<p>
 		Configure various aspects of the shop.
 	</p>
