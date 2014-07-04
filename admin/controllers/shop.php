@@ -2133,7 +2133,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 	protected function _manage_brand_index()
 	{
 		//	Fetch data
-		$_data = array( 'include_count' => TRUE );
+		$_data = array( 'include_count' => TRUE, 'only_active' => FALSE );
 		$this->data['brands'] = $this->shop_brand_model->get_all( NULL, NULL, $_data );
 
 		// --------------------------------------------------------------------------
@@ -2603,7 +2603,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 	protected function _manage_collection_index()
 	{
 		//	Fetch data
-		$_data = array( 'include_count' => TRUE );
+		$_data = array( 'include_count' => TRUE, 'only_active' => FALSE );
 		$this->data['collections'] = $this->shop_collection_model->get_all( NULL, NULL, $_data );
 
 		// --------------------------------------------------------------------------
@@ -2935,7 +2935,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		$this->data['range'] = $this->shop_brange_model->get_by_id( $this->uri->segment( 6 ) );
+		$this->data['range'] = $this->shop_range_model->get_by_id( $this->uri->segment( 6 ) );
 
 		if ( empty( $this->data['range'] ) ) :
 
