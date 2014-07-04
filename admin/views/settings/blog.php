@@ -99,9 +99,19 @@
 					?>
 				</fieldset>
 
-				<fieldset id="blog-settings-cattag">
-					<legend>Categories &amp; Tags</legend>
+				<fieldset id="blog-settings-galcattag">
+					<legend>Galleries, Categories &amp; Tags</legend>
 					<?php
+
+						//	Enable/disable Gallery
+						$_field					= array();
+						$_field['key']			= 'galery_enabled';
+						$_field['label']		= 'Post Gallery';
+						$_field['default']		= app_setting( $_field['key'], 'blog' );
+
+						echo form_field_boolean( $_field );
+
+						// --------------------------------------------------------------------------
 
 						//	Enable/disable categories
 						$_field					= array();

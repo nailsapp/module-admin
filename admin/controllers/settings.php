@@ -352,6 +352,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		$_settings['name']					= $this->input->post( 'name' );
 		$_settings['url']					= $this->input->post( 'url' );
 		$_settings['use_excerpts']			= (bool) $this->input->post( 'use_excerpts' );
+		$_settings['gallery_enabled']		= (bool) $this->input->post( 'gallery_enabled' );
 		$_settings['categories_enabled']	= (bool) $this->input->post( 'categories_enabled' );
 		$_settings['tags_enabled']			= (bool) $this->input->post( 'tags_enabled' );
 		$_settings['rss_enabled']			= (bool) $this->input->post( 'rss_enabled' );

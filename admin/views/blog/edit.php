@@ -28,9 +28,12 @@
 			</li>
 			<?php endif; ?>
 
+			<?php if ( app_setting( 'gallery_enabled', 'blog' ) ) : ?>
 			<li class="tab">
 				<a href="#" data-tab="tab-gallery" id="tabber-gallery">Gallery</a>
 			</li>
+			<?php endif; ?>
+
 			<li class="tab">
 				<a href="#" data-tab="tab-seo" id="tabber-seo">SEO</a>
 			</li>
@@ -263,6 +266,7 @@
 			</div>
 			<?php endif; ?>
 
+			<?php if ( app_setting( 'gallery_enabled', 'blog' ) ) : ?>
 			<div class="tab page" id="tab-gallery">
 				<p>
 					Upload images to the post gallery.
@@ -332,6 +336,7 @@
 					?>
 				</ul>
 			</div>
+			<?php endif; ?>
 
 			<div class="tab page fieldset" id="tab-seo">
 				<p>
