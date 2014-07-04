@@ -334,7 +334,7 @@ class NAILS_Admin_Controller extends NAILS_Controller
 		$_paths[]	= array( FCPATH . APPPATH . 'modules/admin/controllers/',	FALSE );
 
 		//	Filter out non PHP files
-		$_regex = '/^[a-zA-Z]+\.php$/';
+		$_regex = '/^[^_][a-zA-Z_]+\.php$/';
 
 		foreach ( $_paths AS $path ) :
 
