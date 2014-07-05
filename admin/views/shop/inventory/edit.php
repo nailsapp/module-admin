@@ -634,7 +634,7 @@
 <script type="text/template" id="template-gallery-item">
 <?php
 
-	$this->load->view( 'admin/shop/inventory/utilities/template-mustache-gallery-item' );
+	$this->load->view( 'admin/shop/inventory/utilities/template-mustache-gallery-item', array( 'object_id' => NULL ) );
 
 ?>
 </script>

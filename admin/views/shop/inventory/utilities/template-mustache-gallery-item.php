@@ -1,6 +1,6 @@
 <?php
 
-	if ( isset( $object_id ) ) :
+	if ( ! empty( $object_id ) ) :
 
 		echo '<li class="gallery-item">';
 		echo img( cdn_thumb( $object_id, 100, 100 ) );
