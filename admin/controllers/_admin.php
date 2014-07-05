@@ -199,12 +199,12 @@ class NAILS_Admin_Controller extends NAILS_Controller
 		$this->asset->clear();
 
 		//	CSS
-		$this->asset->load( 'fancybox/source/jquery.fancybox.css',		'BOWER' );
-		$this->asset->load( 'jquery-toggles/toggles.css',				'BOWER' );
-		$this->asset->load( 'jquery-toggles/themes/toggles-modern.css',	'BOWER' );
-		$this->asset->load( 'tipsy/src/stylesheets/tipsy.css',			'BOWER' );
-		$this->asset->load( 'ionicons/css/ionicons.min.css',			'BOWER' );
-		$this->asset->load( 'nails.admin.css',							TRUE );
+		$this->asset->load( 'fancybox/source/jquery.fancybox.css',			'BOWER' );
+		$this->asset->load( 'jquery-toggles/css/toggles.css',				'BOWER' );
+		$this->asset->load( 'jquery-toggles/css/themes/toggles-modern.css',	'BOWER' );
+		$this->asset->load( 'tipsy/src/stylesheets/tipsy.css',				'BOWER' );
+		$this->asset->load( 'ionicons/css/ionicons.min.css',				'BOWER' );
+		$this->asset->load( 'nails.admin.css',								TRUE );
 
 		//	JS
 		$this->asset->load( 'jquery/dist/jquery.min.js',				'BOWER' );
