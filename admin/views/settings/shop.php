@@ -49,7 +49,7 @@
 					</p>
 					<?php
 
-						//	Blog Name
+						//	Shop Name
 						$_field					= array();
 						$_field['key']			= 'name';
 						$_field['label']		= 'Shop Name';
@@ -68,7 +68,7 @@
 					</p>
 					<?php
 
-						//	Blog URL
+						//	Shop URL
 						$_field					= array();
 						$_field['key']			= 'url';
 						$_field['label']		= 'Shop URL';
@@ -401,6 +401,25 @@
 
 					?>
 					</p>
+					<hr />
+					<p class="system-alert message">
+						<strong>Important:</strong> If you wish to support multiple currencies you must also provide an
+						App Id for the<a href="https://openexchangerates.org" target="_blank">Open Exchange Rates</a>
+						service. The system uses this service to calculate exchange rates for all supported currencies.
+						<br /><br />
+						Find out more, and create your App, at <a href="https://openexchangerates.org" target="_blank">Open Exchange Rates</a>.
+					</p>
+					<?php
+
+						$_field					= array();
+						$_field['key']			= 'openexchangerates_app_id';
+						$_field['label']		= 'Open Exchange Rates App ID';
+						$_field['default']		= app_setting( 'openexchangerates_app_id', 'shop' );
+						$_field['placeholder']	= 'Set the Open exchange Rate App ID';
+
+						echo form_field( $_field );
+
+					?>
 				</fieldset>
 				<p style="margin-top:1em;margin-bottom:0;">
 					<?=form_submit( 'submit', lang( 'action_save_changes' ), 'style="margin-bottom:0;"' )?>

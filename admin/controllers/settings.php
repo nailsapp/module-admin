@@ -19,8 +19,6 @@ require_once '_admin.php';
 
 class NAILS_Settings extends NAILS_Admin_Controller
 {
-
-
 	/**
 	 * Announces this module's details to anyone who asks.
 	 *
@@ -246,7 +244,6 @@ class NAILS_Settings extends NAILS_Admin_Controller
 				$_rollback	= TRUE;
 
 			endif;
-
 
 			if ( ! $this->app_setting_model->set( $_settings_encrypted, 'app', NULL, TRUE ) ) :
 
@@ -691,19 +688,41 @@ class NAILS_Settings extends NAILS_Admin_Controller
 	protected function _shop_update_currencies()
 	{
 		//	Prepare update
-		$_settings								= array();
-		$_settings['base_currency']				= $this->input->post( 'base_currency' );
-		$_settings['additional_currencies']		= $this->input->post( 'additional_currencies' );
+		$_settings							= array();
+		$_settings['base_currency']			= $this->input->post( 'base_currency' );
+		$_settings['additional_currencies']	= $this->input->post( 'additional_currencies' );
+
+		$_settings_encrypted								= array();
+		$_settings_encrypted['openexchangerates_app_id']	= $this->input->post( 'openexchangerates_app_id' );
 
 		// --------------------------------------------------------------------------
 
-		if ( $this->app_setting_model->set( $_settings, 'shop' ) ) :
+		$this->db->trans_begin();
+		$_rollback = FALSE;
 
-			$this->data['success'] = '<strong>Success!</strong> Currency settings have been updated.';
+		if ( ! $this->app_setting_model->set( $_settings, 'shop' ) ) :
+
+			$_error		= $this->app_setting_model->last_error();
+			$_rollback	= TRUE;
+
+		endif;
+
+		if ( ! $this->app_setting_model->set( $_settings_encrypted, 'shop', NULL, TRUE ) ) :
+
+			$_error		= $this->app_setting_model->last_error();
+			$_rollback	= TRUE;
+
+		endif;
+
+		if ( $_rollback ) :
+
+			$this->db->trans_rollback();
+			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving currency settings. ' . $_error;
 
 		else :
 
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving the base currency.';
+			$this->db->trans_commit();
+			$this->data['success'] = '<strong>Success!</strong> Currency settings were saved.';
 
 		endif;
 	}
