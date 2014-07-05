@@ -2177,9 +2177,9 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 				$_data					= new stdClass();
 				$_data->label			= $this->input->post( 'label' );
-				$_data->logo_id			= $this->input->post( 'logo_id' );
+				$_data->logo_id			= (int) $this->input->post( 'logo_id' ) ? (int) $this->input->post( 'logo_id' ) : NULL;
 				$_data->description		= $this->input->post( 'description' );
-				$_data->is_active		= $this->input->post( 'is_active' );
+				$_data->is_active		= (bool) $this->input->post( 'is_active' );
 				$_data->seo_title		= $this->input->post( 'seo_title' );
 				$_data->seo_description	= $this->input->post( 'seo_description' );
 				$_data->seo_keywords	= $this->input->post( 'seo_keywords' );
