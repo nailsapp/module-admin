@@ -196,7 +196,7 @@ class NAILS_Admin_Controller extends NAILS_Controller
 		// --------------------------------------------------------------------------
 
 		//	Unload any previously loaded assets, admin handles it's own assets
-		$this->asset->clear_all();
+		$this->asset->clear();
 
 		//	CSS
 		$this->asset->load( 'fancybox/source/jquery.fancybox.css',		'BOWER' );
