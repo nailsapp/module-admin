@@ -6,11 +6,11 @@
 	<hr />
 
 		<ul class="tabs">
-			<?php $_active = $this->input->post( 'update' ) == 'analytics' || ! $this->input->post() ? '' : ''?>
+			<?php $_active = $this->input->post( 'update' ) == 'analytics' || ! $this->input->post() ? 'active' : ''?>
 			<li class="tab <?=$_active?>">
 				<a href="#" data-tab="tab-analytics">Analytics</a>
 			</li>
-			<?php $_active = $this->input->post( 'update' ) == 'auth' ? 'active' : 'active'?>
+			<?php $_active = $this->input->post( 'update' ) == 'auth' ? 'active' : ''?>
 			<li class="tab <?=$_active?>">
 				<a href="#" data-tab="tab-auth">Registration &amp; Authentication</a>
 			</li>
@@ -19,7 +19,7 @@
 
 		<section class="tabs pages">
 
-			<?php $_display = $this->input->post( 'update' ) == 'analytics' || ! $this->input->post() ? '' : ''?>
+			<?php $_display = $this->input->post( 'update' ) == 'analytics' || ! $this->input->post() ? 'active' : ''?>
 			<div id="tab-analytics" class="tab page <?=$_display?> analytics">
 				<?=form_open( NULL, 'style="margin-bottom:0;"' )?>
 				<?=form_hidden( 'update', 'analytics' )?>
@@ -27,11 +27,10 @@
 					Configure your analytics accounts. If field is left empty then that provider will not be used.
 				</p>
 				<hr />
-				<fieldset id="shop-settings-notifications">
+				<fieldset id="site-settings-google">
 					<legend>Google Analytics</legend>
 					<?php
 
-						//	Order Notifications
 						$_field					= array();
 						$_field['key']			= 'google_analytics_account';
 						$_field['label']		= 'Profile ID';
@@ -48,7 +47,7 @@
 				<?=form_close()?>
 			</div>
 
-			<?php $_display = $this->input->post( 'update' ) == 'auth' ? 'active' : 'active'?>
+			<?php $_display = $this->input->post( 'update' ) == 'auth' ? 'active' : ''?>
 			<div id="tab-auth" class="tab page <?=$_display?> auth">
 				<?=form_open( NULL, 'style="margin-bottom:0;"')?>
 				<?=form_hidden( 'update', 'auth' )?>

@@ -44,28 +44,23 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
 		//	Navigation options
 		$d->funcs = array();
-		$d->funcs['site']	= lang( 'settings_nav_site' );
+		$d->funcs['site'] = lang( 'settings_nav_site' );
 
 		if ( module_is_enabled( 'blog' ) ) :
 
-			$d->funcs['blog']	= lang( 'settings_nav_blog' );
+			$d->funcs['blog'] = lang( 'settings_nav_blog' );
+
+		endif;
+
+		if ( module_is_enabled( 'email' ) ) :
+
+			$d->funcs['email'] = lang( 'settings_nav_email' );
 
 		endif;
 
 		if ( module_is_enabled( 'shop' ) ) :
 
-			$d->funcs['shop']	= lang( 'settings_nav_shop' );
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		//	If there are no enabled modules which have settings then don't bother
-		//	enableing the sidebar item
-
-		if ( ! $d->funcs ) :
-
-			return FALSE;
+			$d->funcs['shop'] = lang( 'settings_nav_shop' );
 
 		endif;
 
@@ -80,7 +75,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
 
 	/**
-	 * Configure the blog
+	 * Configure Site settings
 	 *
 	 * @access public
 	 * @param none
@@ -260,7 +255,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 			else :
 
 				$this->db->trans_commit();
-				$this->data['success'] = '<strong>Success!</strong> authentication settings were saved.';
+				$this->data['success'] = '<strong>Success!</strong> Authentication settings were saved.';
 
 			endif;
 
@@ -489,6 +484,140 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		else :
 
 			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving sidebar settings.';
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	/**
+	 * Configure the blog
+	 *
+	 * @access public
+	 * @param none
+	 * @return void
+	 **/
+	public function email()
+	{
+		//	Set method info
+		$this->data['page']->title = lang( 'settings_email_title' );
+
+		// --------------------------------------------------------------------------
+
+		//	Process POST
+		if ( $this->input->post() ) :
+
+			$_method =  $this->input->post( 'update' );
+
+			if ( method_exists( $this, '_email_update_' . $_method ) ) :
+
+				$this->{'_email_update_' . $_method}();
+
+			else :
+
+				$this->data['error'] = '<strong>Sorry,</strong> I can\'t determine what type of update you are trying to perform.';
+
+			endif;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Get data
+		$this->data['settings'] = app_setting( NULL, 'email', TRUE );
+
+		// --------------------------------------------------------------------------
+
+		//	Assets
+		$this->asset->load( 'nails.admin.email.settings.min.js', TRUE );
+		$this->asset->inline( '<script>_nails_settings = new NAILS_Admin_Email_Settings();</script>' );
+
+		// --------------------------------------------------------------------------
+
+		$this->load->view( 'structure/header',		$this->data );
+		$this->load->view( 'admin/settings/email',	$this->data );
+		$this->load->view( 'structure/footer',		$this->data );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _email_update_customise()
+	{
+		//	Prepare update
+		$_settings					= array();
+		$_settings['from_name']		= $this->input->post( 'from_name' );
+		$_settings['from_email']	= $this->input->post( 'from_email' );
+
+		// --------------------------------------------------------------------------
+
+		if ( $this->app_setting_model->set( $_settings, 'email' ) ) :
+
+			$this->data['success'] = '<strong>Success!</strong> Email customisation settings have been saved.';
+
+		else :
+
+			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _email_update_driver()
+	{
+		//	Prepare update
+		$_settings					= array();
+		$_settings_encrypted		= array();
+
+		$_environments		= array();
+		$_environments[]	= 'DEVELOPMENT';
+		$_environments[]	= 'STAGING';
+		$_environments[]	= 'PRODUCTION';
+
+		foreach ( $_environments AS $environment ) :
+
+			$_settings[$environment . '_driver']		= $this->input->post( $environment . '_driver' );
+			$_settings[$environment . '_smtp_host']		= $this->input->post( $environment . '_smtp_host' );
+			$_settings[$environment . '_smtp_username']	= $this->input->post( $environment . '_smtp_username' );
+			$_settings[$environment . '_smtp_port']		= $this->input->post( $environment . '_smtp_port' );
+
+			$_settings_encrypted[$environment . '_smtp_password']		= $this->input->post( $environment . '_smtp_password' );
+			$_settings_encrypted[$environment . '_mandrill_api_key']	= $this->input->post( $environment . '_mandrill_api_key' );
+
+		endforeach;
+
+		$this->db->trans_begin();
+		$_rollback = FALSE;
+
+		if ( ! $this->app_setting_model->set( $_settings, 'email' ) ) :
+
+			$_error		= $this->app_setting_model->last_error();
+			$_rollback	= TRUE;
+
+		endif;
+
+		if ( ! $this->app_setting_model->set( $_settings_encrypted, 'email', NULL, TRUE ) ) :
+
+			$_error		= $this->app_setting_model->last_error();
+			$_rollback	= TRUE;
+
+		endif;
+
+		if ( $_rollback ) :
+
+			$this->db->trans_rollback();
+			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving email driver settings. ' . $_error;
+
+		else :
+
+			$this->db->trans_commit();
+			$this->data['success'] = '<strong>Success!</strong> Email driver settings were saved.';
 
 		endif;
 	}

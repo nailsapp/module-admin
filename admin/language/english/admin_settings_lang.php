@@ -4,17 +4,18 @@
 * Name:			Settings Langfile
 *
 * Description:  Generic language file for Nails. Admin Settings
-* 
+*
 */
 
 	//	Generic for module
 	$lang['settings_module_name']	= 'Settings';
-	
+
 	// --------------------------------------------------------------------------
-	
+
 	//	Nav
 	$lang['settings_nav_site']		= 'Site';
 	$lang['settings_nav_blog']		= 'Blog';
+	$lang['settings_nav_email']		= 'Email';
 	$lang['settings_nav_shop']		= 'Shop';
 
 	// --------------------------------------------------------------------------
@@ -27,6 +28,10 @@
 	//	Blog Settings
 	$lang['settings_blog_title']	= 'Blog';
 
+	// --------------------------------------------------------------------------
+
+	//	Email Settings
+	$lang['settings_email_title']	= 'Email';
 
 	// --------------------------------------------------------------------------
 
