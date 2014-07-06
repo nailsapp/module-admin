@@ -46,6 +46,7 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 
 		//	Configurations
 		$d->name = lang( 'utilities_module_name' );
+		$d->icon = 'ion-settings';
 
 		// --------------------------------------------------------------------------
 

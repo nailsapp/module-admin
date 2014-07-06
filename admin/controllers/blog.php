@@ -43,6 +43,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 		//	Configurations
 		$d->name = 'Blog';
+		$d->icon = 'ion-compose';
 
 		// --------------------------------------------------------------------------
 
@@ -619,8 +620,8 @@ class NAILS_Blog extends NAILS_Admin_Controller
 			//	Override the header and footer
 			if ( $this->data['is_fancybox'] ) :
 
-				$this->data['header_override'] = 'structure/header/blank';
-				$this->data['footer_override'] = 'structure/footer/blank';
+				$this->data['header_override'] = 'structure/header/nails-admin-blank';
+				$this->data['footer_override'] = 'structure/footer/nails-admin-blank';
 
 			endif;
 

@@ -105,7 +105,7 @@
 
 						//	Enable/disable Gallery
 						$_field					= array();
-						$_field['key']			= 'galery_enabled';
+						$_field['key']			= 'gallery_enabled';
 						$_field['label']		= 'Post Gallery';
 						$_field['default']		= app_setting( $_field['key'], 'blog' );
 
@@ -147,7 +147,7 @@
 					?>
 				</fieldset>
 				<p style="margin-top:1em;margin-bottom:0;">
-					<?=form_submit( 'submit', lang( 'action_save_changes' ), 'style="margin-bottom:0;"' )?>
+					<?=form_submit( 'submit', lang( 'action_save_changes' ), 'class="awesome" style="margin-bottom:0;"' )?>
 				</p>
 				<?=form_close()?>
 			</div>
@@ -218,7 +218,7 @@
 
 				?>
 				<p>
-					<?=form_submit( 'submit', lang( 'action_save_changes' ), 'style="margin-bottom:0;"' )?>
+					<?=form_submit( 'submit', lang( 'action_save_changes' ), 'class="awesome" style="margin-bottom:0;"' )?>
 				</p>
 				<?=form_close()?>
 
@@ -300,7 +300,7 @@
 					</div>
 				</fieldset>
 				<p style="margin-top:1em;margin-bottom:0;">
-					<?=form_submit( 'submit', lang( 'action_save_changes' ), 'style="margin-bottom:0;"' )?>
+					<?=form_submit( 'submit', lang( 'action_save_changes' ), 'class="awesome" style="margin-bottom:0;"' )?>
 				</p>
 				<?=form_close()?>
 			</div>
@@ -431,7 +431,7 @@
 					?>
 				</fieldset>
 				<p style="margin-top:1em;margin-bottom:0;">
-					<?=form_submit( 'submit', lang( 'action_save_changes' ), 'style="margin-bottom:0;"' )?>
+					<?=form_submit( 'submit', lang( 'action_save_changes' ), 'class="awesome" style="margin-bottom:0;"' )?>
 				</p>
 				<?=form_close()?>
 			</div>
@@ -510,7 +510,7 @@
 					?>
 				</fieldset>
 				<p style="margin-top:1em;margin-bottom:0;">
-					<?=form_submit( 'submit', lang( 'action_save_changes' ), 'style="margin-bottom:0;"' )?>
+					<?=form_submit( 'submit', lang( 'action_save_changes' ), 'class="awesome" style="margin-bottom:0;"' )?>
 				</p>
 				<?=form_close()?>
 			</div>

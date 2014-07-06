@@ -50,7 +50,7 @@
 
 			?>
 		</fieldset>
-		<?=form_submit( 'submit', lang( 'action_search' ) )?>
+		<?=form_submit( 'submit', lang( 'action_search' ), 'class="awesome"' )?>
 	<?=form_close()?>
 
 	<?php if ( isset( $orphans ) ) : ?>

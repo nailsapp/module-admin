@@ -33,7 +33,7 @@
 		?>
 	</fieldset>
 	<p>
-		<?=form_submit( 'submit', lang( 'action_create' ) );?>
+		<?=form_submit( 'submit', lang( 'action_create' ), 'class="awesome"' );?>
 	</p>
 	<?=form_close();?>
 </div>

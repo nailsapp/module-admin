@@ -55,7 +55,7 @@
 	</fieldset>
 
 	<p>
-		<?=form_submit( 'submit', 'Export' )?>
+		<?=form_submit( 'submit', 'Export', 'class="awesome"' )?>
 	</p>
 	<?=form_close()?>
 </div>

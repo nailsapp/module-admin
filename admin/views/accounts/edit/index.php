@@ -30,7 +30,7 @@
 	$this->load->view( 'accounts/edit/inc-uploads' );
 
 
-	echo '<p>' . form_submit( 'submit', lang( 'action_save_changes' ) ) . '</p>';
+	echo '<p>' . form_submit( 'submit', lang( 'action_save_changes' ), 'class="awesome"' ) . '</p>';
 
 	echo form_close();
 	echo '</div>';

@@ -40,6 +40,7 @@ class NAILS_Testimonial extends NAILS_Admin_Controller
 
 		//	Configurations
 		$d->name = lang( 'testimonials_module_name' );
+		$d->icon = 'ion-chatbubbles';
 
 		// --------------------------------------------------------------------------
 

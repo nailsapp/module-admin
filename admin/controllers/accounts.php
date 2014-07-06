@@ -51,6 +51,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 		//	Configurations
 		$d->name = lang( 'accounts_module_name' );
+		$d->icon = 'ion-ios7-people';
 
 		// --------------------------------------------------------------------------
 
@@ -848,8 +849,8 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		//	Load views
 		if ( $this->input->get( 'inline' ) || $this->input->get( 'is_fancybox' ) ) :
 
-			$this->data['header_override'] = 'structure/header/blank';
-			$this->data['footer_override'] = 'structure/footer/blank';
+			$this->data['header_override'] = 'structure/header/nails-admin-blank';
+			$this->data['footer_override'] = 'structure/footer/nails-admin-blank';
 
 		endif;
 

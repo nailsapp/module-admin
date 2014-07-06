@@ -40,6 +40,7 @@ class NAILS_Events extends NAILS_Admin_Controller
 
 		//	Configurations
 		$d->name = lang( 'events_module_name' );
+		$d->icon = 'ion-calendar';
 
 		// --------------------------------------------------------------------------
 

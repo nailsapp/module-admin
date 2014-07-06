@@ -14,7 +14,7 @@
 			<?=form_upload( 'dataimport' )?>
 		</p>
 		<p>
-			<?=form_submit( 'submit', lang( 'action_continue' ) )?>
+			<?=form_submit( 'submit', lang( 'action_continue' ), 'class="awesome"' )?>
 		</p>
 	<?=form_close()?>
 </div>

@@ -40,7 +40,7 @@
 		</p>
 	</div>
 
-	<?=form_submit( 'submit', lang( 'action_save_changes' ) )?>
+	<?=form_submit( 'submit', lang( 'action_save_changes' ), 'class="awesome"' )?>
 	<?=form_close();?>
 </div>
 

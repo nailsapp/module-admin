@@ -30,7 +30,7 @@ class NAILS_Admin_Controller extends NAILS_Controller
 		// --------------------------------------------------------------------------
 
 		//	IP whitelist?
-		$_ip_whitelist = (array) app_setting( 'admin_whitelist', 'app' );
+		$_ip_whitelist = (array) app_setting( 'whitelist', 'admin' );
 
 		if ( $_ip_whitelist ) :
 

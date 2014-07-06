@@ -13,10 +13,16 @@
 	// --------------------------------------------------------------------------
 
 	//	Nav
+	$lang['settings_nav_admin']		= 'Admin';
 	$lang['settings_nav_site']		= 'Site';
 	$lang['settings_nav_blog']		= 'Blog';
 	$lang['settings_nav_email']		= 'Email';
 	$lang['settings_nav_shop']		= 'Shop';
+
+	// --------------------------------------------------------------------------
+
+	//	Admin Settings
+	$lang['settings_admin_title']	= 'Admin';
 
 	// --------------------------------------------------------------------------
 

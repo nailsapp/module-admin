@@ -49,7 +49,7 @@
 			endforeach;
 
 			echo '<p>';
-				echo form_submit( 'submit', lang( 'action_save_changes' ) );
+				echo form_submit( 'submit', lang( 'action_save_changes' ), 'class="awesome"' );
 			echo '</p>';
 
 			echo form_close();

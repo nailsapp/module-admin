@@ -42,7 +42,8 @@ class NAILS_Cms extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Configurations
-		$d->name				= 'Content Management';					//	Display name.
+		$d->name = 'Content Management';
+		$d->icon = 'ion-document-text';
 
 		// --------------------------------------------------------------------------
 

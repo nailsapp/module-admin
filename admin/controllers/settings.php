@@ -39,12 +39,14 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
 		//	Configurations
 		$d->name = lang( 'settings_module_name' );
+		$d->icon = 'ion-wrench';
 
 		// --------------------------------------------------------------------------
 
 		//	Navigation options
-		$d->funcs = array();
-		$d->funcs['site'] = lang( 'settings_nav_site' );
+		$d->funcs			= array();
+		$d->funcs['admin']	= lang( 'settings_nav_admin' );
+		$d->funcs['site']	= lang( 'settings_nav_site' );
 
 		if ( module_is_enabled( 'blog' ) ) :
 
@@ -68,6 +70,113 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
 		//	Only announce the controller if the user has permisison to know about it
 		return self::_can_access( $d, __FILE__ );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	public function admin()
+	{
+		//	Set method info
+		$this->data['page']->title = lang( 'settings_admin_title' );
+
+		// --------------------------------------------------------------------------
+
+		//	Process POST
+		if ( $this->input->post() ) :
+
+			$_method =  $this->input->post( 'update' );
+
+			if ( method_exists( $this, '_admin_update_' . $_method ) ) :
+
+				$this->{'_admin_update_' . $_method}();
+
+			else :
+
+				$this->data['error'] = '<strong>Sorry,</strong> I can\'t determine what type of update you are trying to perform.';
+
+			endif;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Get data
+		$this->data['settings'] = app_setting( NULL, 'admin', TRUE );
+
+		// --------------------------------------------------------------------------
+
+		$this->load->view( 'structure/header',		$this->data );
+		$this->load->view( 'admin/settings/admin',	$this->data );
+		$this->load->view( 'structure/footer',		$this->data );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _admin_update_branding()
+	{
+		//	Prepare update
+		$_settings						= array();
+		$_settings['primary_colour']	= $this->input->post( 'primary_colour' );
+		$_settings['secondary_colour']	= $this->input->post( 'secondary_colour' );
+		$_settings['highlight_colour']	= $this->input->post( 'highlight_colour' );
+
+		// --------------------------------------------------------------------------
+
+		//	Save
+		if ( $this->app_setting_model->set( $_settings, 'admin' ) ) :
+
+			$this->data['success'] = '<strong>Success!</strong> Admin branding settings have been saved.';
+
+		else :
+
+			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving admin branding settings.';
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _admin_update_whitelist()
+	{
+		//	Prepare the whitelist
+		$_whitelist_raw	= $this->input->post( 'whitelist' );
+		$_whitelist_raw	= str_replace( "\n\r", "\n", $_whitelist_raw );
+		$_whitelist_raw	= explode( "\n", $_whitelist_raw );
+		$_whitelist		= array();
+
+		foreach ( $_whitelist_raw AS $line ) :
+
+			$_whitelist = array_merge( explode( ',', $line ), $_whitelist );
+
+		endforeach;
+
+		$_whitelist = array_unique( $_whitelist );
+		$_whitelist = array_filter( $_whitelist );
+		$_whitelist = array_map( 'trim', $_whitelist );
+		$_whitelist = array_values( $_whitelist );
+
+		//	Prepare update
+		$_settings				= array();
+		$_settings['whitelist']	= $_whitelist;
+
+		// --------------------------------------------------------------------------
+
+		//	Save
+		if ( $this->app_setting_model->set( $_settings, 'admin' ) ) :
+
+			$this->data['success'] = '<strong>Success!</strong> Admin whitelist settings have been saved.';
+
+		else :
+
+			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving admin whitelist settings.';
+
+		endif;
 	}
 
 
@@ -304,47 +413,6 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		else :
 
 			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving maintenance settings.';
-
-		endif;
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _site_update_admin_whitelist()
-	{
-		//	Prepare the whitelist
-		$_whitelist_raw	= $this->input->post( 'admin_whitelist' );
-		$_whitelist_raw	= str_replace( "\n\r", "\n", $_whitelist_raw );
-		$_whitelist_raw	= explode( "\n", $_whitelist_raw );
-		$_whitelist		= array();
-
-		foreach ( $_whitelist_raw AS $line ) :
-
-			$_whitelist = array_merge( explode( ',', $line ), $_whitelist );
-
-		endforeach;
-
-		$_whitelist = array_unique( $_whitelist );
-		$_whitelist = array_filter( $_whitelist );
-		$_whitelist = array_map( 'trim', $_whitelist );
-		$_whitelist = array_values( $_whitelist );
-
-		//	Prepare update
-		$_settings						= array();
-		$_settings['admin_whitelist']	= $_whitelist;
-
-		// --------------------------------------------------------------------------
-
-		//	Save
-		if ( $this->app_setting_model->set( $_settings, 'app' ) ) :
-
-			$this->data['success'] = '<strong>Success!</strong> Admin Whitelist settings have been saved.';
-
-		else :
-
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving admin whitelist settings.';
 
 		endif;
 	}

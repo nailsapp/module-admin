@@ -35,6 +35,7 @@ class NAILS_Cdnadmin extends NAILS_Admin_Controller
 
 		//	Configurations
 		$d->name = 'CDN';
+		$d->icon = 'ion-upload';
 
 		// --------------------------------------------------------------------------
 
@@ -138,8 +139,8 @@ class NAILS_Cdnadmin extends NAILS_Admin_Controller
 
 		if ( $this->input->get( 'is_fancybox' ) ) :
 
-			$this->data['header_override'] = 'structure/header/blank';
-			$this->data['footer_override'] = 'structure/header/blank';
+			$this->data['header_override'] = 'structure/header/nails-admin-blank';
+			$this->data['footer_override'] = 'structure/header/nails-admin-blank';
 
 		endif;
 

@@ -48,14 +48,14 @@
 						$_field['label']		= 'From Email';
 						$_field['default']		= app_setting( $_field['key'], 'email' ) ? app_setting( $_field['key'], 'email' ) : $_default;
 						$_field['placeholder']	= 'The email address of the sender which recipients should see.';
-						$_field['info']			= '<strong>Note:</strong> If sending using SMTP tos end email ensure this email is a valid account on the mail server. If it\'s not valid, some services will junk the email.';
+						$_field['info']			= '<strong>Note:</strong> If sending using SMTP to send email ensure this email is a valid account on the mail server. If it\'s not valid, some services will junk the email.';
 
 						echo form_field( $_field );
 
 					?>
 				</fieldset>
 				<p style="margin-top:1em;margin-bottom:0;">
-					<?=form_submit( 'submit', lang( 'action_save_changes' ), 'style="margin-bottom:0;"' )?>
+					<?=form_submit( 'submit', lang( 'action_save_changes' ), 'class="awesome" style="margin-bottom:0;"' )?>
 				</p>
 				<?=form_close()?>
 			</div>
@@ -186,7 +186,7 @@
 				?>
 
 				<p style="margin-top:1em;margin-bottom:0;">
-					<?=form_submit( 'submit', lang( 'action_save_changes' ), 'style="margin-bottom:0;"' )?>
+					<?=form_submit( 'submit', lang( 'action_save_changes' ), 'class="awesome" style="margin-bottom:0;"' )?>
 				</p>
 				<?=form_close()?>
 

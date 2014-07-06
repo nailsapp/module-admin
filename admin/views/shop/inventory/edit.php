@@ -583,7 +583,7 @@
 	<?php
 
 		$_action = empty( $item->id ) ? lang( 'action_create' ) : lang( 'action_save_changes' );
-		echo form_submit( 'submit', $_action );
+		echo form_submit( 'submit', $_action, 'class="awesome"' );
 
 	?>
 	</p>

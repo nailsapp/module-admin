@@ -228,7 +228,7 @@
 		</fieldset>
 
 		<p>
-			<?=form_submit( 'submit', lang( 'action_save_changes' ) )?>
+			<?=form_submit( 'submit', lang( 'action_save_changes' ), 'class="awesome"' )?>
 		</p>
 
 	<?=form_close()?>
