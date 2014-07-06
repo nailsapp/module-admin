@@ -20,6 +20,11 @@
 				<a href="#" data-tab="tab-maintenance">Maintenance Mode</a>
 			</li>
 
+			<?php $_active = $this->input->post( 'update' ) == 'admin_whitelist' ? 'active' : ''?>
+			<li class="tab <?=$_active?>">
+				<a href="#" data-tab="tab-admin-whitelist">Admin Whitelist</a>
+			</li>
+
 		</ul>
 
 		<section class="tabs pages">
@@ -153,13 +158,13 @@
 				</p>
 				<p class="system-alert message">
 					<strong>Note:</strong> Maintenance mode can be enabled via this setting,
-					or by placing a file entitled <code>.MAINTEANCE</code> at the site's root.
-					If the <code>.MAINTEANCE</code> file is found then the site will forcibly
+					or by placing a file entitled <code>.MAINTENANCE</code> at the site's root.
+					If the <code>.MAINTENANCE</code> file is found then the site will forcibly
 					be placed into maintenance mode, regardless of this setting.
 				</p>
 				<hr />
 				<fieldset>
-					<legend>Mainteance Mode</legend>
+					<legend>Maintenance Mode</legend>
 					<?php
 
 						$_field					= array();
@@ -175,7 +180,37 @@
 						$_field['key']			= 'maintenance_mode_whitelist';
 						$_field['label']		= 'Whitelist';
 						$_field['type']			= 'textarea';
-						$_field['default']		= app_setting( $_field['key'] );
+						$_field['default']		= trim( implode( "\n", (array) app_setting( $_field['key'] ) ) );
+						$_field['placeholder']	= 'Specify IP addresses to whitelist either comma seperated or on new lines.';
+
+						echo form_field( $_field );
+
+					?>
+				</fieldset>
+				<p style="margin-top:1em;margin-bottom:0;">
+					<?=form_submit( 'submit', lang( 'action_save_changes' ), 'style="margin-bottom:0;"' )?>
+				</p>
+				<?=form_close()?>
+			</div>
+
+			<?php $_display = $this->input->post( 'update' ) == 'admin_whitelist' ? 'active' : ''?>
+			<div id="tab-admin-whitelist" class="tab page <?=$_display?> admin-whitelist">
+				<?=form_open( NULL, 'style="margin-bottom:0;"')?>
+				<?=form_hidden( 'update', 'admin_whitelist' )?>
+				<p>
+					Specify which IP's can access admin. If no IP addresses are specified then
+					admin will be accessible from any IP address.
+				</p>
+				<hr />
+				<fieldset>
+					<legend>Admin Whitelist</legend>
+					<?php
+
+						$_field					= array();
+						$_field['key']			= 'admin_whitelist';
+						$_field['label']		= 'Whitelist';
+						$_field['type']			= 'textarea';
+						$_field['default']		= trim( implode( "\n", (array) app_setting( $_field['key'] ) ) );
 						$_field['placeholder']	= 'Specify IP addresses to whitelist either comma seperated or on new lines.';
 
 						echo form_field( $_field );
