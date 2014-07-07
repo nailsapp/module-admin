@@ -89,6 +89,20 @@ class NAILS_Dashboard extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
+		//	Choose a hello phrase
+		$this->load->helper( 'array' );
+
+		$_phrases	= array();
+		$_phrases[]	= 'Be awesome.';
+		$_phrases[]	= 'Today is gonna be a good day.';
+		$_phrases[]	= 'You look nice!';
+		$_phrases[]	= 'What are we doing today?';
+		$_phrases[]	= 'Hey!';
+
+		$this->data['phrase'] = random_element( $_phrases );
+
+		// --------------------------------------------------------------------------
+
 		//	Assets
 		$this->asset->load( 'nails.admin.dashboard.min.js', TRUE );
 

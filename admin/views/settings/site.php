@@ -84,7 +84,7 @@
 						the network to send the user back to the correct website after successfully authenticating their account.
 					</p>
 					<p>
-						You can refer to <?=anchor( 'http://hybridauth.sourceforge.net/userguide.html', 'HybridAuth\'s Documentation' )?> for
+						You can refer to <?=anchor( 'http://hybridauth.sourceforge.net/userguide.html', 'HybridAuth\'s Documentation', 'target="_blank"' )?> for
 						instructions on how to create these applications
 					</p>
 					<?php
