@@ -40,7 +40,7 @@
 							<?php
 
 								$this->load->view( 'admin/_utilities/table-cell-user', $email->user );
-								$this->load->view( 'admin/_utilities/table-cell-datetime', array( 'datetime' => $email->time_sent, 'nodata' => '<span class="queued">' . lang( 'email_index_queued' ) . '</span>' ) );
+								$this->load->view( 'admin/_utilities/table-cell-datetime', array( 'datetime' => $email->time_sent ) );
 
 							?>
 							<td class="type">
