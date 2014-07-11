@@ -87,7 +87,7 @@ class NAILS_Admin_Controller extends NAILS_Controller
 		$this->config->load( 'admin/admin' );
 		if ( file_exists( FCPATH . APPPATH . 'config/admin.php' ) ) :
 
-			$this->config->load( 'admin' );
+			$this->config->load( FCPATH . APPPATH . 'config/admin.php' );
 
 		endif;
 
