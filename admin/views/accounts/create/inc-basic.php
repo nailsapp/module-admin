@@ -135,7 +135,7 @@
 		$_field					= array();
 		$_field['key']			= 'email';
 		$_field['label']		= lang( 'form_label_email' );
-		$_field['required']		= APP_NATIVE_LOGIN_USING == 'EMAIL' || APP_NATIVE_LOGIN_USING == 'BOTH';
+		$_field['required']		= APP_NATIVE_LOGIN_USING == 'EMAIL' || APP_NATIVE_LOGIN_USING != 'USERNAME';
 		$_field['placeholder']	= lang( 'accounts_create_field_email_placeholder' );
 
 		echo form_field( $_field );
@@ -146,7 +146,7 @@
 		$_field					= array();
 		$_field['key']			= 'username';
 		$_field['label']		= lang( 'form_label_username' );
-		$_field['required']		= APP_NATIVE_LOGIN_USING == 'USERNAMe' || APP_NATIVE_LOGIN_USING == 'BOTH';
+		$_field['required']		= APP_NATIVE_LOGIN_USING == 'USERNAME' || APP_NATIVE_LOGIN_USING != 'EMAIL';
 		$_field['placeholder']	= lang( 'accounts_create_field_username_placeholder' );
 
 		echo form_field( $_field );

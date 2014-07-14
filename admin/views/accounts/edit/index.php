@@ -26,7 +26,6 @@
 
 	$this->load->view( 'accounts/edit/inc-meta' );
 	$this->load->view( 'accounts/edit/inc-profile-img' );
-	$this->load->view( 'accounts/edit/inc-social-media' );
 	$this->load->view( 'accounts/edit/inc-uploads' );
 
 

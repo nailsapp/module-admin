@@ -94,10 +94,10 @@ class NAILS_Dashboard extends NAILS_Admin_Controller
 
 		$_phrases	= array();
 		$_phrases[]	= 'Be awesome.';
-		$_phrases[]	= 'Today is gonna be a good day.';
+		$_phrases[]	= active_user( 'first_name' ) ? 'Today is gonna be a good day, ' . active_user( 'first_name' ) . '.' : 'Today is gonna be a good day.';
 		$_phrases[]	= 'You look nice!';
 		$_phrases[]	= 'What are we doing today?';
-		$_phrases[]	= 'Hey!';
+		$_phrases[]	= active_user( 'first_name' ) ? 'Hey, ' . active_user( 'first_name' ) . '!' : 'Hey!';
 
 		$this->data['phrase'] = random_element( $_phrases );
 

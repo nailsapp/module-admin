@@ -319,7 +319,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 				endif;
 
-			elseif ( APP_NATIVE_LOGIN_USING == 'BOTH' ) :
+			else :
 
 				if ( $this->input->post( 'email' ) ) :
 

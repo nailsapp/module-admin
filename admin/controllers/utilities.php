@@ -301,13 +301,6 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 		$_out[$_counter]->data		= array();
 		$_counter++;
 
-		//	user_auth_method
-		$_out[$_counter]			= new stdClass();
-		$_out[$_counter]->filename	= NAILS_DB_PREFIX . 'user_auth_method';
-		$_out[$_counter]->fields	= array();
-		$_out[$_counter]->data		= array();
-		$_counter++;
-
 		//	user_meta
 		$_out[$_counter]			= new stdClass();
 		$_out[$_counter]->filename	= NAILS_DB_PREFIX . 'user_meta';
