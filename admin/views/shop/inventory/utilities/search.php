@@ -14,6 +14,7 @@
 		// --------------------------------------------------------------------------
 
 		$_sort = array(
+			'p.id'		    => 'ID',
 			'p.label'		=> 'Label',
 			'p.modified'	=> 'Modified Date',
 			'pt.label'		=> 'Type',

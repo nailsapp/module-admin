@@ -92,7 +92,7 @@
 									//	Render buttons
 									$_buttons = array();
 
-									if ( user_has_permission( 'admin.shop.edit' ) ) :
+									if ( user_has_permission( 'admin.shop.inventory_edit' ) ) :
 
 										$_buttons[] = anchor( 'admin/shop/inventory/edit/' . $item->id, lang( 'action_edit' ), 'class="awesome small"' );
 
@@ -100,7 +100,7 @@
 
 									// --------------------------------------------------------------------------
 
-									if ( user_has_permission( 'admin.shop.delete' ) ) :
+									if ( user_has_permission( 'admin.shop.inventory_delete' ) ) :
 
 										$_buttons[] = anchor( 'admin/shop/inventory/delete/' . $item->id, lang( 'action_delete' ), 'class="awesome small red confirm" data-title="Are you sure?" data-body="You can undo this action."' );
 
