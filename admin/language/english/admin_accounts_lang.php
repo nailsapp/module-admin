@@ -104,6 +104,7 @@
 	$lang['accounts_edit_basic_field_username_label']			= 'Username';
 	$lang['accounts_edit_basic_field_username_placeholder']		= 'The user\'s username';
 	$lang['accounts_edit_basic_field_gender_label']				= 'Gender';
+	$lang['accounts_edit_basic_field_dob_label']				= 'Date of Birth';
 	$lang['accounts_edit_basic_field_timezone_label']			= 'Timezone';
 	$lang['accounts_edit_basic_field_timezone_tip']				= 'This gives the user the ability to specify their local timezone so that dates &amp; times are correct.';
 	$lang['accounts_edit_basic_field_timezone_placeholder']		= 'The user\'s timezone, coming soon!';
@@ -111,9 +112,6 @@
 	$lang['accounts_edit_basic_field_date_format_tip']			= 'Allows the user to choose how dates are rendered.';
 	$lang['accounts_edit_basic_field_time_format_label']		= 'Time Format';
 	$lang['accounts_edit_basic_field_time_format_tip']			= 'Allows the user to choose how times are rendered.';
-	$lang['accounts_edit_basic_field_language_label']			= 'Language';
-	$lang['accounts_edit_basic_field_language_tip']				= 'This gives the user the ability to translate the site into their own language (where supported).';
-	$lang['accounts_edit_basic_field_language_placeholder']		= 'The user\'s preferred language, coming soon!';
 	$lang['accounts_edit_basic_field_register_ip_label']		= 'Registration IP';
 	$lang['accounts_edit_basic_field_last_ip_label']			= 'Last IP';
 	$lang['accounts_edit_basic_field_created_label']			= 'Created';

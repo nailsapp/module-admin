@@ -60,6 +60,18 @@
 
 		// --------------------------------------------------------------------------
 
+		//	DOB
+		$_field					= array();
+		$_field['key']			= 'dob';
+		$_field['label']		= lang( 'accounts_edit_basic_field_dob_label' );
+		$_field['default']		= $user_edit->dob;
+		$_field['class']		= 'select2';
+		$_field['required']		= FALSE;
+
+		echo form_field_date( $_field, $_options );
+
+		// --------------------------------------------------------------------------
+
 		//	Timezone
 		$_field					= array();
 		$_field['key']			= 'timezone';
