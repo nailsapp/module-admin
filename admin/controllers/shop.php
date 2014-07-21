@@ -49,7 +49,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		//	Navigation options
 		$d->funcs				= array();
-		$d->funcs['featured']	= 'Manage Featured Items';
+		// $d->funcs['featured']	= 'Manage Featured Items';
 		$d->funcs['inventory']	= 'Manage Inventory';
 		$d->funcs['orders']		= 'Manage Orders';
 		$d->funcs['vouchers']	= 'Manage Vouchers';
@@ -2201,6 +2201,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 			$this->form_validation->set_rules( 'label',				'',	'xss_clean|required' );
 			$this->form_validation->set_rules( 'logo_id',			'',	'xss_clean' );
+			$this->form_validation->set_rules( 'cover_id',			'',	'xss_clean' );
 			$this->form_validation->set_rules( 'description',		'',	'xss_clean' );
 			$this->form_validation->set_rules( 'is_active',			'',	'xss_clean' );
 			$this->form_validation->set_rules( 'seo_title',			'',	'xss_clean|max_length[150]' );
@@ -2215,6 +2216,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 				$_data					= new stdClass();
 				$_data->label			= $this->input->post( 'label' );
 				$_data->logo_id			= (int) $this->input->post( 'logo_id' ) ? (int) $this->input->post( 'logo_id' ) : NULL;
+				$_data->cover_id		= (int) $this->input->post( 'cover_id' ) ? (int) $this->input->post( 'cover_id' ) : NULL;
 				$_data->description		= $this->input->post( 'description' );
 				$_data->is_active		= (bool) $this->input->post( 'is_active' );
 				$_data->seo_title		= $this->input->post( 'seo_title' );
@@ -2289,6 +2291,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 			$this->form_validation->set_rules( 'label',				'',	'xss_clean|required' );
 			$this->form_validation->set_rules( 'logo_id',			'',	'xss_clean' );
+			$this->form_validation->set_rules( 'cover_id',			'',	'xss_clean' );
 			$this->form_validation->set_rules( 'description',		'',	'xss_clean' );
 			$this->form_validation->set_rules( 'is_active',			'',	'xss_clean' );
 			$this->form_validation->set_rules( 'seo_title',			'',	'xss_clean|max_length[150]' );
@@ -2303,6 +2306,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 				$_data					= new stdClass();
 				$_data->label			= $this->input->post( 'label' );
 				$_data->logo_id			= (int) $this->input->post( 'logo_id' ) ? (int) $this->input->post( 'logo_id' ) : NULL;
+				$_data->cover_id		= (int) $this->input->post( 'cover_id' ) ? (int) $this->input->post( 'cover_id' ) : NULL;
 				$_data->description		= $this->input->post( 'description' );
 				$_data->is_active		= (bool) $this->input->post( 'is_active' );
 				$_data->seo_title		= $this->input->post( 'seo_title' );
@@ -2439,6 +2443,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 			$this->form_validation->set_rules( 'label',				'',	'xss_clean|required' );
 			$this->form_validation->set_rules( 'parent_id',			'',	'xss_clean' );
+			$this->form_validation->set_rules( 'cover_id',			'',	'xss_clean' );
 			$this->form_validation->set_rules( 'description',		'',	'xss_clean' );
 			$this->form_validation->set_rules( 'seo_title',			'',	'xss_clean|max_length[150]' );
 			$this->form_validation->set_rules( 'seo_description',	'',	'xss_clean|max_length[300]' );
@@ -2452,6 +2457,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 				$_data					= new stdClass();
 				$_data->label			= $this->input->post( 'label' );
 				$_data->parent_id		= $this->input->post( 'parent_id' );
+				$_data->cover_id		= $this->input->post( 'cover_id' ) ? (int) $this->input->post( 'cover_id' ) : NULL;
 				$_data->description		= $this->input->post( 'description' );
 				$_data->seo_title		= $this->input->post( 'seo_title' );
 				$_data->seo_description	= $this->input->post( 'seo_description' );
@@ -2524,6 +2530,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 			$this->form_validation->set_rules( 'label',				'',	'xss_clean|required' );
 			$this->form_validation->set_rules( 'parent_id',			'',	'xss_clean' );
+			$this->form_validation->set_rules( 'cover_id',			'',	'xss_clean' );
 			$this->form_validation->set_rules( 'description',		'',	'xss_clean' );
 			$this->form_validation->set_rules( 'seo_title',			'',	'xss_clean|max_length[150]' );
 			$this->form_validation->set_rules( 'seo_description',	'',	'xss_clean|max_length[300]' );
@@ -2537,6 +2544,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 				$_data					= new stdClass();
 				$_data->label			= $this->input->post( 'label' );
 				$_data->parent_id		= $this->input->post( 'parent_id' );
+				$_data->cover_id		= $this->input->post( 'cover_id' ) ? (int) $this->input->post( 'cover_id' ) : NULL;
 				$_data->description		= $this->input->post( 'description' );
 				$_data->seo_title		= $this->input->post( 'seo_title' );
 				$_data->seo_description	= $this->input->post( 'seo_description' );
@@ -2670,6 +2678,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 			$this->load->library( 'form_validation' );
 
 			$this->form_validation->set_rules( 'label',				'',	'xss_clean|required' );
+			$this->form_validation->set_rules( 'cover_id',			'',	'xss_clean' );
 			$this->form_validation->set_rules( 'description',		'',	'xss_clean' );
 			$this->form_validation->set_rules( 'is_active',			'',	'xss_clean' );
 			$this->form_validation->set_rules( 'seo_title',			'',	'xss_clean|max_length[150]' );
@@ -2683,6 +2692,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 				$_data					= new stdClass();
 				$_data->label			= $this->input->post( 'label' );
+				$_data->cover_id		= $this->input->post( 'cover_id' ) ? (int) $this->input->post( 'cover_id' ) : NULL;
 				$_data->description		= $this->input->post( 'description' );
 				$_data->seo_title		= $this->input->post( 'seo_title' );
 				$_data->seo_description	= $this->input->post( 'seo_description' );
@@ -2755,6 +2765,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 			$this->load->library( 'form_validation' );
 
 			$this->form_validation->set_rules( 'label',				'',	'xss_clean|required' );
+			$this->form_validation->set_rules( 'cover_id',			'',	'xss_clean' );
 			$this->form_validation->set_rules( 'description',		'',	'xss_clean' );
 			$this->form_validation->set_rules( 'is_active',			'',	'xss_clean' );
 			$this->form_validation->set_rules( 'seo_title',			'',	'xss_clean|max_length[150]' );
@@ -2768,6 +2779,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 				$_data					= new stdClass();
 				$_data->label			= $this->input->post( 'label' );
+				$_data->cover_id		= $this->input->post( 'cover_id' ) ? (int) $this->input->post( 'cover_id' ) : NULL;
 				$_data->description		= $this->input->post( 'description' );
 				$_data->seo_title		= $this->input->post( 'seo_title' );
 				$_data->seo_description	= $this->input->post( 'seo_description' );
@@ -2902,6 +2914,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 			$this->load->library( 'form_validation' );
 
 			$this->form_validation->set_rules( 'label',				'',	'xss_clean|required' );
+			$this->form_validation->set_rules( 'cover_id',			'',	'xss_clean' );
 			$this->form_validation->set_rules( 'description',		'',	'xss_clean' );
 			$this->form_validation->set_rules( 'is_active',			'',	'xss_clean' );
 			$this->form_validation->set_rules( 'seo_title',			'',	'xss_clean|max_length[150]' );
@@ -2915,6 +2928,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 				$_data					= new stdClass();
 				$_data->label			= $this->input->post( 'label' );
+				$_data->cover_id		= $this->input->post( 'cover_id' ) ? (int) $this->input->post( 'cover_id' ) : NULL;
 				$_data->description		= $this->input->post( 'description' );
 				$_data->seo_title		= $this->input->post( 'seo_title' );
 				$_data->seo_description	= $this->input->post( 'seo_description' );
@@ -2987,6 +3001,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 			$this->load->library( 'form_validation' );
 
 			$this->form_validation->set_rules( 'label',				'',	'xss_clean|required' );
+			$this->form_validation->set_rules( 'cover_id',			'',	'xss_clean' );
 			$this->form_validation->set_rules( 'description',		'',	'xss_clean' );
 			$this->form_validation->set_rules( 'is_active',			'',	'xss_clean' );
 			$this->form_validation->set_rules( 'seo_title',			'',	'xss_clean|max_length[150]' );
@@ -3000,6 +3015,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 				$_data					= new stdClass();
 				$_data->label			= $this->input->post( 'label' );
+				$_data->cover_id		= $this->input->post( 'cover_id' ) ? (int) $this->input->post( 'cover_id' ) : NULL;
 				$_data->description		= $this->input->post( 'description' );
 				$_data->seo_title		= $this->input->post( 'seo_title' );
 				$_data->seo_description	= $this->input->post( 'seo_description' );
@@ -3134,6 +3150,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 			$this->load->library( 'form_validation' );
 
 			$this->form_validation->set_rules( 'label',				'',	'xss_clean|required' );
+			$this->form_validation->set_rules( 'cover_id',			'',	'xss_clean' );
 			$this->form_validation->set_rules( 'description',		'',	'xss_clean' );
 			$this->form_validation->set_rules( 'seo_title',			'',	'xss_clean|max_length[150]' );
 			$this->form_validation->set_rules( 'seo_description',	'',	'xss_clean|max_length[300]' );
@@ -3146,6 +3163,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 				$_data					= new stdClass();
 				$_data->label			= $this->input->post( 'label' );
+				$_data->cover_id		= $this->input->post( 'cover_id' ) ? (int) $this->input->post( 'cover_id' ) : NULL;
 				$_data->description		= $this->input->post( 'description' );
 				$_data->seo_title		= $this->input->post( 'seo_title' );
 				$_data->seo_description	= $this->input->post( 'seo_description' );
@@ -3217,6 +3235,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 			$this->load->library( 'form_validation' );
 
 			$this->form_validation->set_rules( 'label',				'',	'xss_clean|required' );
+			$this->form_validation->set_rules( 'cover_id',			'',	'xss_clean' );
 			$this->form_validation->set_rules( 'description',		'',	'xss_clean' );
 			$this->form_validation->set_rules( 'seo_title',			'',	'xss_clean|max_length[150]' );
 			$this->form_validation->set_rules( 'seo_description',	'',	'xss_clean|max_length[300]' );
@@ -3229,6 +3248,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 				$_data					= new stdClass();
 				$_data->label			= $this->input->post( 'label' );
+				$_data->cover_id		= $this->input->post( 'cover_id' ) ? (int) $this->input->post( 'cover_id' ) : NULL;
 				$_data->description		= $this->input->post( 'description' );
 				$_data->seo_title		= $this->input->post( 'seo_title' );
 				$_data->seo_description	= $this->input->post( 'seo_description' );

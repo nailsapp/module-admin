@@ -11,224 +11,224 @@
 
 		?>
 	</p>
-
 	<?php
 
 		$this->load->view( 'admin/shop/vouchers/utilities/search' );
 		$this->load->view( 'admin/shop/vouchers/utilities/pagination' );
 
 	?>
+	<div class="table-responsive">
+		<table>
+			<thead>
+				<tr>
+					<th class="code">Code</th>
+					<th class="type">Details</th>
+					<th class="user">Created By</th>
+					<th class="value">Discount</th>
+					<th class="valid_from">Valid From</th>
+					<th class="expires">Expires</th>
+					<th class="uses">Uses</th>
+					<th class="actions">Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php
 
-	<table>
-		<thead>
-			<tr>
-				<th class="code">Code</th>
-				<th class="type">Details</th>
-				<th class="user">Created By</th>
-				<th class="value">Discount</th>
-				<th class="valid_from">Valid From</th>
-				<th class="expires">Expires</th>
-				<th class="uses">Uses</th>
-				<th class="actions">Actions</th>
-			</tr>
-		</thead>
-		<tbody>
-			<?php
+					if ( $vouchers->data ) :
 
-				if ( $vouchers->data ) :
-
-					foreach ( $vouchers->data AS $voucher ) :
-
-						?>
-						<tr id="order-<?=number_format( $voucher->id )?>">
-							<td class="code"><?=$voucher->code?></td>
-							<td class="type">
-							<?php
-
-								echo $voucher->label;
-
-								switch( $voucher->type ) :
-
-									case 'NORMAL' :
-
-										echo '<small>Type: Normal</small>';
-
-									break;
-
-									// --------------------------------------------------------------------------
-
-									case 'LIMITED_USE' :
-
-										echo '<small>Type: Limited Use</small>';
-										echo '<small>Limited to ' . $voucher->limited_use_limit . ' uses; used ' . $voucher->use_count . ' times</small>';
-
-
-									break;
-
-									// --------------------------------------------------------------------------
-
-									case 'GIFT_CARD' :
-
-										echo '<small>Type: Gift card</small>';
-										echo '<small>Remaining Balance: ' . SHOP_BASE_CURRENCY_SYMBOL . number_format( $voucher->gift_card_balance, SHOP_BASE_CURRENCY_PRECISION ). '</small>';
-
-									break;
-
-								endswitch;
-
-
-								// --------------------------------------------------------------------------
-
-
-								echo '<small>Applies to: ';
-								switch( $voucher->discount_application ) :
-
-									case 'PRODUCTS' :
-
-										echo 'Purchases only';
-
-									break;
-
-									case 'SHIPPING' :
-
-										echo 'Shipping only';
-
-									break;
-
-									case 'PRODUCT_TYPES' :
-
-										echo 'Certain product types only &rsaquo; ' . $voucher->product->label;
-
-									break;
-
-									case 'ALL' :
-
-										echo 'Both Products and Shipping';
-
-									break;
-
-								endswitch;
-								echo '</small>';
-							?>
-							</td>
-							<?php
-
-								$this->load->view( 'admin/_utilities/table-cell-user',		$voucher->creator );
+						foreach ( $vouchers->data AS $voucher ) :
 
 							?>
-							<td class="value">
+							<tr id="order-<?=number_format( $voucher->id )?>">
+								<td class="code"><?=$voucher->code?></td>
+								<td class="type">
 								<?php
 
-								switch( $voucher->discount_type ) :
+									echo $voucher->label;
 
-									case 'AMOUNT' :
+									switch( $voucher->type ) :
 
-										echo SHOP_BASE_CURRENCY_SYMBOL . number_format( $voucher->discount_value, SHOP_BASE_CURRENCY_PRECISION );
+										case 'NORMAL' :
 
-									break;
+											echo '<small>Type: Normal</small>';
+
+										break;
+
+										// --------------------------------------------------------------------------
+
+										case 'LIMITED_USE' :
+
+											echo '<small>Type: Limited Use</small>';
+											echo '<small>Limited to ' . $voucher->limited_use_limit . ' uses; used ' . $voucher->use_count . ' times</small>';
+
+
+										break;
+
+										// --------------------------------------------------------------------------
+
+										case 'GIFT_CARD' :
+
+											echo '<small>Type: Gift card</small>';
+											echo '<small>Remaining Balance: ' . SHOP_BASE_CURRENCY_SYMBOL . number_format( $voucher->gift_card_balance, SHOP_BASE_CURRENCY_PRECISION ). '</small>';
+
+										break;
+
+									endswitch;
+
 
 									// --------------------------------------------------------------------------
 
-									case 'PERCENTAGE' :
 
-										echo $voucher->discount_value . '%';
+									echo '<small>Applies to: ';
+									switch( $voucher->discount_application ) :
 
-									break;
+										case 'PRODUCTS' :
 
-								endswitch;
+											echo 'Purchases only';
 
+										break;
+
+										case 'SHIPPING' :
+
+											echo 'Shipping only';
+
+										break;
+
+										case 'PRODUCT_TYPES' :
+
+											echo 'Certain product types only &rsaquo; ' . $voucher->product->label;
+
+										break;
+
+										case 'ALL' :
+
+											echo 'Both Products and Shipping';
+
+										break;
+
+									endswitch;
+									echo '</small>';
 								?>
-							</td>
-							<td class="valid_from">
+								</td>
 								<?php
 
-									$_format_d = active_user( 'date_setting' )->format->date->format;
-									$_format_t = active_user( 'date_setting' )->format->time->format;
-
-									echo date( $_format_d . ' ' . $_format_t, strtotime( $voucher->valid_from ) );
+									$this->load->view( 'admin/_utilities/table-cell-user',		$voucher->creator );
 
 								?>
-							</td>
-							<td class="expires">
-								<?php
+								<td class="value">
+									<?php
 
-									if ( $voucher->valid_to ) :
+									switch( $voucher->discount_type ) :
+
+										case 'AMOUNT' :
+
+											echo SHOP_BASE_CURRENCY_SYMBOL . number_format( $voucher->discount_value, SHOP_BASE_CURRENCY_PRECISION );
+
+										break;
+
+										// --------------------------------------------------------------------------
+
+										case 'PERCENTAGE' :
+
+											echo $voucher->discount_value . '%';
+
+										break;
+
+									endswitch;
+
+									?>
+								</td>
+								<td class="valid_from">
+									<?php
 
 										$_format_d = active_user( 'date_setting' )->format->date->format;
 										$_format_t = active_user( 'date_setting' )->format->time->format;
 
 										echo date( $_format_d . ' ' . $_format_t, strtotime( $voucher->valid_from ) );
 
-									else :
+									?>
+								</td>
+								<td class="expires">
+									<?php
 
-										echo '<span class="blank">Does not expire</span>';
+										if ( $voucher->valid_to ) :
 
-									endif;
+											$_format_d = active_user( 'date_setting' )->format->date->format;
+											$_format_t = active_user( 'date_setting' )->format->time->format;
 
-								?>
-							</td>
-							<td class="uses"><?=number_format( $voucher->use_count )?></td>
-							<td class="actions">
-								<?php
+											echo date( $_format_d . ' ' . $_format_t, strtotime( $voucher->valid_from ) );
 
-									$_buttons = array();
+										else :
 
-									// --------------------------------------------------------------------------
-
-									if ( $voucher->is_active ) :
-
-										if ( user_has_permission( 'admin.shop.vouchers_deactivate' ) ) :
-
-											$_buttons[] = anchor( 'admin/shop/vouchers/deactivate/' . $voucher->id, 'Suspend', 'class="awesome small red confirm"' );
+											echo '<span class="blank">Does not expire</span>';
 
 										endif;
 
-									else :
+									?>
+								</td>
+								<td class="uses"><?=number_format( $voucher->use_count )?></td>
+								<td class="actions">
+									<?php
 
-										if ( user_has_permission( 'admin.shop.vouchers_activate' ) ) :
+										$_buttons = array();
 
-											$_buttons[] = anchor( 'admin/shop/vouchers/activate/' . $voucher->id, 'Activate', 'class="awesome small green"' );
+										// --------------------------------------------------------------------------
+
+										if ( $voucher->is_active ) :
+
+											if ( user_has_permission( 'admin.shop.vouchers_deactivate' ) ) :
+
+												$_buttons[] = anchor( 'admin/shop/vouchers/deactivate/' . $voucher->id, 'Suspend', 'class="awesome small red confirm"' );
+
+											endif;
+
+										else :
+
+											if ( user_has_permission( 'admin.shop.vouchers_activate' ) ) :
+
+												$_buttons[] = anchor( 'admin/shop/vouchers/activate/' . $voucher->id, 'Activate', 'class="awesome small green"' );
+
+											endif;
 
 										endif;
 
-									endif;
+										// --------------------------------------------------------------------------
 
-									// --------------------------------------------------------------------------
+										if ( $_buttons ) :
 
-									if ( $_buttons ) :
+											foreach ( $_buttons AS $button ) :
 
-										foreach ( $_buttons AS $button ) :
+												echo $button;
 
-											echo $button;
+											endforeach;
 
-										endforeach;
+										else :
 
-									else :
+											echo '<span class="blank">There are no actions you can do on this item.</span>';
 
-										echo '<span class="blank">There are no actions you can do on this item.</span>';
+										endif;
 
-									endif;
+									?>
+								</td>
+							</tr>
+							<?php
 
-								?>
+						endforeach;
+
+					else :
+						?>
+						<tr>
+							<td colspan="7" class="no-data">
+								<p>No Vouchers found</p>
 							</td>
 						</tr>
 						<?php
+					endif;
 
-					endforeach;
-
-				else :
-					?>
-					<tr>
-						<td colspan="7" class="no-data">
-							<p>No Vouchers found</p>
-						</td>
-					</tr>
-					<?php
-				endif;
-
-			?>
-		</tbody>
-	</table>
+				?>
+			</tbody>
+		</table>
+	</div>
 	<?php
 
 		$this->load->view( 'admin/shop/vouchers/utilities/pagination' );

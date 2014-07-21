@@ -27,65 +27,69 @@
 	</ul>
 	<section class="tabs pages">
 		<div class="tab page active">
-			<table>
-				<thead>
-					<tr>
-						<th class="label">Label &amp; Description</th>
-						<th class="count">Products</th>
-						<th class="modified">Modified</th>
-						<th class="actions">Actions</th>
-					</tr>
-				</thead>
-				<tbody>
-				<?php
+			<div class="table-responsive">
+				<table>
+					<thead>
+						<tr>
+							<th class="label">Label &amp; Description</th>
+							<th class="count">Products</th>
+							<th class="modified">Modified</th>
+							<th class="actions">Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php
 
-					if ( $tags ) :
+						if ( $tags ) :
 
-						foreach( $tags AS $tag ) :
+							foreach( $tags AS $tag ) :
+
+								echo '<tr>';
+									echo '<td class="label">';
+
+									echo $tag->label;
+									echo $tag->description ? '<small>' . character_limiter( strip_tags( $tag->description ), 225 ) . '</small>' : '<small>No Description</small>';
+
+									echo '</td>';
+									echo '<td class="count">';
+										echo ! isset( $tag->product_count ) ? 'Unknown' : $tag->product_count;
+									echo '</td>';
+									echo $this->load->view( '_utilities/table-cell-datetime', array( 'datetime' => $tag->modified ), TRUE );
+									echo '<td class="actions">';
+
+										if ( user_has_permission( 'admin.shop.tag_edit' ) ) :
+
+											echo anchor( 'admin/shop/manage/tag/edit/' . $tag->id . $is_fancybox, lang( 'action_edit' ), 'class="awesome small"' );
+
+										endif;
+
+										if ( user_has_permission( 'admin.shop.tag_delete' ) ) :
+
+											echo anchor( 'admin/shop/manage/tag/delete/' . $tag->id . $is_fancybox, lang( 'action_delete' ), 'class="awesome small red confirm" data-title="Are you sure?" data-body="This action cannot be undone."' );
+
+										endif;
+
+										echo anchor( app_setting( 'url', 'shop' ) . 'tag/' . $tag->slug, lang( 'action_view' ), 'class="awesome small orange" target="_blank"' );
+
+									echo '</td>';
+								echo '</tr>';
+
+							endforeach;
+
+						else :
 
 							echo '<tr>';
-								echo '<td class="label">';
-
-								echo $tag->label;
-								echo $tag->description ? '<small>' . character_limiter( strip_tags( $tag->description ), 225 ) . '</small>' : '<small>No Description</small>';
-
-								echo '</td>';
-								echo '<td class="count">';
-									echo ! isset( $tag->product_count ) ? 'Unknown' : $tag->product_count;
-								echo '</td>';
-								echo $this->load->view( '_utilities/table-cell-datetime', array( 'datetime' => $tag->modified ), TRUE );
-								echo '<td class="actions">';
-
-									if ( user_has_permission( 'admin.shop.tag_edit' ) ) :
-
-										echo anchor( 'admin/shop/manage/tag/edit/' . $tag->id . $is_fancybox, lang( 'action_edit' ), 'class="awesome small"' );
-
-									endif;
-
-									if ( user_has_permission( 'admin.shop.tag_delete' ) ) :
-
-										echo anchor( 'admin/shop/manage/tag/delete/' . $tag->id . $is_fancybox, lang( 'action_delete' ), 'class="awesome small red confirm" data-title="Are you sure?" data-body="This action cannot be undone."' );
-
-									endif;
-
+								echo '<td colspan="4" class="no-data">';
+									echo 'No Tags, add one!';
 								echo '</td>';
 							echo '</tr>';
 
-						endforeach;
+						endif;
 
-					else :
-
-						echo '<tr>';
-							echo '<td colspan="4" class="no-data">';
-								echo 'No Tags, add one!';
-							echo '</td>';
-						echo '</tr>';
-
-					endif;
-
-				?>
-				</tbody>
-			</table>
+					?>
+					</tbody>
+				</table>
+			</div>
 		</div>
 	</section>
 </div>

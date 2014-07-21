@@ -60,6 +60,16 @@
 					// --------------------------------------------------------------------------
 
 					$_field					= array();
+					$_field['key']			= 'cover_id';
+					$_field['label']		= 'Cover Image';
+					$_field['default']		= isset( $brand->cover_id ) ? $brand->cover_id : '';
+					$_field['bucket']		= 'shop-brand-cover';
+
+					echo form_field_mm_image( $_field );
+
+					// --------------------------------------------------------------------------
+
+					$_field					= array();
 					$_field['key']			= 'description';
 					$_field['label']		= 'Description';
 					$_field['type']			= 'textarea';

@@ -2,128 +2,128 @@
 	<p>
 		Browse all orders which have been processed by the site from this page.
 	</p>
-
 	<?php
 
 		$this->load->view( 'admin/shop/orders/utilities/search' );
 		$this->load->view( 'admin/shop/orders/utilities/pagination' );
 
 	?>
+	<div class="table-responsive">
+		<table>
+			<thead>
+				<tr>
+					<th class="id">ID</th>
+					<th class="ref">Ref</th>
+					<th class="datetime">Placed</th>
+					<th class="user">Customer</th>
+					<th class="value">Value</th>
+					<th class="status">Status</th>
+					<th class="fulfilment">Fulfilled</th>
+					<th class="actions">Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php
 
-	<table>
-		<thead>
-			<tr>
-				<th class="id">ID</th>
-				<th class="ref">Ref</th>
-				<th class="datetime">Placed</th>
-				<th class="user">Customer</th>
-				<th class="value">Value</th>
-				<th class="status">Status</th>
-				<th class="fulfilment">Fulfilled</th>
-				<th class="actions">Actions</th>
-			</tr>
-		</thead>
-		<tbody>
-			<?php
+					if ( $orders->data ) :
 
-				if ( $orders->data ) :
-
-					foreach ( $orders->data AS $order ) :
-
-						?>
-						<tr id="order-<?=$order->id?>">
-							<td class="id"><?=$order->id?></td>
-							<td class="ref"><?=$order->ref?></td>
-							<?php
-
-								$this->load->view( 'admin/_utilities/table-cell-datetime',	array( 'datetime' => $order->created ) );
-								$this->load->view( 'admin/_utilities/table-cell-user',		$order->user );
+						foreach ( $orders->data AS $order ) :
 
 							?>
-							<td class="value">
-							<?php
-
-								echo shop_format_price( $order->totals->grand, TRUE, TRUE, $order->currency->base->id );
-
-								if ( $order->currency->order->id !== $order->currency->base->id ) :
-
-									echo '<small>' . shop_format_price( $order->totals->grand_render, TRUE, TRUE, $order->currency->order->id ) . '</small>';
-
-								endif;
-
-							?>
-							</td>
-							<td class="status <?=$order->status?>"><?=$order->status?></td>
-							<?php
-
-								if ( $order->fulfilment_status == 'FULFILLED' ) :
-
-									echo '<td class="fulfilment yes">' . lang( 'yes' ) . '</td>';
-
-								else :
-
-									echo '<td class="fulfilment no">' . lang( 'no' ) . '</td>';
-
-								endif;
-
-							?>
-							<td class="actions">
+							<tr id="order-<?=$order->id?>">
+								<td class="id"><?=$order->id?></td>
+								<td class="ref"><?=$order->ref?></td>
 								<?php
 
-									//	Render buttons
-									$_buttons = array();
+									$this->load->view( 'admin/_utilities/table-cell-datetime',	array( 'datetime' => $order->created ) );
+									$this->load->view( 'admin/_utilities/table-cell-user',		$order->user );
 
-									// --------------------------------------------------------------------------
+								?>
+								<td class="value">
+								<?php
 
-									if ( user_has_permission( 'admin.shop.orders_view' ) ) :
+									echo shop_format_price( $order->totals->grand, TRUE, TRUE, $order->currency->base->id );
 
-										$_buttons[] = anchor( 'admin/shop/orders/view/' . $order->id, lang( 'action_view' ), 'class="awesome small fancybox" data-fancybox-type="iframe"' );
+									if ( $order->currency->order->id !== $order->currency->base->id ) :
 
-									endif;
-
-									// --------------------------------------------------------------------------
-
-									if ( user_has_permission( 'admin.shop.orders_reprocess' ) ) :
-
-										$_buttons[] = anchor( 'admin/shop/orders/reprocess/' . $order->id, 'Process', 'class="awesome small confirm" data-title="Are you sure?" data-body="Processing the order again may result in multiple dispatch of items."' );
-
-									endif;
-
-									// --------------------------------------------------------------------------
-
-									if ( $_buttons ) :
-
-										foreach ( $_buttons aS $button ) :
-
-											echo $button;
-
-										endforeach;
-									else :
-
-										echo '<span class="blank">There are no actions you can perform on this item.</span>';
+										echo '<small>' . shop_format_price( $order->totals->grand_render, TRUE, TRUE, $order->currency->order->id ) . '</small>';
 
 									endif;
 
 								?>
+								</td>
+								<td class="status <?=$order->status?>"><?=$order->status?></td>
+								<?php
+
+									if ( $order->fulfilment_status == 'FULFILLED' ) :
+
+										echo '<td class="fulfilment yes">' . lang( 'yes' ) . '</td>';
+
+									else :
+
+										echo '<td class="fulfilment no">' . lang( 'no' ) . '</td>';
+
+									endif;
+
+								?>
+								<td class="actions">
+									<?php
+
+										//	Render buttons
+										$_buttons = array();
+
+										// --------------------------------------------------------------------------
+
+										if ( user_has_permission( 'admin.shop.orders_view' ) ) :
+
+											$_buttons[] = anchor( 'admin/shop/orders/view/' . $order->id, lang( 'action_view' ), 'class="awesome small fancybox" data-fancybox-type="iframe"' );
+
+										endif;
+
+										// --------------------------------------------------------------------------
+
+										if ( user_has_permission( 'admin.shop.orders_reprocess' ) ) :
+
+											$_buttons[] = anchor( 'admin/shop/orders/reprocess/' . $order->id, 'Process', 'class="awesome small confirm" data-title="Are you sure?" data-body="Processing the order again may result in multiple dispatch of items."' );
+
+										endif;
+
+										// --------------------------------------------------------------------------
+
+										if ( $_buttons ) :
+
+											foreach ( $_buttons aS $button ) :
+
+												echo $button;
+
+											endforeach;
+										else :
+
+											echo '<span class="blank">There are no actions you can perform on this item.</span>';
+
+										endif;
+
+									?>
+								</td>
+							</tr>
+							<?php
+
+						endforeach;
+
+					else :
+						?>
+						<tr>
+							<td colspan="8" class="no-data">
+								<p>No Orders found</p>
 							</td>
 						</tr>
 						<?php
+					endif;
 
-					endforeach;
-
-				else :
-					?>
-					<tr>
-						<td colspan="8" class="no-data">
-							<p>No Orders found</p>
-						</td>
-					</tr>
-					<?php
-				endif;
-
-			?>
-		</tbody>
-	</table>
+				?>
+			</tbody>
+		</table>
+	</div>
 	<?php
 
 		$this->load->view( 'admin/shop/orders/utilities/pagination' );

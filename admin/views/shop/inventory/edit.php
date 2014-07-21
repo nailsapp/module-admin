@@ -687,7 +687,7 @@
 					$_field					= array();
 					$_field['key']			= 'seo_title';
 					$_field['label']		= 'Title';
-					$_field['sub_label']	= 'Max length 150 characters';
+					$_field['sub_label']	= 'Max. 150 characters';
 					$_field['placeholder']	= 'Search Engine Optimised title';
 					$_field['default']		= ! empty( $item->seo_title ) ? $item->seo_title : '';
 
@@ -698,7 +698,7 @@
 					$_field					= array();
 					$_field['key']			= 'seo_description';
 					$_field['label']		= 'Description';
-					$_field['sub_label']	= 'Max length 300 characters';
+					$_field['sub_label']	= 'Max. 300 characters';
 					$_field['placeholder']	= 'Search Engine Optimised description';
 					$_field['type']			= 'textarea';
 					$_field['default']		= ! empty( $item->seo_description ) ? $item->seo_description : '';
@@ -710,7 +710,7 @@
 					$_field					= array();
 					$_field['key']			= 'seo_keywords';
 					$_field['label']		= 'Keywords';
-					$_field['sub_label']	= 'Max length 150 characters';
+					$_field['sub_label']	= 'Max. 150 characters';
 					$_field['placeholder']	= 'Comma separated keywords';
 					$_field['default']		= ! empty( $item->seo_keywords ) ? $item->seo_keywords : '';
 

@@ -85,6 +85,16 @@
 					// --------------------------------------------------------------------------
 
 					$_field					= array();
+					$_field['key']			= 'cover_id';
+					$_field['label']		= 'Cover Image';
+					$_field['default']		= isset( $category->cover_id ) ? $category->cover_id : '';
+					$_field['bucket']		= 'shop-category-cover';
+
+					echo form_field_mm_image( $_field );
+
+					// --------------------------------------------------------------------------
+
+					$_field					= array();
 					$_field['key']			= 'description';
 					$_field['label']		= 'Description';
 					$_field['type']			= 'textarea';

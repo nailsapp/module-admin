@@ -27,66 +27,68 @@
 	</ul>
 	<section class="tabs pages">
 		<div class="tab page active">
-			<table>
-				<thead>
-					<tr>
-						<th class="label">Label</th>
-						<th class="rate">Rate</th>
-						<th class="count">Products</th>
-						<th class="modified">Modified</th>
-						<th class="actions">Actions</th>
-					</tr>
-				</thead>
-				<tbody>
-				<?php
+			<div class="table-responsive">
+				<table>
+					<thead>
+						<tr>
+							<th class="label">Label</th>
+							<th class="rate">Rate</th>
+							<th class="count">Products</th>
+							<th class="modified">Modified</th>
+							<th class="actions">Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php
 
-					if ( $tax_rates ) :
+						if ( $tax_rates ) :
 
-						foreach( $tax_rates AS $tax_rate ) :
+							foreach( $tax_rates AS $tax_rate ) :
+
+								echo '<tr>';
+									echo '<td class="label">';
+										echo $tax_rate->label;
+									echo '</td>';
+									echo '<td class="rate">';
+										echo $tax_rate->rate * 100 . '%';
+									echo '</td>';
+									echo '<td class="count">';
+										echo ! isset( $tax_rate->product_count ) ? 'Unknown' : $tax_rate->product_count;
+									echo '</td>';
+									echo $this->load->view( '_utilities/table-cell-datetime', array( 'datetime' => $tax_rate->modified ), TRUE );
+									echo '<td class="actions">';
+
+										if ( user_has_permission( 'admin.shop.tax_rate_edit' ) ) :
+
+											echo anchor( 'admin/shop/manage/tax_rate/edit/' . $tax_rate->id . $is_fancybox, lang( 'action_edit' ), 'class="awesome small"' );
+
+										endif;
+
+										if ( user_has_permission( 'admin.shop.tax_rate_delete' ) ) :
+
+											echo anchor( 'admin/shop/manage/tax_rate/delete/' . $tax_rate->id . $is_fancybox, lang( 'action_delete' ), 'class="awesome small red confirm" data-title="Are you sure?" data-body="This action cannot be undone."' );
+
+										endif;
+
+									echo '</td>';
+								echo '</tr>';
+
+							endforeach;
+
+						else :
 
 							echo '<tr>';
-								echo '<td class="label">';
-									echo $tax_rate->label;
-								echo '</td>';
-								echo '<td class="rate">';
-									echo $tax_rate->rate * 100 . '%';
-								echo '</td>';
-								echo '<td class="count">';
-									echo ! isset( $tax_rate->product_count ) ? 'Unknown' : $tax_rate->product_count;
-								echo '</td>';
-								echo $this->load->view( '_utilities/table-cell-datetime', array( 'datetime' => $tax_rate->modified ), TRUE );
-								echo '<td class="actions">';
-
-									if ( user_has_permission( 'admin.shop.tax_rate_edit' ) ) :
-
-										echo anchor( 'admin/shop/manage/tax_rate/edit/' . $tax_rate->id . $is_fancybox, lang( 'action_edit' ), 'class="awesome small"' );
-
-									endif;
-
-									if ( user_has_permission( 'admin.shop.tax_rate_delete' ) ) :
-
-										echo anchor( 'admin/shop/manage/tax_rate/delete/' . $tax_rate->id . $is_fancybox, lang( 'action_delete' ), 'class="awesome small red confirm" data-title="Are you sure?" data-body="This action cannot be undone."' );
-
-									endif;
-
+								echo '<td colspan="4" class="no-data">';
+									echo 'No Tax_rates, add one!';
 								echo '</td>';
 							echo '</tr>';
 
-						endforeach;
+						endif;
 
-					else :
-
-						echo '<tr>';
-							echo '<td colspan="4" class="no-data">';
-								echo 'No Tax_rates, add one!';
-							echo '</td>';
-						echo '</tr>';
-
-					endif;
-
-				?>
-				</tbody>
-			</table>
+					?>
+					</tbody>
+				</table>
+			</div>
 		</div>
 	</section>
 </div>
