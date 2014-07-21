@@ -26,13 +26,11 @@
 					case 'bool':
 					case 'boolean' :
 
-						$_field['class'] = 'select2';
+						$_field['class']	= 'select2';
+						$_field['text_on']	= strtoupper( lang( 'yes' ) );
+						$_field['text_off']	= strtoupper( lang( 'no' ) );
 
-						$_options = array(
-							lang( 'no' ),
-							lang( 'yes' )
-						);
-						echo form_field_dropdown( $_field, $_options );
+						echo form_field_boolean( $_field );
 
 					break;
 
