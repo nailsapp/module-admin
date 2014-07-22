@@ -536,7 +536,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 					case 'TO_ORDER' :
 
 						$this->form_validation->set_rules( 'variation[' . $index . '][quantity_available]',	'',	'xss_clean' );
-						$this->form_validation->set_rules( 'variation[' . $index . '][lead_time]',			'',	'xss_clean|is_natural_no_zero' );
+						$this->form_validation->set_rules( 'variation[' . $index . '][lead_time]',			'',	'xss_clean' );
 
 					break;
 
@@ -651,7 +651,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		$this->form_validation->set_message( 'required',			lang( 'fv_required' ) );
 		$this->form_validation->set_message( 'numeric',				lang( 'fv_numeric' ) );
 		$this->form_validation->set_message( 'is_natural',			lang( 'fv_is_natural' ) );
-		$this->form_validation->set_message( 'is_natural_no_zero',	lang( 'fv_is_natural_no_zero' ) );
 		$this->form_validation->set_message( 'max_length',			lang( 'fv_max_length' ) );
 	}
 
@@ -1480,6 +1479,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 					$this->form_validation->set_rules( 'discount_value',	'', 'required|is_natural_no_zero|greater_than[0]|less_than[101]' );
 
+					$this->form_validation->set_message( 'is_natural_no_zero',	'Only positive integers are valid.' );
 					$this->form_validation->set_message( 'greater_than',		'Must be in the range 1-100' );
 					$this->form_validation->set_message( 'less_than',			'Must be in the range 1-100' );
 

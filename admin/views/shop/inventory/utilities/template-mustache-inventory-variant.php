@@ -103,7 +103,7 @@
 					$_field['label']		= 'Quantity Available';
 					$_field['required']		= TRUE;
 					$_field['placeholder']	= 'How many units of this variation are available? Leave blank for unlimited';
-					$_field['default']		= ! empty( $variation->quantity_available ) ? $variation->quantity_available : '';
+					$_field['default']		= isset( $variation->quantity_available ) ? $variation->quantity_available : '';
 
 					echo form_field( $_field );
 
@@ -116,7 +116,8 @@
 
 					$_field					= array();
 					$_field['key']			= 'variation[' . $_counter . '][lead_time]';
-					$_field['label']		= 'Lead Time (days)';
+					$_field['label']		= 'Lead Time';
+					$_field['sub_label']	= 'Max. 50 characters';
 					$_field['required']		= TRUE;
 					$_field['placeholder']	= 'How long is the lead time on orders for this product?';
 					$_field['default']		= ! empty( $variation->lead_time ) ? $variation->lead_time : '';

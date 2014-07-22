@@ -33,7 +33,10 @@
 					<thead>
 						<tr>
 							<th class="label">Label &amp; Description</th>
-							<th class="count">Products</th>
+							<th class="count">
+								Products
+								<span rel="tipsy-top" title="Parent category product counts include products contained within child categories." class="ion-help-circled"></span>
+							</th>
 							<th class="modified">Modified</th>
 							<th class="actions">Actions</th>
 						</tr>
@@ -81,7 +84,7 @@
 
 										if ( user_has_permission( 'admin.shop.category_delete' ) ) :
 
-											echo anchor( 'admin/shop/manage/category/delete/' . $category->id . $is_fancybox, lang( 'action_delete' ), 'class="awesome small red confirm" data-title="Are you sure?" data-body="This action cannot be undone."' );
+											echo anchor( 'admin/shop/manage/category/delete/' . $category->id . $is_fancybox, lang( 'action_delete' ), 'class="awesome small red confirm" data-title="Are you sure?" data-body="This action cannot be undone, any child categories will also be deleted."' );
 
 										endif;
 
