@@ -321,7 +321,8 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		$this->data['pagination']->total_rows	= $this->shop_product_model->count_all( $_data );
 
 		//	Fetch all the items for this page
-		$this->data['products'] = $this->shop_product_model->get_all( $_page, $_per_page, $_data );
+		$this->data['products']			= $this->shop_product_model->get_all( $_page, $_per_page, $_data );
+		$this->data['product_types']	= $this->shop_product_type_model->get_all();
 
 		// --------------------------------------------------------------------------
 

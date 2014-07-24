@@ -72,7 +72,7 @@
 						$_field					= array();
 						$_field['key']			= 'url';
 						$_field['label']		= 'Shop URL';
-						$_field['default']		= app_setting( $_field['key'], 'shop' );
+						$_field['default']		= app_setting( $_field['key'], 'shop' ) ? app_setting( $_field['key'], 'shop' ) : 'shop/';
 						$_field['placeholder']	= 'Customise the Shop\'s URL (include trialing slash)';
 
 						echo form_field( $_field );
@@ -404,7 +404,7 @@
 					<hr />
 					<p class="system-alert message">
 						<strong>Important:</strong> If you wish to support multiple currencies you must also provide an
-						App Id for the<a href="https://openexchangerates.org" target="_blank">Open Exchange Rates</a>
+						App ID for the <a href="https://openexchangerates.org" target="_blank">Open Exchange Rates</a>
 						service. The system uses this service to calculate exchange rates for all supported currencies.
 						<br /><br />
 						Find out more, and create your App, at <a href="https://openexchangerates.org" target="_blank">Open Exchange Rates</a>.

@@ -26,7 +26,14 @@
 					<th class="image">Image</th>
 					<th class="active">Active</th>
 					<th class="label">Label &amp; Description</th>
-					<th class="type">Type</th>
+					<?php
+
+						if ( count( $product_types ) > 1 ) :
+
+							echo '<th class="type">Type</th>';
+
+						endif;
+					?>
 					<th class="datetime">Modified</th>
 					<th class="actions">Actions</th>
 				</tr>
@@ -56,30 +63,35 @@
 
 									?>
 								</td>
-
 								<?php
 
-								if ( $item->is_active ) :
+									if ( $item->is_active ) :
 
-									echo '<td class="status success">';
-										echo '<span class="ion-checkmark-circled"></span>';
-									echo '</td>';
+										echo '<td class="status success">';
+											echo '<span class="ion-checkmark-circled"></span>';
+										echo '</td>';
 
-								else :
+									else :
 
-									echo '<td class="status error">';
-										echo '<span class="ion-close-circled"></span>';
-									echo '</td>';
+										echo '<td class="status error">';
+											echo '<span class="ion-close-circled"></span>';
+										echo '</td>';
 
-								endif;
+									endif;
 
 								?>
-
 								<td class="label">
 									<?=$item->label?>
 									<small><?=word_limiter( strip_tags( $item->description ), 30 )?></small>
 								</td>
-								<td class="type"><?=$item->type->label?></td>
+								<?php
+
+									if ( count( $product_types ) > 1 ) :
+
+										echo '<td class="type">' . $item->type->label . '</td>';
+
+									endif;
+								?>
 								<?php
 
 									$this->load->view( 'admin/_utilities/table-cell-datetime',	array( 'datetime' => $item->modified ) );
