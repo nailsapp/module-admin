@@ -297,17 +297,17 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 				if ( $this->input->post( 'username' ) ) :
 
-					$this->form_validation->set_rules( 'username',	'',	'xss_clean|alpha_dash|min_length[2]|is_unique[' . NAILS_DB_PREFIX . 'user.username]' );
+					$this->form_validation->set_rules( 'username',	'',	'xss_clean|trim|alpha_dash|min_length[2]|is_unique[' . NAILS_DB_PREFIX . 'user.username]' );
 
 				else :
 
-					$this->form_validation->set_rules( 'username',		'',	'xss_clean|alpha_dash|min_length[2]' );
+					$this->form_validation->set_rules( 'username',		'',	'xss_clean|trim|alpha_dash|min_length[2]' );
 
 				endif;
 
 			elseif ( APP_NATIVE_LOGIN_USING == 'USERNAME' ) :
 
-				$this->form_validation->set_rules( 'username',		'',	'xss_clean|required|valid_email|is_unique[' . NAILS_DB_PREFIX . 'user_email.email]' );
+				$this->form_validation->set_rules( 'username',		'',	'xss_clean|trim|alpha_dash|min_length[2]|is_unique[' . NAILS_DB_PREFIX . 'user.username]' );
 
 				if ( $this->input->post( 'email' ) ) :
 
@@ -333,11 +333,11 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 				if ( $this->input->post( 'username' ) ) :
 
-					$this->form_validation->set_rules( 'username',	'',	'xss_clean|alpha_dash|min_length[2]|is_unique[' . NAILS_DB_PREFIX . 'user.username]' );
+					$this->form_validation->set_rules( 'username',	'',	'xss_clean|trim|alpha_dash|min_length[2]|is_unique[' . NAILS_DB_PREFIX . 'user.username]' );
 
 				else :
 
-					$this->form_validation->set_rules( 'username',		'',	'xss_clean|alpha_dash|min_length[2]' );
+					$this->form_validation->set_rules( 'username',		'',	'xss_clean|trim|alpha_dash|min_length[2]' );
 
 				endif;
 
@@ -368,13 +368,13 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 				if ( $this->input->post( 'email' ) ) :
 
-					$_data['email'] = $this->input->post( 'email' );
+					$_data['email'] = strtolower( $this->input->post( 'email' ) );
 
 				endif;
 
 				if ( $this->input->post( 'username' ) ) :
 
-					$_data['username'] = $this->input->post( 'username' );
+					$_data['username'] = strtolower( $this->input->post( 'username' ) );
 
 				endif;
 
@@ -573,9 +573,9 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 			// --------------------------------------------------------------------------
 
 			//	Define user table rules
-			$this->form_validation->set_rules( 'username',					'',	'xss_clean|alpha_dash|min_length[2]|unique_if_diff[' . NAILS_DB_PREFIX . 'user.username.' . $this->input->post( 'username_orig' ) . ']' );
-			$this->form_validation->set_rules( 'first_name',				'',	'xss_clean|required' );
-			$this->form_validation->set_rules( 'last_name',					'',	'xss_clean|required' );
+			$this->form_validation->set_rules( 'username',					'',	'xss_clean|trim|alpha_dash|min_length[2]|unique_if_diff[' . NAILS_DB_PREFIX . 'user.username.' . $this->input->post( 'username_orig' ) . ']' );
+			$this->form_validation->set_rules( 'first_name',				'',	'xss_clean|trim|required' );
+			$this->form_validation->set_rules( 'last_name',					'',	'xss_clean|trim|required' );
 			$this->form_validation->set_rules( 'gender',					'',	'xss_clean|required' );
 			$this->form_validation->set_rules( 'dob',						'',	'xss_clean|valid_date' );
 			$this->form_validation->set_rules( 'timezone',					'',	'xss_clean|required' );
