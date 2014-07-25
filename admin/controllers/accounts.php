@@ -575,7 +575,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 			$this->form_validation->set_rules( 'first_name',				'',	'xss_clean|required' );
 			$this->form_validation->set_rules( 'last_name',					'',	'xss_clean|required' );
 			$this->form_validation->set_rules( 'gender',					'',	'xss_clean|required' );
-			$this->form_validation->set_rules( 'dob',						'',	'xss_clean|required' );
+			$this->form_validation->set_rules( 'dob',						'',	'xss_clean|valid_date' );
 			$this->form_validation->set_rules( 'timezone',					'',	'xss_clean|required' );
 			$this->form_validation->set_rules( 'datetime_format_date',		'',	'xss_clean|required' );
 			$this->form_validation->set_rules( 'datetime_format_time',		'',	'xss_clean|required' );
@@ -679,7 +679,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 					$_data['last_name']					= $this->input->post( 'last_name' );
 					$_data['username']					= $this->input->post( 'username' );
 					$_data['gender']					= $this->input->post( 'gender' );
-					$_data['dob']						= $this->input->post( 'dob' );
+					$_data['dob']						= ! empty( $this->input->post( 'dob' ) ) ? $this->input->post( 'dob' ) : NULL;
 					$_data['timezone']					= $this->input->post( 'timezone' );
 					$_data['datetime_format_date']		= $this->input->post( 'datetime_format_date' );
 					$_data['datetime_format_time']		= $this->input->post( 'datetime_format_time' );
