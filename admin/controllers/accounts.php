@@ -297,11 +297,11 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 				if ( $this->input->post( 'username' ) ) :
 
-					$this->form_validation->set_rules( 'username',	'',	'xss_clean|is_unique[' . NAILS_DB_PREFIX . 'user.username]' );
+					$this->form_validation->set_rules( 'username',	'',	'xss_clean|alpha_dash|min_length[2]|is_unique[' . NAILS_DB_PREFIX . 'user.username]' );
 
 				else :
 
-					$this->form_validation->set_rules( 'username',		'',	'xss_clean' );
+					$this->form_validation->set_rules( 'username',		'',	'xss_clean|alpha_dash|min_length[2]' );
 
 				endif;
 
@@ -333,11 +333,11 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 				if ( $this->input->post( 'username' ) ) :
 
-					$this->form_validation->set_rules( 'username',	'',	'xss_clean|is_unique[' . NAILS_DB_PREFIX . 'user.username]' );
+					$this->form_validation->set_rules( 'username',	'',	'xss_clean|alpha_dash|min_length[2]|is_unique[' . NAILS_DB_PREFIX . 'user.username]' );
 
 				else :
 
-					$this->form_validation->set_rules( 'username',		'',	'xss_clean' );
+					$this->form_validation->set_rules( 'username',		'',	'xss_clean|alpha_dash|min_length[2]' );
 
 				endif;
 
@@ -345,6 +345,8 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 			//	Set messages
 			$this->form_validation->set_message( 'required',			lang( 'fv_required' ) );
+			$this->form_validation->set_message( 'min_length',			lang( 'fv_min_length' ) );
+			$this->form_validation->set_message( 'alpha_dash',			lang( 'fv_alpha_dash' ) );
 			$this->form_validation->set_message( 'is_natural_no_zero',	lang( 'fv_required' ) );
 			$this->form_validation->set_message( 'valid_email',			lang( 'fv_valid_email' ) );
 			$this->form_validation->set_message( 'is_unique',			lang( 'fv_email_already_registered' ) );
@@ -636,6 +638,8 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 			//	Set messages
 			$this->form_validation->set_message( 'required',			lang( 'fv_required' ) );
+			$this->form_validation->set_message( 'min_length',			lang( 'fv_min_length' ) );
+			$this->form_validation->set_message( 'alpha_dash',			lang( 'fv_alpha_dash' ) );
 			$this->form_validation->set_message( 'is_natural_no_zero',	lang( 'fv_required' ) );
 			$this->form_validation->set_message( 'valid_date',			lang( 'fv_valid_date' ) );
 			$this->form_validation->set_message( 'valid_datetime',		lang( 'fv_valid_datetime' ) );
