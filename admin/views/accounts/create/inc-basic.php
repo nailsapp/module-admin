@@ -148,6 +148,7 @@
 		$_field['label']		= lang( 'form_label_username' );
 		$_field['required']		= APP_NATIVE_LOGIN_USING == 'USERNAME' || APP_NATIVE_LOGIN_USING != 'EMAIL';
 		$_field['placeholder']	= lang( 'accounts_create_field_username_placeholder' );
+		$_field['info']			= 'Username can only contain alpha numeric characters, underscores and dashes (no spaces).';
 
 		echo form_field( $_field );
 
