@@ -679,7 +679,8 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 					$_data['last_name']					= $this->input->post( 'last_name' );
 					$_data['username']					= $this->input->post( 'username' );
 					$_data['gender']					= $this->input->post( 'gender' );
-					$_data['dob']						= ! empty( $this->input->post( 'dob' ) ) ? $this->input->post( 'dob' ) : NULL;
+					$_data['dob']						= $this->input->post( 'dob' );
+					$_data['dob']						= ! empty( $_data['dob'] ) ? $_data['dob'] : NULL;
 					$_data['timezone']					= $this->input->post( 'timezone' );
 					$_data['datetime_format_date']		= $this->input->post( 'datetime_format_date' );
 					$_data['datetime_format_time']		= $this->input->post( 'datetime_format_time' );
