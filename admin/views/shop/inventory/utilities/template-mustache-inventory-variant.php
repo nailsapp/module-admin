@@ -231,9 +231,9 @@
 						$_price			= array();
 						$_sale_price	= array();
 
-						if ( ! empty( $variation->price ) ) :
+						if ( ! empty( $variation->price_raw ) ) :
 
-							foreach( $variation->price AS $price ) :
+							foreach( $variation->price_raw AS $price ) :
 
 								$_price[$price->currency]			= $price->price;
 								$_sale_price[$price->currency]	= $price->sale_price;

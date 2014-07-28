@@ -806,7 +806,8 @@
 				echo form_dropdown( 'variation[{{counter}}][shipping][{{shipping_counter}}][0][courier_method_id]', $_options, NULL, 'class="shipping_methods"');
 
 			?>
-		</td>						<td class="price">
+		</td>
+		<td class="price">
 			<?php
 
 				echo form_hidden( 'variation[{{counter}}][shipping][{{shipping_counter}}][0][currency]', SHOP_BASE_CURRENCY_CODE );
