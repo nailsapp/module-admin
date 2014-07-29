@@ -89,7 +89,7 @@
 
 						$_field				= array();
 						$_field['key']		= 'price_exclude_tax';
-						$_field['label']	= 'Product prices exclude Taxes';
+						$_field['label']	= 'Product price exclude Taxes';
 						$_field['default']	= app_setting( $_field['key'], 'shop' );
 						$_field['text_on']	= strtoupper( lang( 'yes' ) );
 						$_field['text_off']	= strtoupper( lang( 'no' ) );
