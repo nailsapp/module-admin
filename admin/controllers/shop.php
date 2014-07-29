@@ -849,7 +849,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		if ( ! $_product ) :
 
-			$this->session->set_flashdata( 'error', 'Sorry, a product with that ID could not be found.' );
+			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> a product with that ID could not be found.' );
 			redirect( 'admin/shop/inventory/index' );
 			return;
 
@@ -859,11 +859,11 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		if ( $this->shop_product_model->delete( $_product->id ) ) :
 
-			$this->session->set_flashdata( 'success', 'Product successfully deleted! You can restore this product by ' . anchor( '/admin/shop/inventory/restore/' . $_product->id, 'clicking here' ) );
+			$this->session->set_flashdata( 'success', '<strong>Success!</strong> Product successfully deleted! You can restore this product by ' . anchor( '/admin/shop/inventory/restore/' . $_product->id, 'clicking here' ) . '.' );
 
 		else :
 
-			$this->session->set_flashdata( 'error', 'Sorry, that product could not be deleted' );
+			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> that product could not be deleted. ' . $this->shop_product_model->last_error() );
 
 		endif;
 
@@ -878,25 +878,13 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _inventory_restore()
 	{
-		$_product = $this->shop_product_model->get_by_id( $this->uri->segment( 5 ) );
+		if ( $this->shop_product_model->restore( $this->uri->segment( 5 ) ) ) :
 
-		if ( ! $_product ) :
-
-			$this->session->set_flashdata( 'error', 'Sorry, a product with that ID could not be found.' );
-			redirect( 'admin/shop/inventory/index' );
-			return;
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		if ( $this->shop_product_model->restore( $_product->id ) ) :
-
-			$this->session->set_flashdata( 'success', 'Product successfully restored' );
+			$this->session->set_flashdata( 'success', '<strong>Success!</strong> Product successfully restored.' );
 
 		else :
 
-			$this->session->set_flashdata( 'error', 'Sorry, that product could not be restored' );
+			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> that product could not be restored.' );
 
 		endif;
 
@@ -2789,7 +2777,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 				if ( $this->shop_collection_model->update( $this->data['collection']->id, $_data ) ) :
 
-					$this->session->set_flashdata( 'succes', '<strong>Success!</strong> Collection saved successfully.' );
+					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Collection saved successfully.' );
 					redirect( 'admin/shop/manage/collection' . $this->data['is_fancybox'] );
 
 				else :
