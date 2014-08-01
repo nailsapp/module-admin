@@ -336,9 +336,12 @@ class NAILS_Admin_Controller extends NAILS_Controller
 		//	Filter out non PHP files
 		$_regex = '/^[^_][a-zA-Z_]+\.php$/';
 
+		//	Load directory helper
+		$this->load->helper( 'directory' );
+
 		foreach ( $_paths AS $path ) :
 
-			$_controllers = @scandir( $path[0] );
+			$_controllers = directory_map( $path[0] );
 
 			if ( is_array( $_controllers ) ) :
 
