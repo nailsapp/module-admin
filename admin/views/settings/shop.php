@@ -16,6 +16,11 @@
 				<a href="#" data-tab="tab-skin">Skin</a>
 			</li>
 
+			<?php $_active = $this->input->post( 'update' ) == 'skin-configure' ? 'active' : ''?>
+			<li class="tab <?=$_active?>">
+				<a href="#" data-tab="tab-skin-config">Skin - Configure</a>
+			</li>
+
 			<?php $_active = $this->input->post( 'update' ) == 'payment_gateway' ? 'active' : ''?>
 			<li class="tab <?=$_active?>">
 				<a href="#" data-tab="tab-payment-gateway">Payment Gateways</a>
@@ -234,7 +239,7 @@
 
 					if ( $skins ) :
 
-						$_selected_skin = app_setting( 'skin', 'shop' ) ? app_setting( 'skin', 'shop' ) : 'skin-shop-gettingstarted';
+						$skin_selected = app_setting( 'skin', 'shop' ) ? app_setting( 'skin', 'shop' ) : 'skin-shop-gettingstarted';
 
 						echo '<ul class="skins">';
 						foreach( $skins AS $skin ) :
@@ -260,7 +265,7 @@
 
 							endif;
 
-							$_selected	= $skin->slug == $_selected_skin ? TRUE : FALSE;
+							$_selected	= $skin->slug == $skin_selected ? TRUE : FALSE;
 							$_class		= $_selected ? 'selected' : '';
 
 							echo '<li class="skin ' . $_class . '" rel="tipsy" title="' . $_description . '">';
@@ -291,6 +296,88 @@
 					<?=form_submit( 'submit', lang( 'action_save_changes' ), 'class="awesome" style="margin-bottom:0;"' )?>
 				</p>
 				<?=form_close()?>
+			</div>
+
+			<?php $_display = $this->input->post( 'update' ) == 'skin_config' ? 'active' : ''?>
+			<div id="tab-skin-config" class="tab page <?=$_display?> skin-config">
+			<?php
+
+				if ( ! empty( $skin_current ) ) :
+
+					if ( ! empty( $skin_current->settings ) ) :
+
+						echo form_open( NULL, 'style="margin-bottom:0;"' );
+						echo form_hidden( 'update', 'skin_config' );
+						echo form_hidden( 'skin_slug', $skin_current->slug );
+
+						echo '<p class="system-alert notice">';
+							echo 'You are configuring settings for the <strong>' . $skin_current->name . '</strong> shop skin.';
+						echo '</p>';
+
+						echo '<fieldset>';
+
+						foreach ( $skin_current->settings AS $setting ) :
+
+							$_field					= array();
+							$_field['key']			= ! empty( $setting->key ) ? 'skin_config[' . $setting->key . ']' : '';;
+							$_field['label']		= ! empty( $setting->label ) ? $setting->label : '';;
+							$_field['placeholder']	= ! empty( $setting->placeholder ) ? $setting->placeholder : '';;
+							$_field['tip']			= ! empty( $setting->tip ) ? $setting->tip : '';;
+
+							if ( empty( $_field['key'] ) ) :
+
+								continue;
+
+							else :
+
+								$_field['default']	= app_setting( $setting->key, 'shop-' . $skin_current->slug );
+
+							endif;
+
+							switch( $setting->type ) :
+
+								case 'bool' :
+								case 'boolean' :
+
+									echo form_field_boolean( $_field );
+
+								break;
+
+								default :
+
+									echo form_field( $_field );
+
+								break;
+
+							endswitch;
+
+						endforeach;
+
+						echo '</fieldset>';
+
+						echo '<p style="margin-top:1em;margin-bottom:0;">';
+							echo form_submit( 'submit', lang( 'action_save_changes' ), 'class="awesome" style="margin-bottom:0;"' );
+						echo '</p>';
+
+						echo form_close();
+
+					else :
+
+						echo '<p class="system-alert message">';
+							echo '<strong>Sorry,</strong> no configurable settings for the "' . $skin_current->name . '" skin.';
+						echo '</p>';
+
+					endif;
+
+				else :
+
+					echo '<p class="system-alert message">';
+						echo '<strong>Sorry,</strong> no configurable settings for this skin.';
+					echo '</p>';
+
+				endif;
+
+			?>
 			</div>
 
 			<?php $_display = $this->input->post( 'update' ) == 'payment_gateway' ? 'active' : ''?>

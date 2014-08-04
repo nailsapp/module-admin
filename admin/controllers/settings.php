@@ -834,6 +834,8 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		$this->data['payment_gateways']			= $this->shop_payment_gateway_model->get_available();
 		$this->data['shipping_modules']			= $this->shop_shipping_model->get_available();
 		$this->data['skins']					= $this->shop_skin_model->get_available();
+		$this->data['skin_selected']			= $_selected_skin = app_setting( 'skin', 'shop' ) ? app_setting( 'skin', 'shop' ) : 'skin-shop-gettingstarted';
+		$this->data['skin_current']				= $this->shop_skin_model->get( $this->data['skin_selected'] );
 		$this->data['currencies']				= $this->shop_currency_model->get_all( );
 		$this->data['tax_rates']				= $this->shop_tax_rate_model->get_all();
 		$this->data['tax_rates_flat']			= $this->shop_tax_rate_model->get_all_flat();
@@ -921,6 +923,42 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		if ( $this->app_setting_model->set( $_settings, 'shop' ) ) :
+
+			$this->data['success'] = '<strong>Success!</strong> Skin settings have been saved.';
+
+		else :
+
+			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _shop_update_skin_config()
+	{
+		//	Prepare update
+		$_settings	= array();
+		$_configs	= (array) $this->input->post( 'skin_config' );
+		$_configs	= array_filter( $_configs );
+		$_configs	= array_unique( $_configs );
+
+		foreach( $_configs AS $key => $value ) :
+
+			$_settings[$key] = $value;
+
+		endforeach;
+
+		// --------------------------------------------------------------------------
+
+		//	Clear out the grouping
+		$this->app_setting_model->delete_group( 'shop-' . $this->input->post( 'skin_slug' ) );
+
+		// --------------------------------------------------------------------------
+
+		if ( $this->app_setting_model->set( $_settings, 'shop-' . $this->input->post( 'skin_slug' ) ) ) :
 
 			$this->data['success'] = '<strong>Success!</strong> Skin settings have been saved.';
 
