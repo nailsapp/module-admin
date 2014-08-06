@@ -1,5 +1,7 @@
 <div class="search">
-	<div class="mask"><?=img( NAILS_ASSETS_URL . 'img/loader/30px-TRANS.gif' )?></div>
+	<div class="mask">
+		<b class="fa fa-refresh fa-spin fa-2x"></b>
+	</div>
 	<?php
 
 		$_form = array(
