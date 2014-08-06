@@ -43,7 +43,7 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
 		//	Configurations
 		$d->name = 'Content Management';
-		$d->icon = 'fa fa-file-text';
+		$d->icon = 'fa-file-text';
 
 		// --------------------------------------------------------------------------
 

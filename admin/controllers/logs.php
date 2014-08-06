@@ -35,7 +35,7 @@ class NAILS_Logs extends NAILS_Admin_Controller
 
 		//	Configurations
 		$d->name = 'Logs';
-		$d->icon = 'fa fa-archive';
+		$d->icon = 'fa-archive';
 
 		// --------------------------------------------------------------------------
 

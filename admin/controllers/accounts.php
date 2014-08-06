@@ -51,7 +51,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 		//	Configurations
 		$d->name = lang( 'accounts_module_name' );
-		$d->icon = 'fa fa-users';
+		$d->icon = 'fa-users';
 
 		// --------------------------------------------------------------------------
 

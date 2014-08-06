@@ -40,7 +40,7 @@ class NAILS_Notification extends NAILS_Admin_Controller
 
 		//	Configurations
 		$d->name = lang( 'notification_module_name' );
-		$d->icon = 'fa fa-dot-circle-o';
+		$d->icon = 'fa-dot-circle-o';
 
 		// --------------------------------------------------------------------------
 

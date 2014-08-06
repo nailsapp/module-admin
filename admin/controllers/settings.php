@@ -39,7 +39,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
 		//	Configurations
 		$d->name = lang( 'settings_module_name' );
-		$d->icon = 'fa fa-wrench';
+		$d->icon = 'fa-wrench';
 
 		// --------------------------------------------------------------------------
 

@@ -43,7 +43,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 		//	Configurations
 		$d->name = 'Blog';
-		$d->icon = 'fa fa-pencil-square-o';
+		$d->icon = 'fa-pencil-square-o';
 
 		// --------------------------------------------------------------------------
 
