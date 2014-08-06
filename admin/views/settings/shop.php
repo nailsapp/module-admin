@@ -157,6 +157,106 @@
 					?>
 				</fieldset>
 
+				<fieldset id="shop-settings-warehouse-colletion">
+					<legend>Warehouse Collection</legend>
+					<p>
+						If you'd like customers to be able to collect items from your warehouse or store, then enable it below and provide collection details.
+					</p>
+					<?php
+
+						//	Company Name
+						$_field					= array();
+						$_field['key']			= 'warehouse_collection_enabled';
+						$_field['label']		= 'Enabled';
+						$_field['default']		= app_setting( $_field['key'], 'shop' );
+
+						echo form_field_boolean( $_field );
+
+						// --------------------------------------------------------------------------
+
+						if ( $this->input->post( $_field['key'] ) || app_setting( $_field['key'], 'shop' ) ) :
+
+							$_style = '';
+
+						else :
+
+							$_style = 'style="display:none;"';
+
+						endif;
+
+						echo '<div id="warehouse-collection-address" ' . $_style . '>';
+
+							$_field					= array();
+							$_field['key']			= 'warehouse_addr_addressee';
+							$_field['label']		= 'Addressee';
+							$_field['default']		= app_setting( $_field['key'], 'shop' );
+							$_field['placeholder']	= 'The person or department responsible for collection items.';
+
+							echo form_field( $_field );
+
+							// --------------------------------------------------------------------------
+
+							$_field					= array();
+							$_field['key']			= 'warehouse_addr_line1';
+							$_field['label']		= 'Address Line 1';
+							$_field['default']		= app_setting( $_field['key'], 'shop' );
+							$_field['placeholder']	= 'The first line of the warehouse\'s address';
+
+							echo form_field( $_field );
+
+							// --------------------------------------------------------------------------
+
+							$_field					= array();
+							$_field['key']			= 'warehouse_addr_line2';
+							$_field['label']		= 'Address Line 2';
+							$_field['default']		= app_setting( $_field['key'], 'shop' );
+							$_field['placeholder']	= 'The second line of the warehouse\'s address';
+
+							echo form_field( $_field );
+
+							// --------------------------------------------------------------------------
+
+							$_field					= array();
+							$_field['key']			= 'warehouse_addr_town';
+							$_field['label']		= 'Address Town';
+							$_field['default']		= app_setting( $_field['key'], 'shop' );
+							$_field['placeholder']	= 'The town line of the warehouse\'s address';
+
+							echo form_field( $_field );
+
+							// --------------------------------------------------------------------------
+
+							$_field					= array();
+							$_field['key']			= 'warehouse_addr_postcode';
+							$_field['label']		= 'Address Postcode';
+							$_field['default']		= app_setting( $_field['key'], 'shop' );
+							$_field['placeholder']	= 'The postcode line of the warehouse\'s address';
+
+							echo form_field( $_field );
+
+							// --------------------------------------------------------------------------
+
+							$_field					= array();
+							$_field['key']			= 'warehouse_addr_state';
+							$_field['label']		= 'Address State';
+							$_field['default']		= app_setting( $_field['key'], 'shop' );
+							$_field['placeholder']	= 'The stateline of the warehouse\'s address, if applicable';
+
+							// --------------------------------------------------------------------------
+
+							$_field					= array();
+							$_field['key']			= 'warehouse_addr_country';
+							$_field['label']		= 'Address Country';
+							$_field['default']		= app_setting( $_field['key'], 'shop' );
+							$_field['placeholder']	= 'The country line of the warehouse\'s address';
+
+							echo form_field( $_field );
+
+						echo '</div>';
+
+					?>
+				</fieldset>
+
 				<fieldset id="shop-settings-misc">
 					<legend>Miscellaneous</legend>
 					<?php
@@ -272,7 +372,7 @@
 								echo '<div class="icon">' . img( $_icon ) . '</div>';
 								echo '<div class="name">';
 									echo $_name;
-									echo '<span class="ion-checkmark-circled"></span>';
+									echo '<span class="fa fa-check-circle"></span>';
 								echo '</div>';
 								echo form_radio( 'skin', $skin->slug, $_selected );
 							echo '</li>';
@@ -691,7 +791,7 @@
 
 								echo '<tr>';
 									echo '<td class="order">';
-										echo '<span class="ion-drag"></span>';
+										echo '<span class="fa fa-navicon"></span>';
 									echo '</td>';
 									echo '<td class="enabled">';
 										echo '<div class="toggle toggle-modern"></div>';

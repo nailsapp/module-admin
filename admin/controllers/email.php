@@ -40,7 +40,7 @@ class NAILS_Email extends NAILS_Admin_Controller
 
 		//	Configurations
 		$d->name = lang( 'email_module_name' );
-		$d->icon = 'ion-paper-airplane';
+		$d->icon = 'fa fa-paper-plane-o';
 
 		// --------------------------------------------------------------------------
 

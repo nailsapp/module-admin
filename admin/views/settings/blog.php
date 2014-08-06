@@ -197,7 +197,7 @@
 								echo '<div class="icon">' . img( $_icon ) . '</div>';
 								echo '<div class="name">';
 									echo $_name;
-									echo '<span class="ion-checkmark-circled"></span>';
+									echo '<span class="fa fa-check-circle"></span>';
 								echo '</div>';
 								echo form_radio( 'skin', $skin->slug, $_selected );
 							echo '</li>';

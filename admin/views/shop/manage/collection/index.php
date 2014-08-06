@@ -59,13 +59,13 @@
 									if ( $collection->is_active ) :
 
 										echo '<td class="active success">';
-											echo '<span class="ion-checkmark-circled"></span>';
+											echo '<span class="fa fa-check-circle"></span>';
 										echo '</td>';
 
 									else :
 
 										echo '<td class="active error">';
-											echo '<span class="ion-close-circled"></span>';
+											echo '<span class="fa fa-times-circle"></span>';
 										echo '</td>';
 
 									endif;

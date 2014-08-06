@@ -17,7 +17,7 @@
 		//	Silly little welcome happy face and positive text
 		echo '<div class="welcome">';
 			echo '<p class="icon">';
-				echo '<span class="ion-happy">';
+				echo '<span class="fa fa-smile-o">';
 			echo '</p>';
 			echo '<p class="text">';
 				echo $phrase;

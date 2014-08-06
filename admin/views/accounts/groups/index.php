@@ -43,13 +43,13 @@
 					if ( $group->is_default ) :
 
 						echo '<td class="default success">';
-							echo '<span class="ion-checkmark-circled"></span>';
+							echo '<span class="fa fa-check-circle"></span>';
 						echo '</td>';
 
 					else :
 
 						echo '<td class="default error">';
-							echo '<span class="ion-close-circled"></span>';
+							echo '<span class="fa fa-times-circle"></span>';
 						echo '</td>';
 
 					endif;

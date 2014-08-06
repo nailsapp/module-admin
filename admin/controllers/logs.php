@@ -35,7 +35,7 @@ class NAILS_Logs extends NAILS_Admin_Controller
 
 		//	Configurations
 		$d->name = 'Logs';
-		$d->icon = 'ion-filing';
+		$d->icon = 'fa fa-archive';
 
 		// --------------------------------------------------------------------------
 

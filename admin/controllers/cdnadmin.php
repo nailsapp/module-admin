@@ -35,7 +35,7 @@ class NAILS_Cdnadmin extends NAILS_Admin_Controller
 
 		//	Configurations
 		$d->name = 'CDN';
-		$d->icon = 'ion-upload';
+		$d->icon = 'fa fa-cloud-upload';
 
 		// --------------------------------------------------------------------------
 

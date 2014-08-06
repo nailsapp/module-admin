@@ -79,7 +79,7 @@
 	<li class="target target-{{id}}" data-id="{{id}}">
 		<div class="item">
 			<div class="handle">
-				<span class="ion-arrow-move"></span>
+				<span class="fa fa-arrows"></span>
 			</div>
 			<div class="content">
 				<?php

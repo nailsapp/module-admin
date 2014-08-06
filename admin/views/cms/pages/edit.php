@@ -65,7 +65,7 @@
 		<p>
 			<small>
 				Last Saved: <span class="last-saved">Not Saved</span>
-				<span class="ion-looping"></span>
+				<span class="fa fa-refresh fa-spin"></span>
 			</small>
 		</p>
 	</div>
@@ -201,7 +201,7 @@
 						echo '<span class="icon" ' . $_background . '></span>';
 						echo '<span class="newrow"></span>';
 						echo '<span class="name">';
-							echo '<span class="checkmark ion-checkmark-circled"></span>';
+							echo '<span class="checkmark fa fa-check-circle"></span>';
 							echo '<span>' . $template->label . '</span>';
 						echo '</span>';
 					echo '</label>';
@@ -365,7 +365,7 @@
 //-->
 </script>
 <script type="text/template" id="template-loader">
-	<span class="ion-looping"></span>
+	<span class="fa fa-refresh fa-spin"></span>
 </script>
 <script type="text/template" id="template-header">
 	<ul>
@@ -381,20 +381,20 @@
 <script type="text/template" id="template-widget-search">
 	<input type="search" placeholder="Search widget library" />
 	<a href="#" class="minimiser">
-		<span class="ion-navicon-round"></span>
+		<span class="fa fa-navicon"></span>
 	</a>
 </script>
 <script type="text/template" id="template-widget-grouping">
 	<li class="grouping open" data-group="{{group}}">
-		<span class="icon ion-ios7-folder"></span>
+		<span class="icon fa fa-folder"></span>
 		<span class="label">{{name}}</span>
-		<span class="toggle-open right ion-arrow-down-b"></span>
-		<span class="toggle-closed right ion-arrow-right-b"></span>
+		<span class="toggle-open right fa fa-sort-desc"></span>
+		<span class="toggle-closed right fa fa-sort-asc"></span>
 	</li>
 </script>
 <script type="text/template" id="template-widget">
 	<li class="widget {{group}} {{slug}}" data-slug="{{slug}}" data-title="{{name}} Widget" data-keywords="{{keywords}}" title="">
-		<span class="icon ion-arrow-move"></span>
+		<span class="icon fa fa-arrows"></span>
 		<span class="label">{{name}}</span>
 		{{#description}}<span class="description">{{description}}</span>{{/description}}
 	</li>
@@ -411,15 +411,15 @@
 <script type="text/template" id="template-dropzone-widget">
 	<div class="header-bar">
 		<span class="sorter">
-			<span class="ion-arrow-move"></span>
+			<span class="fa fa-arrows"></span>
 		</span>
 		<span class="label">{{label}}</span>
-		<span class="closer ion-trash-a"></span>
+		<span class="closer fa fa-trash-o"></span>
 		{{#description}}<span class="description">{{description}}</span>{{/description}}
 	</div>
 	<form class="editor">
 		<p style="text-align:center;">
-			<span class="ion-looping"></span>
+			<span class="fa fa-refresh fa-spin"></span>
 			<br />
 			Please wait, loading widget
 		</p>

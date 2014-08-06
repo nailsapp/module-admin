@@ -34,7 +34,7 @@
 				if ( $member->email_is_verified ) :
 
 					echo '<span class="verified" rel="tipsy" title="' . lang( 'accounts_index_verified' ) . '">';
-						echo '&nbsp;<span class="ion-checkmark-circled"></span>';
+						echo '&nbsp;<span class="fa fa-check-circle"></span>';
 					echo '<span>';
 
 				endif;

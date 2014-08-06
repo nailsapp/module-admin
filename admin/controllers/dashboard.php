@@ -40,7 +40,7 @@ class NAILS_Dashboard extends NAILS_Admin_Controller
 
 		//	Configurations
 		$d->name = lang( 'dashboard_module_name' );
-		$d->icon = 'ion-home';
+		$d->icon = 'fa fa-home';
 
 		// --------------------------------------------------------------------------
 

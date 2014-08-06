@@ -69,14 +69,14 @@
 					if ( $post->is_published ) :
 
 						echo '<td class="status success">';
-						echo '<span class="ion-checkmark-circled"></span>';
+						echo '<span class="fa fa-check-circle"></span>';
 						echo '<small class="nice-time">' . user_datetime( $post->published, 'Y-m-d', 'H:i:s' ) . '</small>';
 						echo '</td>';
 
 					else :
 
 						echo '<td class="status error">';
-						echo '<span class="ion-close-circled"></span>';
+						echo '<span class="fa fa-times-circle"></span>';
 						echo '</td>';
 
 					endif;

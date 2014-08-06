@@ -35,7 +35,7 @@
 							<th class="label">Label &amp; Description</th>
 							<th class="count">
 								Products
-								<span rel="tipsy-top" title="Parent category product counts include products contained within child categories." class="ion-help-circled"></span>
+								<span rel="tipsy-top" title="Parent category product counts include products contained within child categories." class="fa fa-question-circle"></span>
 							</th>
 							<th class="modified">Modified</th>
 							<th class="actions">Actions</th>

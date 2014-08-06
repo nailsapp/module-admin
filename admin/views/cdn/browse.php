@@ -58,13 +58,13 @@
 
 								case 'audio/mpeg' :
 
-									echo '<span class="ion-music-note"></span>';
+									echo '<span class="fa fa-music"></span>';
 
 								break;
 
 								default :
 
-									echo '<span class="ion-document"></span>';
+									echo '<span class="fa fa-file-o"></span>';
 
 								break;
 
@@ -100,9 +100,9 @@
 			else :
 
 				echo '<tr>';
-				echo '<td colspan="10" class="no-data">';
-				echo 'No Items found';
-				echo '</td>';
+					echo '<td colspan="10" class="no-data">';
+						echo 'No Items found';
+					echo '</td>';
 				echo '</tr>';
 
 			endif;

@@ -43,7 +43,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		//	Configurations
 		$d->name = 'Shop';
-		$d->icon = 'ion-ios7-cart';
+		$d->icon = 'fa fa-shopping-cart';
 
 		// --------------------------------------------------------------------------
 
