@@ -154,28 +154,7 @@ class NAILS_Notification extends NAILS_Admin_Controller
 		//	Conditionally set this as this method may be overridden by the app to add
 		//	custom notification types
 
-		if ( empty( $this->data['notifications'] ) ) :
-
-			$this->data['notifications'] = array();
-
-		endif;
-
-		//	Generic Site notifications
-		// $this->data['notifications']['app']					= new stdClass();
-		// $this->data['notifications']['app']->label			= 'Site';
-		// $this->data['notifications']['app']->description	= 'General site notifications.';
-		// $this->data['notifications']['app']->options		= array();
-		// $this->data['notifications']['app']->options['foo']	= 'Bar';
-
-		if ( module_is_enabled( 'shop' ) ) :
-
-			$this->data['notifications']['shop']							= new stdClass();
-			$this->data['notifications']['shop']->label						= 'Shop';
-			$this->data['notifications']['shop']->description				= 'Shop related notifications.';
-			$this->data['notifications']['shop']->options					= array();
-			$this->data['notifications']['shop']->options['notify_order']	= 'Order Notifications';
-
-		endif;
+		$this->data['notifications'] = $this->app_notification_model->get_definitions();
 
 		// --------------------------------------------------------------------------
 

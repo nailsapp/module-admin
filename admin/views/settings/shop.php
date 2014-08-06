@@ -157,14 +157,13 @@
 					?>
 				</fieldset>
 
-				<fieldset id="shop-settings-warehouse-colletion">
+				<fieldset id="shop-settings-warehouse-collection">
 					<legend>Warehouse Collection</legend>
 					<p>
 						If you'd like customers to be able to collect items from your warehouse or store, then enable it below and provide collection details.
 					</p>
 					<?php
 
-						//	Company Name
 						$_field					= array();
 						$_field['key']			= 'warehouse_collection_enabled';
 						$_field['label']		= 'Enabled';
@@ -240,7 +239,9 @@
 							$_field['key']			= 'warehouse_addr_state';
 							$_field['label']		= 'Address State';
 							$_field['default']		= app_setting( $_field['key'], 'shop' );
-							$_field['placeholder']	= 'The stateline of the warehouse\'s address, if applicable';
+							$_field['placeholder']	= 'The state line of the warehouse\'s address, if applicable';
+
+							echo form_field( $_field );
 
 							// --------------------------------------------------------------------------
 
@@ -251,6 +252,16 @@
 							$_field['placeholder']	= 'The country line of the warehouse\'s address';
 
 							echo form_field( $_field );
+
+							// --------------------------------------------------------------------------
+
+							$_field					= array();
+							$_field['key']			= 'warehouse_collection_delivery_enquiry';
+							$_field['label']		= 'Enable Delivery Enquiry';
+							$_field['default']		= app_setting( $_field['key'], 'shop' );
+							$_field['tip']			= 'For items which are &quot;collect only&quot;, enable a button which allows the user to submit a delivery enquiry.';
+
+							echo form_field_boolean( $_field );
 
 						echo '</div>';
 

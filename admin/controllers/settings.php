@@ -865,21 +865,30 @@ class NAILS_Settings extends NAILS_Admin_Controller
 	protected function _shop_update_settings()
 	{
 		//	Prepare update
-		$_settings								= array();
-		$_settings['name']						= $this->input->post( 'name' );
-		$_settings['url']						= $this->input->post( 'url' );
-		$_settings['price_exclude_tax']			= $this->input->post( 'price_exclude_tax' );
-		$_settings['invoice_company']			= $this->input->post( 'invoice_company' );
-		$_settings['invoice_company']			= $this->input->post( 'invoice_company' );
-		$_settings['invoice_address']			= $this->input->post( 'invoice_address' );
-		$_settings['invoice_vat_no']			= $this->input->post( 'invoice_vat_no' );
-		$_settings['invoice_company_no']		= $this->input->post( 'invoice_company_no' );
-		$_settings['page_brand_listing']		= $this->input->post( 'page_brand_listing' );
-		$_settings['page_category_listing']		= $this->input->post( 'page_category_listing' );
-		$_settings['page_collection_listing']	= $this->input->post( 'page_collection_listing' );
-		$_settings['page_range_listing']		= $this->input->post( 'page_range_listing' );
-		$_settings['page_sale_listing']			= $this->input->post( 'page_sale_listing' );
-		$_settings['page_tag_listing']			= $this->input->post( 'page_tag_listing' );
+		$_settings											= array();
+		$_settings['name']									= $this->input->post( 'name' );
+		$_settings['url']									= $this->input->post( 'url' );
+		$_settings['price_exclude_tax']						= $this->input->post( 'price_exclude_tax' );
+		$_settings['invoice_company']						= $this->input->post( 'invoice_company' );
+		$_settings['invoice_company']						= $this->input->post( 'invoice_company' );
+		$_settings['invoice_address']						= $this->input->post( 'invoice_address' );
+		$_settings['invoice_vat_no']						= $this->input->post( 'invoice_vat_no' );
+		$_settings['invoice_company_no']					= $this->input->post( 'invoice_company_no' );
+		$_settings['warehouse_collection_enabled']			= (bool) $this->input->post( 'warehouse_collection_enabled' );
+		$_settings['warehouse_addr_addressee']				= $this->input->post( 'warehouse_addr_addressee' );
+		$_settings['warehouse_addr_line1']					= $this->input->post( 'warehouse_addr_line1' );
+		$_settings['warehouse_addr_line2']					= $this->input->post( 'warehouse_addr_line2' );
+		$_settings['warehouse_addr_town']					= $this->input->post( 'warehouse_addr_town' );
+		$_settings['warehouse_addr_postcode']				= $this->input->post( 'warehouse_addr_postcode' );
+		$_settings['warehouse_addr_state']					= $this->input->post( 'warehouse_addr_state' );
+		$_settings['warehouse_addr_country']				= $this->input->post( 'warehouse_addr_country' );
+		$_settings['warehouse_collection_delivery_enquiry']	= (bool) $this->input->post( 'warehouse_collection_delivery_enquiry' );
+		$_settings['page_brand_listing']					= $this->input->post( 'page_brand_listing' );
+		$_settings['page_category_listing']					= $this->input->post( 'page_category_listing' );
+		$_settings['page_collection_listing']				= $this->input->post( 'page_collection_listing' );
+		$_settings['page_range_listing']					= $this->input->post( 'page_range_listing' );
+		$_settings['page_sale_listing']						= $this->input->post( 'page_sale_listing' );
+		$_settings['page_tag_listing']						= $this->input->post( 'page_tag_listing' );
 
 
 		// --------------------------------------------------------------------------
