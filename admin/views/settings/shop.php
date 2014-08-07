@@ -11,6 +11,11 @@
 				<a href="#" data-tab="tab-general">General</a>
 			</li>
 
+			<?php $_active = $this->input->post( 'update' ) == 'browse' ? 'active' : ''?>
+			<li class="tab <?=$_active?>">
+				<a href="#" data-tab="tab-browse">Browsing</a>
+			</li>
+
 			<?php $_active = $this->input->post( 'update' ) == 'skin' ? 'active' : ''?>
 			<li class="tab <?=$_active?>">
 				<a href="#" data-tab="tab-skin">Skin</a>
@@ -58,7 +63,7 @@
 						$_field					= array();
 						$_field['key']			= 'name';
 						$_field['label']		= 'Shop Name';
-						$_field['default']		= app_setting( 'name', 'shop' ) ? app_setting( 'name', 'shop' ) : 'Shop';
+						$_field['default']		= app_setting( $_field['key'], 'shop' ) ? app_setting( $_field['key'], 'shop' ) : 'Shop';
 						$_field['placeholder']	= 'Customise the Shop\'s Name';
 
 						echo form_field( $_field );
@@ -338,6 +343,76 @@
 				<?=form_close()?>
 			</div>
 
+			<?php $_display = $this->input->post( 'update' ) == 'browse' ? 'active' : ''?>
+			<div id="tab-browse" class="tab page <?=$_display?> browse">
+				<?=form_open( NULL, 'style="margin-bottom:0;"' )?>
+				<?=form_hidden( 'update', 'browse' )?>
+				<p>
+					Configure the default browsing experience for your customers.
+				</p>
+				<hr />
+				<fieldset id="shop-browsing-tweaks">
+					<legend>Browsing Tweaks</legend>
+					<?php
+
+						$_field					= array();
+						$_field['key']		= 'expand_variants';
+						$_field['label']	= 'Expand Variants';
+						$_field['default']	= app_setting( $_field['key'], 'shop' );
+						$_field['tip']		= 'Expand product variants so that each variant is seemingly an individual product when browsing.';
+
+						echo form_field_boolean( $_field );
+
+					?>
+				</fieldset>
+
+				<fieldset id="shop-sorting-tweaks">
+					<legend>Sorting Defaults</legend>
+					<?php
+
+						/*
+						 * Changing these? Then make sure you update the skins etc too.
+						 * Probably would be a good TODO to abstract these into a model/config file somewhere.
+						 */
+
+						$_field				= array();
+						$_field['key']		= 'default_product_per_page';
+						$_field['label']	= 'Products per Page';
+						$_field['class']	= 'select2';
+						$_field['default']	= app_setting( $_field['key'], 'shop' );
+
+						$_options			= array();
+						$_options['10']		= '10';
+						$_options['25']		= '25';
+						$_options['50']		= '50';
+						$_options['100']	= '100';
+
+						echo form_field_dropdown( $_field, $_options );
+
+						// --------------------------------------------------------------------------
+
+						$_field				= array();
+						$_field['key']		= 'default_product_sort';
+						$_field['label']	= 'Product Sorting';
+						$_field['class']	= 'select2';
+						$_field['default']	= app_setting( $_field['key'], 'shop' );
+
+						$_options					= array();
+						$_options['recent']			= 'Recently Added';
+						$_options['price-low-high']	= 'Price: Low to High';
+						$_options['price-high-low']	= 'Price: High to Low';
+						$_options['a-z']			= 'A to Z';
+
+						echo form_field_dropdown( $_field, $_options );
+
+					?>
+				</fieldset>
+				<p style="margin-top:1em;margin-bottom:0;">
+					<?=form_submit( 'submit', lang( 'action_save_changes' ), 'class="awesome" style="margin-bottom:0;"' )?>
+				</p>
+				<?=form_close()?>
+			</div>
+
 			<?php $_display = $this->input->post( 'update' ) == 'skin' ? 'active' : ''?>
 			<div id="tab-skin" class="tab page <?=$_display?> skin">
 				<?=form_open( NULL, 'style="margin-bottom:0;"' )?>
@@ -451,6 +526,45 @@
 								case 'boolean' :
 
 									echo form_field_boolean( $_field );
+
+								break;
+
+								case 'dropdown' :
+
+									if ( ! empty( $setting->options ) && is_array( $setting->options ) ) :
+
+										$_options = array();
+										$_field['class'] = 'select2';
+
+										foreach( $setting->options AS $option ) :
+
+											if ( isset( $option->value ) ) :
+
+												$_value = $option->value;
+
+											else :
+
+												$_value = NULL;
+
+											endif;
+
+											if ( isset( $option->label ) ) :
+
+												$_label = $option->label;
+
+											else :
+
+												$_label = NULL;
+
+											endif;
+
+											$_options[$_value] = $_label;
+
+										endforeach;
+
+										echo form_field_dropdown( $_field, $_options );
+
+									endif;
 
 								break;
 

@@ -923,6 +923,31 @@ class NAILS_Settings extends NAILS_Admin_Controller
 	// --------------------------------------------------------------------------
 
 
+	protected function _shop_update_browse()
+	{
+		//	Prepare update
+		$_settings								= array();
+		$_settings['expand_variants']			= (bool) $this->input->post( 'expand_variants' );
+		$_settings['default_product_per_page']	= (int) $this->input->post( 'default_product_per_page' );
+		$_settings['default_product_sort']		= $this->input->post( 'default_product_sort' );
+
+		// --------------------------------------------------------------------------
+
+		if ( $this->app_setting_model->set( $_settings, 'shop' ) ) :
+
+			$this->data['success'] = '<strong>Success!</strong> Browsing settings have been saved.';
+
+		else :
+
+			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
 	protected function _shop_update_skin()
 	{
 		//	Prepare update
