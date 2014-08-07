@@ -1,4 +1,4 @@
-<div class="pagination">
+<div class="pagination clearfix">
 <?php
 
 	$this->load->library('pagination');
