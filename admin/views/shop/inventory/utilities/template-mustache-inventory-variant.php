@@ -126,6 +126,41 @@
 
 				echo '</div>';
 
+				// --------------------------------------------------------------------------
+
+				$_field				= array();
+				$_field['key']		= 'variation[' . $_counter . '][out_of_stock_behaviour]';
+				$_field['label']	= 'Out of Stock Behaviour';
+				$_field['class']	= 'select2 out-of-stock-behaviour';
+				$_field['required']	= TRUE;
+				$_field['default']	= ! empty( $variation->out_of_stock_behaviour ) ? $variation->out_of_stock_behaviour : 'OUT_OF_STOCK';
+				$_field['tip']		= 'Specify the behaviour of the item when the quantity available of an item reaches 0.';
+
+				$_options					= array();
+				$_options['TO_ORDER']		= 'Behave as if: To Order';
+				$_options['OUT_OF_STOCK']	= 'Behave as if: Out of Stock';
+
+				echo form_field_dropdown( $_field, $_options );
+
+				// --------------------------------------------------------------------------
+
+				$_status	= set_value( 'variation[' . $_counter . '][out_of_stock_behaviour]', $_field['default'] );
+				$_display = $_status == 'TO_ORDER' ? 'block' : 'none';
+
+				echo '<div class="out-of-stock-behaviour-field TO_ORDER" style="display:' . $_display . '">';
+
+					$_field					= array();
+					$_field['key']			= 'variation[' . $_counter . '][out_of_stock_to_order_lead_time]';
+					$_field['label']		= 'Out of Stock Lead Time';
+					$_field['sub_label']	= 'Max. 50 characters';
+					$_field['required']		= TRUE;
+					$_field['placeholder']	= 'How long is the lead time on orders for this product when it\'s out of stock?';
+					$_field['default']		= ! empty( $variation->out_of_stock_to_order_lead_time ) ? $variation->out_of_stock_to_order_lead_time : '';
+
+					echo form_field( $_field );
+
+				echo '</div>';
+
 			?>
 		</div>
 
