@@ -69,7 +69,7 @@
 
 										endif;
 
-										echo anchor( app_setting( 'url', 'shop' ) . 'tag/' . $tag->slug, lang( 'action_view' ), 'class="awesome small orange" target="_blank"' );
+										echo anchor( $shop_url . 'tag/' . $tag->slug, lang( 'action_view' ), 'class="awesome small orange" target="_blank"' );
 
 									echo '</td>';
 								echo '</tr>';

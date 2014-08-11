@@ -83,7 +83,7 @@
 
 										endif;
 
-										echo anchor( app_setting( 'url', 'shop' ) . 'collection/' . $collection->slug, lang( 'action_view' ), 'class="awesome small orange" target="_blank"' );
+										echo anchor( $shop_url . 'collection/' . $collection->slug, lang( 'action_view' ), 'class="awesome small orange" target="_blank"' );
 
 									echo '</td>';
 								echo '</tr>';

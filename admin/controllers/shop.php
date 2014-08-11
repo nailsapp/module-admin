@@ -224,6 +224,10 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		$this->load->model( 'shop/shop_product_model' );
 		$this->load->model( 'shop/shop_product_type_model' );
 		$this->load->model( 'shop/shop_tax_rate_model' );
+
+		// --------------------------------------------------------------------------
+
+		$this->data['shop_url'] = app_setting( 'url', 'shop' ) ? app_setting( 'url', 'shop' ) : 'shop/';
 	}
 
 
