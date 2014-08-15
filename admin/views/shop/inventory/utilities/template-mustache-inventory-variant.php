@@ -10,20 +10,22 @@
 
 	$_counter = isset( $variation ) && $counter !== FALSE ? $counter : '{{counter}}';
 
-
-	//	Pass the vraiation ID along for the ride too
-	if ( ! empty( $variation->id ) ) :
-
-		echo form_hidden( 'variation[' . $_counter . '][id]', $variation->id );
-
-	elseif ( ! empty( $variation['id'] ) ) :
-
-		echo form_hidden( 'variation[' . $_counter . '][id]', $variation['id'] );
-
-	endif;
-
 ?>
 <div id="variation-<?=$_counter?>" class="variation" data-counter="<?=$_counter?>">
+	<?php
+
+		//	Pass the vraiation ID along for the ride too
+		if ( ! empty( $variation->id ) ) :
+
+			echo form_hidden( 'variation[' . $_counter . '][id]', $variation->id );
+
+		elseif ( ! empty( $variation['id'] ) ) :
+
+			echo form_hidden( 'variation[' . $_counter . '][id]', $variation['id'] );
+
+		endif;
+
+	?>
 	<div class="not-applicable">
 		<p>
 			<strong>The specified product type has a limited number of variations it can support.</strong>
