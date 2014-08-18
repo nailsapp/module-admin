@@ -9,7 +9,7 @@
 <div class="group-cdn browse">
 	<p>
 		Browse all items stored in the site's CDN.
-		<?=anchor( 'admin/cdnadmin/create' . $_return, 'Upload Items', 'class="awesome small green fancybox" data-fancybox-type="iframe" style="float:right;"' )?>
+		<?=anchor( 'admin/cdnadmin/create' . $_return, 'Upload Items', 'class="awesome small green" style="float:right;"' )?>
 	</p>
 
 	<hr />

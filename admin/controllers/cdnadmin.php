@@ -137,12 +137,26 @@ class NAILS_Cdnadmin extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
+		$this->data['buckets'] = $this->cdn->get_buckets();
+
+		// --------------------------------------------------------------------------
+
 		if ( $this->input->get( 'is_fancybox' ) ) :
 
 			$this->data['header_override'] = 'structure/header/nails-admin-blank';
 			$this->data['footer_override'] = 'structure/header/nails-admin-blank';
 
 		endif;
+
+		// --------------------------------------------------------------------------
+
+		$this->asset->load( 'nails.admin.cdn.upload.min.js', 'NAILS' );
+		$this->asset->load( 'dropzone/downloads/css/dropzone.css', 'BOWER' );
+		$this->asset->load( 'dropzone/downloads/css/basic.css', 'BOWER' );
+		$this->asset->load( 'dropzone/downloads/dropzone.min.js', 'BOWER' );
+		$this->asset->inline( 'var _upload = new NAILS_Admin_CDN_Upload();', 'JS' );
+
+		// --------------------------------------------------------------------------
 
 		$this->load->view( 'structure/header',	$this->data );
 		$this->load->view( 'admin/cdn/create',	$this->data );
