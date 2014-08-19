@@ -80,7 +80,7 @@
 						echo '<td class="filesize">' . format_bytes( $object->filesize ) . '</td>';
 						echo '<td class="actions">';
 							echo anchor( 'admin/cdnadmin/edit/' . $object->id . $_return, 'Edit', 'class="awesome small"' );
-							echo anchor( 'admin/cdnadmin/delete/' . $object->id . $_return, 'Delete', 'data-title="Are you sure?" data-body="Deleting an item will attempt to disconnect it from resources which depend on it. The object wil be recoverable but dependencies won\'t." class="confirm awesome small red"' );
+							echo anchor( 'admin/cdnadmin/delete/' . $object->id . $_return, 'Delete', 'data-title="Are you sure?" data-body="Deleting an item will attempt to disconnect it from resources which depend on it. The object will be recoverable but dependencies won\'t." class="confirm awesome small red"' );
 
 							if ( $object->is_img ) :
 

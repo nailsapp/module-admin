@@ -86,7 +86,14 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		$_notifications['index']			= array();
-		$_notifications['index']['value']	= $_ci->db->count_all( NAILS_DB_PREFIX . 'user' );
+		$_notifications['index']['type']	= 'split';
+		$_notifications['index']['options']	= array();
+
+		$_ci->db->where( 'is_suspended', TRUE );
+		$_notifications['index']['options'][] = array( 'title' => 'Suspended', 'type' => 'alert', 'value' => $_ci->db->count_all_results( NAILS_DB_PREFIX . 'user' ) );
+
+		$_ci->db->where( 'is_suspended', FALSE );
+		$_notifications['index']['options'][] = array( 'title' => 'Active', 'type' => 'info', 'value' => $_ci->db->count_all_results( NAILS_DB_PREFIX . 'user' ) );
 
 		// --------------------------------------------------------------------------
 
