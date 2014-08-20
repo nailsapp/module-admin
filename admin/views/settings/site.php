@@ -115,18 +115,41 @@
 								echo '<div id="configure-provider-' . $provider['slug'] . '" class="configure-provider-fancybox" style="display:none;">';
 
 									echo '<p style="text-align:center;">';
-										echo 'Please provide the following information. All fields are required.';
+										echo 'Please provide the following information. Fields marked with a * are required.';
 									echo '</p>';
 
 									foreach ( $provider['fields'] AS $key => $label ) :
 
-										$_field				= array();
-										$_field['key']		= 'auth_social_signon_' . $provider['slug'] . '_' . $key;
-										$_field['label']	= $label;
-										$_field['required']	= TRUE;
-										$_field['default']	= app_setting( $_field['key'] );
+										/**
+										 * Secondary conditional detects an actual array fo fields rather than
+										 * just the label/required array. Design could probably be improved...
+										 **/
 
-										echo form_field( $_field );
+										if ( is_array( $label ) && ! isset( $label['label'] ) ) :
+
+											foreach ( $label AS $key1 => $label1 ) :
+
+												$_field				= array();
+												$_field['key']		= 'auth_social_signon_' . $provider['slug'] . '_' . $key . '_' . $key1;
+												$_field['label']	= $label1['label'];
+												$_field['required']	= $label1['required'];
+												$_field['default']	= app_setting( $_field['key'] );
+
+												echo form_field( $_field );
+
+											endforeach;
+
+										else :
+
+											$_field				= array();
+											$_field['key']		= 'auth_social_signon_' . $provider['slug'] . '_' . $key;
+											$_field['label']	= $label['label'];
+											$_field['required']	= $label['required'];
+											$_field['default']	= app_setting( $_field['key'] );
+
+											echo form_field( $_field );
+
+										endif;
 
 									endforeach;
 

@@ -290,23 +290,51 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
 					foreach( $provider['fields'] AS $key => $label ) :
 
-						$_settings_encrypted['auth_social_signon_' . $provider['slug'] . '_' . $key] = $this->input->post( 'auth_social_signon_' . $provider['slug'] . '_' . $key );
+						if ( is_array( $label ) && ! isset( $label['label'] ) ) :
 
-						if ( empty( $_settings_encrypted['auth_social_signon_' . $provider['slug'] . '_' . $key] ) ) :
+							foreach ( $label AS $key1 => $label1 ) :
 
-							//	Empty value, disable the provider and NULL out all the fields
-							$_settings['auth_social_signon_' . $provider['slug'] . '_enabled'] = FALSE;
+								$_value = $this->input->post( 'auth_social_signon_' . $provider['slug'] . '_' . $key . '_' . $key1 );
 
-							foreach( $provider['fields'] AS $key2 => $label2 ) :
+								if ( ! empty( $label1['required'] ) && empty( $_value ) ) :
 
-								unset($_settings_encrypted['auth_social_signon_' . $provider['slug'] . '_' . $key2]);
-								$_settings['auth_social_signon_' . $provider['slug'] . '_' . $key2] = NULL;
+									$_error = 'Provider "' . $provider['label'] . '" was enabled, but was missing required field "' . $label1['label'] . '".';
+									break 3;
+
+								endif;
+
+								if (  empty( $label1['encrypted'] ) ) :
+
+									$_settings['auth_social_signon_' . $provider['slug'] . '_' . $key . '_' . $key1] = $_value;
+
+								else :
+
+									$_settings_encrypted['auth_social_signon_' . $provider['slug'] . '_' . $key . '_' . $key1] = $_value;
+
+								endif;
 
 							endforeach;
 
-							$_error = 'Provider "' . $provider['label'] . '" was enabled, but was missing configuration items.';
+						else :
 
-							break 2;
+							$_value = $this->input->post( 'auth_social_signon_' . $provider['slug'] . '_' . $key );
+
+							if ( ! empty( $label['required'] ) && empty( $_value ) ) :
+
+								$_error = 'Provider "' . $provider['label'] . '" was enabled, but was missing required field "' . $label['label'] . '".';
+								break 2;
+
+							endif;
+
+							if (  empty( $label['encrypted'] ) ) :
+
+								$_settings['auth_social_signon_' . $provider['slug'] . '_' . $key] = $_value;
+
+							else :
+
+								$_settings_encrypted['auth_social_signon_' . $provider['slug'] . '_' . $key] = $_value;
+
+							endif;
 
 						endif;
 
@@ -324,7 +352,24 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
 					foreach( $provider['fields'] AS $key => $label ) :
 
-						$_settings['auth_social_signon_' . $provider['slug'] . '_' . $key] = NULL;
+						/**
+						 * Secondary conditional detects an actual array fo fields rather than
+						 * just the label/required array. Design could probably be improved...
+						 **/
+
+						if ( is_array( $label ) && ! isset( $label['label'] ) ) :
+
+							foreach ( $label AS $key1 => $label1 ) :
+
+								$_settings['auth_social_signon_' . $provider['slug'] . '_' . $key . '_' . $key1] = NULL;
+
+							endforeach;
+
+						else :
+
+							$_settings['auth_social_signon_' . $provider['slug'] . '_' . $key] = NULL;
+
+						endif;
 
 					endforeach;
 
@@ -342,17 +387,25 @@ class NAILS_Settings extends NAILS_Admin_Controller
 			$this->db->trans_begin();
 			$_rollback = FALSE;
 
-			if ( ! $this->app_setting_model->set( $_settings, 'app' ) ) :
+			if ( ! empty( $_settings ) ) :
 
-				$_error		= $this->app_setting_model->last_error();
-				$_rollback	= TRUE;
+				if ( ! $this->app_setting_model->set( $_settings, 'app' ) ) :
+
+					$_error		= $this->app_setting_model->last_error();
+					$_rollback	= TRUE;
+
+				endif;
 
 			endif;
 
-			if ( ! $this->app_setting_model->set( $_settings_encrypted, 'app', NULL, TRUE ) ) :
+			if ( ! empty( $_settings_encrypted ) ) :
 
-				$_error		= $this->app_setting_model->last_error();
-				$_rollback	= TRUE;
+				if ( ! $this->app_setting_model->set( $_settings_encrypted, 'app', NULL, TRUE ) ) :
+
+					$_error		= $this->app_setting_model->last_error();
+					$_rollback	= TRUE;
+
+				endif;
 
 			endif;
 
