@@ -302,7 +302,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		$this->data['page']->title = 'Manage Inventory';
 
 		//	Define the $_data variable, this'll be passed to the get_all() and count_all() methods
-		$_data = array( 'where' => array(), 'sort' => array() );
+		$_data = array( 'where' => array(), 'sort' => array(), 'include_inactive' => TRUE );
 
 		// --------------------------------------------------------------------------
 
