@@ -497,6 +497,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Load models
+		$this->load->model( 'blog/blog_model' );
 		$this->load->model( 'blog/blog_skin_model' );
 
 		// --------------------------------------------------------------------------

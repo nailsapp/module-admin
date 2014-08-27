@@ -490,7 +490,7 @@
 
 						echo form_field_boolean( $_field );
 
-						$_associations = $this->config->item( 'blog_post_associations' );
+						$_associations = $this->blog_model->get_associations();
 
 						if ( is_array( $_associations ) ) :
 
@@ -498,7 +498,7 @@
 
 								$_field					= array();
 								$_field['key']			= 'sidebar_association_' . $assoc->slug;
-								$_field['label']		= $assoc->sidebar_title;
+								$_field['label']		= $assoc->widget->label;
 								$_field['default']		= app_setting( $_field['key'], 'blog' ) ? TRUE : FALSE;
 
 								echo form_field_boolean( $_field );
