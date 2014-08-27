@@ -1173,6 +1173,88 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
 		endif;
 	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	public function shop_pg()
+	{
+		$_method = $this->uri->segment( 4 ) ? $this->uri->segment( 4 ) : '';
+
+		if ( method_exists( $this, '_shop_pg_' . strtolower( $_method ) ) ) :
+
+			$this->{'_shop_pg_' . strtolower( $_method )}();
+
+		else :
+
+			show_404();
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _shop_pg_worldpay()
+	{
+		if ( $this->input->post() ) :
+
+			$this->load->library( 'form_validation' );
+
+			$this->form_validation->set_rules( 'omnipay_WorldPay_installationId',	'', 'xss_clean|required' );
+			$this->form_validation->set_rules( 'omnipay_WorldPay_accountId',		'', 'xss_clean|required' );
+			$this->form_validation->set_rules( 'omnipay_WorldPay_secretWord',		'', 'xss_clean' );
+			$this->form_validation->set_rules( 'omnipay_WorldPay_callbackPassword',	'', 'xss_clean' );
+
+			$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
+
+			if ( $this->form_validation->run() ) :
+
+				$_settings_encrypted										= array();
+				$_settings_encrypted['omnipay_WorldPay_installationId']		= $this->input->post( 'omnipay_WorldPay_installationId' );
+				$_settings_encrypted['omnipay_WorldPay_accountId']			= $this->input->post( 'omnipay_WorldPay_accountId' );
+				$_settings_encrypted['omnipay_WorldPay_secretWord']			= $this->input->post( 'omnipay_WorldPay_secretWord' );
+				$_settings_encrypted['omnipay_WorldPay_callbackPassword']	= $this->input->post( 'omnipay_WorldPay_callbackPassword' );
+
+				if ( $this->app_setting_model->set( $_settings_encrypted, 'shop', NULL, TRUE ) ) :
+
+					$this->data['success'] = '<strong>Success!</strong> Shipping settings have been saved.';
+
+				else :
+
+					$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
+
+				endif;
+
+			else :
+
+				$this->data['error'] = lang( 'fv_there_were_errors' );
+
+			endif;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$this->data['page']->title = 'Shop Payment Gateway Configuration &rsaquo; WorldPay';
+
+		// --------------------------------------------------------------------------
+
+		if ( $this->input->get( 'is_fancybox' ) ) :
+
+			$this->data['header_override'] = 'structure/header/nails-admin-blank';
+			$this->data['footer_override'] = 'structure/footer/nails-admin-blank';
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$this->load->view( 'structure/header',					$this->data );
+		$this->load->view( 'admin/settings/shop_pg/worldpay',	$this->data );
+		$this->load->view( 'structure/footer',					$this->data );
+	}
 }
 
 

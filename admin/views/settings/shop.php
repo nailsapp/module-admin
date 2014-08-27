@@ -640,10 +640,10 @@
 										echo form_checkbox( 'enabled_payment_gateways[]', $slug, $_enabled );
 									echo '</td>';
 									echo '<td class="label">';
-										echo $slug;
+										echo str_replace( '_', ' ', $slug );
 									echo '</td>';
 									echo '<td class="configure">';
-										echo anchor( 'admin/shop/configure/payment_gateway?module=' . urlencode( $slug ), 'Configure', 'data-fancybox-type="iframe" class="fancybox awesome small"' );
+										echo anchor( 'admin/settings/shop_pg/' . $slug, 'Configure', 'data-fancybox-type="iframe" class="fancybox awesome small"' );
 									echo '</td>';
 								echo '</tr>';
 
