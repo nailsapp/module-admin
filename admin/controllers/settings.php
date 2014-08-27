@@ -1031,7 +1031,6 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		$_settings	= array();
 		$_configs	= (array) $this->input->post( 'skin_config' );
 		$_configs	= array_filter( $_configs );
-		$_configs	= array_unique( $_configs );
 
 		foreach( $_configs AS $key => $value ) :
 
