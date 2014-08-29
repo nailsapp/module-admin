@@ -764,6 +764,12 @@
 		<strong>Are you sure?</strong>
 	</p>
 </div>
+<div id="dialog-no-delete-one-variation" title="Cannot Delete" style="display:none;">
+	<p>
+		<span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 0 0;"></span>
+		Products must have at least one variation.
+	</p>
+</div>
 
 <script type="text/template" id="template-uploadify">
 	<li class="gallery-item uploadify-queue-item" id="${fileID}" data-instance_id="${instanceID}" data-file_id="${fileID}">

@@ -48,11 +48,9 @@
 		<li class="tab">
 			<a href="#" class="tabber-variation-shipping" data-tab="tab-variation-<?=$_counter?>-shipping">Shipping</a>
 		</li>
-		{{^is_first}}
 		<li class="action">
 			<a href="#" class="delete">Delete</a>
 		</li>
-		{{/is_first}}
 	</ul>
 	<section class="tabs pages variation-<?=$_counter?>">
 		<div class="tab page active fieldset" id="tab-variation-<?=$_counter?>-details">
