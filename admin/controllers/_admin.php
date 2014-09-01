@@ -158,8 +158,8 @@ class NAILS_Admin_Controller extends NAILS_Controller
 			//	thus far. However, if the module isn't available then even these
 			//	guys are bang out of luck.
 
-			$_modules_potential		= get_potential_modules();
-			$_modules_unavailable	= get_unavailable_modules();
+			$_modules_potential		= _NAILS_GET_POTENTIAL_MODULES();
+			$_modules_unavailable	= _NAILS_GET_UNAVAILABLE_MODULES();
 
 			if ( array_search( 'module-' . $_active_module, $_modules_potential ) !== FALSE ) :
 
@@ -320,8 +320,8 @@ class NAILS_Admin_Controller extends NAILS_Controller
 	 **/
 	private function _load_active_modules()
 	{
-		$_modules_potential		= get_potential_modules();
-		$_modules_unavailable	= get_unavailable_modules();
+		$_modules_potential		= _NAILS_GET_POTENTIAL_MODULES();
+		$_modules_unavailable	= _NAILS_GET_UNAVAILABLE_MODULES();
 		$_modules_available		= array();
 
 		// --------------------------------------------------------------------------

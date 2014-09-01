@@ -1057,6 +1057,11 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
+		$this->asset->load( 'nails.admin.shop.order.browse.min.js', TRUE );
+		$this->asset->inline( 'var _SHOP_ORDER_BROWSE = new NAILS_Admin_Shop_Order_Browse()', 'JS' );
+
+		// --------------------------------------------------------------------------
+
 		$this->load->view( 'structure/header',			$this->data );
 		$this->load->view( 'admin/shop/orders/index',	$this->data );
 		$this->load->view( 'structure/footer',			$this->data );
@@ -1263,6 +1268,63 @@ class NAILS_Shop extends NAILS_Admin_Controller
 			redirect( 'admin/shop/orders/view/' . $_order_id . $_is_fancybox );
 
 		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _orders_download_invoice()
+	{
+		if ( ! user_has_permission( 'admin.shop.orders_download' ) ) :
+
+			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to download orders.' );
+			redirect( 'admin/shop/orders' );
+			return;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Fetch and check order
+		$this->load->model( 'shop/shop_order_model' );
+
+		$this->data['order'] = $this->shop_order_model->get_by_id( $this->uri->segment( 5 ) );
+
+		if ( ! $this->data['order'] ) :
+
+			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> no order exists by that ID.' );
+			redirect( 'admin/shop/orders' );
+			return;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$this->asset->clear();
+		$this->asset->load( 'nails.admin.shop.order.print.css', TRUE );
+
+		// --------------------------------------------------------------------------
+
+		//	Load up the shop's skin
+		$_skin = app_setting( 'skin', 'shop' ) ? app_setting( 'skin', 'shop' ) : 'skin-shop-gettingstarted';
+
+		$this->load->model( 'shop/shop_skin_model' );
+		$_skin = $this->shop_skin_model->get( $_skin );
+
+		if ( ! $_skin ) :
+
+			show_fatal_error( 'Failed to load shop skin "' . $_skin . '"', 'Shop skin "' . $_skin . '" failed to load at ' . APP_NAME . ', the following reason was given: ' . $this->shop_skin_model->last_error() );
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Views
+		$this->load->library( 'pdf/pdf' );
+		$this->pdf->set_paper_size( 'A4', 'landscape' );
+		$this->pdf->load_view( $_skin->path . 'views/order/invoice', $this->data );
+		$this->pdf->download( 'INVOICE-' . $this->data['order']->ref . '.pdf' );
 	}
 
 

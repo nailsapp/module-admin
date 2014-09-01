@@ -12,11 +12,14 @@
 		<table>
 			<thead>
 				<tr>
-					<th class="id">ID</th>
+					<th class="checkbox">&nbsp;</th>
 					<th class="ref">Ref</th>
 					<th class="datetime">Placed</th>
 					<th class="user">Customer</th>
-					<th class="value">Value</th>
+					<th class="value">Items</th>
+					<th class="value">Tax</th>
+					<th class="value">Shipping</th>
+					<th class="value">Total</th>
 					<th class="status">Status</th>
 					<th class="fulfilment">Fulfilled</th>
 					<th class="actions">Actions</th>
@@ -31,7 +34,9 @@
 
 							?>
 							<tr id="order-<?=$order->id?>">
-								<td class="id"><?=$order->id?></td>
+								<td class="checkbox">
+									<input type="checkbox" class="batch-checkbox" value="<?=$order->id?>" />
+								</td>
 								<td class="ref"><?=$order->ref?></td>
 								<?php
 
@@ -42,26 +47,85 @@
 								<td class="value">
 								<?php
 
-									echo shop_format_price( $order->totals->grand, TRUE, TRUE, $order->currency->base->id );
+									echo $order->totals->base_formatted->item;
 
-									if ( $order->currency->order->id !== $order->currency->base->id ) :
+									if ( $order->currency !== $order->base_currency ) :
 
-										echo '<small>' . shop_format_price( $order->totals->grand_render, TRUE, TRUE, $order->currency->order->id ) . '</small>';
+										echo '<small>' . $order->totals->user_formatted->item . '</small>';
 
 									endif;
 
 								?>
 								</td>
-								<td class="status <?=$order->status?>"><?=$order->status?></td>
+								<td class="value">
 								<?php
+
+									echo $order->totals->base_formatted->tax;
+
+									if ( $order->currency !== $order->base_currency ) :
+
+										echo '<small>' . $order->totals->user_formatted->tax . '</small>';
+
+									endif;
+
+								?>
+								</td>
+								<td class="value">
+								<?php
+
+									echo $order->totals->base_formatted->shipping;
+
+									if ( $order->currency !== $order->base_currency ) :
+
+										echo '<small>' . $order->totals->user_formatted->shipping . '</small>';
+
+									endif;
+
+								?>
+								</td>
+								<td class="value">
+								<?php
+
+									echo $order->totals->base_formatted->grand;
+
+									if ( $order->currency !== $order->base_currency ) :
+
+										echo '<small>' . $order->totals->user_formatted->grand . '</small>';
+
+									endif;
+
+								?>
+								</td>
+								<?php
+
+
+									switch( $order->status ) :
+
+										case 'UNPAID' :		$status = 'error';		break;
+										case 'PAID' :		$status = 'success';	break;
+										case 'ABANDONED' :	$status = '';			break;
+										case 'CANCELLED' :	$status = '';			break;
+										case 'FAILED' :		$status = 'error';		break;
+										case 'PENDING' :	$status = '';			break;
+										default :			$status = '';			break;
+
+									endswitch;
+
+									echo '<td class="status ' . $status . '">';
+										echo $order->status;
+									echo '</td>';
 
 									if ( $order->fulfilment_status == 'FULFILLED' ) :
 
-										echo '<td class="fulfilment yes">' . lang( 'yes' ) . '</td>';
+										echo '<td class="status success">';
+											echo '<b class="fa fa-tick-circle fa-lg"></b>';
+										echo '</td>';
 
 									else :
 
-										echo '<td class="fulfilment no">' . lang( 'no' ) . '</td>';
+										echo '<td class="status error">';
+											echo '<b class="fa fa-times-circle fa-lg"></b>';
+										echo '</td>';
 
 									endif;
 
@@ -76,17 +140,25 @@
 
 										if ( user_has_permission( 'admin.shop.orders_view' ) ) :
 
-											$_buttons[] = anchor( 'admin/shop/orders/view/' . $order->id, lang( 'action_view' ), 'class="awesome small fancybox" data-fancybox-type="iframe"' );
+											$_buttons[] = anchor( 'admin/shop/orders/view/' . $order->id, lang( 'action_view' ), 'class="awesome green small fancybox" data-fancybox-type="iframe"' );
 
 										endif;
 
 										// --------------------------------------------------------------------------
 
-										if ( user_has_permission( 'admin.shop.orders_reprocess' ) ) :
+										if ( user_has_permission( 'admin.shop.orders_download' ) ) :
 
-											$_buttons[] = anchor( 'admin/shop/orders/reprocess/' . $order->id, 'Process', 'class="awesome small confirm" data-title="Are you sure?" data-body="Processing the order again may result in multiple dispatch of items."' );
+											$_buttons[] = anchor( 'admin/shop/orders/download_invoice/' . $order->id, 'Download', 'class="awesome small"' );
 
 										endif;
+
+										// --------------------------------------------------------------------------
+
+										// if ( user_has_permission( 'admin.shop.orders_reprocess' ) ) :
+
+										// 	$_buttons[] = anchor( 'admin/shop/orders/reprocess/' . $order->id, 'Process', 'class="awesome small orange confirm" data-title="Are you sure?" data-body="Processing the order again may result in multiple dispatch of items."' );
+
+										// endif;
 
 										// --------------------------------------------------------------------------
 
@@ -113,7 +185,7 @@
 					else :
 						?>
 						<tr>
-							<td colspan="8" class="no-data">
+							<td colspan="11" class="no-data">
 								<p>No Orders found</p>
 							</td>
 						</tr>
@@ -123,6 +195,27 @@
 				?>
 			</tbody>
 		</table>
+		<?php
+
+			if ( $orders->data ) :
+
+				$_options = array();
+				$_options['']					= 'Choose';
+				$_options['mark-fulfilled']		= 'Mark Fulfilled';
+				$_options['mark-unfulfilled']	= 'Mark Unfulfilled';
+				$_options['download']			= 'Download';
+
+				?>
+				<div class="panel" id="batch-action">
+					With checked:
+					<?=form_dropdown( '', $_options, NULL )?>
+					<a href="#" class="awesome small">Go</a>
+				</div>
+				<?php
+
+			endif;
+
+		?>
 	</div>
 	<?php
 
