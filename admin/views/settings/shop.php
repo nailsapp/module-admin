@@ -382,10 +382,11 @@
 						$_field['default']	= app_setting( $_field['key'], 'shop' );
 
 						$_options			= array();
-						$_options['10']		= '10';
-						$_options['25']		= '25';
-						$_options['50']		= '50';
+						$_options['20']		= '10';
+						$_options['40']		= '40';
+						$_options['80']		= '80';
 						$_options['100']	= '100';
+						$_options['all']	= 'All';
 
 						echo form_field_dropdown( $_field, $_options );
 
@@ -738,7 +739,7 @@
 						<strong>Important:</strong> If you wish to support multiple currencies you must also provide an
 						App ID for the <a href="https://openexchangerates.org" target="_blank">Open Exchange Rates</a>
 						service. The system uses this service to calculate exchange rates for all supported currencies.
-						<br /><br />
+						<br />
 						Find out more, and create your App, at <a href="https://openexchangerates.org" target="_blank">Open Exchange Rates</a>.
 					</p>
 					<?php
@@ -763,6 +764,9 @@
 			<div id="tab-shipping" class="tab page <?=$_display?> shipping">
 				<?=form_open( NULL, 'style="margin-bottom:0;"' )?>
 				<?=form_hidden( 'update', 'shipping' )?>
+				<?php
+
+				/*
 				<fieldset id="shop-settings-shipping-domicile">
 					<legend>Domicile</legend>
 					<p>
@@ -851,83 +855,39 @@
 				</fieldset>
 
 				<hr />
-				<p>
-					Enable the shipping modules you wish to use. A shipping module defines a set of rules as
-					to how to calculate the shipping cost for a basket. The system will work down the list, top
-					to bottom, until an enabled module is able to give a price.
-				</p>
-				<p>
-					If no price can be determined then the user will receive an error indicating to them that
-					they should get in touch to complete the order.
-				</p>
-				<?php
 
-					if ( ! empty( $shipping_modules ) ) :
+				*/
+
+					if ( ! empty( $shipping_drivers ) ) :
 
 						echo '<table id="shipping-modules">';
 							echo '<thead class="shipping-modules">';
 								echo '<tr>';
-									echo '<th class="order">&nbsp;</th>';
-									echo '<th class="enabled">Enabled</th>';
+									echo '<th class="selected">Selected</th>';
 									echo '<th class="label">Label</th>';
 									echo '<th class="configure">Configure</th>';
 								echo '</tr>';
 							echo '</thead>';
 							echo '<tbody>';
 
-							$_enabled_shipping_modules = set_value( 'enabled_shipping_modules', app_setting( 'enabled_shipping_modules', 'shop' ) );
-							$_enabled_shipping_modules = array_filter( (array) $_enabled_shipping_modules );
+							$_enabled_shipping_driver = set_value( 'enabled_shipping_driver', app_setting( 'enabled_shipping_driver', 'shop' ) );
 
-							$_modules = array();
+							foreach( $shipping_drivers AS $module ) :
 
-							//	Enabled ones first, in order
-							foreach( $_enabled_shipping_modules AS $sm ) :
-
-								$_modules[] = $sm;
-
-							endforeach;
-
-							//	Followed by the others
-							foreach( $shipping_modules AS $sm ) :
-
-								if ( array_search( $sm->slug, $_modules ) === FALSE ) :
-
-									$_modules[] = $sm->slug;
-
-								endif;
-
-							endforeach;
-
-							foreach( $_modules AS $slug ) :
-
-								$_module = ! empty( $shipping_modules[$slug] ) ? $shipping_modules[$slug] : FALSE;
-
-								if ( ! $_module ) :
-
-									continue;
-
-								endif;
-
-								// --------------------------------------------------------------------------
-
-								$_name			= ! empty( $_module->name ) ? $_module->name : 'Untitled';
-								$_description	= ! empty( $_module->description ) ? $_module->description : '';
-								$_enabled		= array_search( $slug, $_enabled_shipping_modules ) !== FALSE ? TRUE : FALSE;
+								$_name			= ! empty( $module->name ) ? $module->name : 'Untitled';
+								$_description	= ! empty( $module->description ) ? $module->description : '';
+								$_enabled		= $module->slug == $_enabled_shipping_driver ? TRUE : FALSE;
 
 								echo '<tr>';
-									echo '<td class="order">';
-										echo '<span class="fa fa-navicon"></span>';
-									echo '</td>';
-									echo '<td class="enabled">';
-										echo '<div class="toggle toggle-modern"></div>';
-										echo form_checkbox( 'enabled_shipping_modules[]', $slug, $_enabled );
+									echo '<td class="selected">';
+										echo form_radio( 'enabled_shipping_driver', $module->slug, $_enabled );
 									echo '</td>';
 									echo '<td class="label">';
 										echo $_name;
 										echo $_description ? '<small>' . $_description . '</small>' : '';
 									echo '</td>';
 									echo '<td class="configure">';
-										echo anchor( 'admin/shop/configure/shipping?module=' . urlencode( $slug ), 'Configure', 'data-fancybox-type="iframe" class="fancybox awesome small"' );
+										echo anchor( 'admin/settings/shop_sd/' . $slug, 'Configure', 'data-fancybox-type="iframe" class="fancybox awesome small"' );
 									echo '</td>';
 								echo '</tr>';
 
@@ -940,8 +900,8 @@
 					else :
 
 						echo '<p class="system-alert error">';
-							echo '<strong>No shipping modules are available.</strong>';
-							echo '<br />I could not find any shipping modules. Please contact the developers on ' . mailto( APP_DEVELOPER_EMAIL ) . ' for assistance.';
+							echo '<strong>No shipping drivers are available.</strong>';
+							echo '<br />I could not find any shipping drivers. Please contact the developers on ' . mailto( APP_DEVELOPER_EMAIL ) . ' for assistance.';
 						echo '</p>';
 
 					endif;
@@ -954,50 +914,3 @@
 			</div>
 		</section>
 </div>
-<script type="text/template" id="template-new-shipping">
-<tr>
-	<td class="order-handle">
-		<input type="hidden" name="methods[{{counter}}][order]" value="" class="order" />
-	</td>
-	<td class="courier">
-		<?=form_input( 'methods[{{counter}}][courier]', NULL, 'class="table-cell"' )?>
-	</td>
-	<td class="method">
-		<?=form_input( 'methods[{{counter}}][method]', NULL, 'class="table-cell"' )?>
-	</td>
-	<td class="default_price">
-		<?=form_input( 'methods[{{counter}}][default_price]', NULL, 'class="table-cell"' )?>
-	</td>
-	<td class="default_price_additional">
-		<?=form_input( 'methods[{{counter}}][default_price_additional]', NULL, 'class="table-cell"' )?>
-	</td>
-	<td class="tax_rate">
-		<?=form_dropdown( 'methods[{{counter}}][tax_rate_id]', $tax_rates_flat, NULL, 'class="select2"' )?>
-	</td>
-	<td class="notes">
-		<?=form_input( 'methods[{{counter}}][notes]', NULL, 'class="table-cell"' )?>
-	</td>
-	<td class="active">
-		<?=form_checkbox( 'methods[{{counter}}][is_active]', TRUE )?>
-	</td>
-	<td class="default">
-		<?=form_radio( 'default', '{{counter}}' )?>
-	</td>
-	<td class="delete">
-		<a href="#" class="delete-row awesome small red">Delete</a>
-	</td>
-</tr>
-</script>
-<script type="text/template" id="template-new-tax-rate">
-<tr>
-	<td class="label">
-		<?=form_input( 'rates[{{counter}}][label]', NULL, 'placeholder="Specify the tax rate label, e.g VAT" class="table-cell"' )?>
-	</td>
-	<td class="rate">
-		<?=form_input( 'rates[{{counter}}][rate]', NULL, 'placeholder="Specify the rate for this tax band, decimal between 0 and 1, e.g for 20% you\'d enter 0.2" class="table-cell"' )?>
-	</td>
-	<td class="delete">
-		<a href="#" class="delete-row awesome small red">Delete</a>
-	</td>
-</tr>
-</script>

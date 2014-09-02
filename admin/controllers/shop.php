@@ -346,7 +346,8 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Fetch data, this data is used in both the view and the form submission
-		$this->data['product_types'] = $this->shop_product_type_model->get_all();
+		$this->data['currencies']		= $this->shop_currency_model->get_all_supported();
+		$this->data['product_types']	= $this->shop_product_type_model->get_all();
 
 		if ( ! $this->data['product_types'] ) :
 
@@ -356,7 +357,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		endif;
 
-		$this->data['currencies'] = $this->shop_currency_model->get_all_supported();
+		// --------------------------------------------------------------------------
 
 		//	Fetch product meta fields
 		$this->data['product_types_meta'] = array();
@@ -380,6 +381,13 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		//	Fetch product meta fields
 		$this->config->load( 'shop/shop' );
 		$this->data['product_meta'] = $this->config->item( 'shop_product_meta' );
+
+		// --------------------------------------------------------------------------
+
+		//	Fetch shipping data, used in form validation
+		$this->load->model( 'shop/shop_shipping_driver_model' );
+		$this->data['shipping_driver']			= $this->shop_shipping_driver_model->get_enabled();
+		$this->data['shipping_options_variant'] = $this->shop_shipping_driver_model->options_variant();
 
 		// --------------------------------------------------------------------------
 
@@ -432,14 +440,14 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Fetch additional data
-		$this->data['product_types_flat']	= $this->shop_product_type_model->get_all_flat();
-		$this->data['tax_rates']			= $this->shop_tax_rate_model->get_all_flat();
-		$this->data['attributes']			= $this->shop_attribute_model->get_all_flat();
-		$this->data['brands']				= $this->shop_brand_model->get_all_flat();
-		$this->data['categories']			= $this->shop_category_model->get_all_nested_flat();
-		$this->data['collections']			= $this->shop_collection_model->get_all();
-		$this->data['ranges']				= $this->shop_range_model->get_all();
-		$this->data['tags']					= $this->shop_tag_model->get_all_flat();
+		$this->data['product_types_flat']		= $this->shop_product_type_model->get_all_flat();
+		$this->data['tax_rates']				= $this->shop_tax_rate_model->get_all_flat();
+		$this->data['attributes']				= $this->shop_attribute_model->get_all_flat();
+		$this->data['brands']					= $this->shop_brand_model->get_all_flat();
+		$this->data['categories']				= $this->shop_category_model->get_all_nested_flat();
+		$this->data['collections']				= $this->shop_collection_model->get_all();
+		$this->data['ranges']					= $this->shop_range_model->get_all();
+		$this->data['tags']						= $this->shop_tag_model->get_all_flat();
 
 		$this->data['tax_rates'] = array( 'No Tax' ) + $this->data['tax_rates'];
 
@@ -599,29 +607,36 @@ class NAILS_Shop extends NAILS_Admin_Controller
 				//	Shipping
 				//	--------
 
-				//	If this product type is_physical then ensure that the dimensions are specified
-				$_rules			= 'xss_clean';
-				$_rules_unit	= 'xss_clean';
+				//	Collect only switch
+				$this->form_validation->set_rules( 'variation[' . $index . '][shipping][collection_only]',	'',	'xss_clean' );
 
-				foreach( $this->data['product_types'] AS $type ) :
+				//	Foreach of the driver's settings either set as required, or xss_clean it
+				$_shipping_options = $this->shop_shipping_driver_model->options_variant();
+				foreach( $_shipping_options AS $option ) :
 
-					if ( $type->id == $_post['type_id'] && $type->is_physical ) :
+					$_rules		= array();
+					$_rules[]	= 'xss_clean';
 
-						$_rules			.= '|required|numeric';
-						$_rules_unit	.= '|required';
-						break;
+					if ( ! empty( $option['validation'] ) ) :
+
+						$_option_validation	= explode( '|', $option['validation'] );
+						$_rules				= array_merge( $_rules, $_option_validation );
 
 					endif;
 
-				endforeach;
+					if ( ! empty( $option['required'] ) ) :
 
-				$this->form_validation->set_rules( 'variation[' . $index . '][shipping][length]',			'',	$_rules );
-				$this->form_validation->set_rules( 'variation[' . $index . '][shipping][width]',			'',	$_rules );
-				$this->form_validation->set_rules( 'variation[' . $index . '][shipping][height]',			'',	$_rules );
-				$this->form_validation->set_rules( 'variation[' . $index . '][shipping][measurement_unit]',	'',	$_rules_unit );
-				$this->form_validation->set_rules( 'variation[' . $index . '][shipping][weight]',			'',	$_rules );
-				$this->form_validation->set_rules( 'variation[' . $index . '][shipping][weight_unit]',		'',	$_rules_unit );
-				$this->form_validation->set_rules( 'variation[' . $index . '][shipping][collection_only]',	'',	'xss_clean' );
+						$_rules[] = 'required';
+
+					endif;
+
+					$_rules = array_filter( $_rules );
+					$_rules = array_unique( $_rules );
+					$_rules = implode( '|', $_rules );
+
+					$this->form_validation->set_rules( 'variation[' . $index . '][shipping][driver_data][' . $this->data['shipping_driver']->slug . '][' . $option['key'] . ']', $option['label'], $_rules );
+
+				endforeach;
 
 			endforeach;
 
@@ -759,6 +774,13 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		//	Fetch product meta fields
 		$this->config->load( 'shop/shop' );
 		$this->data['product_meta'] = $this->config->item( 'shop_product_meta' );
+
+		// --------------------------------------------------------------------------
+
+		//	Fetch shipping data, used in form validation
+		$this->load->model( 'shop/shop_shipping_driver_model' );
+		$this->data['shipping_driver']			= $this->shop_shipping_driver_model->get_enabled();
+		$this->data['shipping_options_variant'] = $this->shop_shipping_driver_model->options_variant();
 
 		// --------------------------------------------------------------------------
 
@@ -1298,11 +1320,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
 			return;
 
 		endif;
-
-		// --------------------------------------------------------------------------
-
-		$this->asset->clear();
-		$this->asset->load( 'nails.admin.shop.order.print.css', TRUE );
 
 		// --------------------------------------------------------------------------
 

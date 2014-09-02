@@ -856,7 +856,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		//	Load models
 		$this->load->model( 'shop/shop_model' );
 		$this->load->model( 'shop/shop_currency_model' );
-		$this->load->model( 'shop/shop_shipping_model' );
+		$this->load->model( 'shop/shop_shipping_driver_model' );
 		$this->load->model( 'shop/shop_payment_gateway_model' );
 		$this->load->model( 'shop/shop_tax_rate_model' );
 		$this->load->model( 'shop/shop_skin_model' );
@@ -886,7 +886,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		//	Get data
 		$this->data['settings']					= app_setting( NULL, 'shop', TRUE );
 		$this->data['payment_gateways']			= $this->shop_payment_gateway_model->get_available();
-		$this->data['shipping_modules']			= $this->shop_shipping_model->get_available();
+		$this->data['shipping_drivers']			= $this->shop_shipping_driver_model->get_available();
 		$this->data['skins']					= $this->shop_skin_model->get_available();
 		$this->data['skin_selected']			= $_selected_skin = app_setting( 'skin', 'shop' ) ? app_setting( 'skin', 'shop' ) : 'skin-shop-gettingstarted';
 		$this->data['skin_current']				= $this->shop_skin_model->get( $this->data['skin_selected'] );
@@ -982,7 +982,8 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		//	Prepare update
 		$_settings								= array();
 		$_settings['expand_variants']			= (bool) $this->input->post( 'expand_variants' );
-		$_settings['default_product_per_page']	= (int) $this->input->post( 'default_product_per_page' );
+		$_settings['default_product_per_page']	= $this->input->post( 'default_product_per_page' );
+		$_settings['default_product_per_page']	= is_numeric( $_settings['default_product_per_page'] ) ? (int) $_settings['default_product_per_page'] : $_settings['default_product_per_page'];
 		$_settings['default_product_sort']		= $this->input->post( 'default_product_sort' );
 
 		// --------------------------------------------------------------------------
@@ -1154,11 +1155,11 @@ class NAILS_Settings extends NAILS_Admin_Controller
 	{
 		//	Prepare update
 		$_settings								= array();
-		$_settings['domicile']					= $this->input->post( 'domicile' );
-		$_settings['ship_to_continents']		= array_filter( (array) $this->input->post( 'ship_to_continents' ) );
-		$_settings['ship_to_countries']			= array_filter( (array) $this->input->post( 'ship_to_countries' ) );
-		$_settings['ship_to_exclude']			= array_filter( (array) $this->input->post( 'ship_to_exclude' ) );
-		$_settings['enabled_shipping_modules']	= array_filter( (array) $this->input->post( 'enabled_shipping_modules' ) );
+		// $_settings['domicile']					= $this->input->post( 'domicile' );
+		// $_settings['ship_to_continents']		= array_filter( (array) $this->input->post( 'ship_to_continents' ) );
+		// $_settings['ship_to_countries']			= array_filter( (array) $this->input->post( 'ship_to_countries' ) );
+		// $_settings['ship_to_exclude']			= array_filter( (array) $this->input->post( 'ship_to_exclude' ) );
+		$_settings['enabled_shipping_driver']	= $this->input->post( 'enabled_shipping_driver' );
 
 		// --------------------------------------------------------------------------
 

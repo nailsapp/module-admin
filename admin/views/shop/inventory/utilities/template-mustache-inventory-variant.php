@@ -496,113 +496,87 @@
 		</div>
 
 		<div class="tab page fieldset" id="tab-variation-<?=$_counter?>-shipping">
-			<p>
-				Define the following information for shipping. The system will use this information to
-				calculate a shipping quote for the user, where appropriate.
-			</p>
-			<p class="system-alert message">
-				<strong>Please note:</strong> specify dimensions of the item as it'll be shipped, not assembled.
-			</p>
 			<?php
 
-				$_field					= array();
-				$_field['key']			= 'variation[' . $_counter . '][shipping][measurement_unit]';
-				$_field['label']		= 'L/W/H Unit of measurement';
-				$_field['class']		= 'select2 measurement-unit';
-				$_field['required']		= TRUE;
-				$_field['default']		= ! empty( $variation->shipping->measurement_unit ) ? $variation->shipping->measurement_unit : 'MM';
+				if ( ! empty( $shipping_driver ) ) :
 
-				$_options				= array();
-				$_options['MM']			= 'Millimeter';
-				$_options['CM']			= 'Centimetre';
-				$_options['M']			= 'Metre';
+					echo '<div class="shipping-collection-only">';
 
-				echo form_field_dropdown( $_field, $_options );
+						$_field					= array();
+						$_field['key']			= 'variation[' . $_counter . '][shipping][collection_only]';
+						$_field['label']		= 'Collection Only';
+						$_field['readonly']		= ! app_setting( 'warehouse_collection_enabled', 'shop' );
+						$_field['info']			= ! app_setting( 'warehouse_collection_enabled', 'shop' ) ? '<strong>Warehouse Collection is disabled</strong>' : '';
+						$_field['info']			.= ! app_setting( 'warehouse_collection_enabled', 'shop' ) && user_has_permission( 'admin[settings]' ) ? '<br />If you wish to allow customers to collect from your warehouse you must enable it in ' . anchor( 'admin/settings/shop', 'settings', 'class="confirm" data-title="Stop Editing?" data-body="Any unsaved changes will be lost."' ) . '.' : '';
+						$_field['default']		= isset( $variation->shipping->collection_only ) ? (bool) $variation->shipping->collection_only : FALSE;
+						$_tip					= 'Items marked as collection only will be handled differently in checkout and reporting.';
 
-				// --------------------------------------------------------------------------
+						echo form_field_boolean( $_field, $_tip );
 
-				$_field					= array();
-				$_field['key']			= 'variation[' . $_counter . '][shipping][length]';
-				$_field['label']		= 'Boxed Length';
-				$_field['placeholder']	= 'The length of the item';
-				$_field['class']		= 'length';
-				$_field['required']		= TRUE;
-				$_field['default']		= isset( $variation->shipping->length ) ? $variation->shipping->length : '';
+					echo '</div>';
 
-				echo form_field( $_field );
+					// --------------------------------------------------------------------------
 
-				// --------------------------------------------------------------------------
+					if ( ! empty( $shipping_options_variant ) ) :
 
-				$_field					= array();
-				$_field['key']			= 'variation[' . $_counter . '][shipping][width]';
-				$_field['label']		= 'Boxed Width';
-				$_field['placeholder']	= 'The width of the item';
-				$_field['class']		= 'width';
-				$_field['required']		= TRUE;
-				$_field['default']		= isset( $variation->shipping->width ) ? $variation->shipping->width : '';
+						$_display = $_field['default'] ? 'none' : 'block';
+						echo '<div class="shipping-driver-options" style="display:' . $_display . '">';
 
-				echo form_field( $_field );
+							//	Any further options from the shipping driver?
+							foreach ( $shipping_options_variant AS $field ) :
 
-				// --------------------------------------------------------------------------
+								//	Prep the field names
+								if ( empty( $field['key'] ) ) :
 
-				$_field					= array();
-				$_field['key']			= 'variation[' . $_counter . '][shipping][height]';
-				$_field['label']		= 'Boxed Height';
-				$_field['placeholder']	= 'The height of the item';
-				$_field['class']		= 'height';
-				$_field['required']		= TRUE;
-				$_field['default']		= isset( $variation->shipping->height ) ? $variation->shipping->height : '';
+									continue;
 
-				echo form_field( $_field );
+								endif;
 
-				// --------------------------------------------------------------------------
+								//	Order is important here as $field['key'] gets overwritte
+								$_default			= isset( $variation->shipping->driver_data[$shipping_driver->slug][$field['key']] ) ? $variation->shipping->driver_data[$shipping_driver->slug][$field['key']] : '';
+								$field['key']		= 'variation[' . $_counter . '][shipping][driver_data][' . $shipping_driver->slug . '][' . $field['key'] . ']';
+								$field['default']	= set_value( $field['key'], $_default );
 
-				$_field					= array();
-				$_field['key']			= 'variation[' . $_counter . '][shipping][weight_unit]';
-				$_field['label']		= 'Weight unit of measurement';
-				$_field['class']		= 'select2 weight-unit';
-				$_field['required']		= TRUE;
-				$_field['default']		= ! empty( $variation->shipping->weight_unit ) ? $variation->shipping->weight_unit : 'G';
+								//	TODO: Use admin form builder
+								//	Asana ticket: https://app.asana.com/0/6627768688940/15891120890395
 
-				$_options				= array();
-				$_options['G']			= 'Gram';
-				$_options['KG']			= 'Kilogram';
+								$_type = isset( $field['type'] ) ? $field['type'] : '';
 
-				echo form_field_dropdown( $_field, $_options );
+								switch( $_type ) :
 
-				// --------------------------------------------------------------------------
+									case 'dropdown' :
 
-				$_field					= array();
-				$_field['key']			= 'variation[' . $_counter . '][shipping][weight]';
-				$_field['label']		= 'Boxed Weight';
-				$_field['placeholder']	= 'The weight of the item';
-				$_field['class']		= 'weight';
-				$_field['required']		= TRUE;
-				$_field['default']		= isset( $variation->shipping->weight ) ? $variation->shipping->weight : '';
+										echo form_field_dropdown( $field );
 
-				echo form_field( $_field, 'cock and balls' );
+									break;
 
-				// --------------------------------------------------------------------------
+									default :
 
-				$_field					= array();
-				$_field['key']			= 'variation[' . $_counter . '][shipping][collection_only]';
-				$_field['label']		= 'Collection Only';
-				$_field['readonly']		= ! app_setting( 'warehouse_collection_enabled', 'shop' );
-				$_field['info']			= ! app_setting( 'warehouse_collection_enabled', 'shop' ) ? '<strong>Warehouse Collection is disabled</strong>' : '';
-				$_field['info']			.= ! app_setting( 'warehouse_collection_enabled', 'shop' ) && user_has_permission( 'admin[settings]' ) ? '<br />If you wish to allow customers to collect from your warehouse you must enable it in ' . anchor( 'admin/settings/shop', 'settings', 'class="confirm" data-title="Stop Editing?" data-body="Any unsaved changes will be lost."' ) . '.' : '';
-				$_field['class']		= 'collection-only';
-				$_field['default']		= isset( $variation->shipping->collection_only ) ? (bool) $variation->shipping->collection_only : FALSE;
-				$_tip					= 'Items marked as collection only will be handled differently in checkout and reporting. They also dont contribute to the overall dimensions and weight of the order when calculating shipping costs.';
+										echo form_field( $field );
 
-				echo form_field_boolean( $_field, $_tip );
+									break;
 
-				// --------------------------------------------------------------------------
+								endswitch;
 
-				if ( $is_first ) :
+							endforeach;
 
-					$_display = empty( $num_variants ) || $num_variants == 1 ? 'none' : 'block';
-					echo '<p id="variation-sync-shipping" style="margin-top:1em;display:' . $_display . '">';
-					echo '<a href="#" class="awesome small orange">Sync Shipping Details</a>';
+						echo '</div>';
+
+						$_display = $_field['default'] ? 'block' : 'none';
+						echo '<div class="shipping-driver-options-hidden" style="display:' . $_display . '">';
+							echo '<p class="system-alert notice" style="margin-top:1em;">';
+								echo 'Further shipping options have been hidden because the item is set as "collection only" and will not be included while calculating shipping costs.';
+							echo '</p>';
+						echo '</div>';
+
+
+					endif;
+
+				else :
+
+					echo '<p class="system-alert message">';
+						echo '<strong>No Shipping Drivers Enabled.</strong>';
+						echo user_has_permission( 'admin[settings]' ) ? '<br />You can enable and configure shipping drivers in ' . anchor( 'admin/settings/shop', 'settings', 'class="confirm" data-title="Stop Editing?" data-body="Any unsaved changes will be lost."' ) . '.' : '';
 					echo '</p>';
 
 				endif;
