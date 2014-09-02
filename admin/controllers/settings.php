@@ -1255,6 +1255,42 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		$this->load->view( 'admin/settings/shop_pg/worldpay',	$this->data );
 		$this->load->view( 'structure/footer',					$this->data );
 	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	public function shop_sd()
+	{
+		$this->load->model( 'shop/shop_shipping_driver_model' );
+
+		$_body = $this->shop_shipping_driver_model->configure( $this->input->get( 'driver' ) );
+
+		if ( empty( $_body ) ) :
+
+			show_404();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$this->data['page']->title = 'Shop Shipping Driver Configuration &rsaquo; ';
+
+		// --------------------------------------------------------------------------
+
+		if ( $this->input->get( 'is_fancybox' ) ) :
+
+			$this->data['header_override'] = 'structure/header/nails-admin-blank';
+			$this->data['footer_override'] = 'structure/footer/nails-admin-blank';
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$this->load->view( 'structure/header',			$this->data );
+		$this->load->view( 'admin/settings/shop_sd',	array( 'body' => $_body ) );
+		$this->load->view( 'structure/footer',			$this->data );
+	}
 }
 
 

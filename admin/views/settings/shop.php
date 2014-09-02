@@ -872,22 +872,22 @@
 
 							$_enabled_shipping_driver = set_value( 'enabled_shipping_driver', app_setting( 'enabled_shipping_driver', 'shop' ) );
 
-							foreach( $shipping_drivers AS $module ) :
+							foreach( $shipping_drivers AS $driver ) :
 
-								$_name			= ! empty( $module->name ) ? $module->name : 'Untitled';
-								$_description	= ! empty( $module->description ) ? $module->description : '';
-								$_enabled		= $module->slug == $_enabled_shipping_driver ? TRUE : FALSE;
+								$_name			= ! empty( $driver->name ) ? $driver->name : 'Untitled';
+								$_description	= ! empty( $driver->description ) ? $driver->description : '';
+								$_enabled		= $driver->slug == $_enabled_shipping_driver ? TRUE : FALSE;
 
 								echo '<tr>';
 									echo '<td class="selected">';
-										echo form_radio( 'enabled_shipping_driver', $module->slug, $_enabled );
+										echo form_radio( 'enabled_shipping_driver', $driver->slug, $_enabled );
 									echo '</td>';
 									echo '<td class="label">';
 										echo $_name;
 										echo $_description ? '<small>' . $_description . '</small>' : '';
 									echo '</td>';
 									echo '<td class="configure">';
-										echo anchor( 'admin/settings/shop_sd/' . $slug, 'Configure', 'data-fancybox-type="iframe" class="fancybox awesome small"' );
+										echo ! empty( $driver->configurable ) ? anchor( 'admin/settings/shop_sd?driver=' . $driver->slug, 'Configure', 'data-fancybox-type="iframe" class="fancybox awesome small"' ) : '';
 									echo '</td>';
 								echo '</tr>';
 
