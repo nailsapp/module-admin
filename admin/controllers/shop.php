@@ -162,6 +162,11 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		$_permissions['product_type_edit']		= 'Product Type: Edit';
 		$_permissions['product_type_delete']	= 'Product Type: Delete';
 
+		//	Product Type Meta Fields
+		$_permissions['product_type_meta_create']	= 'Product Type Meta: Create';
+		$_permissions['product_type_meta_edit']		= 'Product Type Meta: Edit';
+		$_permissions['product_type_meta_delete']	= 'Product Type Meta: Delete';
+
 		// --------------------------------------------------------------------------
 
 		return $_permissions;
@@ -224,6 +229,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		$this->load->model( 'shop/shop_product_model' );
 		$this->load->model( 'shop/shop_product_type_model' );
 		$this->load->model( 'shop/shop_tax_rate_model' );
+		$this->load->model( 'shop/shop_product_type_meta_model' );
 
 		// --------------------------------------------------------------------------
 
@@ -359,28 +365,15 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		//	Fetch product meta fields
+		//	Fetch product type meta fields
 		$this->data['product_types_meta'] = array();
+		$this->load->model( 'shop/shop_product_type_meta_model' );
 
 		foreach ( $this->data['product_types'] AS $type ) :
 
-			if ( is_callable( array( $this->shop_product_type_model, 'meta_fields_' . $type->slug ) ) ) :
-
-				$this->data['product_types_meta'][$type->id] = $this->shop_product_type_model->{'meta_fields_' . $type->slug}();
-
-			else :
-
-				$this->data['product_types_meta'][$type->id] = array();
-
-			endif;
+			$this->data['product_types_meta'][$type->id] = $this->shop_product_type_meta_model->get_by_product_type_id( $type->id );
 
 		endforeach;
-
-		// --------------------------------------------------------------------------
-
-		//	Fetch product meta fields
-		$this->config->load( 'shop/shop' );
-		$this->data['product_meta'] = $this->config->item( 'shop_product_meta' );
 
 		// --------------------------------------------------------------------------
 
@@ -490,21 +483,22 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		//	Product Meta
-		//	============
+		//	External product
+		if ( app_setting( 'enable_external_products', 'shop' ) ) :
 
-		if ( is_array( $this->data['product_meta'] ) ) :
+			$this->form_validation->set_rules( 'is_external',			'',	'xss_clean' );
 
-			foreach( $this->data['product_meta'] AS $field => $value ) :
+			if ( ! empty( $_post['is_external'] ) ) :
 
-				if ( ! empty( $value['validation'] ) ) :
+				$this->form_validation->set_rules( 'external_vendor_label',	'',	'xss_clean|required' );
+				$this->form_validation->set_rules( 'external_vendor_url',	'',	'xss_clean|required' );
 
-					$_label = ! empty( $value['label'] ) ? $value['label'] : ucwords( str_replace( '_', ' ', $field ) );
-					$this->form_validation->set_rules( $field, $_label, $value['validation'] );
+			else :
 
-				endif;
+				$this->form_validation->set_rules( 'external_vendor_label',	'',	'xss_clean' );
+				$this->form_validation->set_rules( 'external_vendor_url',	'',	'xss_clean' );
 
-			endforeach;
+			endif;
 
 		endif;
 
@@ -512,7 +506,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		//	Description
 		//	===========
-		$this->form_validation->set_rules( 'description',		'',	'required' );
+		$this->form_validation->set_rules( 'description',	'',	'required' );
 
 		// --------------------------------------------------------------------------
 
@@ -562,21 +556,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 				endswitch;
 
-				//	Meta
-				//	----
-
-				//	Any custom checks for the extra meta fields
-				if ( ! empty( $this->data['product_types_meta'][$_post['type_id']] ) ) :
-
-					//	Process each rule
-					foreach( $this->data['product_types_meta'][$_post['type_id']] AS $field ) :
-
-						$this->form_validation->set_rules( 'variation[' . $index . '][meta][' . $field->key . ']',	$field->label,	$field->validation );
-
-					endforeach;
-
-				endif;
-
 				//	Pricing
 				//	-------
 				if ( isset( $v['pricing'] ) ) :
@@ -610,23 +589,27 @@ class NAILS_Shop extends NAILS_Admin_Controller
 				//	Collect only switch
 				$this->form_validation->set_rules( 'variation[' . $index . '][shipping][collection_only]',	'',	'xss_clean' );
 
-				//	Foreach of the driver's settings either set as required, or xss_clean it
+				//	Foreach of the driver's settings and apply any rules, but if collect only is on then don't bother
 				$_shipping_options = $this->shop_shipping_driver_model->options_variant();
 				foreach( $_shipping_options AS $option ) :
 
 					$_rules		= array();
 					$_rules[]	= 'xss_clean';
 
-					if ( ! empty( $option['validation'] ) ) :
+					if ( empty( $_post['variation'][$index]['shipping']['collection_only'] ) ) :
 
-						$_option_validation	= explode( '|', $option['validation'] );
-						$_rules				= array_merge( $_rules, $_option_validation );
+						if ( ! empty( $option['validation'] ) ) :
 
-					endif;
+							$_option_validation	= explode( '|', $option['validation'] );
+							$_rules				= array_merge( $_rules, $_option_validation );
 
-					if ( ! empty( $option['required'] ) ) :
+						endif;
 
-						$_rules[] = 'required';
+						if ( ! empty( $option['required'] ) ) :
+
+							$_rules[] = 'required';
+
+						endif;
 
 					endif;
 
@@ -752,28 +735,15 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		$this->data['currencies'] = $this->shop_currency_model->get_all_supported();
 
-		//	Fetch product meta fields
+		//	Fetch product type meta fields
 		$this->data['product_types_meta'] = array();
+		$this->load->model( 'shop/shop_product_type_meta_model' );
 
 		foreach ( $this->data['product_types'] AS $type ) :
 
-			if ( is_callable( array( $this->shop_product_type_model, 'meta_fields_' . $type->slug ) ) ) :
-
-				$this->data['product_types_meta'][$type->id] = $this->shop_product_type_model->{'meta_fields_' . $type->slug}();
-
-			else :
-
-				$this->data['product_types_meta'][$type->id] = array();
-
-			endif;
+			$this->data['product_types_meta'][$type->id] = $this->shop_product_type_meta_model->get_by_product_type_id( $type->id );
 
 		endforeach;
-
-		// --------------------------------------------------------------------------
-
-		//	Fetch product meta fields
-		$this->config->load( 'shop/shop' );
-		$this->data['product_meta'] = $this->config->item( 'shop_product_meta' );
 
 		// --------------------------------------------------------------------------
 
@@ -3815,9 +3785,207 @@ class NAILS_Shop extends NAILS_Admin_Controller
 	// --------------------------------------------------------------------------
 
 
-	protected function _manage_product_type_delete()
+	protected function _manage_product_type_meta()
 	{
-		if ( ! user_has_permission( 'admin.shop.product_type_delete' ) ) :
+		//	Load model
+		$this->load->model( 'shop/shop_product_type_model' );
+
+		$_method = $this->uri->segment( 5 ) ? $this->uri->segment( 5 ) : 'index';
+
+		if ( method_exists( $this, '_manage_product_type_meta_' . $_method ) ) :
+
+			//	Extend the title
+			$this->data['page']->title .= 'Product Type Meta ';
+
+			$this->{'_manage_product_type_meta_' . $_method}();
+
+		else :
+
+			show_404();
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _manage_product_type_meta_index()
+	{
+		//	Fetch data
+		$_data = array( 'include_associated_product_types' => TRUE );
+		$this->data['meta_fields'] = $this->shop_product_type_meta_model->get_all( NULL, NULL, $_data );
+
+		// --------------------------------------------------------------------------
+
+		//	Load views
+		$this->load->view( 'structure/header',							$this->data );
+		$this->load->view( 'admin/shop/manage/product_type_meta/index',	$this->data );
+		$this->load->view( 'structure/footer',							$this->data );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _manage_product_type_meta_create()
+	{
+		if ( ! user_has_permission( 'admin.shop.product_type_meta_create' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		if ( $this->input->post() ) :
+
+			$this->load->library( 'form_validation' );
+
+			$this->form_validation->set_rules( 'label',							'',	'xss_clean|required' );
+			$this->form_validation->set_rules( 'admin_form_sub_label',			'',	'xss_clean' );
+			$this->form_validation->set_rules( 'admin_form_placeholder',		'',	'xss_clean' );
+			$this->form_validation->set_rules( 'admin_form_tip',				'',	'xss_clean' );
+			$this->form_validation->set_rules( 'associated_product_types',		'',	'xss_clean' );
+
+			$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
+
+			if ( $this->form_validation->run() ) :
+
+				$_data								= new stdClass();
+				$_data->label						= $this->input->post( 'label' );
+				$_data->admin_form_sub_label		= $this->input->post( 'admin_form_sub_label' );
+				$_data->admin_form_placeholder		= $this->input->post( 'admin_form_placeholder' );
+				$_data->admin_form_tip				= $this->input->post( 'admin_form_tip' );
+				$_data->associated_product_types	= $this->input->post( 'associated_product_types' );
+
+				if ( $this->shop_product_type_meta_model->create( $_data ) ) :
+
+					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Product Type Meta Field created successfully.' );
+					redirect( 'admin/shop/manage/product_type_meta' . $this->data['is_fancybox'] );
+
+				else :
+
+					$this->data['error'] = '<strong>Sorry,</strong> there was a problem creating the Product Type Meta Field. ' . $this->shop_product_type_meta_model->last_error();
+
+				endif;
+
+			else :
+
+				$this->data['error'] = lang( 'fv_there_were_errors' );
+
+			endif;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Page data
+		$this->data['page']->title .= '&rsaquo; Create';
+
+		// --------------------------------------------------------------------------
+
+		//	Fetch data
+		$this->data['product_types']	= $this->shop_product_type_model->get_all();
+
+		// --------------------------------------------------------------------------
+
+		//	Load views
+		$this->load->view( 'structure/header',							$this->data );
+		$this->load->view( 'admin/shop/manage/product_type_meta/edit',	$this->data );
+		$this->load->view( 'structure/footer',							$this->data );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _manage_product_type_meta_edit()
+	{
+		if ( ! user_has_permission( 'admin.shop.product_type_meta_edit' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$_data = array( 'include_associated_product_types' => TRUE );
+		$this->data['meta_field'] = $this->shop_product_type_meta_model->get_by_id( $this->uri->segment( 6 ), $_data );
+
+		if ( empty( $this->data['meta_field'] ) ) :
+
+			show_404();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		if ( $this->input->post() ) :
+
+			$this->load->library( 'form_validation' );
+
+			$this->form_validation->set_rules( 'label',							'',	'xss_clean|required' );
+			$this->form_validation->set_rules( 'admin_form_sub_label',			'',	'xss_clean' );
+			$this->form_validation->set_rules( 'admin_form_placeholder',		'',	'xss_clean' );
+			$this->form_validation->set_rules( 'admin_form_tip',				'',	'xss_clean' );
+			$this->form_validation->set_rules( 'associated_product_types',		'',	'xss_clean' );
+
+			$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
+
+			if ( $this->form_validation->run() ) :
+
+				$_data								= new stdClass();
+				$_data->label						= $this->input->post( 'label' );
+				$_data->admin_form_sub_label		= $this->input->post( 'admin_form_sub_label' );
+				$_data->admin_form_placeholder		= $this->input->post( 'admin_form_placeholder' );
+				$_data->admin_form_tip				= $this->input->post( 'admin_form_tip' );
+				$_data->associated_product_types	= $this->input->post( 'associated_product_types' );
+
+				if ( $this->shop_product_type_meta_model->update( $this->data['meta_field']->id, $_data ) ) :
+
+					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Product Type Meta Field saved successfully.' );
+					redirect( 'admin/shop/manage/product_type_meta' . $this->data['is_fancybox'] );
+
+				else :
+
+					$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving the Product Type Meta Field. ' . $this->shop_product_type_meta_model->last_error();
+
+				endif;
+
+			else :
+
+				$this->data['error'] = lang( 'fv_there_were_errors' );
+
+			endif;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Page data
+		$this->data['page']->title .= 'Edit &rsaquo; ' . $this->data['meta_field']->label;
+
+		// --------------------------------------------------------------------------
+
+		//	Fetch data
+		$this->data['product_types']	= $this->shop_product_type_model->get_all();
+
+		// --------------------------------------------------------------------------
+
+		//	Load views
+		$this->load->view( 'structure/header',							$this->data );
+		$this->load->view( 'admin/shop/manage/product_type_meta/edit',	$this->data );
+		$this->load->view( 'structure/footer',							$this->data );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _manage_product_type_meta_delete()
+	{
+		if ( ! user_has_permission( 'admin.shop.product_type_meta_delete' ) ) :
 
 			unauthorised();
 
@@ -3827,7 +3995,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		$_id = $this->uri->segment( 6 );
 
-		if ( $this->shop_product_type_model->delete( $_id ) ) :
+		if ( $this->shop_product_type_meta_model->delete( $_id ) ) :
 
 			$this->session->set_flashdata( 'success', '<strong>Success!</strong> Product Type was deleted successfully.' );
 
@@ -3837,7 +4005,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		endif;
 
-		redirect( 'admin/shop/manage/product_type' . $this->data['is_fancybox'] );
+		redirect( 'admin/shop/manage/product_type_meta' . $this->data['is_fancybox'] );
 	}
 
 

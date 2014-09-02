@@ -109,6 +109,26 @@
 					?>
 				</fieldset>
 
+				<fieldset id="shop-settings-external-products">
+					<legend>External Products</legend>
+					<p>
+						Allow the shop to list items sold by another vendor. External products are listed and categorised just like normal
+						products but will link out to a third party.
+					</p>
+					<?php
+
+						$_field				= array();
+						$_field['key']		= 'enable_external_products';
+						$_field['label']	= 'Enable External Products';
+						$_field['default']	= app_setting( $_field['key'], 'shop' );
+						$_field['text_on']	= strtoupper( lang( 'yes' ) );
+						$_field['text_off']	= strtoupper( lang( 'no' ) );
+
+						echo form_field_boolean( $_field );
+
+					?>
+				</fieldset>
+
 				<fieldset id="shop-settings-invoice">
 					<legend>Invoicing</legend>
 					<p>

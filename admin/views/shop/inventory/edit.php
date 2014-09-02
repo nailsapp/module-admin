@@ -6,7 +6,7 @@
 			<a href="#" data-tab="tab-basics">Product Info</a>
 		</li>
 
-		<?php if ( ! empty( $product_meta ) ) : ?>
+		<?php if ( app_setting( 'enable_external_products', 'shop' ) ) : ?>
 		<li class="tab">
 			<a href="#" id="tabber-meta" data-tab="tab-meta">Product Meta</a>
 		</li>
@@ -190,138 +190,59 @@
 			?>
 		</div>
 
-		<?php
+		<?php if ( app_setting( 'enable_external_products', 'shop' ) ) : ?>
+		<div class="tab page meta fieldset" id="tab-meta">
 
-			if ( ! empty( $product_meta ) ) :
+			<fieldset>
+				<legend>External Product</legend>
+				<p>
+					If this item is sold on an external site then turn this setting on and the store will handle redirecting users to the appropriate vendor.
+				</p>
+				<?php
 
-				echo '<div class="tab page meta fieldset" id="tab-meta">';
+					echo '<div id="is-external">';
 
-				foreach ( $product_meta AS $field => $value ) :
+						$_field					= array();
+						$_field['key']			= 'is_external';
+						$_field['label']		= 'Is External';
+						$_field['text_on']		= strtoupper( lang( 'yes' ) );
+						$_field['text_off']		= strtoupper( lang( 'no' ) );
+						$_field['default']		= isset( $item->is_external ) ? $item->is_external : FALSE;
 
-					//	Prep data
-					$_datatype		= isset( $value['datatype'] ) ? $value['datatype'] : 'string';
-					$_default		= ! empty( $item->meta->$field ) ? $item->meta->$field : '';
-					$_field_default	= ! empty( $value['default'] ) ? $value['default'] : '';
+						echo form_field_boolean( $_field );
 
-					$_field						= array();
-					$_field['key']				= 'meta[' . $field . ']';
-					$_field['label']			= ! empty( $value['label'] ) ? $value['label'] : ucwords( str_replace( '_', ' ', $field ) );
-					$_field['required']			= ! empty( $value['required'] ) ? TRUE : FALSE;
-					$_field['default']			= ! empty( $_default ) ? $_default : $_field_default;
-					$_field['sub_label']		= ! empty( $value['max_length'] ) ? 'Max length ' . $value['max_length'] . ' characters' : '';
+					echo '</div>';
 
-					switch ( $_datatype ) :
+					$_display = $_field['default'] || $this->input->post( 'is_external' ) ? 'block' : 'none';
+					echo '<div id="is-external-fields" style="display:' . $_display . '">';
 
-						case 'bool':
-						case 'boolean' :
+						$_field					= array();
+						$_field['key']			= 'external_vendor_label';
+						$_field['label']		= 'External Vendor';
+						$_field['sub_label']	= 'Max. 150 characters';
+						$_field['placeholder']	= 'The name of the vendor';
+						$_field['default']		= isset( $item->external_vendor_label ) ? $item->external_vendor_label : '';
 
-							$_field['class']	= 'select2';
-							$_field['text_on']	= strtoupper( lang( 'yes' ) );
-							$_field['text_off']	= strtoupper( lang( 'no' ) );
-
-							echo form_field_boolean( $_field );
-
-						break;
-
-						// --------------------------------------------------------------------------
-
-						case 'date' :
-
-							echo form_field_date( $_field );
-
-						break;
+						echo form_field( $_field );
 
 						// --------------------------------------------------------------------------
 
-						case 'id' :
+						$_field					= array();
+						$_field['key']			= 'external_vendor_url';
+						$_field['label']		= 'External Vendor';
+						$_field['sub_label']	= 'Max. 500 characters';
+						$_field['placeholder']	= 'The URL of the page to redirect the user to';
+						$_field['default']		= isset( $item->external_vendor_label ) ? $item->external_vendor_label : '';
 
-							//	Fetch items from the joining table
+						echo form_field( $_field );
 
-							if ( isset( $value['join'] ) ) :
+					echo '</div>';
 
-								$_table			= isset( $value['join']['table'] ) 		?  $value['join']['table']		: NULL;
-								$_select_id		= isset( $value['join']['id'] )			?  $value['join']['id']			: NULL;
-								$_select_name	= isset( $value['join']['name'] )		?  $value['join']['name']		: NULL;
-								$_order_col		= isset( $value['join']['order_col'] )	?  $value['join']['order_col']	: NULL;
-								$_order_dir		= isset( $value['join']['order_dir'] )	?  $value['join']['order_dir']	: 'ASC';
+				?>
+			</fieldset>
 
-								if ( $_table && $_select_id && $_select_name ) :
-
-									$this->db->select( $_select_id . ',' . $_select_name );
-
-									if ( $_order_col ) :
-
-										$this->db->order_by( $_order_col, $_order_dir );
-
-									endif;
-
-									$_results = $this->db->get( $_table )->result();
-									$_options = array();
-
-									foreach ( $_results AS $row ) :
-
-										$_options[$row->{$_select_id}] = $row->{$_select_name};
-
-									endforeach;
-
-									$_field['class'] = 'select2';
-
-									echo form_field_dropdown( $_field, $_options );
-
-								else :
-
-									echo form_field( $_field );
-
-								endif;
-
-							else :
-
-								echo form_field( $_field );
-
-							endif;
-
-						break;
-
-						// --------------------------------------------------------------------------
-
-						case 'file' :
-						case 'upload' :
-
-							$_field['bucket'] = isset( $value['bucket'] ) ? $value['bucket'] : FALSE;
-							if ( isset( ${'upload_error_' . $_field['key']} )) :
-
-								$_field['error'] = implode( ' ', ${'upload_error_' . $_field['key']} );
-
-							endif;
-
-							echo form_field_mm( $_field );
-
-						break;
-
-						// --------------------------------------------------------------------------
-
-						case 'textarea':
-
-							$_field['type'] = 'textarea';
-							echo form_field( $_field );
-
-						break;
-
-						default:
-
-							echo form_field( $_field );
-
-						break;
-
-					endswitch;
-
-				endforeach;
-
-				echo '</div>';
-
-			endif;
-
-		?>
+		</div>
+		<?php endif; ?>
 
 		<div class="tab page description" id="tab-description">
 		<?php

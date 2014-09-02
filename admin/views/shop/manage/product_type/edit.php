@@ -115,7 +115,7 @@
 				?>
 			</fieldset>
 			<fieldset>
-				<legend>Adavcned Configurations</legend>
+				<legend>Advanced Configurations</legend>
 				<p class="system-alert message">
 					These fields provide granular control over the product type's behaviour. Setting or changing
 					these values will alter the way the shop behaves.

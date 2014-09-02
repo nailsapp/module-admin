@@ -923,6 +923,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		$_settings['name']									= $this->input->post( 'name' );
 		$_settings['url']									= $this->input->post( 'url' );
 		$_settings['price_exclude_tax']						= $this->input->post( 'price_exclude_tax' );
+		$_settings['enable_external_products']				= (bool) $this->input->post( 'enable_external_products' );
 		$_settings['invoice_company']						= $this->input->post( 'invoice_company' );
 		$_settings['invoice_company']						= $this->input->post( 'invoice_company' );
 		$_settings['invoice_address']						= $this->input->post( 'invoice_address' );

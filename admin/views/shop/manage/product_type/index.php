@@ -96,7 +96,7 @@
 
 							echo '<tr>';
 								echo '<td colspan="8" class="no-data">';
-									echo 'No Product_types, add one!';
+									echo 'No Product Types, add one!';
 								echo '</td>';
 							echo '</tr>';
 

@@ -3,7 +3,7 @@
 	if ( $datetime && $datetime != '0000-00-00' ) :
 
 		echo '<td class="datetime">';
-		echo '<span class="nice-time">' . user_date( $datetime, 'Y-m-d' ) . '</span>';
+		echo '<span class="nice-time" data-capitalise="true">' . user_date( $datetime, 'Y-m-d' ) . '</span>';
 		echo '<small>' . user_date( $datetime ) . '</small>';
 		echo '</td>';
 

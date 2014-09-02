@@ -173,38 +173,39 @@
 
 					if ( $fields ) :
 
+						$_defaults = array();
+
+						//	Set any default values
+						if ( isset( $variation->meta ) ) :
+
+							foreach( $variation->meta AS $variation_meta ) :
+
+								$_default[$variation_meta->meta_field_id] = $variation_meta->value;
+
+							endforeach;
+
+						elseif ( isset( $variation['meta'] ) ) :
+
+							foreach( $variation['meta'] AS $meta_field_id => $meta_field_value ) :
+
+								$_default[$meta_field_id] = $meta_field_value;
+
+							endforeach;
+
+						endif;
+
 						//	TODO: use the form builder library
 						foreach ( $fields AS $field ) :
 
 							$_field					= array();
-							$_field['key']			= 'variation[' . $_counter . '][meta][' . $field->key . ']';
-							$_field['label']		= ! empty( $field->label )			? $field->label : '';
-							$_field['placeholder']	= ! empty( $field->placeholder )	? $field->placeholder : '';
-							$_field['required']		= array_search( 'required', explode( '|', $field->validation ) ) ? TRUE : FALSE;
-							$_field['default']		= ! empty( $variation->meta->{$field->key} ) ? $variation->meta->{$field->key} : '';
+							$_field['key']			= 'variation[' . $_counter . '][meta][' . $field->id . ']';
+							$_field['label']		= ! empty( $field->label )					? $field->label : '';
+							$_field['sub_label']	= ! empty( $field->admin_form_sub_label )	? $field->admin_form_sub_label : '';
+							$_field['placeholder']	= ! empty( $field->admin_form_placeholder )	? $field->admin_form_placeholder : '';
+							$_field['tip']			= ! empty( $field->admin_form_tip )			? $field->admin_form_tip : '';
+							$_field['default']		= ! empty( $_default[$field->id] )			? $_default[$field->id] : '';
 
-							switch( $field->type ) :
-
-								case 'cdn_object' :
-
-									$_field['bucket'] = $field->bucket;
-
-									$_field_out = form_field_mm( $_field, $field->tip );
-
-								break;
-
-								// --------------------------------------------------------------------------
-
-								case 'text' :
-								default :
-
-									$_field_out = form_field( $_field, $field->tip );
-
-								break;
-
-							endswitch;
-
-							echo $_field_out;
+							echo form_field( $_field );
 
 						endforeach;
 
