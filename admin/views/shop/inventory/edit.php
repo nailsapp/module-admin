@@ -229,7 +229,7 @@
 
 						$_field					= array();
 						$_field['key']			= 'external_vendor_url';
-						$_field['label']		= 'External Vendor';
+						$_field['label']		= 'External Vendor URL';
 						$_field['sub_label']	= 'Max. 500 characters';
 						$_field['placeholder']	= 'The URL of the page to redirect the user to';
 						$_field['default']		= isset( $item->external_vendor_url ) ? $item->external_vendor_url : '';
