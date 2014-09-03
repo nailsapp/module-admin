@@ -232,7 +232,7 @@
 						$_field['label']		= 'External Vendor';
 						$_field['sub_label']	= 'Max. 500 characters';
 						$_field['placeholder']	= 'The URL of the page to redirect the user to';
-						$_field['default']		= isset( $item->external_vendor_label ) ? $item->external_vendor_label : '';
+						$_field['default']		= isset( $item->external_vendor_url ) ? $item->external_vendor_url : '';
 
 						echo form_field( $_field );
 
