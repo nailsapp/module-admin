@@ -101,7 +101,6 @@
 					$_field					= array();
 					$_field['key']			= 'variation[' . $_counter . '][quantity_available]';
 					$_field['label']		= 'Quantity Available';
-					$_field['required']		= TRUE;
 					$_field['placeholder']	= 'How many units of this variation are available? Leave blank for unlimited';
 					$_field['default']		= isset( $variation->quantity_available ) ? $variation->quantity_available : '';
 
@@ -167,9 +166,9 @@
 		<div class="tab page fieldset" id="tab-variation-<?=$_counter?>-meta">
 			<?php
 
-				foreach ( $product_types_meta AS $id => $fields ) :
+				foreach ( $product_types_meta AS $product_type_id => $fields ) :
 
-					echo '<div class="meta-fields meta-fields-' . $id . '" style="display:none;">';
+					echo '<div class="meta-fields meta-fields-' . $product_type_id . '" style="display:none;">';
 
 					if ( $fields ) :
 
@@ -178,33 +177,33 @@
 						//	Set any default values
 						if ( isset( $variation->meta ) ) :
 
+							//	DB Data
 							foreach( $variation->meta AS $variation_meta ) :
 
-								$_default[$variation_meta->meta_field_id] = $variation_meta->value;
+								$_defaults[$variation_meta->meta_field_id] = $variation_meta->value;
 
 							endforeach;
 
-						elseif ( isset( $variation['meta'] ) ) :
+						elseif ( isset( $variation['meta'][$product_type_id] ) ) :
 
-							foreach( $variation['meta'] AS $meta_field_id => $meta_field_value ) :
+							//	POST Data
+							foreach( $variation['meta'][$product_type_id] AS $meta_field_id => $meta_field_value ) :
 
-								$_default[$meta_field_id] = $meta_field_value;
+								$_defaults[$meta_field_id] = $meta_field_value;
 
 							endforeach;
 
 						endif;
 
-						//	TODO: use the form builder library
 						foreach ( $fields AS $field ) :
 
 							$_field					= array();
-							$_field['key']			= 'variation[' . $_counter . '][meta][' . $field->id . ']';
+							$_field['key']			= 'variation[' . $_counter . '][meta][' . $product_type_id . '][' .  $field->id . ']';
 							$_field['label']		= ! empty( $field->label )					? $field->label : '';
 							$_field['sub_label']	= ! empty( $field->admin_form_sub_label )	? $field->admin_form_sub_label : '';
 							$_field['placeholder']	= ! empty( $field->admin_form_placeholder )	? $field->admin_form_placeholder : '';
 							$_field['tip']			= ! empty( $field->admin_form_tip )			? $field->admin_form_tip : '';
-							$_field['default']		= ! empty( $_default[$field->id] )			? $_default[$field->id] : '';
-
+							$_field['default']		= ! empty( $_defaults[$field->id] )			? $_defaults[$field->id] : '';
 							echo form_field( $_field );
 
 						endforeach;

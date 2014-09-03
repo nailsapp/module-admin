@@ -82,7 +82,7 @@
 			<fieldset>
 				<legend>Associated Product Types</legend>
 				<p>
-					Specify which product types should inherit this meta field.
+					Specify which product types should inherit this meta field. Meta fields form the basis of the sidebar filters in the front end.
 				</p>
 				<select name="associated_product_types[]" multiple="multiple" class="select2" data-placeholder="Select product types">
 					<option value=""></option>
