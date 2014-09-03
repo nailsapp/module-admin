@@ -77,6 +77,30 @@
 
 					echo form_field( $_field );
 
+					// --------------------------------------------------------------------------
+
+					$_field				= array();
+					$_field['key']		= 'allow_multiple';
+					$_field['label']	= 'Allow Multiple Selections';
+					$_field['tip']		= 'Allow admin to specify more than one value per variant.';
+					$_field['text_on']	= lang( 'yes' );
+					$_field['text_off']	= lang( 'no' );
+					$_field['default']	= isset( $meta_field->allow_multiple ) ? $meta_field->allow_multiple : FALSE;
+
+					echo form_field_boolean( $_field );
+
+					// --------------------------------------------------------------------------
+
+					$_field				= array();
+					$_field['key']		= 'is_filter';
+					$_field['label']	= 'Is Filter';
+					$_field['tip']		= 'Allow this field to act as a product filter on the front end.';
+					$_field['text_on']	= lang( 'yes' );
+					$_field['text_off']	= lang( 'no' );
+					$_field['default']	= isset( $meta_field->allow_multiple ) ? $meta_field->allow_multiple : FALSE;
+
+					echo form_field_boolean( $_field );
+
 				?>
 			</fieldset>
 			<fieldset>

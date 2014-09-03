@@ -182,6 +182,12 @@
 
 								$_defaults[$variation_meta->meta_field_id] = $variation_meta->value;
 
+								if ( $variation_meta->allow_multiple ) :
+
+									$_defaults[$variation_meta->meta_field_id] = implode( ',', $_defaults[$variation_meta->meta_field_id] );
+
+								endif;
+
 							endforeach;
 
 						elseif ( isset( $variation['meta'][$product_type_id] ) ) :
@@ -203,7 +209,10 @@
 							$_field['sub_label']	= ! empty( $field->admin_form_sub_label )	? $field->admin_form_sub_label : '';
 							$_field['placeholder']	= ! empty( $field->admin_form_placeholder )	? $field->admin_form_placeholder : '';
 							$_field['tip']			= ! empty( $field->admin_form_tip )			? $field->admin_form_tip : '';
+							$_field['class']		= ! empty( $field->allow_multiple )			? 'allow-multiple' : '';
 							$_field['default']		= ! empty( $_defaults[$field->id] )			? $_defaults[$field->id] : '';
+							$_field['info']			= ! empty( $field->allow_multiple )			? '<strong>Tip:</strong> This field accepts multiple selections, seperate multiple values with a comma or hit enter.' : '';
+
 							echo form_field( $_field );
 
 						endforeach;

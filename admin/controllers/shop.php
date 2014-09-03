@@ -3842,11 +3842,13 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 			$this->load->library( 'form_validation' );
 
-			$this->form_validation->set_rules( 'label',							'',	'xss_clean|required' );
-			$this->form_validation->set_rules( 'admin_form_sub_label',			'',	'xss_clean' );
-			$this->form_validation->set_rules( 'admin_form_placeholder',		'',	'xss_clean' );
-			$this->form_validation->set_rules( 'admin_form_tip',				'',	'xss_clean' );
-			$this->form_validation->set_rules( 'associated_product_types',		'',	'xss_clean' );
+			$this->form_validation->set_rules( 'label',						'',	'xss_clean|required' );
+			$this->form_validation->set_rules( 'admin_form_sub_label',		'',	'xss_clean' );
+			$this->form_validation->set_rules( 'admin_form_placeholder',	'',	'xss_clean' );
+			$this->form_validation->set_rules( 'admin_form_tip',			'',	'xss_clean' );
+			$this->form_validation->set_rules( 'associated_product_types',	'',	'xss_clean' );
+			$this->form_validation->set_rules( 'allow_multiple',			'',	'xss_clean' );
+			$this->form_validation->set_rules( 'is_filter',					'',	'xss_clean' );
 
 			$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
 
@@ -3858,6 +3860,8 @@ class NAILS_Shop extends NAILS_Admin_Controller
 				$_data->admin_form_placeholder		= $this->input->post( 'admin_form_placeholder' );
 				$_data->admin_form_tip				= $this->input->post( 'admin_form_tip' );
 				$_data->associated_product_types	= $this->input->post( 'associated_product_types' );
+				$_data->allow_multiple				= (bool) $this->input->post( 'allow_multiple' );
+				$_data->is_filter					= (bool) $this->input->post( 'is_filter' );
 
 				if ( $this->shop_product_type_meta_model->create( $_data ) ) :
 
@@ -3925,11 +3929,13 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 			$this->load->library( 'form_validation' );
 
-			$this->form_validation->set_rules( 'label',							'',	'xss_clean|required' );
-			$this->form_validation->set_rules( 'admin_form_sub_label',			'',	'xss_clean' );
-			$this->form_validation->set_rules( 'admin_form_placeholder',		'',	'xss_clean' );
-			$this->form_validation->set_rules( 'admin_form_tip',				'',	'xss_clean' );
-			$this->form_validation->set_rules( 'associated_product_types',		'',	'xss_clean' );
+			$this->form_validation->set_rules( 'label',						'',	'xss_clean|required' );
+			$this->form_validation->set_rules( 'admin_form_sub_label',		'',	'xss_clean' );
+			$this->form_validation->set_rules( 'admin_form_placeholder',	'',	'xss_clean' );
+			$this->form_validation->set_rules( 'admin_form_tip',			'',	'xss_clean' );
+			$this->form_validation->set_rules( 'associated_product_types',	'',	'xss_clean' );
+			$this->form_validation->set_rules( 'allow_multiple',			'',	'xss_clean' );
+			$this->form_validation->set_rules( 'is_filter',					'',	'xss_clean' );
 
 			$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
 
@@ -3941,6 +3947,8 @@ class NAILS_Shop extends NAILS_Admin_Controller
 				$_data->admin_form_placeholder		= $this->input->post( 'admin_form_placeholder' );
 				$_data->admin_form_tip				= $this->input->post( 'admin_form_tip' );
 				$_data->associated_product_types	= $this->input->post( 'associated_product_types' );
+				$_data->allow_multiple				= (bool) $this->input->post( 'allow_multiple' );
+				$_data->is_filter					= (bool) $this->input->post( 'is_filter' );
 
 				if ( $this->shop_product_type_meta_model->update( $this->data['meta_field']->id, $_data ) ) :
 
