@@ -74,47 +74,6 @@
 				?>
 			</fieldset>
 			<fieldset>
-				<legend>Search Engine Optimisation</legend>
-				<p>
-					These fields help describe the product type to search engines. These fields won't be seen publicly.
-				</p>
-				<?php
-
-					$_field					= array();
-					$_field['key']			= 'seo_title';
-					$_field['label']		= 'SEO Title';
-					$_field['sub_label']	= 'Max. 150 characters';
-					$_field['placeholder']	= 'An alternative, SEO specific title for the product type.';
-					$_field['default']		= isset( $product_type->seo_title ) ? $product_type->seo_title : '';
-
-					echo form_field( $_field );
-
-					// --------------------------------------------------------------------------
-
-					$_field					= array();
-					$_field['key']			= 'seo_description';
-					$_field['label']		= 'SEO Description';
-					$_field['sub_label']	= 'Max. 300 characters';
-					$_field['type']			= 'textarea';
-					$_field['placeholder']	= 'This text will be read by search engines when they\'re indexing the page. Keep this short and concise.';
-					$_field['default']		= isset( $product_type->seo_description ) ? $product_type->seo_description : '';
-
-					echo form_field( $_field );
-
-					// --------------------------------------------------------------------------
-
-					$_field					= array();
-					$_field['key']			= 'seo_keywords';
-					$_field['label']		= 'SEO Keywords';
-					$_field['sub_label']	= 'Max. 150 characters';
-					$_field['placeholder']	= 'These comma separated keywords help search engines understand the context of the page; stick to 5-10 words.';
-					$_field['default']		= isset( $product_type->seo_keywords ) ? $product_type->seo_keywords : '';
-
-					echo form_field( $_field );
-
-				?>
-			</fieldset>
-			<fieldset>
 				<legend>Advanced Configurations</legend>
 				<p class="system-alert message">
 					These fields provide granular control over the product type's behaviour. Setting or changing
