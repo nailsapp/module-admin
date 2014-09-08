@@ -540,13 +540,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 					break;
 
-					case 'TO_ORDER' :
-
-						$this->form_validation->set_rules( 'variation[' . $index . '][quantity_available]',	'',	'xss_clean' );
-						$this->form_validation->set_rules( 'variation[' . $index . '][lead_time]',			'',	'xss_clean' );
-
-					break;
-
 					case 'OUT_OF_STOCK' :
 
 						$this->form_validation->set_rules( 'variation[' . $index . '][quantity_available]',	'',	'xss_clean' );

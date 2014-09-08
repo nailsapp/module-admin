@@ -86,7 +86,6 @@
 
 				$_options					= array();
 				$_options['IN_STOCK']		= 'In Stock';
-				$_options['TO_ORDER']		= 'To Order';
 				$_options['OUT_OF_STOCK']	= 'Out of Stock';
 
 				echo form_field_dropdown( $_field, $_options );
@@ -103,23 +102,6 @@
 					$_field['label']		= 'Quantity Available';
 					$_field['placeholder']	= 'How many units of this variation are available? Leave blank for unlimited';
 					$_field['default']		= isset( $variation->quantity_available ) ? $variation->quantity_available : '';
-
-					echo form_field( $_field );
-
-				echo '</div>';
-
-				// --------------------------------------------------------------------------
-
-				$_display = $_status == 'TO_ORDER' ? 'block' : 'none';
-				echo '<div class="stock-status-field TO_ORDER" style="display:' . $_display . '">';
-
-					$_field					= array();
-					$_field['key']			= 'variation[' . $_counter . '][lead_time]';
-					$_field['label']		= 'Lead Time';
-					$_field['sub_label']	= 'Max. 50 characters';
-					$_field['required']		= TRUE;
-					$_field['placeholder']	= 'How long is the lead time on orders for this product?';
-					$_field['default']		= ! empty( $variation->lead_time ) ? $variation->lead_time : '';
 
 					echo form_field( $_field );
 
