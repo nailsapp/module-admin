@@ -929,6 +929,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		$_settings['invoice_address']						= $this->input->post( 'invoice_address' );
 		$_settings['invoice_vat_no']						= $this->input->post( 'invoice_vat_no' );
 		$_settings['invoice_company_no']					= $this->input->post( 'invoice_company_no' );
+		$_settings['invoice_footer']						= $this->input->post( 'invoice_footer' );
 		$_settings['warehouse_collection_enabled']			= (bool) $this->input->post( 'warehouse_collection_enabled' );
 		$_settings['warehouse_addr_addressee']				= $this->input->post( 'warehouse_addr_addressee' );
 		$_settings['warehouse_addr_line1']					= $this->input->post( 'warehouse_addr_line1' );
@@ -944,7 +945,6 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		$_settings['page_range_listing']					= $this->input->post( 'page_range_listing' );
 		$_settings['page_sale_listing']						= $this->input->post( 'page_sale_listing' );
 		$_settings['page_tag_listing']						= $this->input->post( 'page_tag_listing' );
-
 
 		// --------------------------------------------------------------------------
 

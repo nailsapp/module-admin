@@ -179,6 +179,19 @@
 
 						echo form_field( $_field );
 
+						// --------------------------------------------------------------------------
+
+						//	Invoice Footer
+						$_field					= array();
+						$_field['key']			= 'invoice_footer';
+						$_field['label']		= 'Footer Text';
+						$_field['type']			= 'textarea';
+						$_field['default']		= app_setting( $_field['key'], 'shop' );
+						$_field['placeholder']	= 'Any text to include on the footer of each invoice.';
+						$_field['tip']			= 'Use this space to include shop specific information such as your returns policy.';
+
+						echo form_field( $_field );
+
 					?>
 				</fieldset>
 
