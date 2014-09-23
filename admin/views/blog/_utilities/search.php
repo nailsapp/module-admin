@@ -16,9 +16,9 @@
 		// --------------------------------------------------------------------------
 
 		$_sort = array(
-			'published'	=> 'Published Date',
-			'modified'	=> 'Modified Date',
-			'title'		=> 'Title'
+			'bp.published'	=> 'Published Date',
+			'bp.modified'	=> 'Modified Date',
+			'bp.title'		=> 'Title'
 		);
 		echo lang( 'admin_search_sort' ) . form_dropdown( 'sort_on', $_sort, $sort_on, 'class="select2"' );
 
@@ -46,7 +46,6 @@
 
 		echo anchor( uri_string(), lang( 'action_reset' ), 'class="awesome small right"' );
 		echo form_submit( 'submit', lang( 'action_search' ), 'class="awesome small right"' );
-
 
 		// --------------------------------------------------------------------------
 

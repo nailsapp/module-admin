@@ -77,65 +77,75 @@ class NAILS_Admin_Model extends NAILS_Model
 
 				if ( $_out ) :
 
-					$_out->class_name = $module;
+					if ( ! is_array( $_out ) ) :
 
-					//	List the public methods of this module (can't rely on the ['funcs'] array as it
-					//	might not list a method which the active user needs in their ACL)
+						$_out = array( $_out );
 
-					$_methods = get_class_methods( $module );
+					endif;
 
-					//	Strip out anything which is not public or which starts with a _ (pseudo private)
-					$_remove_keys = array();
-					foreach ( $_methods AS $key => $method ) :
+					foreach ( $_out AS $out ) :
 
-						if ( substr( $method, 0, 1 ) == '_' ) :
+						$out->class_name = $module;
 
-							$_remove_keys[] = $key;
-							continue;
+						//	List the public methods of this module (can't rely on the ['funcs'] array as it
+						//	might not list a method which the active user needs in their ACL)
 
-						endif;
+						$_methods = get_class_methods( $module );
+
+						//	Strip out anything which is not public or which starts with a _ (pseudo private)
+						$_remove_keys = array();
+						foreach ( $_methods AS $key => $method ) :
+
+							if ( substr( $method, 0, 1 ) == '_' ) :
+
+								$_remove_keys[] = $key;
+								continue;
+
+							endif;
+
+							// --------------------------------------------------------------------------
+
+							$_method = new ReflectionMethod( $module, $method );
+
+							if ( $_method->isStatic() ) :
+
+								$_remove_keys[] = $key;
+								continue;
+
+							endif;
+
+						endforeach;
+
+						foreach ( $_remove_keys AS $key ) :
+
+							unset( $_methods[$key] );
+
+						endforeach;
 
 						// --------------------------------------------------------------------------
 
-						$_method = new ReflectionMethod( $module, $method );
+						//	Build the methods array so that the method names are the keys
+						$out->methods = array();
+						foreach ( $_methods AS $method ) :
 
-						if ( $_method->isStatic() ) :
+							if ( isset( $out->funcs[$method] ) ) :
 
-							$_remove_keys[] = $key;
-							continue;
+								$out->methods[$method] =  $out->funcs[$method];
 
-						endif;
+							else :
 
-					endforeach;
+								$out->methods[$method] =  '<em style="font-style:italic">' . ucwords( str_replace( '_', ' ', $method ) ) . '</em> <span style="color:#999;">- ' . lang( 'admin_nav_unlisted' ) . '</span>';
 
-					foreach ( $_remove_keys AS $key ) :
+							endif;
 
-						unset( $_methods[$key] );
+						endforeach;
 
-					endforeach;
+						// --------------------------------------------------------------------------
 
-					// --------------------------------------------------------------------------
-
-					//	Build the methods array so that the method names are the keys
-					$_out->methods = array();
-					foreach ( $_methods AS $method ) :
-
-						if ( isset( $_out->funcs[$method] ) ) :
-
-							$_out->methods[$method] =  $_out->funcs[$method];
-
-						else :
-
-							$_out->methods[$method] =  '<em style="font-style:italic">' . ucwords( str_replace( '_', ' ', $method ) ) . '</em> <span style="color:#999;">- ' . lang( 'admin_nav_unlisted' ) . '</span>';
-
-						endif;
+						//	Any extra permissions?
+						$out->extra_permissions = $module::permissions();
 
 					endforeach;
-
-					// --------------------------------------------------------------------------
-
-					//	Any extra permissions?
-					$_out->extra_permissions = $module::permissions();
 
 				endif;
 

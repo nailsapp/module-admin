@@ -17,9 +17,9 @@
 		Use categories to group broad post topics together. For example, a category might be 'Music', or 'Travel'.
 		<?php
 
-			if ( app_setting( 'tags_enabled', 'blog' ) ) :
+			if ( app_setting( 'tags_enabled', 'blog-' . $blog_id ) ) :
 
-				echo 'For specific details (e.g New Year ' . date( 'Y') . ') consider using a ' . anchor( 'admin/blog/manage/tag' . $is_fancybox, 'tag' ) . '.';
+				echo 'For specific details (e.g New Year ' . date( 'Y') . ') consider using a ' . anchor( 'admin/blog/' . $blog_id . '/manage/tag' . $is_fancybox, 'tag' ) . '.';
 
 			endif;
 
@@ -28,10 +28,10 @@
 	<?=$is_fancybox ? '' : '<hr />'?>
 	<ul class="tabs disabled">
 		<li class="tab active">
-			<?=anchor( 'admin/blog/manage/category' . $is_fancybox, 'Overview' )?>
+			<?=anchor( 'admin/blog/' . $blog_id . '/manage/category' . $is_fancybox, 'Overview' )?>
 		</li>
 		<li class="tab">
-			<?=anchor( 'admin/blog/manage/category/create' . $is_fancybox, 'Create Category' )?>
+			<?=anchor( 'admin/blog/' . $blog_id . '/manage/category/create' . $is_fancybox, 'Create Category' )?>
 		</li>
 	</ul>
 	<section class="tabs pages">
@@ -63,15 +63,15 @@
 								echo $this->load->view( '_utilities/table-cell-datetime', array( 'datetime' => $category->modified ), TRUE );
 								echo '<td class="actions">';
 
-									if ( user_has_permission( 'admin.blog.category_edit' ) ) :
+									if ( user_has_permission( 'admin.blog.' . $blog_id. '_category_edit' ) ) :
 
-										echo anchor( 'admin/blog/manage/category/edit/' . $category->id . $is_fancybox, lang( 'action_edit' ), 'class="awesome small"' );
+										echo anchor( 'admin/blog/' . $blog_id . '/manage/category/edit/' . $category->id . $is_fancybox, lang( 'action_edit' ), 'class="awesome small"' );
 
 									endif;
 
-									if ( user_has_permission( 'admin.blog.category_delete' ) ) :
+									if ( user_has_permission( 'admin.blog.' . $blog_id. '_category_delete' ) ) :
 
-										echo anchor( 'admin/blog/manage/category/delete/' . $category->id . $is_fancybox, lang( 'action_delete' ), 'class="awesome small red confirm" data-title="Are you sure?" data-body="This action cannot be undone."' );
+										echo anchor( 'admin/blog/' . $blog_id . '/manage/category/delete/' . $category->id . $is_fancybox, lang( 'action_delete' ), 'class="awesome small red confirm" data-title="Are you sure?" data-body="This action cannot be undone."' );
 
 									endif;
 
@@ -83,7 +83,7 @@
 					else :
 
 						echo '<tr>';
-							echo '<td colspan="3" class="no-data">';
+							echo '<td colspan="4" class="no-data">';
 								echo 'No Categories, add one!';
 							echo '</td>';
 						echo '</tr>';

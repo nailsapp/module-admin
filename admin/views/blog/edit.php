@@ -10,13 +10,13 @@
 				<a href="#" data-tab="tab-body" id="tabber-body">Body</a>
 			</li>
 
-			<?php if ( app_setting( 'categories_enabled', 'blog' ) ) : ?>
+			<?php if ( app_setting( 'categories_enabled', 'blog-' . $blog_id ) ) : ?>
 			<li class="tab">
 				<a href="#" data-tab="tab-categories" id="tabber-categories">Categories</a>
 			</li>
 			<?php endif; ?>
 
-			<?php if ( app_setting( 'tags_enabled', 'blog' ) ) : ?>
+			<?php if ( app_setting( 'tags_enabled', 'blog-' . $blog_id ) ) : ?>
 			<li class="tab">
 				<a href="#" data-tab="tab-tags" id="tabber-tags">Tags</a>
 			</li>
@@ -28,7 +28,7 @@
 			</li>
 			<?php endif; ?>
 
-			<?php if ( app_setting( 'gallery_enabled', 'blog' ) ) : ?>
+			<?php if ( app_setting( 'gallery_enabled', 'blog-' . $blog_id ) ) : ?>
 			<li class="tab">
 				<a href="#" data-tab="tab-gallery" id="tabber-gallery">Gallery</a>
 			</li>
@@ -56,7 +56,7 @@
 				// --------------------------------------------------------------------------
 
 				//	Excerpt
-				if ( app_setting( 'use_excerpts', 'blog' ) ) :
+				if ( app_setting( 'use_excerpts', 'blog-' . $blog_id ) ) :
 
 					$_field					= array();
 					$_field['key']			= 'excerpt';
@@ -123,7 +123,7 @@
 				<?=form_textarea( $_key, set_value( $_key, $_default), 'class="wysiwyg" id="post_body"' )?>
 			</div>
 
-			<?php if ( app_setting( 'categories_enabled', 'blog' ) ) : ?>
+			<?php if ( app_setting( 'categories_enabled', 'blog-' . $blog_id ) ) : ?>
 				<div class="tab page" id="tab-categories">
 					<p>
 						Organise your posts and help user's find them by assigning <u rel="tipsy" title="Categories allow for a broad grouping of post topics and should be considered top-level 'containers' for posts of similar content.">categories</u>.
@@ -168,7 +168,7 @@
 				</div>
 			<?php endif; ?>
 
-			<?php if ( app_setting( 'tags_enabled', 'blog' ) ) : ?>
+			<?php if ( app_setting( 'tags_enabled', 'blog-' . $blog_id ) ) : ?>
 				<div class="tab page" id="tab-tags">
 					<p>
 						Organise your posts and help user's find them by assigning <u rel="tipsy" title="Tags are generally used to describe your post in more detail.">tags</u>.
@@ -266,7 +266,7 @@
 			</div>
 			<?php endif; ?>
 
-			<?php if ( app_setting( 'gallery_enabled', 'blog' ) ) : ?>
+			<?php if ( app_setting( 'gallery_enabled', 'blog-' . $blog_id ) ) : ?>
 			<div class="tab page" id="tab-gallery">
 				<p>
 					Upload images to the post gallery.
@@ -392,7 +392,7 @@
 	$(function()
 	{
 		_EDIT = new NAILS_Admin_Blog_Create_Edit();
-		_EDIT.init( '<?=$this->cdn->generate_api_upload_token( active_user( 'id' ) ) ?>' );
+		_EDIT.init( <?=$blog_id?>, '<?=$this->cdn->generate_api_upload_token( active_user( 'id' ) ) ?>' );
 	});
 </script>
 <script type="text/template" id="template-gallery-item">

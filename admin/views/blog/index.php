@@ -54,11 +54,8 @@
 						//	Title
 						echo $post->title;
 
-						//	URL
-						echo '<small>' . anchor( $post->url, $post->url, 'target="_blank"' ) . '</small>';
-
 						//	Exceprt
-						if ( app_setting( 'use_excerpt', 'blog' ) ) :
+						if ( app_setting( 'use_excerpt', 'blog-' . $blog_id ) ) :
 
 							echo '<small>' . $post->excerpt . '</small>';
 
@@ -87,8 +84,21 @@
 					$this->load->view( 'admin/_utilities/table-cell-datetime',	array( 'datetime' => $post->modified ) );
 
 					echo '<td class="actions">';
-					echo anchor( 'admin/blog/edit/' . $post->id, lang( 'action_edit' ), 'class="awesome small"' );
-					echo anchor( 'admin/blog/delete/' . $post->id, lang( 'action_delete' ), 'class="awesome small red confirm" data-title="Confirm Delete" data-body="Are you sure you want to delete this post?"' );
+
+						echo anchor( $post->url, lang( 'action_view' ), 'class="awesome small green" target="_blank"' );
+
+						if ( user_has_permission( 'admin.blog.' . $blog_id . '_post_edit' ) ) :
+
+							echo anchor( 'admin/blog/' . $blog_id . '/edit/' . $post->id, lang( 'action_edit' ), 'class="awesome small"' );
+
+						endif;
+
+						if ( user_has_permission( 'admin.blog.' . $blog_id. '_post_delete' ) ) :
+
+							echo anchor( 'admin/blog/' . $blog_id . '/delete/' . $post->id, lang( 'action_delete' ), 'class="awesome small red confirm" data-title="Confirm Delete" data-body="Are you sure you want to delete this post?"' );
+
+						endif;
+
 					echo '</td>';
 
 					echo '</tr>';
@@ -98,9 +108,9 @@
 			else :
 
 				echo '<tr>';
-				echo '<td colspan="6" class="no-data">';
-				echo 'No Posts found';
-				echo '</td>';
+					echo '<td colspan="6" class="no-data">';
+						echo 'No Posts found';
+					echo '</td>';
 				echo '</tr>';
 
 			endif;

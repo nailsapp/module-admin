@@ -37,39 +37,52 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		$d = new stdClass();
+		//	Fetch the blogs, each blog should have it's own admin section
+		$_ci =& get_instance();
+		$_ci->load->model( 'blog/blog_model' );
+		$_blogs = $_ci->blog_model->get_all();
+
+		$_out = array();
+
+		foreach ( $_blogs AS $blog ) :
+
+			$d = new stdClass();
+
+			// --------------------------------------------------------------------------
+
+			//	Configurations
+			$d->name = count( $_blogs ) > 1 ? 'Blog: ' . $blog->label : 'Blog';
+			$d->icon = 'fa-pencil-square-o';
+
+			// --------------------------------------------------------------------------
+
+			//	Navigation options
+			$d->funcs							= array();
+			$d->funcs[$blog->id . '/index']		= 'Manage Posts';
+			$d->funcs[$blog->id . '/create']	= 'Create New Post';
+
+			if ( app_setting( 'categories_enabled', 'blog-' . $blog->id ) ) :
+
+				$d->funcs[$blog->id . '/manage/category'] = 'Manage Categories';
+
+			endif;
+
+			if ( app_setting( 'tags_enabled', 'blog-' . $blog->id ) ) :
+
+				$d->funcs[$blog->id . '/manage/tag'] = 'Manage Tags';
+
+			endif;
+
+			// --------------------------------------------------------------------------
+
+			//	Only announce the controller if the user has permission to know about it
+			$_out[] = self::_can_access( $d, __FILE__ );
+
+		endforeach;
 
 		// --------------------------------------------------------------------------
 
-		//	Configurations
-		$d->name = 'Blog';
-		$d->icon = 'fa-pencil-square-o';
-
-		// --------------------------------------------------------------------------
-
-		//	Navigation options
-		$d->funcs			= array();
-		$d->funcs['index']	= 'Manage Posts';
-		$d->funcs['create']	= 'Create New Post';
-
-		get_instance()->load->helper( 'blog_helper' );
-
-		if ( app_setting( 'categories_enabled', 'blog' ) ) :
-
-			$d->funcs['manage/category'] = 'Manage Categories';
-
-		endif;
-
-		if ( app_setting( 'tags_enabled', 'blog' ) ) :
-
-			$d->funcs['manage/tag'] = 'Manage Tags';
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		//	Only announce the controller if the user has permission to know about it
-		return self::_can_access( $d, __FILE__ );
+		return $_out;
 	}
 
 
@@ -82,21 +95,33 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		//	Posts
-		$_permissions['post_create']		= 'Posts: Create';
-		$_permissions['post_edit']			= 'Posts: Edit';
-		$_permissions['post_delete']		= 'Posts: Delete';
-		$_permissions['post_restore']		= 'Posts: Restore';
+		$_ci =& get_instance();
+		$_ci->load->model( 'blog/blog_model' );
+		$_blogs = $_ci->blog_model->get_all();
 
-		//	Categories
-		$_permissions['category_create']	= 'Category: Create';
-		$_permissions['category_edit']		= 'Category: Edit';
-		$_permissions['category_delete']	= 'Category: Delete';
+		$_out = array();
 
-		//	Tags
-		$_permissions['tag_create']			= 'Tag: Create';
-		$_permissions['tag_edit']			= 'Tag: Edit';
-		$_permissions['tag_delete']			= 'Tag: Delete';
+		foreach ( $_blogs AS $blog ) :
+
+			$_label = count( $_blogs ) > 1 ? $blog->label . ': ' : '';
+
+			//	Posts
+			$_permissions[$blog->id . '_post_create']		= $_label . 'Posts: Create';
+			$_permissions[$blog->id . '_post_edit']			= $_label . 'Posts: Edit';
+			$_permissions[$blog->id . '_post_delete']		= $_label . 'Posts: Delete';
+			$_permissions[$blog->id . '_post_restore']		= $_label . 'Posts: Restore';
+
+			//	Categories
+			$_permissions[$blog->id . '_category_create']	= $_label . 'Category: Create';
+			$_permissions[$blog->id . '_category_edit']		= $_label . 'Category: Edit';
+			$_permissions[$blog->id . '_category_delete']	= $_label . 'Category: Delete';
+
+			//	Tags
+			$_permissions[$blog->id . '_tag_create']		= $_label . 'Tag: Create';
+			$_permissions[$blog->id . '_tag_edit']			= $_label . 'Tag: Edit';
+			$_permissions[$blog->id . '_tag_delete']		= $_label . 'Tag: Delete';
+
+		endforeach;
 
 		// --------------------------------------------------------------------------
 
@@ -124,6 +149,10 @@ class NAILS_Blog extends NAILS_Admin_Controller
 		$this->load->model( 'blog/blog_post_model' );
 		$this->load->model( 'blog/blog_category_model' );
 		$this->load->model( 'blog/blog_tag_model' );
+
+		// --------------------------------------------------------------------------
+
+		$this->data['blogs'] = $this->blog_model->get_all();
 	}
 
 
@@ -146,6 +175,11 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 		//	Define the $_data variable, this'll be passed to the get_all() and count_all() methods
 		$_data = array( 'where' => array(), 'sort' => array() );
+
+		// --------------------------------------------------------------------------
+
+		//	Restricting to appropriate blog
+		$_data['where'][]	= array( 'column' => 'blog_id', 'value' => $this->_blog_id );
 
 		// --------------------------------------------------------------------------
 
@@ -215,6 +249,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 				//	Prepare data
 				$_data						= array();
+				$_data['blog_id']			= $this->_blog_id;
 				$_data['title']				= $this->input->post( 'title' );
 				$_data['excerpt']			= $this->input->post( 'excerpt' );
 				$_data['image_id']			= $this->input->post( 'image_id' );
@@ -226,13 +261,13 @@ class NAILS_Blog extends NAILS_Admin_Controller
 				$_data['associations']		= $this->input->post( 'associations' );
 				$_data['gallery']			= $this->input->post( 'gallery' );
 
-				if ( app_setting( 'categories_enabled', 'blog' ) ) :
+				if ( app_setting( 'categories_enabled', 'blog-' . $this->_blog_id ) ) :
 
 					$_data['categories'] = $this->input->post( 'categories' );
 
 				endif;
 
-				if ( app_setting( 'tags_enabled', 'blog' ) ) :
+				if ( app_setting( 'tags_enabled', 'blog-' . $this->_blog_id ) ) :
 
 					$_data['tags'] = $this->input->post( 'tags' );
 
@@ -269,15 +304,23 @@ class NAILS_Blog extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Load Categories and Tags
-		if ( app_setting( 'categories_enabled', 'blog' ) ) :
+		if ( app_setting( 'categories_enabled', 'blog-' . $this->_blog_id ) ) :
 
-			$this->data['categories'] = $this->blog_category_model->get_all();
+			$_data					= array();
+			$_data['where']			= array();
+			$_data['where'][]		= array( 'column' => 'blog_id', 'value' => $this->_blog_id );
+
+			$this->data['categories'] = $this->blog_category_model->get_all( NULL, NULL, $_data );
 
 		endif;
 
-		if ( app_setting( 'tags_enabled', 'blog' ) ) :
+		if ( app_setting( 'tags_enabled', 'blog-' . $this->_blog_id ) ) :
 
-			$this->data['tags'] = $this->blog_tag_model->get_all();
+			$_data					= array();
+			$_data['where']			= array();
+			$_data['where'][]		= array( 'column' => 'blog_id', 'value' => $this->_blog_id );
+
+			$this->data['tags'] = $this->blog_tag_model->get_all( NULL, NULL, $_data );
 
 		endif;
 
@@ -293,7 +336,6 @@ class NAILS_Blog extends NAILS_Admin_Controller
 		$this->asset->load( 'jquery-serialize-object/jquery.serialize-object.min.js',	'BOWER' );
 		$this->asset->load( 'mustache.js/mustache.js',									'BOWER' );
 		$this->asset->load( 'nails.admin.blog.create_edit.js',							TRUE );
-
 
 		// --------------------------------------------------------------------------
 
@@ -316,7 +358,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 	public function edit()
 	{
 		//	Fetch and check post
-		$_post_id = $this->uri->segment( 4 );
+		$_post_id = $this->uri->segment( 5 );
 
 		$this->data['post'] = $this->blog_post_model->get_by_id( $_post_id );
 
@@ -366,13 +408,13 @@ class NAILS_Blog extends NAILS_Admin_Controller
 				$_data['associations']		= $this->input->post( 'associations' );
 				$_data['gallery']			= $this->input->post( 'gallery' );
 
-				if ( app_setting( 'categories_enabled', 'blog' ) ) :
+				if ( app_setting( 'categories_enabled', 'blog-' . $this->_blog_id ) ) :
 
 					$_data['categories'] = $this->input->post( 'categories' );
 
 				endif;
 
-				if ( app_setting( 'tags_enabled', 'blog' ) ) :
+				if ( app_setting( 'tags_enabled', 'blog-' . $this->_blog_id ) ) :
 
 					$_data['tags'] = $this->input->post( 'tags' );
 
@@ -502,15 +544,23 @@ class NAILS_Blog extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Load Categories and Tags
-		if ( app_setting( 'categories_enabled', 'blog' ) ) :
+		if ( app_setting( 'categories_enabled', 'blog-' . $this->_blog_id ) ) :
 
-			$this->data['categories'] = $this->blog_category_model->get_all();
+			$_data					= array();
+			$_data['where']			= array();
+			$_data['where'][]		= array( 'column' => 'blog_id', 'value' => $this->_blog_id );
+
+			$this->data['categories'] = $this->blog_category_model->get_all( NULL, NULL, $_data );
 
 		endif;
 
-		if ( app_setting( 'tags_enabled', 'blog' ) ) :
+		if ( app_setting( 'tags_enabled', 'blog-' . $this->_blog_id ) ) :
 
-			$this->data['tags'] = $this->blog_tag_model->get_all();
+			$_data					= array();
+			$_data['where']			= array();
+			$_data['where'][]		= array( 'column' => 'blog_id', 'value' => $this->_blog_id );
+
+			$this->data['tags'] = $this->blog_tag_model->get_all( NULL, NULL, $_data );
 
 		endif;
 
@@ -541,11 +591,11 @@ class NAILS_Blog extends NAILS_Admin_Controller
 	public function delete()
 	{
 		//	Fetch and check post
-		$_post_id = $this->uri->segment( 4 );
+		$_post_id = $this->uri->segment( 5 );
 
 		$_post = $this->blog_post_model->get_by_id( $_post_id );
 
-		if ( ! $_post ) :
+		if ( ! $_post || $_post->blog_id != $this->_blog_id ) :
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> I could\'t find a post by that ID.' );
 			redirect( 'admin/blog' );
@@ -580,7 +630,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 	public function restore()
 	{
 		//	Fetch and check post
-		$_post_id = $this->uri->segment( 4 );
+		$_post_id = $this->uri->segment( 5 );
 
 		// --------------------------------------------------------------------------
 
@@ -610,7 +660,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 	public function manage()
 	{
-		$_method = $this->uri->segment( 4 ) ? $this->uri->segment( 4 ) : 'index';
+		$_method = $this->uri->segment( 5 ) ? $this->uri->segment( 5 ) : 'index';
 
 		if ( method_exists( $this, '_manage_' . $_method ) ) :
 
@@ -647,7 +697,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 		//	Load model
 		$this->load->model( 'blog/blog_category_model' );
 
-		$_method = $this->uri->segment( 5 ) ? $this->uri->segment( 5 ) : 'index';
+		$_method = $this->uri->segment( 6 ) ? $this->uri->segment( 6 ) : 'index';
 
 		if ( method_exists( $this, '_manage_category_' . $_method ) ) :
 
@@ -669,7 +719,11 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 	protected function _manage_category_index()
 	{
-		$_data = array( 'include_count' => TRUE );
+		$_data					= array();
+		$_data['include_count']	= TRUE;
+		$_data['where']			= array();
+		$_data['where'][]		= array( 'column' => 'blog_id', 'value' => $this->_blog_id );
+
 		$this->data['categories'] = $this->blog_category_model->get_all( NULL, NULL, $_data );
 
 		// --------------------------------------------------------------------------
@@ -685,7 +739,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 	protected function _manage_category_create()
 	{
-		if ( ! user_has_permission( 'admin.blog.category_create' ) ) :
+		if ( ! user_has_permission( 'admin.blog.' . $this->_blog_id. '_category_create' ) ) :
 
 			unauthorised();
 
@@ -709,6 +763,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 			if ( $this->form_validation->run() ) :
 
 				$_data					= new stdClass();
+				$_data->blog_id			= $this->_blog_id;
 				$_data->label			= $this->input->post( 'label' );
 				$_data->description		= $this->input->post( 'description' );
 				$_data->seo_title		= $this->input->post( 'seo_title' );
@@ -758,7 +813,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 	protected function _manage_category_edit()
 	{
-		if ( ! user_has_permission( 'admin.blog.category_edit' ) ) :
+		if ( ! user_has_permission( 'admin.blog.' . $this->_blog_id. '_category_edit' ) ) :
 
 			unauthorised();
 
@@ -766,7 +821,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		$this->data['category'] = $this->blog_category_model->get_by_id( $this->uri->segment( 6 ) );
+		$this->data['category'] = $this->blog_category_model->get_by_id( $this->uri->segment( 7 ) );
 
 		if ( empty( $this->data['category'] ) ) :
 
@@ -841,7 +896,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 	protected function _manage_category_delete()
 	{
-		if ( ! user_has_permission( 'admin.blog.category_delete' ) ) :
+		if ( ! user_has_permission( 'admin.blog.' . $this->_blog_id. '_category_delete' ) ) :
 
 			unauthorised();
 
@@ -849,7 +904,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		$_id = $this->uri->segment( 6 );
+		$_id = $this->uri->segment( 7 );
 
 		if ( $this->blog_category_model->delete( $_id ) ) :
 
@@ -873,7 +928,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 		//	Load model
 		$this->load->model( 'blog/blog_tag_model' );
 
-		$_method = $this->uri->segment( 5 ) ? $this->uri->segment( 5 ) : 'index';
+		$_method = $this->uri->segment( 6 ) ? $this->uri->segment( 6 ) : 'index';
 
 		if ( method_exists( $this, '_manage_tag_' . $_method ) ) :
 
@@ -895,7 +950,11 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 	protected function _manage_tag_index()
 	{
-		$_data = array( 'include_count' => TRUE );
+		$_data					= array();
+		$_data['include_count']	= TRUE;
+		$_data['where']			= array();
+		$_data['where'][]		= array( 'column' => 'blog_id', 'value' => $this->_blog_id );
+
 		$this->data['tags'] = $this->blog_tag_model->get_all( NULL, NULL, $_data );
 
 		// --------------------------------------------------------------------------
@@ -911,7 +970,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 	protected function _manage_tag_create()
 	{
-		if ( ! user_has_permission( 'admin.blog.tag_create' ) ) :
+		if ( ! user_has_permission( 'admin.blog.' . $this->_blog_id. '_tag_create' ) ) :
 
 			unauthorised();
 
@@ -935,6 +994,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 			if ( $this->form_validation->run() ) :
 
 				$_data					= new stdClass();
+				$_data->blog_id			= $this->_blog_id;
 				$_data->label			= $this->input->post( 'label' );
 				$_data->description		= $this->input->post( 'description' );
 				$_data->seo_title		= $this->input->post( 'seo_title' );
@@ -984,7 +1044,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 	protected function _manage_tag_edit()
 	{
-		if ( ! user_has_permission( 'admin.blog.tag_edit' ) ) :
+		if ( ! user_has_permission( 'admin.blog.' . $this->_blog_id. '_tag_edit' ) ) :
 
 			unauthorised();
 
@@ -992,7 +1052,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		$this->data['tag'] = $this->blog_tag_model->get_by_id( $this->uri->segment( 6 ) );
+		$this->data['tag'] = $this->blog_tag_model->get_by_id( $this->uri->segment( 7 ) );
 
 		if ( empty( $this->data['tag'] ) ) :
 
@@ -1067,7 +1127,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 	protected function _manage_tag_delete()
 	{
-		if ( ! user_has_permission( 'admin.blog.tag_delete' ) ) :
+		if ( ! user_has_permission( 'admin.blog.' . $this->_blog_id. '_tag_delete' ) ) :
 
 			unauthorised();
 
@@ -1075,7 +1135,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		$_id = $this->uri->segment( 6 );
+		$_id = $this->uri->segment( 7 );
 
 		if ( $this->blog_tag_model->delete( $_id ) ) :
 
@@ -1088,6 +1148,52 @@ class NAILS_Blog extends NAILS_Admin_Controller
 		endif;
 
 		redirect( 'admin/blog/manage/tag' . $this->data['is_fancybox'] );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	public function _remap()
+	{
+		//	We got blogs?
+		if ( empty( $this->data['blogs'] ) ) :
+
+			$this->session->set_flashdata( 'message', '<strong>You don\'t have a blog!</strong> Create a new blog in order to manage posts.' );
+			redirect( 'admin/settings/blog/create' );
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$this->_blog_id = $this->uri->segment( 3 );
+		$this->data['blog_id'] = $this->_blog_id;
+
+		$_found = FALSE;
+		foreach( $this->data['blogs'] AS $blog ) :
+
+			if ( $blog->id == $this->_blog_id ) :
+
+				$_found	= TRUE;
+				break;
+
+			endif;
+
+		endforeach;
+
+		// --------------------------------------------------------------------------
+
+		$_method = $this->uri->segment( 4 ) ? $this->uri->segment( 4 ) : 'index';
+
+		if ( $_found && method_exists( $this, $_method ) && substr( $_method, 0, 1 ) != '_' ) :
+
+			$this->{$_method}();
+
+		else :
+
+			show_404();
+
+		endif;
 	}
 }
 

@@ -491,6 +491,34 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
+		//	Catch blog adding/editing
+		switch ( $this->uri->segment( 4 ) ) :
+
+			case 'create' :
+
+				$this->_blog_create();
+				return;
+
+			break;
+
+			case 'edit' :
+
+				$this->_blog_edit();
+				return;
+
+			break;
+
+			case 'delete' :
+
+				$this->_blog_delete();
+				return;
+
+			break;
+
+		endswitch;
+
+		// --------------------------------------------------------------------------
+
 		//	Set method info
 		$this->data['page']->title = lang( 'settings_blog_title' );
 
@@ -499,6 +527,37 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		//	Load models
 		$this->load->model( 'blog/blog_model' );
 		$this->load->model( 'blog/blog_skin_model' );
+
+		// --------------------------------------------------------------------------
+
+		$this->data['blogs'] = $this->blog_model->get_all_flat();
+
+		if ( empty( $this->data['blogs'] ) ) :
+
+			$this->session->set_flashdata( 'message', '<strong>You don\'t have a blog!</strong> Create a new blog in order to configure blog settings.' );
+			redirect( 'admin/settings/blog/create' );
+
+		endif;
+
+		if ( count( $this->data['blogs'] ) == 1 ) :
+
+			$this->data['selected_blog'] = reset( $this->data['blogs'] );
+
+		elseif ( $this->input->get( 'blog_id' ) ) :
+
+			if ( ! empty( $this->data['blogs'][$this->input->get( 'blog_id' )] ) ) :
+
+				$this->data['selected_blog'] = $this->input->get( 'blog_id' );
+
+			endif;
+
+			if ( empty( $this->data['selected_blog'] ) ) :
+
+				$this->data['error'] = '<strong>Sorry,</strong> there is no blog by that ID.';
+
+			endif;
+
+		endif;
 
 		// --------------------------------------------------------------------------
 
@@ -522,8 +581,13 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Get data
-		$this->data['settings'] = app_setting( NULL, 'blog', TRUE );
 		$this->data['skins']	= $this->blog_skin_model->get_available();
+
+		if ( ! empty( $this->data['selected_blog'] ) ) :
+
+			$this->data['settings'] = app_setting( NULL, 'blog-' . $this->data['selected_blog'], TRUE );
+
+		endif;
 
 		// --------------------------------------------------------------------------
 
@@ -536,6 +600,33 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		$this->load->view( 'structure/header',		$this->data );
 		$this->load->view( 'admin/settings/blog',	$this->data );
 		$this->load->view( 'structure/footer',		$this->data );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _blog_create()
+	{
+		dump( 'blog: create' );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _blog_edit()
+	{
+		dump( 'blog: edit' );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _blog_delete()
+	{
+		dump( 'blog: delete' );
 	}
 
 
@@ -562,7 +653,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Save
-		if ( $this->app_setting_model->set( $_settings, 'blog' ) ) :
+		if ( $this->app_setting_model->set( $_settings, 'blog-' . $this->input->get( 'blog_id' ) ) ) :
 
 			$this->data['success'] = '<strong>Success!</strong> Blog settings have been saved.';
 
@@ -592,7 +683,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		if ( $this->app_setting_model->set( $_settings, 'blog' ) ) :
+		if ( $this->app_setting_model->set( $_settings, 'blog-' . $this->input->get( 'blog_id' ) ) ) :
 
 			$this->data['success'] = '<strong>Success!</strong> Skin settings have been saved.';
 
@@ -618,7 +709,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Save
-		if ( $this->app_setting_model->set( $_settings, 'blog' ) ) :
+		if ( $this->app_setting_model->set( $_settings, 'blog-' . $this->input->get( 'blog_id' ) ) ) :
 
 			$this->data['success'] = '<strong>Success!</strong> Blog commenting settings have been saved.';
 
@@ -653,7 +744,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Save
-		if ( $this->app_setting_model->set( $_settings, 'blog' ) ) :
+		if ( $this->app_setting_model->set( $_settings, 'blog-' . $this->input->get( 'blog_id' ) ) ) :
 
 			$this->data['success'] = '<strong>Success!</strong> Blog social settings have been saved.';
 
@@ -682,7 +773,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Save
-		if ( $this->app_setting_model->set( $_settings, 'blog' ) ) :
+		if ( $this->app_setting_model->set( $_settings, 'blog-' . $this->input->get( 'blog_id' ) ) ) :
 
 			$this->data['success'] = '<strong>Success!</strong> Blog sidebar settings have been saved.';
 

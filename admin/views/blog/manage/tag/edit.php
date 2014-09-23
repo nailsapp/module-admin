@@ -19,9 +19,9 @@
 		Use tags to group specific post topics together. For example, a tag might be 'New Year <?=date( 'Y')?>', or 'Coursework'.
 		<?php
 
-			if ( app_setting( 'categories_enabled', 'blog' ) ) :
+			if ( app_setting( 'categories_enabled', 'blog-' . $blog_id ) ) :
 
-				echo 'For broader subjects (e.g "Music" or "Travel") consider using a ' . anchor( 'admin/blog/manage/category' . $is_fancybox, 'category' ) . '.';
+				echo 'For broader subjects (e.g "Music" or "Travel") consider using a ' . anchor( 'admin/blog/' . $blog_id . '/manage/category' . $is_fancybox, 'category' ) . '.';
 
 			endif;
 
@@ -30,10 +30,10 @@
 	<?=$is_fancybox ? '' : '<hr />'?>
 	<ul class="tabs disabled">
 		<li class="tab">
-			<?=anchor( 'admin/blog/manage/tag' . $is_fancybox, 'Overview', 'class="confirm" data-title="Are you sure?" data-body="Any unsaved changes will be lost."' )?>
+			<?=anchor( 'admin/blog/' . $blog_id . '/manage/tag' . $is_fancybox, 'Overview', 'class="confirm" data-title="Are you sure?" data-body="Any unsaved changes will be lost."' )?>
 		</li>
 		<li class="tab active">
-			<?=anchor( 'admin/blog/manage/tag/create' . $is_fancybox, 'Create Tag' )?>
+			<?=anchor( 'admin/blog/' . $blog_id . '/manage/tag/create' . $is_fancybox, 'Create Tag' )?>
 		</li>
 	</ul>
 	<section class="tabs pages">
@@ -113,7 +113,7 @@
 			</fieldset>
 			<p style="margin-top:1em;">
 				<?=form_submit( 'submit', 'Save', 'class="awesome"' )?>
-				<?=anchor( 'admin/blog/manage/tag' . $is_fancybox, 'Cancel', 'class="awesome red confirm" data-title="Are you sure?" data-body="All unsaved changes will be lost."' )?>
+				<?=anchor( 'admin/blog/' . $blog_id . '/manage/tag' . $is_fancybox, 'Cancel', 'class="awesome red confirm" data-title="Are you sure?" data-body="All unsaved changes will be lost."' )?>
 			</p>
 		</div>
 	</section>

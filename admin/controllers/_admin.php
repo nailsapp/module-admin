@@ -387,11 +387,16 @@ class NAILS_Admin_Controller extends NAILS_Controller
 
 		foreach( $_modules_available AS $module ) :
 
-			$_module =  $this->admin_model->find_module( $module );
+			$_module = $this->admin_model->find_module( $module );
 
 			if ( ! empty( $_module ) ) :
 
-				$_loaded_modules[$module] = $_module;
+				foreach( $_module AS $module_controller_index => $module_controller ) :
+
+					$_loaded_modules[$module . ':' . $module_controller_index] = $module_controller;
+					$_loaded_modules[$module . ':' . $module_controller_index]->class_index = $module . ':' . $module_controller_index;
+
+				endforeach;
 
 			endif;
 
@@ -399,19 +404,12 @@ class NAILS_Admin_Controller extends NAILS_Controller
 
 		// --------------------------------------------------------------------------
 
-		//	If the user has a custom order specified then use that, otherwise fall back to
-		//	APP_ADMIN_NAV if it's defined. Failing that, sort alphabetically by name.
+		/**
+		 * If the user has a custom order specified then use that, otherwise fall back to
+		 * sort alphabetically by name.
+		 */
 
 		$_user_nav_pref = @unserialize( active_user( 'admin_nav' ) );
-
-		if ( defined( 'APP_ADMIN_NAV' ) && APP_ADMIN_NAV ) :
-
-			//	Can set a default app wide preference if needed,
-			//	takes the same form as the user's preference
-
-			$_app_nav_pref = @unserialize( APP_ADMIN_NAV );
-
-		endif;
 
 		if ( ! empty( $_user_nav_pref ) ) :
 
@@ -429,32 +427,9 @@ class NAILS_Admin_Controller extends NAILS_Controller
 			//	Anything left over goes to the end.
 			foreach( $_loaded_modules AS $module ) :
 
-				if ( ! isset( $this->_loaded_modules[$module->class_name] ) ) :
+				if ( ! isset( $this->_loaded_modules[$module->class_index] ) ) :
 
-					$this->_loaded_modules[$module->class_name] = $module;
-
-				endif;
-
-			endforeach;
-
-		elseif ( ! empty( $_app_nav_pref ) ) :
-
-			foreach( $_app_nav_pref AS $module => $options ) :
-
-				if ( ! empty( $_loaded_modules[$module] ) ) :
-
-					$this->_loaded_modules[$module] = $_loaded_modules[$module];
-
-				endif;
-
-			endforeach;
-
-			//	Anything left over goes to the end.
-			foreach( $_loaded_modules AS $module ) :
-
-				if ( ! isset( $this->_loaded_modules[$module->class_name] ) ) :
-
-					$this->_loaded_modules[$module->class_name] = $module;
+					$this->_loaded_modules[$module->class_index] = $module;
 
 				endif;
 
@@ -467,7 +442,7 @@ class NAILS_Admin_Controller extends NAILS_Controller
 
 			foreach( $_loaded_modules AS $module ) :
 
-				$this->_loaded_modules[$module->class_name] = $module;
+				$this->_loaded_modules[$module->class_index] = $module;
 
 			endforeach;
 
@@ -478,7 +453,7 @@ class NAILS_Admin_Controller extends NAILS_Controller
 		//	Place the dashboard at the top of the list, always
 		//	Hit tip: http://stackoverflow.com/a/11276338/789224
 
-		$this->_loaded_modules = array( 'dashboard' => $this->_loaded_modules['dashboard']) + $this->_loaded_modules;
+		$this->_loaded_modules = array( 'dashboard:0' => $this->_loaded_modules['dashboard:0'] ) + $this->_loaded_modules;
 	}
 
 
