@@ -87,13 +87,13 @@
 
 						echo anchor( $post->url, lang( 'action_view' ), 'class="awesome small green" target="_blank"' );
 
-						if ( user_has_permission( 'admin.blog.' . $blog_id . '_post_edit' ) ) :
+						if ( user_has_permission( 'admin.blog:' . $blog_id . '.post_edit' ) ) :
 
 							echo anchor( 'admin/blog/' . $blog_id . '/edit/' . $post->id, lang( 'action_edit' ), 'class="awesome small"' );
 
 						endif;
 
-						if ( user_has_permission( 'admin.blog.' . $blog_id. '_post_delete' ) ) :
+						if ( user_has_permission( 'admin.blog:' . $blog_id. '.post_delete' ) ) :
 
 							echo anchor( 'admin/blog/' . $blog_id . '/delete/' . $post->id, lang( 'action_delete' ), 'class="awesome small red confirm" data-title="Confirm Delete" data-body="Are you sure you want to delete this post?"' );
 

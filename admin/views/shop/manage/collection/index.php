@@ -71,13 +71,13 @@
 									endif;
 									echo '<td class="actions">';
 
-										if ( user_has_permission( 'admin.shop.collection_edit' ) ) :
+										if ( user_has_permission( 'admin.shop:0.collection_edit' ) ) :
 
 											echo anchor( 'admin/shop/manage/collection/edit/' . $collection->id . $is_fancybox, lang( 'action_edit' ), 'class="awesome small"' );
 
 										endif;
 
-										if ( user_has_permission( 'admin.shop.collection_delete' ) ) :
+										if ( user_has_permission( 'admin.shop:0.collection_delete' ) ) :
 
 											echo anchor( 'admin/shop/manage/collection/delete/' . $collection->id . $is_fancybox, lang( 'action_delete' ), 'class="awesome small red confirm" data-title="Are you sure?" data-body="This action cannot be undone."' );
 

@@ -57,13 +57,13 @@
 									echo $this->load->view( '_utilities/table-cell-datetime', array( 'datetime' => $tag->modified ), TRUE );
 									echo '<td class="actions">';
 
-										if ( user_has_permission( 'admin.shop.tag_edit' ) ) :
+										if ( user_has_permission( 'admin.shop:0.tag_edit' ) ) :
 
 											echo anchor( 'admin/shop/manage/tag/edit/' . $tag->id . $is_fancybox, lang( 'action_edit' ), 'class="awesome small"' );
 
 										endif;
 
-										if ( user_has_permission( 'admin.shop.tag_delete' ) ) :
+										if ( user_has_permission( 'admin.shop:0.tag_delete' ) ) :
 
 											echo anchor( 'admin/shop/manage/tag/delete/' . $tag->id . $is_fancybox, lang( 'action_delete' ), 'class="awesome small red confirm" data-title="Are you sure?" data-body="This action cannot be undone."' );
 

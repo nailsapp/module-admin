@@ -85,13 +85,13 @@
 									endif;
 									echo '<td class="actions">';
 
-										if ( user_has_permission( 'admin.shop.brand_edit' ) ) :
+										if ( user_has_permission( 'admin.shop:0.brand_edit' ) ) :
 
 											echo anchor( 'admin/shop/manage/brand/edit/' . $brand->id . $is_fancybox, lang( 'action_edit' ), 'class="awesome small"' );
 
 										endif;
 
-										if ( user_has_permission( 'admin.shop.brand_delete' ) ) :
+										if ( user_has_permission( 'admin.shop:0.brand_delete' ) ) :
 
 											echo anchor( 'admin/shop/manage/brand/delete/' . $brand->id . $is_fancybox, lang( 'action_delete' ), 'class="awesome small red confirm" data-title="Are you sure?" data-body="This action cannot be undone."' );
 

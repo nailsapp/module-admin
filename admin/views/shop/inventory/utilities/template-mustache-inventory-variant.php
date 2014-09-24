@@ -498,7 +498,7 @@
 						$_field['label']		= 'Collection Only';
 						$_field['readonly']		= ! app_setting( 'warehouse_collection_enabled', 'shop' );
 						$_field['info']			= ! app_setting( 'warehouse_collection_enabled', 'shop' ) ? '<strong>Warehouse Collection is disabled</strong>' : '';
-						$_field['info']			.= ! app_setting( 'warehouse_collection_enabled', 'shop' ) && user_has_permission( 'admin[settings]' ) ? '<br />If you wish to allow customers to collect from your warehouse you must enable it in ' . anchor( 'admin/settings/shop', 'settings', 'class="confirm" data-title="Stop Editing?" data-body="Any unsaved changes will be lost."' ) . '.' : '';
+						$_field['info']			.= ! app_setting( 'warehouse_collection_enabled', 'shop' ) && user_has_permission( 'admin.settings:0' ) ? '<br />If you wish to allow customers to collect from your warehouse you must enable it in ' . anchor( 'admin/settings/shop', 'settings', 'class="confirm" data-title="Stop Editing?" data-body="Any unsaved changes will be lost."' ) . '.' : '';
 						$_field['default']		= isset( $variation->shipping->collection_only ) ? (bool) $variation->shipping->collection_only : FALSE;
 						$_tip					= 'Items marked as collection only will be handled differently in checkout and reporting.';
 
@@ -567,7 +567,7 @@
 
 					echo '<p class="system-alert message">';
 						echo '<strong>No Shipping Drivers Enabled.</strong>';
-						echo user_has_permission( 'admin[settings]' ) ? '<br />You can enable and configure shipping drivers in ' . anchor( 'admin/settings/shop', 'settings', 'class="confirm" data-title="Stop Editing?" data-body="Any unsaved changes will be lost."' ) . '.' : '';
+						echo user_has_permission( 'admin.settings:0' ) ? '<br />You can enable and configure shipping drivers in ' . anchor( 'admin/settings/shop', 'settings', 'class="confirm" data-title="Stop Editing?" data-body="Any unsaved changes will be lost."' ) . '.' : '';
 					echo '</p>';
 
 				endif;

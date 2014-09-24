@@ -59,8 +59,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		//	Only announce the controller if the user has permission to know about it
-		return self::_can_access( $d, __FILE__ );
+		return $d;
 	}
 
 
@@ -97,9 +96,9 @@ class NAILS_Shop extends NAILS_Admin_Controller
 	// --------------------------------------------------------------------------
 
 
-	static function permissions()
+	static function permissions( $class_index = NULL )
 	{
-		$_permissions = array();
+		$_permissions = parent::permissions( $class_index );
 
 		// --------------------------------------------------------------------------
 
@@ -1065,7 +1064,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 	 **/
 	protected function _orders_view()
 	{
-		if ( ! user_has_permission( 'admin.shop.orders_view' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.orders_view' ) ) :
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to view order details.' );
 			redirect( 'admin/shop/orders' );
@@ -1131,7 +1130,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _orders_reprocess()
 	{
-		if ( ! user_has_permission( 'admin.shop.orders_reprocess' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.orders_reprocess' ) ) :
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to reprocess orders.' );
 			redirect( 'admin/shop/orders' );
@@ -1190,7 +1189,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _orders_process()
 	{
-		if ( ! user_has_permission( 'admin.shop.orders_process' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.orders_process' ) ) :
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to process order items.' );
 			redirect( 'admin/shop/orders' );
@@ -1261,7 +1260,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _orders_download_invoice()
 	{
-		if ( ! user_has_permission( 'admin.shop.orders_download' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.orders_download' ) ) :
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to download orders.' );
 			redirect( 'admin/shop/orders' );
@@ -1454,7 +1453,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _vouchers_create()
 	{
-		if ( ! user_has_permission( 'admin.shop.vouchers_create' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.vouchers_create' ) ) :
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to create vouchers.' );
 			redirect( 'admin/shop/vouchers' );
@@ -1771,7 +1770,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _vouchers_activate()
 	{
-		if ( ! user_has_permission( 'admin.shop.vouchers_activate' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.vouchers_activate' ) ) :
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to activate vouchers.' );
 			redirect( 'admin/shop/vouchers' );
@@ -1802,7 +1801,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _vouchers_deactivate()
 	{
-		if ( ! user_has_permission( 'admin.shop.vouchers_deactivate' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.vouchers_deactivate' ) ) :
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to suspend vouchers.' );
 			redirect( 'admin/shop/vouchers' );
@@ -2008,7 +2007,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_attribute_create()
 	{
-		if ( ! user_has_permission( 'admin.shop.attribute_create' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.attribute_create' ) ) :
 
 			unauthorised();
 
@@ -2074,7 +2073,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_attribute_edit()
 	{
-		if ( ! user_has_permission( 'admin.shop.attribute_edit' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.attribute_edit' ) ) :
 
 			unauthorised();
 
@@ -2150,7 +2149,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_attribute_delete()
 	{
-		if ( ! user_has_permission( 'admin.shop.attribute_delete' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.attribute_delete' ) ) :
 
 			unauthorised();
 
@@ -2222,7 +2221,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_brand_create()
 	{
-		if ( ! user_has_permission( 'admin.shop.brand_create' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.brand_create' ) ) :
 
 			unauthorised();
 
@@ -2302,7 +2301,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_brand_edit()
 	{
-		if ( ! user_has_permission( 'admin.shop.brand_edit' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.brand_edit' ) ) :
 
 			unauthorised();
 
@@ -2391,7 +2390,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_brand_delete()
 	{
-		if ( ! user_has_permission( 'admin.shop.brand_delete' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.brand_delete' ) ) :
 
 			unauthorised();
 
@@ -2464,7 +2463,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_category_create()
 	{
-		if ( ! user_has_permission( 'admin.shop.category_create' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.category_create' ) ) :
 
 			unauthorised();
 
@@ -2541,7 +2540,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_category_edit()
 	{
-		if ( ! user_has_permission( 'admin.shop.category_edit' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.category_edit' ) ) :
 
 			unauthorised();
 
@@ -2628,7 +2627,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_category_delete()
 	{
-		if ( ! user_has_permission( 'admin.shop.category_delete' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.category_delete' ) ) :
 
 			unauthorised();
 
@@ -2700,7 +2699,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_collection_create()
 	{
-		if ( ! user_has_permission( 'admin.shop.collection_create' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.collection_create' ) ) :
 
 			unauthorised();
 
@@ -2777,7 +2776,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_collection_edit()
 	{
-		if ( ! user_has_permission( 'admin.shop.collection_edit' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.collection_edit' ) ) :
 
 			unauthorised();
 
@@ -2864,7 +2863,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_collection_delete()
 	{
-		if ( ! user_has_permission( 'admin.shop.collection_delete' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.collection_delete' ) ) :
 
 			unauthorised();
 
@@ -2936,7 +2935,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_range_create()
 	{
-		if ( ! user_has_permission( 'admin.shop.range_create' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.range_create' ) ) :
 
 			unauthorised();
 
@@ -3013,7 +3012,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_range_edit()
 	{
-		if ( ! user_has_permission( 'admin.shop.range_edit' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.range_edit' ) ) :
 
 			unauthorised();
 
@@ -3100,7 +3099,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_range_delete()
 	{
-		if ( ! user_has_permission( 'admin.shop.range_delete' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.range_delete' ) ) :
 
 			unauthorised();
 
@@ -3172,7 +3171,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_tag_create()
 	{
-		if ( ! user_has_permission( 'admin.shop.tag_create' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.tag_create' ) ) :
 
 			unauthorised();
 
@@ -3247,7 +3246,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_tag_edit()
 	{
-		if ( ! user_has_permission( 'admin.shop.tag_edit' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.tag_edit' ) ) :
 
 			unauthorised();
 
@@ -3332,7 +3331,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_tag_delete()
 	{
-		if ( ! user_has_permission( 'admin.shop.tag_delete' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.tag_delete' ) ) :
 
 			unauthorised();
 
@@ -3404,7 +3403,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_tax_rate_create()
 	{
-		if ( ! user_has_permission( 'admin.shop.tax_rate_create' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.tax_rate_create' ) ) :
 
 			unauthorised();
 
@@ -3471,7 +3470,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_tax_rate_edit()
 	{
-		if ( ! user_has_permission( 'admin.shop.tax_rate_edit' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.tax_rate_edit' ) ) :
 
 			unauthorised();
 
@@ -3548,7 +3547,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_tax_rate_delete()
 	{
-		if ( ! user_has_permission( 'admin.shop.tax_rate_delete' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.tax_rate_delete' ) ) :
 
 			unauthorised();
 
@@ -3620,7 +3619,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_product_type_create()
 	{
-		if ( ! user_has_permission( 'admin.shop.product_type_create' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.product_type_create' ) ) :
 
 			unauthorised();
 
@@ -3696,7 +3695,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_product_type_edit()
 	{
-		if ( ! user_has_permission( 'admin.shop.product_type_edit' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.product_type_edit' ) ) :
 
 			unauthorised();
 
@@ -3823,7 +3822,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_product_type_meta_create()
 	{
-		if ( ! user_has_permission( 'admin.shop.product_type_meta_create' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.product_type_meta_create' ) ) :
 
 			unauthorised();
 
@@ -3899,7 +3898,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_product_type_meta_edit()
 	{
-		if ( ! user_has_permission( 'admin.shop.product_type_meta_edit' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.product_type_meta_edit' ) ) :
 
 			unauthorised();
 
@@ -3986,7 +3985,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_product_type_meta_delete()
 	{
-		if ( ! user_has_permission( 'admin.shop.product_type_meta_delete' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.product_type_meta_delete' ) ) :
 
 			unauthorised();
 
@@ -4041,7 +4040,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _reports_index()
 	{
-		if ( ! user_has_permission( 'admin.shop.reports' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.reports' ) ) :
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to generate reports.' );
 			redirect( 'admin/shop' );

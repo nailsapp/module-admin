@@ -75,13 +75,13 @@
 									echo $this->load->view( '_utilities/table-cell-datetime', array( 'datetime' => $product_type->modified ), TRUE );
 									echo '<td class="actions">';
 
-										if ( user_has_permission( 'admin.shop.product_type_edit' ) ) :
+										if ( user_has_permission( 'admin.shop:0.product_type_edit' ) ) :
 
 											echo anchor( 'admin/shop/manage/product_type/edit/' . $product_type->id . $is_fancybox, lang( 'action_edit' ), 'class="awesome small"' );
 
 										endif;
 
-										if ( user_has_permission( 'admin.shop.product_type_delete' ) ) :
+										if ( user_has_permission( 'admin.shop:0.product_type_delete' ) ) :
 
 											echo anchor( 'admin/shop/manage/product_type/delete/' . $product_type->id . $is_fancybox, lang( 'action_delete' ), 'class="awesome small red confirm" data-title="Are you sure?" data-body="This action cannot be undone."' );
 

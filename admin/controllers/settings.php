@@ -68,8 +68,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		//	Only announce the controller if the user has permisison to know about it
-		return self::_can_access( $d, __FILE__ );
+		return $d;
 	}
 
 
@@ -79,6 +78,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 	public function admin()
 	{
 		//	Set method info
+
 		$this->data['page']->title = lang( 'settings_admin_title' );
 
 		// --------------------------------------------------------------------------
@@ -491,8 +491,21 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
+		//	Load models
+		$this->load->model( 'blog/blog_model' );
+		$this->load->model( 'blog/blog_skin_model' );
+
+		// --------------------------------------------------------------------------
+
 		//	Catch blog adding/editing
 		switch ( $this->uri->segment( 4 ) ) :
+
+			case 'index' :
+
+				$this->_blog_index();
+				return;
+
+			break;
 
 			case 'create' :
 
@@ -524,18 +537,20 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		//	Load models
-		$this->load->model( 'blog/blog_model' );
-		$this->load->model( 'blog/blog_skin_model' );
-
-		// --------------------------------------------------------------------------
-
 		$this->data['blogs'] = $this->blog_model->get_all_flat();
 
 		if ( empty( $this->data['blogs'] ) ) :
 
-			$this->session->set_flashdata( 'message', '<strong>You don\'t have a blog!</strong> Create a new blog in order to configure blog settings.' );
-			redirect( 'admin/settings/blog/create' );
+			if ( $this->user_model->is_superuser() ) :
+
+				$this->session->set_flashdata( 'message', '<strong>You don\'t have a blog!</strong> Create a new blog in order to configure blog settings.' );
+				redirect( 'admin/settings/blog/create' );
+
+			else :
+
+				show_404();
+
+			endif;
 
 		endif;
 
@@ -564,7 +579,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		//	Process POST
 		if ( $this->input->post() ) :
 
-			$_method =  $this->input->post( 'update' );
+			$_method = $this->input->post( 'update' );
 
 			if ( method_exists( $this, '_blog_update_' . $_method ) ) :
 
@@ -581,7 +596,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Get data
-		$this->data['skins']	= $this->blog_skin_model->get_available();
+		$this->data['skins'] = $this->blog_skin_model->get_available();
 
 		if ( ! empty( $this->data['selected_blog'] ) ) :
 
@@ -606,9 +621,103 @@ class NAILS_Settings extends NAILS_Admin_Controller
 	// --------------------------------------------------------------------------
 
 
+	protected function _blog_index()
+	{
+		if ( ! $this->user_model->is_superuser() ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$this->data['page']->title = 'Manage Blogs';
+
+		// --------------------------------------------------------------------------
+
+		//	Get data
+		$this->data['blogs'] = $this->blog_model->get_all();
+
+		if ( empty( $this->data['blogs'] ) ) :
+
+			if ( $this->user_model->is_superuser() ) :
+
+				$this->session->set_flashdata( 'message', '<strong>You don\'t have a blog!</strong> Create a new blog in order to configure blog settings.' );
+				redirect( 'admin/settings/blog/create' );
+
+			else :
+
+				show_404();
+
+			endif;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Load views
+		$this->load->view( 'structure/header',			$this->data );
+		$this->load->view( 'admin/settings/blog/index',	$this->data );
+		$this->load->view( 'structure/footer',			$this->data );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
 	protected function _blog_create()
 	{
-		dump( 'blog: create' );
+		if ( ! $this->user_model->is_superuser() ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$this->data['page']->title = 'Manage Blogs &rsaquo; Create';
+
+		// --------------------------------------------------------------------------
+
+		//	Handle POST
+		if ( $this->input->post() ) :
+
+			$this->load->library( 'form_validation' );
+			$this->form_validation->set_rules( 'label', '', 'xss_clean|required' );
+			$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
+
+			if ( $this->form_validation->run() ) :
+
+				$_data			= new stdClass();
+				$_data->label	= $this->input->post( 'label' );
+
+				$_id = $this->blog_model->create( $_data );
+
+				if ( $_id ) :
+
+					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Blog was created successfully, now please confirm blog settings.' );
+					redirect( 'admin/settings/blog?blog_id=' . $_id );
+
+				else :
+
+					$this->data['error'] = '<strong>Sorry,</strong> failed to create blog. ' . $this->blog_model->last_error();
+
+				endif;
+
+			else :
+
+				$this->data['error'] = lang( 'fv_there_were_errors' );
+
+			endif;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Load views
+		$this->load->view( 'structure/header',			$this->data );
+		$this->load->view( 'admin/settings/blog/edit',	$this->data );
+		$this->load->view( 'structure/footer',			$this->data );
 	}
 
 
@@ -617,7 +726,66 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
 	protected function _blog_edit()
 	{
-		dump( 'blog: edit' );
+		if ( ! $this->user_model->is_superuser() ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$this->data['blog'] = $this->blog_model->get_by_id( $this->uri->segment( 5 ) );
+
+		if ( empty( $this->data['blog'] ) ) :
+
+			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you specified an invalid Blog ID.' );
+			redirect( 'admin/settings/blog/index' );
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$this->data['page']->title = 'Manage Blogs &rsaquo; Edit "' . $this->data['blog']->label . '"';
+
+		// --------------------------------------------------------------------------
+
+		//	Handle POST
+		if ( $this->input->post() ) :
+
+			$this->load->library( 'form_validation' );
+			$this->form_validation->set_rules( 'label', '', 'xss_clean|required' );
+			$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
+
+			if ( $this->form_validation->run() ) :
+
+				$_data			= new stdClass();
+				$_data->label	= $this->input->post( 'label' );
+
+				if ( $this->blog_model->update( $this->uri->Segment( 5 ), $_data ) ) :
+
+					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Blog was updated successfully.' );
+					redirect( 'admin/settings/blog/index' );
+
+				else :
+
+					$this->data['error'] = '<strong>Sorry,</strong> failed to create blog. ' . $this->blog_model->last_error();
+
+				endif;
+
+			else :
+
+				$this->data['error'] = lang( 'fv_there_were_errors' );
+
+			endif;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Load views
+		$this->load->view( 'structure/header',			$this->data );
+		$this->load->view( 'admin/settings/blog/edit',	$this->data );
+		$this->load->view( 'structure/footer',			$this->data );
 	}
 
 
@@ -626,7 +794,36 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
 	protected function _blog_delete()
 	{
-		dump( 'blog: delete' );
+		if ( ! $this->user_model->is_superuser() ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$_blog = $this->blog_model->get_by_id( $this->uri->segment( 5 ) );
+
+		if ( empty( $_blog ) ) :
+
+			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you specified an invalid Blog ID.' );
+			redirect( 'admin/settings/blog/index' );
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		if ( $this->blog_model->delete( $_blog->id ) ) :
+
+			$this->session->set_flashdata( 'success', '<strong>Success!</strong> blog was deleted successfully.' );
+
+		else :
+
+			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> failed to delete blog. ' . $this->blog_model->last_error() );
+
+		endif;
+
+		redirect( 'admin/settings/blog/index' );
 	}
 
 

@@ -44,10 +44,24 @@ class NAILS_Admin_Controller extends NAILS_Controller
 
 		// --------------------------------------------------------------------------
 
-		//	Admins only please
+		//	Admins only please, log in or bog off.
 		if ( ! $this->user_model->is_admin() ) :
 
 			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		/**
+		 * Handle the blank admin route, redirect to the dashboard which will always
+		 * be available.
+		 */
+
+		if ( $this->uri->segment( 2, 'BLANKADMINROUTE' ) == 'BLANKADMINROUTE' ) :
+
+			$this->session->keep_flashdata();
+			redirect( 'admin/dashboard' );
 
 		endif;
 
@@ -85,6 +99,8 @@ class NAILS_Admin_Controller extends NAILS_Controller
 		//	Load admin helper and config
 		$this->load->model( 'admin_model' );
 		$this->config->load( 'admin/admin' );
+
+		//	App admin config
 		if ( file_exists( FCPATH . APPPATH . 'config/admin.php' ) ) :
 
 			$this->config->load( FCPATH . APPPATH . 'config/admin.php' );
@@ -93,83 +109,23 @@ class NAILS_Admin_Controller extends NAILS_Controller
 
 		// --------------------------------------------------------------------------
 
-		//	Load up the modules which have been enabled for this installation and the
-		//	user has permission to see.
+		/**
+		 * Fetch all available modules for this installation and get the user's ACL.
+		 * Make sure the user has permission to access this module.
+		 */
 
 		$this->_loaded_modules			= array();
 		$this->data['loaded_modules']	=& $this->_loaded_modules;
-		$this->_load_active_modules();
 
-		// --------------------------------------------------------------------------
+		//	Fetch all available modules for this installation and user
+		$this->_loaded_modules = $this->admin_model->get_active_modules();
 
-		//	Check the user has permission to view this module (skip the dashboard
-		//	we need to show them _something_)
+		//	Fetch the current module, if this is NULL then it means no access
+		$this->_current_module = $this->admin_model->get_current_module();
 
-		$_active_module	= $this->uri->segment( 2 );
-		$_active_method	= $this->uri->segment( 3, 'index' );
-		$_acl			= active_user( 'acl' );
+		if ( is_null( $this->_current_module ) ) :
 
-		if ( ! $this->user_model->is_superuser() && ! isset( $this->_loaded_modules[$_active_module] ) ) :
-
-			//	If this is the dashboard, we should see if the user has permission to
-			//	access any other modules before we 404 their ass.
-
-			if ( $_active_module == 'dashboard' || $_active_module == '' ) :
-
-				//	Look at the user's ACL
-				if ( isset( $_acl['admin'] )  ) :
-
-					//	If they have other modules defined, loop them until one is found
-					//	which appears in the loaded modules list. If this doesn't happen
-					//	then they'll fall back to the 'no loaded modules' page.
-
-					foreach( $_acl['admin'] AS $module => $methods ) :
-
-						if ( isset( $this->_loaded_modules[$module] ) ) :
-
-							redirect( 'admin/' . $module );
-							break;
-
-						endif;
-
-					endforeach;
-
-				endif;
-
-			else :
-
-				// Oh well, it's not, 404 bitches!
-				show_404();
-
-			endif;
-
-		elseif ( ! $this->user_model->is_superuser() ) :
-
-			//	Module is OK, check to make sure they can access this method
-			if ( ! isset( $_acl['admin'][$_active_module][$_active_method] ) ) :
-
-				unauthorised();
-
-			endif;
-
-		elseif ( $this->user_model->is_superuser() ) :
-
-			//	OK, this user is a super user and has been given a free ticket
-			//	thus far. However, if the module isn't available then even these
-			//	guys are bang out of luck.
-
-			$_modules_potential		= _NAILS_GET_POTENTIAL_MODULES();
-			$_modules_unavailable	= _NAILS_GET_UNAVAILABLE_MODULES();
-
-			if ( array_search( 'module-' . $_active_module, $_modules_potential ) !== FALSE ) :
-
-				if ( array_search( 'module-' . $_active_module, $_modules_unavailable ) !== FALSE ) :
-
-					show_404();
-
-				endif;
-
-			endif;
+			unauthorised();
 
 		endif;
 
@@ -181,21 +137,11 @@ class NAILS_Admin_Controller extends NAILS_Controller
 		// --------------------------------------------------------------------------
 
 		//	Add the current module to the $page variable (for convenience)
-		$this->data['page'] = new stdClass();
-
-		if ( isset( $this->_loaded_modules[ $this->uri->segment( 2 ) ] ) ) :
-
-			$this->data['page']->module = $this->_loaded_modules[ $this->uri->segment( 2 ) ];
-
-		else :
-
-			$this->data['page']->moduled = FALSE;
-
-		endif;
+		$this->data['page']->module	= $this->_current_module;
 
 		// --------------------------------------------------------------------------
 
-		//	Unload any previously loaded assets, admin handles it's own assets
+		//	Unload any previously loaded assets, admin handles its own assets
 		$this->asset->clear();
 
 		//	CSS
@@ -279,181 +225,12 @@ class NAILS_Admin_Controller extends NAILS_Controller
 	 **/
 	static function _can_access( &$module, $file )
 	{
-		$_acl		= active_user( 'acl' );
-		$_module	= basename( $file, '.php' );
-
-		// --------------------------------------------------------------------------
-
-		//	Super users can see what they like
-		if ( get_userobject()->is_superuser() ) :
-
-			return $module;
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		//	Everyone else needs to have the correct ACL
-		if ( isset( $_acl['admin'][$_module] ) ) :
-
-			return $module;
-
-		else :
-
-			return NULL;
-
-		endif;
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	/**
-	 * Loop through the enabled modules and see if a controller exists for it; if
-	 * it does load it up and execute the announce static method to see if we can
-	 * display it to the active user.
-	 *
-	 * @access	public
-	 * @return	void
-	 *
-	 **/
-	private function _load_active_modules()
-	{
-		$_modules_potential		= _NAILS_GET_POTENTIAL_MODULES();
-		$_modules_unavailable	= _NAILS_GET_UNAVAILABLE_MODULES();
-		$_modules_available		= array();
-
-		// --------------------------------------------------------------------------
-
-		//	Look for controllers
-		//	[0] => Path to search
-		//	[1] => Whether to test against $_modules_unavailable
-
-		$_paths		= array();
-		$_paths[]	= array( NAILS_PATH . 'module-admin/admin/controllers/',	TRUE );
-		$_paths[]	= array( FCPATH . APPPATH . 'modules/admin/controllers/',	FALSE );
-
-		//	Filter out non PHP files
-		$_regex = '/^[^_][a-zA-Z_]+\.php$/';
-
-		//	Load directory helper
-		$this->load->helper( 'directory' );
-
-		foreach ( $_paths AS $path ) :
-
-			$_controllers = directory_map( $path[0] );
-
-			if ( is_array( $_controllers ) ) :
-
-				foreach ( $_controllers AS $controller ) :
-
-					if ( preg_match( $_regex, $controller ) ) :
-
-						$_module = pathinfo( $controller );
-						$_module = $_module['filename'];
-
-						if ( ! empty( $path[1] ) ) :
-
-							//	Module looks valid, is it a potential module, and if so, is it available?
-							if ( array_search( 'nailsapp/module-' . $_module, $_modules_potential ) !== FALSE ) :
-
-								if ( array_search( 'nailsapp/module-' . $_module, $_modules_unavailable ) !== FALSE ) :
-
-									//	Not installed
-									continue;
-
-								endif;
-
-							endif;
-
-						endif;
-
-						// --------------------------------------------------------------------------
-
-						$_modules_available[] = $_module;
-
-					endif;
-
-				endforeach;
-
-			endif;
-
-		endforeach;
-
-		// --------------------------------------------------------------------------
-
-		$_loaded_modules = array();
-
-		foreach( $_modules_available AS $module ) :
-
-			$_module = $this->admin_model->find_module( $module );
-
-			if ( ! empty( $_module ) ) :
-
-				foreach( $_module AS $module_controller_index => $module_controller ) :
-
-					$_loaded_modules[$module . ':' . $module_controller_index] = $module_controller;
-					$_loaded_modules[$module . ':' . $module_controller_index]->class_index = $module . ':' . $module_controller_index;
-
-				endforeach;
-
-			endif;
-
-		endforeach;
-
-		// --------------------------------------------------------------------------
-
 		/**
-		 * If the user has a custom order specified then use that, otherwise fall back to
-		 * sort alphabetically by name.
+		 * Backwards compatability; this method is deprecated, the appropriate admin
+		 * models will determine if the module is accessible.
 		 */
 
-		$_user_nav_pref = @unserialize( active_user( 'admin_nav' ) );
-
-		if ( ! empty( $_user_nav_pref ) ) :
-
-			//	User's preference first
-			foreach( $_user_nav_pref AS $module => $options ) :
-
-				if ( ! empty( $_loaded_modules[$module] ) ) :
-
-					$this->_loaded_modules[$module] = $_loaded_modules[$module];
-
-				endif;
-
-			endforeach;
-
-			//	Anything left over goes to the end.
-			foreach( $_loaded_modules AS $module ) :
-
-				if ( ! isset( $this->_loaded_modules[$module->class_index] ) ) :
-
-					$this->_loaded_modules[$module->class_index] = $module;
-
-				endif;
-
-			endforeach;
-
-		else :
-
-			$this->load->helper( 'array' );
-			array_sort_multi( $_loaded_modules, 'name' );
-
-			foreach( $_loaded_modules AS $module ) :
-
-				$this->_loaded_modules[$module->class_index] = $module;
-
-			endforeach;
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		//	Place the dashboard at the top of the list, always
-		//	Hit tip: http://stackoverflow.com/a/11276338/789224
-
-		$this->_loaded_modules = array( 'dashboard:0' => $this->_loaded_modules['dashboard:0'] ) + $this->_loaded_modules;
+		return $module;
 	}
 
 
@@ -462,11 +239,8 @@ class NAILS_Admin_Controller extends NAILS_Controller
 
 	/**
 	 * Basic definition of the announce() static method
-	 *
-	 * @access	public
-	 * @return	NULL
-	 *
-	 **/
+	 * @return NULL
+	 */
 	static function announce()
 	{
 		return NULL;
@@ -478,12 +252,10 @@ class NAILS_Admin_Controller extends NAILS_Controller
 
 	/**
 	 * Basic definition of the notifications() static method
-	 *
-	 * @access	public
-	 * @return	array
-	 *
-	 **/
-	static function notifications()
+	 * @param  string $class_index The class_index value, used when multiple admin instances are available
+	 * @return array
+	 */
+	static function notifications( $class_index = NULL )
 	{
 		return array();
 	}
@@ -494,12 +266,10 @@ class NAILS_Admin_Controller extends NAILS_Controller
 
 	/**
 	 * Basic definition of the permissions() static method
-	 *
-	 * @access	public
-	 * @return	array
-	 *
-	 **/
-	static function permissions()
+	 * @param  string $class_index The class_index value, used when multiple admin instances are available
+	 * @return array
+	 */
+	static function permissions( $class_index = NULL )
 	{
 		return array();
 	}

@@ -45,44 +45,51 @@ class NAILS_Email extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Navigation options
-		$d->funcs				= array();
-		$d->funcs['index']		= lang( 'email_nav_index' );
-		$d->funcs['compose']	= lang( 'email_nav_compose' );
-		$d->funcs['campaign']	= lang( 'email_nav_campaign' );
+		$d->funcs = array();
+
+		if ( user_has_permission( 'admin.email:0.can_browse_archive' ) ) :
+
+			$d->funcs['index'] = lang( 'email_nav_index' );
+
+		endif;
+
+		if ( user_has_permission( 'admin.email:0.can_compose' ) ) :
+
+			$d->funcs['compose'] = lang( 'email_nav_compose' );
+
+		endif;
+
+		if ( user_has_permission( 'admin.email:0.can_manage_campaigns' ) ) :
+
+			$d->funcs['campaign'] = lang( 'email_nav_campaign' );
+
+		endif;
 
 		// --------------------------------------------------------------------------
 
-		//	Only announce the controller if the user has permisison to know about it
-		return self::_can_access( $d, __FILE__ );
+		return $d;
 	}
 
 
 	// --------------------------------------------------------------------------
 
 
-	/**
-	 * Returns an array of notifications for various methods
-	 *
-	 * @access	static
-	 * @param	none
-	 * @return	void
-	 **/
-	static function notifications()
+	static function permissions( $class_index = NULL )
 	{
-		$_ci =& get_instance();
-		$_notifications = array();
+		$_permissions = parent::permissions( $class_index );
 
 		// --------------------------------------------------------------------------
 
-		//$_notifications['index']			= array();
-		//$_notifications['index']['value']	= $_ci->db->count_all( NAILS_DB_PREFIX . 'user' );
-
-		//	TODO: Notifications for draft messages
-		//	TODO: Notifications for draft campaigns
+		$_permissions['can_browse_archive']		= 'Can browse email archive';
+		$_permissions['can_compose']			= 'Can compose email';
+		$_permissions['can_manage_campaigns']	= 'Can manage campaigns';
+		$_permissions['can_create_campaign']	= 'Can create draft campaigns';
+		$_permissions['can_send_campaign']		= 'Can send campaigns';
+		$_permissions['can_delete_campaign']	= 'Can delete campaigns';
 
 		// --------------------------------------------------------------------------
 
-		return $_notifications;
+		return $_permissions;
 	}
 
 
@@ -98,6 +105,14 @@ class NAILS_Email extends NAILS_Admin_Controller
 	 **/
 	public function index()
 	{
+		if ( ! user_has_permission( 'admin.email:0.can_browse_archive' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Page Title
 		$this->data['page']->title = lang( 'email_index_title' );
 
@@ -134,6 +149,14 @@ class NAILS_Email extends NAILS_Admin_Controller
 	 **/
 	public function compose()
 	{
+		if ( ! user_has_permission( 'admin.email:0.can_compose' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Page Title
 		$this->data['page']->title = lang( 'email_compose_title' );
 
@@ -158,6 +181,14 @@ class NAILS_Email extends NAILS_Admin_Controller
 	 **/
 	public function campaign()
 	{
+		if ( ! user_has_permission( 'admin.email:0.can_manage_campaigns' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Page Title
 		$this->data['page']->title = lang( 'email_campaign_title' );
 

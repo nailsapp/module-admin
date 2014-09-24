@@ -9,7 +9,15 @@
 <div class="group-cdn browse trash">
 	<p>
 		The following items are currently in the CDN trash.
-		<?=anchor( 'admin/cdnadmin/purge' . $_return, 'Empty Trash', 'style="float:right" data-title="Are you sure?" data-body="Purging the trash will <strong>permanently</strong> delete items." class="confirm awesome small red"' )?>
+		<?php
+
+			if ( user_has_permission( 'admin.cdnadmin:0.can_empty_trash' ) ) :
+
+				echo anchor( 'admin/cdnadmin/purge' . $_return, 'Empty Trash', 'style="float:right" data-title="Are you sure?" data-body="Purging the trash will <strong>permanently</strong> delete items." class="confirm awesome small red"' );
+
+			endif;
+
+		?>
 	</p>
 	<hr />
 	<p class="system-alert message">

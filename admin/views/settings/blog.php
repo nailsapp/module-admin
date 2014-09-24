@@ -6,7 +6,7 @@
 
 			echo '<p>';
 				echo 'Please select which blog you\'d like to configure:';
-				echo anchor( 'admin/settings/blog/create', 'Add New Blog', 'class="awesome small right green"' );
+				echo anchor( 'admin/settings/blog/index', 'Manage Blogs', 'class="awesome small right green"' );
 			echo '</p>';
 
 			echo form_open( NULL, 'method="GET"' );
@@ -26,7 +26,7 @@
 
 			echo '<p>';
 				echo 'Configure your blog using the options below.';
-				echo anchor( 'admin/settings/blog/create', 'Add New Blog', 'class="awesome small right green"' );
+				echo anchor( 'admin/settings/blog/index', 'Manage Blogs', 'class="awesome small right green"' );
 			echo '</p>';
 
 		endif;

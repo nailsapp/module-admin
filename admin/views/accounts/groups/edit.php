@@ -1,4 +1,4 @@
-<div class="group-accounts groups edit">
+<div class="group-members groups edit">
 	<div class="system-alert message">
 		<div class="padder">
 			<p>
@@ -96,7 +96,7 @@
 
 			<?php
 
-				//	Require password update on log in
+				//	Enable Super User status for this user group
 				$_field					= array();
 				$_field['key']			= 'acl[superuser]';
 				$_field['label']		= lang( 'accounts_groups_edit_permissions_field_label_superuser' );
@@ -111,115 +111,74 @@
 				$_visible = $_field['default'] ? 'none' : 'block';
 				echo '<div id="toggle-superuser" style="display:' . $_visible . ';">';
 
-				foreach ( $loaded_modules AS $module => $detail ) :
+					foreach ( $loaded_modules AS $detail ) :
 
-					$_module_hash = md5( serialize( $module ) );
+						if ( $detail->class_name == 'dashboard' ) :
 
-					if ( $detail->name == 'Dashboard' ) :
+							continue;
 
-						$_dashmd5 = $_module_hash;
+						endif;
 
-					endif;
+						$_field					= array();
+						$_field['label']		= $detail->name;
+						$_field['default']		= FALSE;
 
-					$_field					= array();
-					$_field['label']		= $detail->name;
-					$_field['default']		= FALSE;
+						//	Build the field. Sadly, can't use the form helper due to the crazy multidimensional array
+						//	that we're building here. Saddest of the sad pandas.
 
-					//	Build the field. Sadly, can't use the form helper due to the crazy multidimensional array
-					//	that we're building here. Saddest of the sad pandas.
+						echo '<div class="field">';
 
-					echo '<div class="field">';
+							//	Module permission
+							if ( $this->input->post() ) :
 
-					// Options
-					$_acl_post	= $this->input->post( 'acl' );
-					$_label		= '';
+								$_selected = isset( $_POST['acl']['admin'][$detail->class_index] );
 
-					foreach ( $detail->methods AS $method => $label ) :
+							else :
 
-						echo '<label>';
+								$_selected = isset( $group->acl['admin'][$detail->class_index] );
 
-						//	Label
-						if ( $_label == $_field['label'] ) :
-
-							echo '<span class="label">&nbsp;</span>';
-
-						else :
-
-							$_label = $_field['label'];
+							endif;
 
 							echo '<span class="label">';
-							echo $_field['label'];
-							echo '<small><a href="#" class="check-all" data-module="' . $_module_hash . '">' . lang( 'accounts_groups_edit_permissions_toggle_all' ) . '</a></small>';
+								echo $detail->name;
+							echo '</span>';
+							echo '<span class="input togglize-me">';
+								echo '<div class="toggle toggle-modern"></div>';
+								echo form_checkbox( 'acl[admin][' . $detail->class_index . ']', TRUE, $_selected );
+								echo '<div class="mask">Disable additional permissions in order to deactivate this module.</div>';
 							echo '</span>';
 
-						endif;
+							//	Extra permissions
+							if ( ! empty( $detail->extra_permissions ) ) :
+							echo '<div class="extra-permissions">';
 
-						echo '<span class="input">';
+								foreach ( $detail->extra_permissions AS $permission => $label ) :
 
-						$_sub_label = $module == 'dashboard' && $method == 'index' ? '<br /><small>' . lang( 'accounts_groups_edit_permissions_dashboard_warn' ) . '</small>' : '';
+									if ( $this->input->post() ) :
 
-						$_options = array(
-							'key'		=> 'acl[admin][' . $module . '][' . $method . ']',
-							'value'		=> TRUE,
-							'label'		=> $label . $_sub_label,
-							'selected'	=> isset( $group->acl['admin'][$module][$method] ) ? TRUE : FALSE
-						);
+										$_selected = isset( $_POST['acl']['admin'][$detail->class_index][$permission] );
 
-						if ( $this->input->post() ) :
+									else :
 
-							$_selected = isset( $_acl_post['admin'][$module][$method] ) ? TRUE : FALSE;
+										$_selected = isset( $group->acl['admin'][$detail->class_index][$permission] );
 
-						else :
+									endif;
 
-							$_selected = isset( $group->acl['admin'][$module][$method] ) ? TRUE : FALSE;
+									echo '<span class="label" style="font-weight:normal;">' . $label . '</span>';
+									echo '<span class="input togglize-me-extra">';
+										echo '<div class="toggle toggle-modern"></div>';
+										echo form_checkbox( 'acl[admin][' . $detail->class_index . '][' . $permission . ']', TRUE, $_selected );
+									echo '</span>';
 
-						endif;
+								endforeach;
 
-						echo form_checkbox( $_options['key'], TRUE, $_selected, 'class="admin_check method ' . $method . ' ' . $_module_hash  . '"' ) . '<span class="text">' . $_options['label'] . '</span>';
+							echo '</div>';
+							endif;
 
-						echo '</span>';
-
-						echo '</label>';
-
-					endforeach;
-
-					// --------------------------------------------------------------------------
-
-					//	Any extra permissions to render?
-					foreach ( $detail->extra_permissions AS $permission => $label ) :
-
-						echo '<label>';
-						echo '<span class="label">&nbsp;</span>';
-						echo '<span class="input">';
-
-						$_options = array(
-							'key'		=> 'acl[admin][' . $module . '][' . $permission . ']',
-							'value'		=> TRUE,
-							'label'		=> $label,
-							'selected'	=> isset( $group->acl['admin'][$module][$permission] ) ? TRUE : FALSE
-						);
-
-						if ( $this->input->post() ) :
-
-							$_selected = isset( $_acl_post['admin'][$module][$permission] ) ? TRUE : FALSE;
-
-						else :
-
-							$_selected = isset( $group->acl['admin'][$module][$permission] ) ? TRUE : FALSE;
-
-						endif;
-
-						echo form_checkbox( $_options['key'], TRUE, $_selected, 'class="admin_check method ' . $permission . ' ' . $_module_hash  . '"' ) . '<span class="text">' . $label . '</span>';
-
-						echo '</span>';
-						echo '</label>';
+							echo '<div class="clear"></div>';
+						echo '</div>';
 
 					endforeach;
-
-					echo '<div class="clear"></div>';
-					echo '</div>';
-
-				endforeach;
 
 				echo '</div>';
 
@@ -240,41 +199,108 @@
 
 	$(function(){
 
-		//$( '#super-user' ).on( 'change', function() {
+		//	Show/hide modules based on super user status
 		$('.field.boolean .toggle').on('toggle', function (e, active) {
 
 			if ( active )
 			{
-				$( '#toggle-superuser' ).hide();
+				$( '#toggle-superuser' ).slideUp();
 			}
 			else
 			{
-				$( '#toggle-superuser' ).show();
+				$( '#toggle-superuser' ).slideDown();
 			}
 
 		});
 
 		// --------------------------------------------------------------------------
 
-		$( '.admin_check' ).on( 'click', function() {
+		$( '.togglize-me' ).each(function()
+		{
+			var _checkbox	= $(this).find('input[type=checkbox]');
 
-			//	Check to see if ANY of the checkboxes are checked, if they
-			//	are dashboard MUST be checked.
-
-			if ( $( '.admin_check:checked:not(.<?=$_dashmd5?>.index)' ).length )
+			$(this).find('.toggle').css({
+				'width':		'100px',
+				'height':		'30px',
+				'text-align':	'center'
+			}).toggles({
+				checkbox:	_checkbox,
+				click:		true,
+				drag:		true,
+				clicker:	_checkbox,
+				on:			_checkbox.is(':checked'),
+				text:
+				{
+					on:		'ON',
+					off:	'OFF'
+				}
+			}).on( 'toggle', function(e,active)
 			{
-				$( '.admin_check.<?=$_dashmd5?>.method.index' ).attr( 'checked', 'checked' );
+				if ( active === true )
+				{
+					_checkbox.closest( 'div.field' ).find( 'div.extra-permissions' ).slideDown();
+				}
+				else
+				{
+					_checkbox.closest( 'div.field' ).find( 'div.extra-permissions' ).slideUp();
+				}
+			});
+
+			//	Initial state
+			if ( _checkbox.is(':checked') )
+			{
+				_checkbox.closest( 'div.field' ).find( 'div.extra-permissions' ).show();
+			}
+			else
+			{
+				_checkbox.closest( 'div.field' ).find( 'div.extra-permissions' ).hide();
 			}
 
+			_checkbox.hide();
 		});
 
-		$( 'a.check-all' ).on( 'click', function() {
+		$( '.togglize-me-extra' ).each(function()
+		{
+			var _checkbox	= $(this).find('input[type=checkbox]');
 
-			var _hash = $(this).attr( 'data-module' );
-			$( 'input.' + _hash ).click();
+			$(this).find('.toggle').css({
+				'width':		'100px',
+				'height':		'30px',
+				'text-align':	'center'
+			}).toggles({
+				checkbox:	_checkbox,
+				click:		true,
+				drag:		true,
+				clicker:	_checkbox,
+				on:			_checkbox.is(':checked'),
+				text:
+				{
+					on:		'ON',
+					off:	'OFF'
+				}
+			}).on( 'toggle', function(e,active)
+			{
+				if ( active === true )
+				{
+					_checkbox.closest( 'div.field' ).find( 'span.togglize-me .mask' ).fadeIn();
+				}
+				else
+				{
+					//	Check if any others are toggled on, if not then remove mask
+					if ( _checkbox.closest( 'div.field' ).find( '.togglize-me-extra input:checked' ).length === 0 )
+					{
+						_checkbox.closest( 'div.field' ).find( 'span.togglize-me .mask' ).fadeOut();
+					}
+				}
+			});
 
-			return false;
+			//	If any extra permissions are checked then show the mask
+			if ( _checkbox.closest( 'div.field' ).find( '.togglize-me-extra input:checked' ).length !== 0 )
+			{
+				_checkbox.closest( 'div.field' ).find( 'span.togglize-me .mask' ).show();
+			}
 
+			_checkbox.hide();
 		});
 
 	});

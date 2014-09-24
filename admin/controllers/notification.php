@@ -50,8 +50,7 @@ class NAILS_Notification extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		//	Only announce the controller if the user has permisison to know about it
-		return self::_can_access( $d, __FILE__ );
+		return $d;
 	}
 
 

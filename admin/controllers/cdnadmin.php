@@ -41,12 +41,38 @@ class NAILS_Cdnadmin extends NAILS_Admin_Controller
 
 		//	Navigation options
 		$d->funcs['browse']	= 'Browse Objects';
-		$d->funcs['trash']	= 'Browse Trash';
+
+		if ( user_has_permission( 'admin.cdnadmin:0.can_browse_trash' ) ) :
+
+			$d->funcs['trash']	= 'Browse Trash';
+
+		endif;
 
 		// --------------------------------------------------------------------------
 
 		//	Only announce the controller if the user has permission to know about it
-		return self::_can_access( $d, __FILE__ );
+		return $d;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	static function permissions( $class_index = NULL )
+	{
+		$_permissions = parent::permissions( $class_index );
+
+		// --------------------------------------------------------------------------
+
+		$_permissions['can_upload']			= 'Can upload items';
+		$_permissions['can_edit']			= 'Can edit items';
+		$_permissions['can_delete']			= 'Can delete items';
+		$_permissions['can_browse_trash']	= 'Can browse trash';
+		$_permissions['can_empty_trash']	= 'Can empty trash';
+
+		// --------------------------------------------------------------------------
+
+		return $_permissions;
 	}
 
 
@@ -111,6 +137,14 @@ class NAILS_Cdnadmin extends NAILS_Admin_Controller
 	 **/
 	public function trash()
 	{
+		if ( ! user_has_permission( 'admin.cdnadmin:0.can_browse_trash' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		$this->data['page']->title = 'Browse Trash';
 
 		// --------------------------------------------------------------------------
@@ -133,6 +167,14 @@ class NAILS_Cdnadmin extends NAILS_Admin_Controller
 	 **/
 	public function create()
 	{
+		if ( ! user_has_permission( 'admin.cdnadmin:0.can_upload' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		$this->data['page']->title = 'Upload Items';
 
 		// --------------------------------------------------------------------------
@@ -176,6 +218,14 @@ class NAILS_Cdnadmin extends NAILS_Admin_Controller
 	 **/
 	public function edit()
 	{
+		if ( ! user_has_permission( 'admin.cdnadmin:0.can_edit' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		$this->data['page']->title = 'Edit Object';
 
 		// --------------------------------------------------------------------------
@@ -198,6 +248,14 @@ class NAILS_Cdnadmin extends NAILS_Admin_Controller
 	 **/
 	public function delete()
 	{
+		if ( ! user_has_permission( 'admin.cdnadmin:0.can_delete' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		$_return = $this->input->get( 'return' ) ? $this->input->get( 'return' ) : 'admin/cdnadmin/browse';
 		$this->session->set_flashdata( 'message', '<strong>TODO:</strong> Delete objects from admin' );
 		redirect( $_return );
@@ -216,6 +274,14 @@ class NAILS_Cdnadmin extends NAILS_Admin_Controller
 	 **/
 	public function purge()
 	{
+		if ( ! user_has_permission( 'admin.cdnadmin:0.can_empty_trash' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		$_return = $this->input->get( 'return' ) ? $this->input->get( 'return' ) : 'admin/cdnadmin/trash';
 		$this->session->set_flashdata( 'message', '<strong>TODO:</strong> empty trash' );
 		redirect( $_return );

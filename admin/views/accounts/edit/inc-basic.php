@@ -36,7 +36,7 @@
 		$_field['default']		= $user_edit->username;
 		$_field['required']		= FALSE;
 		$_field['placeholder']	= lang( 'accounts_edit_basic_field_username_placeholder' );
-		$_field['info']			= 'Username can only contain alpha numeric characters, underscores and dashes (no spaces).';
+		$_field['info']			= 'Username can only contain alpha numeric characters, underscores, periods and dashes (no spaces).';
 
 		echo form_field( $_field );
 

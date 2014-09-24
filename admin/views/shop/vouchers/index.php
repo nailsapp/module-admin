@@ -3,7 +3,7 @@
 		Browse all vouchers (including gift cards) which are associated with the shop.
 		<?php
 
-			if ( user_has_permission( 'admin.shop.vouchers_create' ) ) :
+			if ( user_has_permission( 'admin.shop:0.vouchers_create' ) ) :
 
 				echo anchor( 'admin/shop/vouchers/create', 'Create Voucher', 'class="awesome small green right"' );
 
@@ -176,7 +176,7 @@
 
 										if ( $voucher->is_active ) :
 
-											if ( user_has_permission( 'admin.shop.vouchers_deactivate' ) ) :
+											if ( user_has_permission( 'admin.shop:0.vouchers_deactivate' ) ) :
 
 												$_buttons[] = anchor( 'admin/shop/vouchers/deactivate/' . $voucher->id, 'Suspend', 'class="awesome small red confirm"' );
 
@@ -184,7 +184,7 @@
 
 										else :
 
-											if ( user_has_permission( 'admin.shop.vouchers_activate' ) ) :
+											if ( user_has_permission( 'admin.shop:0.vouchers_activate' ) ) :
 
 												$_buttons[] = anchor( 'admin/shop/vouchers/activate/' . $voucher->id, 'Activate', 'class="awesome small green"' );
 

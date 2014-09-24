@@ -9,7 +9,15 @@
 <div class="group-cdn browse">
 	<p>
 		Browse all items stored in the site's CDN.
-		<?=anchor( 'admin/cdnadmin/create' . $_return, 'Upload Items', 'class="awesome small green" style="float:right;"' )?>
+		<?php
+
+			if ( user_has_permission( 'admin.cdnadmin:0.can_upload' ) ) :
+
+				echo anchor( 'admin/cdnadmin/create' . $_return, 'Upload Items', 'class="awesome small green" style="float:right;"' );
+
+			endif;
+
+		?>
 	</p>
 
 	<hr />
@@ -79,8 +87,18 @@
 						$this->load->view( 'admin/_utilities/table-cell-datetime',	array( 'datetime' => $object->modified ) );
 						echo '<td class="filesize">' . format_bytes( $object->filesize ) . '</td>';
 						echo '<td class="actions">';
-							echo anchor( 'admin/cdnadmin/edit/' . $object->id . $_return, 'Edit', 'class="awesome small"' );
-							echo anchor( 'admin/cdnadmin/delete/' . $object->id . $_return, 'Delete', 'data-title="Are you sure?" data-body="Deleting an item will attempt to disconnect it from resources which depend on it. The object will be recoverable but dependencies won\'t." class="confirm awesome small red"' );
+
+							if ( user_has_permission( 'admin.cdnadmin:0.can_edit' ) ) :
+
+								echo anchor( 'admin/cdnadmin/edit/' . $object->id . $_return, 'Edit', 'class="awesome small"' );
+
+							endif;
+
+							if ( user_has_permission( 'admin.cdnadmin:0.can_delete' ) ) :
+
+								echo anchor( 'admin/cdnadmin/delete/' . $object->id . $_return, 'Delete', 'data-title="Are you sure?" data-body="Deleting an item will attempt to disconnect it from resources which depend on it. The object will be recoverable but dependencies won\'t." class="confirm awesome small red"' );
+
+							endif;
 
 							if ( $object->is_img ) :
 

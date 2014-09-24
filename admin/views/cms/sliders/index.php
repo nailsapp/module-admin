@@ -4,7 +4,7 @@
 		Listed below are all the editable sliders on site.
 		<?php
 
-			if ( user_has_permission( 'admin.cms.can_create_slider' ) ) :
+			if ( user_has_permission( 'admin.cms:0.can_create_slider' ) ) :
 
 				echo anchor( 'admin/cms/sliders/create', 'Add New Slider', 'class="awesome small green right"' );
 
@@ -50,13 +50,13 @@
 
 						echo '<td class="actions">';
 
-							if ( user_has_permission( 'admin.cms.can_edit_slider' ) ) :
+							if ( user_has_permission( 'admin.cms:0.can_edit_slider' ) ) :
 
 								echo anchor( 'admin/cms/sliders/edit/' . $slider->id, lang( 'action_edit' ), 'class="awesome small"' );
 
 							endif;
 
-							if ( user_has_permission( 'admin.cms.can_delete_slider' ) ) :
+							if ( user_has_permission( 'admin.cms:0.can_delete_slider' ) ) :
 
 								echo anchor( 'admin/cms/sliders/delete/' . $slider->id, lang( 'action_delete' ), 'data-title="Are you sure?" data-body="This will remove the slider from the site. This action can be undone." class="confirm awesome small red"' );
 

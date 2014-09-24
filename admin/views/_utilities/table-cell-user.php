@@ -27,7 +27,7 @@
 		$_name .= isset( $last_name ) && $last_name ? $last_name . ' ' : '';
 		$_name  = $_name ? $_name : 'Unknown User';
 
-		if ( isset( $id ) && $id ) :
+		if ( isset( $id ) && $id && user_has_permission( 'admin.accoutns:0.can_edit_user' ) ) :
 
 			echo anchor( 'admin/accounts/edit/' . $id, $_name, 'class="fancybox" data-fancybox-type="iframe"' );
 

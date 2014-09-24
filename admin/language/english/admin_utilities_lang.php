@@ -14,6 +14,7 @@
 
 	//	Nav
 	$lang['utilities_nav_test_email']		= 'Send Test Email';
+	$lang['utilities_nav_rewrite_routes']	= 'Rewrite Routes';
 	$lang['utilities_nav_languages']		= 'Manage Languages';
 	$lang['utilities_nav_export']			= 'Export Data';
 

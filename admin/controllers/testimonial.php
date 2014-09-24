@@ -51,8 +51,27 @@ class NAILS_Testimonial extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		//	Only announce the controller if the user has permisison to know about it
-		return self::_can_access( $d, __FILE__ );
+		return $d;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	static function permissions( $class_index = NULL )
+	{
+		$_permissions = parent::permissions( $class_index );
+
+		// --------------------------------------------------------------------------
+
+		$_permissions['can_manage']	= 'Can manage testimonials';
+		$_permissions['can_create']	= 'Can create testimonials';
+		$_permissions['can_edit']	= 'Can edit testimonials';
+		$_permissions['can_delete']	= 'Can delete testimonials';
+
+		// --------------------------------------------------------------------------
+
+		return $_permissions;
 	}
 
 
@@ -88,6 +107,14 @@ class NAILS_Testimonial extends NAILS_Admin_Controller
 	 **/
 	public function index()
 	{
+		if ( ! user_has_permission( 'admin.testimonial:0.can_manage' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Page Title
 		$this->data['page']->title = lang( 'testimonials_index_title' );
 
@@ -109,6 +136,14 @@ class NAILS_Testimonial extends NAILS_Admin_Controller
 
 	public function create()
 	{
+		if ( ! user_has_permission( 'admin.testimonial:0.can_create' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Page Title
 		$this->data['page']->title = lang( 'testimonials_create_title' );
 
@@ -165,6 +200,14 @@ class NAILS_Testimonial extends NAILS_Admin_Controller
 
 	public function edit()
 	{
+		if ( ! user_has_permission( 'admin.testimonial:0.can_edit' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		$this->data['testimonial'] = $this->testimonial_model->get_by_id( $this->uri->segment( 4 ) );
 
 		if ( ! $this->data['testimonial'] ) :
@@ -233,6 +276,14 @@ class NAILS_Testimonial extends NAILS_Admin_Controller
 
 	public function delete()
 	{
+		if ( ! user_has_permission( 'admin.testimonial:0.can_delete' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		$_testimonial = $this->testimonial_model->get_by_id( $this->uri->segment( 4 ) );
 
 		if ( ! $_testimonial ) :

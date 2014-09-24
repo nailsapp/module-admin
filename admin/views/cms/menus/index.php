@@ -4,7 +4,7 @@
 		Listed below are all the editable menus on site.
 		<?php
 
-			if ( user_has_permission( 'admin.cms.can_create_menu' ) ) :
+			if ( user_has_permission( 'admin.cms:0.can_create_menu' ) ) :
 
 				echo anchor( 'admin/cms/menus/create', 'Add New Menu', 'class="awesome small green right"' );
 
@@ -50,13 +50,13 @@
 
 						echo '<td class="actions">';
 
-							if ( user_has_permission( 'admin.cms.can_edit_menu' ) ) :
+							if ( user_has_permission( 'admin.cms:0.can_edit_menu' ) ) :
 
 								echo anchor( 'admin/cms/menus/edit/' . $menu->id, lang( 'action_edit' ), 'class="awesome small"' );
 
 							endif;
 
-							if ( user_has_permission( 'admin.cms.can_delete_menu' ) ) :
+							if ( user_has_permission( 'admin.cms:0.can_delete_menu' ) ) :
 
 								echo anchor( 'admin/cms/menus/delete/' . $menu->id, lang( 'action_delete' ), 'data-title="Are you sure?" data-body="This will remove the menu from the site. This action cannot be undone." class="confirm awesome small red"' );
 

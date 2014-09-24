@@ -58,13 +58,22 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		//	Navigation options
 		$d->funcs			= array();
 		$d->funcs['index']	= lang( 'accounts_nav_index' );
-		$d->funcs['create']	= lang( 'accounts_nav_create' );
-		$d->funcs['groups']	= 'Manage User Groups';
+
+		if ( user_has_permission( 'admin.accounts:0.can_create_user' ) ) :
+
+			$d->funcs['create']	= lang( 'accounts_nav_create' );
+
+		endif;
+
+		if ( user_has_permission( 'admin.accounts:0.can_manage_groups' ) ) :
+
+			$d->funcs['groups']	= 'Manage User Groups';
+
+		endif;
 
 		// --------------------------------------------------------------------------
 
-		//	Only announce the controller if the user has permission to know about it
-		return self::_can_access( $d, __FILE__ );
+		return $d;
 	}
 
 
@@ -111,18 +120,22 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 	 * @param	none
 	 * @return	array
 	 **/
-	static function permissions()
+	static function permissions( $class_index = NULL )
 	{
-		$_permissions = array();
+		$_permissions = parent::permissions( $class_index );
 
 		// --------------------------------------------------------------------------
 
 		//	Define some basic extra permissions
-		$_permissions['can_login_as']		= 'Can log in as another user';
-		$_permissions['can_edit_others']	= 'Can edit other users';
+		$_permissions['can_create_user']		= 'Can create users';
+		$_permissions['can_suspend_user']		= 'Can suspend/unsuspend users';
+		$_permissions['can_login_as']			= 'Can log in as another user';
+		$_permissions['can_edit_others']		= 'Can edit other users';
+		$_permissions['can_manage_groups']		= 'Can manage user groups';
 		$_permissions['can_create_group']		= 'Can create user groups';
 		$_permissions['can_edit_group']			= 'Can edit user groups';
 		$_permissions['can_delete_group']		= 'Can delete user groups';
+		$_permissions['can_set_default_group']	= 'Can set the default user groups';
 
 		// --------------------------------------------------------------------------
 
@@ -280,6 +293,14 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 	public function create()
 	{
+		if ( ! user_has_permission( 'admin.accounts:0.can_create_user' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Page Title
 		$this->data['page']->title = lang( 'accounts_create_title' );
 
@@ -304,17 +325,17 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 				if ( $this->input->post( 'username' ) ) :
 
-					$this->form_validation->set_rules( 'username',	'',	'xss_clean|trim|alpha_dash|min_length[2]|is_unique[' . NAILS_DB_PREFIX . 'user.username]' );
+					$this->form_validation->set_rules( 'username',	'',	'xss_clean|trim|alpha_dash_period|min_length[2]|is_unique[' . NAILS_DB_PREFIX . 'user.username]' );
 
 				else :
 
-					$this->form_validation->set_rules( 'username',		'',	'xss_clean|trim|alpha_dash|min_length[2]' );
+					$this->form_validation->set_rules( 'username',		'',	'xss_clean|trim|alpha_dash_period|min_length[2]' );
 
 				endif;
 
 			elseif ( APP_NATIVE_LOGIN_USING == 'USERNAME' ) :
 
-				$this->form_validation->set_rules( 'username',		'',	'xss_clean|trim|alpha_dash|min_length[2]|is_unique[' . NAILS_DB_PREFIX . 'user.username]' );
+				$this->form_validation->set_rules( 'username',		'',	'xss_clean|trim|alpha_dash_period|min_length[2]|is_unique[' . NAILS_DB_PREFIX . 'user.username]' );
 
 				if ( $this->input->post( 'email' ) ) :
 
@@ -340,11 +361,11 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 				if ( $this->input->post( 'username' ) ) :
 
-					$this->form_validation->set_rules( 'username',	'',	'xss_clean|trim|alpha_dash|min_length[2]|is_unique[' . NAILS_DB_PREFIX . 'user.username]' );
+					$this->form_validation->set_rules( 'username',	'',	'xss_clean|trim|alpha_dash_period|min_length[2]|is_unique[' . NAILS_DB_PREFIX . 'user.username]' );
 
 				else :
 
-					$this->form_validation->set_rules( 'username',		'',	'xss_clean|trim|alpha_dash|min_length[2]' );
+					$this->form_validation->set_rules( 'username',		'',	'xss_clean|trim|alpha_dash_period|min_length[2]' );
 
 				endif;
 
@@ -353,7 +374,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 			//	Set messages
 			$this->form_validation->set_message( 'required',			lang( 'fv_required' ) );
 			$this->form_validation->set_message( 'min_length',			lang( 'fv_min_length' ) );
-			$this->form_validation->set_message( 'alpha_dash',			lang( 'fv_alpha_dash' ) );
+			$this->form_validation->set_message( 'alpha_dash_period',	lang( 'fv_alpha_dash_period' ) );
 			$this->form_validation->set_message( 'is_natural_no_zero',	lang( 'fv_required' ) );
 			$this->form_validation->set_message( 'valid_email',			lang( 'fv_valid_email' ) );
 			$this->form_validation->set_message( 'is_unique',			lang( 'fv_email_already_registered' ) );
@@ -468,8 +489,18 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 	 **/
 	public function edit()
 	{
-		//	Get the user's data; loaded early because it's required for the user_meta_cols
-		//	(we need to know the group of the user so we can pull up the correct cols/rules)
+		if ( ! user_has_permission( 'admin.accounts:0.can_edit_user' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		/**
+		 * Get the user's data; loaded early because it's required for the user_meta_cols
+		 * (we need to know the group of the user so we can pull up the correct cols/rules)
+		 */
 
 		$_user = $this->user_model->get_by_id( $this->uri->segment( 4 ) );
 
@@ -492,7 +523,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		endif;
 
 		//	Is this user editing someone other than themselves? If so, do they have permission?
-		if ( active_user( 'id' ) != $_user->id && ! user_has_permission( 'admin.accounts.can_edit_others' ) ) :
+		if ( active_user( 'id' ) != $_user->id && ! user_has_permission( 'admin.accounts:0.can_edit_others' ) ) :
 
 			$this->session->set_flashdata( 'error', lang( 'accounts_edit_error_noteditable' ) );
 			$_return_to = $this->input->get( 'return_to' ) ? $this->input->get( 'return_to' ) : 'admin/dashboard';
@@ -580,7 +611,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 			// --------------------------------------------------------------------------
 
 			//	Define user table rules
-			$this->form_validation->set_rules( 'username',					'',	'xss_clean|trim|alpha_dash|min_length[2]|unique_if_diff[' . NAILS_DB_PREFIX . 'user.username.' . $this->input->post( 'username_orig' ) . ']' );
+			$this->form_validation->set_rules( 'username',					'',	'xss_clean|trim|alpha_dash_period|min_length[2]|unique_if_diff[' . NAILS_DB_PREFIX . 'user.username.' . $this->input->post( 'username_orig' ) . ']' );
 			$this->form_validation->set_rules( 'first_name',				'',	'xss_clean|trim|required' );
 			$this->form_validation->set_rules( 'last_name',					'',	'xss_clean|trim|required' );
 			$this->form_validation->set_rules( 'gender',					'',	'xss_clean|required' );
@@ -646,7 +677,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 			//	Set messages
 			$this->form_validation->set_message( 'required',			lang( 'fv_required' ) );
 			$this->form_validation->set_message( 'min_length',			lang( 'fv_min_length' ) );
-			$this->form_validation->set_message( 'alpha_dash',			lang( 'fv_alpha_dash' ) );
+			$this->form_validation->set_message( 'alpha_dash_period',	lang( 'fv_alpha_dash_period' ) );
 			$this->form_validation->set_message( 'is_natural_no_zero',	lang( 'fv_required' ) );
 			$this->form_validation->set_message( 'valid_date',			lang( 'fv_valid_date' ) );
 			$this->form_validation->set_message( 'valid_datetime',		lang( 'fv_valid_datetime' ) );
@@ -884,6 +915,14 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 	 **/
 	public function suspend()
 	{
+		if ( ! user_has_permission( 'admin.accounts:0.can_suspend_user' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Get the user's details
 		$_uid		= $this->uri->segment( 4 );
 		$_user		= $this->user_model->get_by_id( $_uid );
@@ -948,6 +987,14 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 	 **/
 	public function unsuspend()
 	{
+		if ( ! user_has_permission( 'admin.accounts:0.can_suspend_user' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Get the user's details
 		$_uid		= $this->uri->segment( 4 );
 		$_user		= $this->user_model->get_by_id( $_uid );
@@ -1011,6 +1058,14 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 	 **/
 	public function delete()
 	{
+		if ( ! user_has_permission( 'admin.accounts:0.can_delete_user' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Get the user's details
 		$_uid	= $this->uri->segment( 4 );
 		$_user	= $this->user_model->get_by_id( $_uid );
@@ -1066,6 +1121,14 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 	public function delete_profile_img()
 	{
+		if ( ! user_has_permission( 'admin.accounts:0.can_edit_user' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		$_uid		= $this->uri->segment( 4 );
 		$_user		= $this->user_model->get_by_id( $_uid );
 		$_return_to	= $this->input->get( 'return_to' ) ? $this->input->get( 'return_to' ) : 'admin/accounts/edit/' . $_uid;
@@ -1129,6 +1192,14 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 	public function groups()
 	{
+		if ( ! user_has_permission( 'admin.accounts:0.can_manage_groups' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		$_method = $this->uri->segment( 4 ) ? $this->uri->segment( 4 ) : 'index';
 
 		if ( method_exists( $this, '_groups_' . $_method ) ) :
@@ -1168,7 +1239,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 	protected function _groups_create()
 	{
-		if ( ! user_has_permission( 'admin.accounts.can_create_group' ) ) :
+		if ( ! user_has_permission( 'admin.accounts:0.can_create_group' ) ) :
 
 			show_404();
 
@@ -1186,7 +1257,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 	protected function _groups_edit()
 	{
-		if ( ! user_has_permission( 'admin.accounts.can_edit_group' ) ) :
+		if ( ! user_has_permission( 'admin.accounts:0.can_edit_group' ) ) :
 
 			show_404();
 
@@ -1237,16 +1308,8 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 				$_data['registration_redirect']	= $this->input->post( 'registration_redirect' );
 
 				//	Parse ACL's
-				$_acl = $this->input->post( 'acl' );
-
-				if ( isset( $_acl['admin'] ) ) :
-
-					//	Remove ACLs which have no enabled methods - pointless
-					$_acl['admin'] = array_filter( $_acl['admin'] );
-
-				endif;
-
-				$_data['acl'] = serialize( $_acl );
+				$_acl			= $this->input->post( 'acl' );
+				$_data['acl']	= serialize( $_acl );
 
 				if ( $this->user_group_model->update( $_gid, $_data ) ) :
 
@@ -1286,7 +1349,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 	protected function _groups_delete()
 	{
-		if ( ! user_has_permission( 'admin.accounts.can_delete_group' ) ) :
+		if ( ! user_has_permission( 'admin.accounts:0.can_delete_group' ) ) :
 
 			show_404();
 
@@ -1304,7 +1367,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 	protected function _groups_set_default()
 	{
-		if ( ! user_has_permission( 'admin.accounts.can_set_default_group' ) ) :
+		if ( ! user_has_permission( 'admin.accounts:0.can_set_default_group' ) ) :
 
 			show_404();
 

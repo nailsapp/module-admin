@@ -30,9 +30,11 @@
 		<li class="tab active">
 			<?=anchor( 'admin/blog/' . $blog_id . '/manage/tag' . $is_fancybox, 'Overview' )?>
 		</li>
+		<?php if ( user_has_permission( 'admin.blog:' . $this->_blog_id . '.tag_create' ) ) : ?>
 		<li class="tab">
 			<?=anchor( 'admin/blog/' . $blog_id . '/manage/tag/create' . $is_fancybox, 'Create Tag' )?>
 		</li>
+		<?php endif; ?>
 	</ul>
 	<section class="tabs pages">
 		<div class="tab page active">
@@ -63,13 +65,13 @@
 								echo $this->load->view( '_utilities/table-cell-datetime', array( 'datetime' => $tag->modified ), TRUE );
 								echo '<td class="actions">';
 
-									if ( user_has_permission( 'admin.blog.' . $blog_id. '_tag_edit' ) ) :
+									if ( user_has_permission( 'admin.blog:' . $blog_id. '.tag_edit' ) ) :
 
 										echo anchor( 'admin/blog/' . $blog_id . '/manage/tag/edit/' . $tag->id . $is_fancybox, lang( 'action_edit' ), 'class="awesome small"' );
 
 									endif;
 
-									if ( user_has_permission( 'admin.blog.' . $blog_id. '_tag_delete' ) ) :
+									if ( user_has_permission( 'admin.blog:' . $blog_id . '.tag_delete' ) ) :
 
 										echo anchor( 'admin/blog/' . $blog_id . '/manage/tag/delete/' . $tag->id . $is_fancybox, lang( 'action_delete' ), 'class="awesome small red confirm" data-title="Are you sure?" data-body="This action cannot be undone."' );
 

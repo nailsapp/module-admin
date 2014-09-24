@@ -53,6 +53,7 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 		//	Navigation options
 		$d->funcs					= array();
 		$d->funcs['test_email']		= lang( 'utilities_nav_test_email' );
+		$d->funcs['rewrite_routes']	= lang( 'utilities_nav_rewrite_routes' );
 		$d->funcs['export']			= lang( 'utilities_nav_export' );
 
 		if ( module_is_enabled( 'cdn' ) ) :
@@ -63,8 +64,7 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		//	Only announce the controller if the user has permisison to know about it
-		return self::_can_access( $d, __FILE__ );
+		return $d;
 	}
 
 
@@ -168,6 +168,36 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 		$this->load->view( 'structure/header',			$this->data );
 		$this->load->view( 'admin/utilities/send_test',	$this->data );
 		$this->load->view( 'structure/footer',			$this->data );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	public function rewrite_routes()
+	{
+		if ( $this->input->post( 'go' ) ) :
+
+			$this->load->model( 'system/routes_model' );
+
+			if ( $this->routes_model->update() ) :
+
+				$this->data['success'] = '<strong>Success!</strong> Routes rewritten successfully.';
+
+			else :
+
+				$this->data['error'] = '<strong>Sorry,</strong> there was a problem writing the routes. ' . $this->routes_model->last_error();
+
+			endif;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Load views
+		$this->load->view( 'structure/header',					$this->data );
+		$this->load->view( 'admin/utilities/rewrite_routes',	$this->data );
+		$this->load->view( 'structure/footer',					$this->data );
 	}
 
 

@@ -16,7 +16,7 @@
 	//	Nav
 	$lang['email_nav_index']	= 'Message Archive';
 	$lang['email_nav_compose']	= 'Compose Message';
-	$lang['email_nav_campaign']	= 'Campaigns';
+	$lang['email_nav_campaign']	= 'Manage Campaigns';
 
 	// --------------------------------------------------------------------------
 

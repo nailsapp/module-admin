@@ -40,14 +40,46 @@ class NAILS_Logs extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Navigation options
-		$d->funcs['site']			= 'Browse Site Logs';	//	Sub-nav function.
-		$d->funcs['event']			= 'Browse Event Logs';	//	Sub-nav function.
-		$d->funcs['changelog']		= 'Browse Admin Logs';	//	Sub-nav function.
+		if ( user_has_permission( 'admin.logs:0.can_browse_site_logs' ) ) :
+
+			$d->funcs['site'] = 'Browse Site Logs';
+
+		endif;
+
+		if ( user_has_permission( 'admin.logs:0.can_browse_event_logs' ) ) :
+
+			$d->funcs['event'] = 'Browse Event Logs';
+
+		endif;
+
+		if ( user_has_permission( 'admin.logs:0.can_browse_admin_logs' ) ) :
+
+			$d->funcs['changelog']= 'Browse Admin Logs';
+
+		endif;
 
 		// --------------------------------------------------------------------------
 
-		//	Only announce the controller if the user has permission to know about it
-		return self::_can_access( $d, __FILE__ );
+		return $d;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	static function permissions( $class_index = NULL )
+	{
+		$_permissions = parent::permissions( $class_index );
+
+		// --------------------------------------------------------------------------
+
+		$_permissions['can_browse_site_logs']	= 'Can browse site logs';
+		$_permissions['can_browse_event_logs']	= 'Can browse event logs';
+		$_permissions['can_browse_admin_logs']	= 'Can browse admin logs';
+
+		// --------------------------------------------------------------------------
+
+		return $_permissions;
 	}
 
 
@@ -63,6 +95,14 @@ class NAILS_Logs extends NAILS_Admin_Controller
 	 **/
 	public function site()
 	{
+		if ( ! user_has_permission( 'admin.logs:0.can_browse_site_logs' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		$this->data['page']->title = 'Browse Logs';
 
 		// --------------------------------------------------------------------------
@@ -85,6 +125,14 @@ class NAILS_Logs extends NAILS_Admin_Controller
 	 **/
 	public function event()
 	{
+		if ( ! user_has_permission( 'admin.logs:0.can_browse_event_logs' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Set method info
 		$this->data['page']->title = 'Browse Events';
 
@@ -95,9 +143,11 @@ class NAILS_Logs extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		//	Define limit and order
-		//	A little messy but it's because the Event library doesn't follow the
-		//	same standard as the models - it should. TODO.
+		/**
+		 * Define limit and order
+		 * A little messy but it's because the Event library doesn't follow the
+		 * same standard as the models - it should. TODO.
+		 */
 
 		$_per_page	= $this->input->get( 'per_page' ) ? $this->input->get( 'per_page' ) : 50;
 		$_page		= (int) $this->input->get( 'page' );
@@ -210,6 +260,14 @@ class NAILS_Logs extends NAILS_Admin_Controller
 	 **/
 	public function changelog()
 	{
+		if ( ! user_has_permission( 'admin.logs:0.can_browse_admin_logs' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Set method info
 		$this->data['page']->title = 'Browse Admin Changelog';
 

@@ -30,9 +30,11 @@
 		<li class="tab active">
 			<?=anchor( 'admin/blog/' . $blog_id . '/manage/category' . $is_fancybox, 'Overview' )?>
 		</li>
+		<?php if ( user_has_permission( 'admin.blog:' . $this->_blog_id . '.category_create' ) ) : ?>
 		<li class="tab">
 			<?=anchor( 'admin/blog/' . $blog_id . '/manage/category/create' . $is_fancybox, 'Create Category' )?>
 		</li>
+		<?php endif; ?>
 	</ul>
 	<section class="tabs pages">
 		<div class="tab page active">
@@ -63,13 +65,13 @@
 								echo $this->load->view( '_utilities/table-cell-datetime', array( 'datetime' => $category->modified ), TRUE );
 								echo '<td class="actions">';
 
-									if ( user_has_permission( 'admin.blog.' . $blog_id. '_category_edit' ) ) :
+									if ( user_has_permission( 'admin.blog:' . $blog_id . '.category_edit' ) ) :
 
 										echo anchor( 'admin/blog/' . $blog_id . '/manage/category/edit/' . $category->id . $is_fancybox, lang( 'action_edit' ), 'class="awesome small"' );
 
 									endif;
 
-									if ( user_has_permission( 'admin.blog.' . $blog_id. '_category_delete' ) ) :
+									if ( user_has_permission( 'admin.blog:' . $blog_id . '.category_delete' ) ) :
 
 										echo anchor( 'admin/blog/' . $blog_id . '/manage/category/delete/' . $category->id . $is_fancybox, lang( 'action_delete' ), 'class="awesome small red confirm" data-title="Are you sure?" data-body="This action cannot be undone."' );
 

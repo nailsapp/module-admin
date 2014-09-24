@@ -71,13 +71,13 @@
 									endif;
 									echo '<td class="actions">';
 
-										if ( user_has_permission( 'admin.shop.range_edit' ) ) :
+										if ( user_has_permission( 'admin.shop:0.range_edit' ) ) :
 
 											echo anchor( 'admin/shop/manage/range/edit/' . $range->id . $is_fancybox, lang( 'action_edit' ), 'class="awesome small"' );
 
 										endif;
 
-										if ( user_has_permission( 'admin.shop.range_delete' ) ) :
+										if ( user_has_permission( 'admin.shop:0.range_delete' ) ) :
 
 											echo anchor( 'admin/shop/manage/range/delete/' . $range->id . $is_fancybox, lang( 'action_delete' ), 'class="awesome small red confirm" data-title="Are you sure?" data-body="This action cannot be undone."' );
 

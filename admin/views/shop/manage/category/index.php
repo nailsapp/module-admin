@@ -76,13 +76,13 @@
 									echo $this->load->view( '_utilities/table-cell-datetime', array( 'datetime' => $category->modified ), TRUE );
 									echo '<td class="actions">';
 
-										if ( user_has_permission( 'admin.shop.category_edit' ) ) :
+										if ( user_has_permission( 'admin.shop:0.category_edit' ) ) :
 
 											echo anchor( 'admin/shop/manage/category/edit/' . $category->id . $is_fancybox, lang( 'action_edit' ), 'class="awesome small"' );
 
 										endif;
 
-										if ( user_has_permission( 'admin.shop.category_delete' ) ) :
+										if ( user_has_permission( 'admin.shop:0.category_delete' ) ) :
 
 											echo anchor( 'admin/shop/manage/category/delete/' . $category->id . $is_fancybox, lang( 'action_delete' ), 'class="awesome small red confirm" data-title="Are you sure?" data-body="This action cannot be undone, any child categories will also be deleted."' );
 

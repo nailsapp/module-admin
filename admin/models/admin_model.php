@@ -51,9 +51,7 @@ class NAILS_Admin_Model extends NAILS_Model
 
 
 	/**
-	 * Look for modules which reside within the search paths; execute the announcer
-	 * if it's there and return it's details (no response means the user doesn't have
-	 * permission to execute this module).
+	 * Look for modules which reside within the search paths.
 	 *
 	 * @access	public
 	 * @param	string	$module	The name of the module to search for
@@ -61,7 +59,7 @@ class NAILS_Admin_Model extends NAILS_Model
 	 **/
 	public function find_module( $module )
 	{
-		$_out = FALSE;
+		$_out = array();
 
 		// --------------------------------------------------------------------------
 
@@ -75,6 +73,14 @@ class NAILS_Admin_Model extends NAILS_Model
 
 				$_out = $module::announce();
 
+				if ( ! is_array( $_out ) ) :
+
+					$_out = array( $_out );
+
+				endif;
+
+				$_out = array_filter( $_out );
+
 				if ( $_out ) :
 
 					if ( ! is_array( $_out ) ) :
@@ -83,67 +89,23 @@ class NAILS_Admin_Model extends NAILS_Model
 
 					endif;
 
-					foreach ( $_out AS $out ) :
+					foreach ( $_out AS $index => &$out ) :
 
-						$out->class_name = $module;
+						//	If there're no methods then remove it
+						if ( empty( $out->funcs ) ) :
 
-						//	List the public methods of this module (can't rely on the ['funcs'] array as it
-						//	might not list a method which the active user needs in their ACL)
+							$out = NULL;
 
-						$_methods = get_class_methods( $module );
+						else :
 
-						//	Strip out anything which is not public or which starts with a _ (pseudo private)
-						$_remove_keys = array();
-						foreach ( $_methods AS $key => $method ) :
+							//	Basics
+							$out->class_name	= $module;
+							$out->class_index	= $module . ':' . $index;
 
-							if ( substr( $method, 0, 1 ) == '_' ) :
+							//	Any extra permissions?
+							$out->extra_permissions = $module::permissions( $out->class_index );
 
-								$_remove_keys[] = $key;
-								continue;
-
-							endif;
-
-							// --------------------------------------------------------------------------
-
-							$_method = new ReflectionMethod( $module, $method );
-
-							if ( $_method->isStatic() ) :
-
-								$_remove_keys[] = $key;
-								continue;
-
-							endif;
-
-						endforeach;
-
-						foreach ( $_remove_keys AS $key ) :
-
-							unset( $_methods[$key] );
-
-						endforeach;
-
-						// --------------------------------------------------------------------------
-
-						//	Build the methods array so that the method names are the keys
-						$out->methods = array();
-						foreach ( $_methods AS $method ) :
-
-							if ( isset( $out->funcs[$method] ) ) :
-
-								$out->methods[$method] =  $out->funcs[$method];
-
-							else :
-
-								$out->methods[$method] =  '<em style="font-style:italic">' . ucwords( str_replace( '_', ' ', $method ) ) . '</em> <span style="color:#999;">- ' . lang( 'admin_nav_unlisted' ) . '</span>';
-
-							endif;
-
-						endforeach;
-
-						// --------------------------------------------------------------------------
-
-						//	Any extra permissions?
-						$out->extra_permissions = $module::permissions();
+						endif;
 
 					endforeach;
 
@@ -155,7 +117,279 @@ class NAILS_Admin_Model extends NAILS_Model
 
 		// --------------------------------------------------------------------------
 
+		$_out = array_filter( $_out );
+		$_out = array_values( $_out );
+
 		return $_out;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	/**
+	 * Loop through the enabled modules and see if a controller exists for it; if
+	 * it does load it up and execute the announce static method to see if we can
+	 * display it to the active user.
+	 * @return array
+	 */
+	public function get_active_modules()
+	{
+		$_cache_key	= 'available_admin_modules_' . active_user( 'id' );
+		$_cache		= $this->_get_cache( $_cache_key );
+
+		if ( $_cache ) :
+
+			return $_cache;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$_modules_potential		= _NAILS_GET_POTENTIAL_MODULES();
+		$_modules_unavailable	= _NAILS_GET_UNAVAILABLE_MODULES();
+		$_modules_available		= array();
+
+		// --------------------------------------------------------------------------
+
+		//	Look for controllers
+		//	[0] => Path to search
+		//	[1] => Whether to test against $_modules_unavailable
+
+		$_paths		= array();
+		$_paths[]	= array( NAILS_PATH . 'module-admin/admin/controllers/',	TRUE );
+		$_paths[]	= array( FCPATH . APPPATH . 'modules/admin/controllers/',	FALSE );
+
+		//	Filter out non PHP files
+		$_regex = '/^[^_][a-zA-Z_]+\.php$/';
+
+		//	Load directory helper
+		$this->load->helper( 'directory' );
+
+		foreach ( $_paths AS $path ) :
+
+			$_controllers = directory_map( $path[0] );
+
+			if ( is_array( $_controllers ) ) :
+
+				foreach ( $_controllers AS $controller ) :
+
+					if ( preg_match( $_regex, $controller ) ) :
+
+						$_module = pathinfo( $controller );
+						$_module = $_module['filename'];
+
+						if ( ! empty( $path[1] ) ) :
+
+							//	Module looks valid, is it a potential module, and if so, is it available?
+							if ( array_search( 'nailsapp/module-' . $_module, $_modules_potential ) !== FALSE ) :
+
+								if ( array_search( 'nailsapp/module-' . $_module, $_modules_unavailable ) !== FALSE ) :
+
+									//	Not installed
+									continue;
+
+								endif;
+
+							endif;
+
+						endif;
+
+						// --------------------------------------------------------------------------
+
+						$_modules_available[] = $_module;
+
+					endif;
+
+				endforeach;
+
+			endif;
+
+		endforeach;
+
+		// --------------------------------------------------------------------------
+
+		//	Form the discovered modules into a more structured array
+		$_loaded_modules = array();
+
+		foreach( $_modules_available AS $module ) :
+
+			$_module = $this->find_module( $module );
+
+			if ( ! empty( $_module ) ) :
+
+				foreach( $_module AS $module ) :
+
+					$_loaded_modules[$module->class_index] = $module;
+
+				endforeach;
+
+			endif;
+
+		endforeach;
+
+		// --------------------------------------------------------------------------
+
+		/**
+		 * If the user has a custom order specified then use that, otherwise fall back to
+		 * sort alphabetically by name.
+		 */
+
+		$_user_nav_pref = @unserialize( active_user( 'admin_nav' ) );
+		$_out			= array();
+
+		if ( ! empty( $_user_nav_pref ) ) :
+
+			//	User's preference first
+			foreach( $_user_nav_pref AS $module => $options ) :
+
+				if ( ! empty( $_loaded_modules[$module] ) ) :
+
+					$_out[$module] = $_loaded_modules[$module];
+
+				endif;
+
+			endforeach;
+
+			//	Anything left over goes to the end.
+			foreach( $_loaded_modules AS $module ) :
+
+				if ( ! isset( $_out[$module->class_index] ) ) :
+
+					$_out[$module->class_index] = $module;
+
+				endif;
+
+			endforeach;
+
+		else :
+
+			$this->load->helper( 'array' );
+			array_sort_multi( $_loaded_modules, 'name' );
+
+			foreach( $_loaded_modules AS $module ) :
+
+				$_out[$module->class_index] = $module;
+
+			endforeach;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		/**
+		 * Place the dashboard at the top of the list and settings & utilities at
+		 * the end, always.
+		 * Hit tip: http://stackoverflow.com/a/11276338/789224
+		 */
+
+		if ( isset( $_out['dashboard:0'] ) ) :
+
+			$_out = array( 'dashboard:0' => $_out['dashboard:0'] ) + $_out;
+
+		endif;
+
+		if ( isset( $_out['settings:0'] ) ) :
+
+			$_item = $_out['settings:0'];
+			unset( $_out['settings:0'] );
+			$_out = $_out + array( 'settings:0' => $_item );
+
+		endif;
+
+		if ( isset( $_out['utilities:0'] ) ) :
+
+			$_item = $_out['utilities:0'];
+			unset( $_out['utilities:0'] );
+			$_out = $_out + array( 'utilities:0' => $_item );
+
+		endif;
+
+		$_out = array_values( $_out );
+
+		// --------------------------------------------------------------------------
+
+		//	Permissions
+		//	===========
+
+		/**
+		 * Admin modules are opt in (i.e non super users must explicitly be granted
+		 * access). Loop through all potential modules and remoe any which are not
+		 * available to the currently active user. Super users can see everything.
+		 */
+
+		if ( ! $this->user_model->is_superuser() ) :
+
+			/**
+			 * Loop through each available module and remove any which don't feature
+			 * in the user's ACL.
+			 */
+
+			$_acl = active_user( 'acl' );
+
+			for ( $i = 0; $i < count( $_out ); $i++ ) :
+
+				//	Dashboard is *always* allowed
+				if ( $_out[$i]->class_name != 'dashboard' ) :
+
+					/**
+					 * Dealing with a module which is *not* the dashboard, is it
+					 * featured in the user's ACL? If not, remove.
+					 */
+
+					if ( ! isset( $_acl['admin'][$_out[$i]->class_index] ) ) :
+
+						//	See ya, bye.
+						$_out[$i] = NULL;
+
+					endif;
+
+				endif;
+
+			endfor;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$_out = array_filter( $_out );
+		$_out = array_values( $_out );
+
+		// --------------------------------------------------------------------------
+
+		$this->_set_cache( $_cache_key, $_out );
+
+		// --------------------------------------------------------------------------
+
+		return $_out;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	/**
+	 * Returns the currently active admin module
+	 * @return mixed	stdClass on success NULL failue or permission denied
+	 */
+	public function get_current_module()
+	{
+		$_modules		= $this->get_active_modules();
+		$_cur_module	= $this->uri->segment( 2, 'admin' );
+		$_current		= NULL;
+
+		foreach ( $_modules AS $m ) :
+
+			if ( $m->class_name == $_cur_module ) :
+
+				$_current = $m;
+				break;
+
+			endif;
+
+		endforeach;
+
+		return $_current;
 	}
 }
 

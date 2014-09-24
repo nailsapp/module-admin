@@ -48,16 +48,35 @@ class NAILS_Cms extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Navigation options
-		$d->funcs				= array();
-		$d->funcs['menus']		= 'Manage Menus';					//	Sub-nav function.
-		$d->funcs['pages']		= 'Manage Pages';					//	Sub-nav function.
-		$d->funcs['blocks']		= 'Manage Blocks';					//	Sub-nav function.
-		$d->funcs['sliders']	= 'Manage Sliders';					//	Sub-nav function.
+		$d->funcs = array();
+
+		if ( user_has_permission( 'admin.cms:0.can_manage_menus' ) ) :
+
+			$d->funcs['menus'] = 'Manage Menus';
+
+		endif;
+
+		if ( user_has_permission( 'admin.cms:0.can_manage_pages' ) ) :
+
+			$d->funcs['pages'] = 'Manage Pages';
+
+		endif;
+
+		if ( user_has_permission( 'admin.cms:0.can_manage_blocks' ) ) :
+
+			$d->funcs['blocks'] = 'Manage Blocks';
+
+		endif;
+
+		if ( user_has_permission( 'admin.cms:0.can_manage_sliders' ) ) :
+
+			$d->funcs['sliders'] = 'Manage Sliders';
+
+		endif;
 
 		// --------------------------------------------------------------------------
 
-		//	Only announce the controller if the user has permission to know about it
-		return self::_can_access( $d, __FILE__ );
+		return $d;
 	}
 
 
@@ -99,33 +118,36 @@ class NAILS_Cms extends NAILS_Admin_Controller
 	 * @param	none
 	 * @return	array
 	 **/
-	static function permissions()
+	static function permissions( $class_index = NULL )
 	{
-		$_permissions = array();
+		$_permissions = parent::permissions( $class_index );
 
 		// --------------------------------------------------------------------------
 
-		//	Define some basic extra permissions
-
 		//	Menus
+		$_permissions['can_manage_menu']	= 'Can manage menus';
 		$_permissions['can_create_menu']	= 'Can create a new menu';
 		$_permissions['can_edit_menu']		= 'Can edit an existing menu';
 		$_permissions['can_delete_menu']	= 'Can delete an existing menu';
 		$_permissions['can_restore_menu']	= 'Can restore a deleted menu';
 
 		//	Pages
+		$_permissions['can_manage_page']	= 'Can manage pages';
 		$_permissions['can_create_page']	= 'Can create a new page';
 		$_permissions['can_edit_page']		= 'Can edit an existing page';
 		$_permissions['can_delete_page']	= 'Can delete an existing page';
 		$_permissions['can_restore_page']	= 'Can restore a deleted page';
+		$_permissions['can_destroy_page']	= 'Can permenantly delete a page';
 
 		//	Blocks
+		$_permissions['can_manage_block']	= 'Can manage blocks';
 		$_permissions['can_create_block']	= 'Can create a new block';
 		$_permissions['can_edit_block']		= 'Can edit an existing block';
 		$_permissions['can_delete_block']	= 'Can delete an existing block';
 		$_permissions['can_restore_block']	= 'Can restore a deleted block';
 
 		//	Sliders
+		$_permissions['can_manage_slider']	= 'Can manage sliders';
 		$_permissions['can_create_slider']	= 'Can create a new slider';
 		$_permissions['can_edit_slider']	= 'Can edit an existing slider';
 		$_permissions['can_delete_slider']	= 'Can delete an existing slider';
@@ -167,6 +189,14 @@ class NAILS_Cms extends NAILS_Admin_Controller
 	 **/
 	public function pages()
 	{
+		if ( ! user_has_permission( 'admin.cms:0.can_manage_pages' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Load common blocks items
 		$this->load->model( 'cms/cms_page_model' );
 		$this->load->model( 'system/routes_model' );
@@ -235,9 +265,9 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
 	public function _pages_create()
 	{
-		if ( ! user_has_permission( 'admin.cms.can_create_page' ) ) :
+		if ( ! user_has_permission( 'admin.cms:0.can_create_page' ) ) :
 
-			show_404();
+			unauthorised();
 
 		endif;
 
@@ -280,9 +310,9 @@ class NAILS_Cms extends NAILS_Admin_Controller
 	 **/
 	protected function _pages_edit()
 	{
-		if ( ! user_has_permission( 'admin.cms.can_edit_page' ) ) :
+		if ( ! user_has_permission( 'admin.cms:0.can_edit_page' ) ) :
 
-			show_404();
+			unauthorised();
 
 		endif;
 
@@ -333,9 +363,9 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
 	protected function _pages_publish()
 	{
-		if ( ! user_has_permission( 'admin.cms.can_edit_page' ) ) :
+		if ( ! user_has_permission( 'admin.cms:0.can_edit_page' ) ) :
 
-			show_404();
+			unauthorised();
 
 		endif;
 
@@ -371,9 +401,9 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
 	protected function _pages_delete()
 	{
-		if ( ! user_has_permission( 'admin.cms.can_delete_page' ) ) :
+		if ( ! user_has_permission( 'admin.cms:0.can_delete_page' ) ) :
 
-			show_404();
+			unauthorised();
 
 		endif;
 
@@ -409,9 +439,9 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
 	protected function _pages_restore()
 	{
-		if ( ! user_has_permission( 'admin.cms.can_restore_page' ) ) :
+		if ( ! user_has_permission( 'admin.cms:0.can_restore_page' ) ) :
 
-			show_404();
+			unauthorised();
 
 		endif;
 
@@ -447,9 +477,9 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
 	protected function _pages_destroy()
 	{
-		if ( ! user_has_permission( 'admin.cms.can_destroy_page' ) ) :
+		if ( ! user_has_permission( 'admin.cms:0.can_destroy_page' ) ) :
 
-			show_404();
+			unauthorised();
 
 		endif;
 
@@ -475,29 +505,6 @@ class NAILS_Cms extends NAILS_Admin_Controller
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> invalid page ID.' );
 
 		endif;
-
-		redirect( 'admin/cms/pages' );
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _pages_rewrite_routes()
-	{
-		$this->load->model( 'system/routes_model' );
-
-		if ( $this->routes_model->update( 'cms' ) ) :
-
-			$this->session->set_flashdata( 'success', '<strong>Success!</strong> Routes rewritten successfully.' );
-
-		else :
-
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> there was a problem writing the routes. ' . $this->routes_model->last_error() );
-
-		endif;
-
-		// --------------------------------------------------------------------------
 
 		redirect( 'admin/cms/pages' );
 	}
@@ -563,6 +570,14 @@ class NAILS_Cms extends NAILS_Admin_Controller
 	 **/
 	public function blocks()
 	{
+		if ( ! user_has_permission( 'admin.cms:0.can_manage_blocks' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Load common blocks items
 		$this->load->model( 'cms/cms_block_model' );
 		$this->asset->load( 'mustache.js/mustache.js',				'BOWER' );
@@ -621,6 +636,14 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
 	protected function _blocks_edit()
 	{
+		if ( ! user_has_permission( 'admin.cms:0.can_edit_block' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		$this->data['block'] = $this->cms_block_model->get_by_id( $this->uri->segment( 5 ), TRUE );
 
 		if ( ! $this->data['block'] ) :
@@ -700,9 +723,9 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
 	protected function _blocks_create()
 	{
-		if ( ! $this->user_model->is_superuser() ) :
+		if ( ! user_has_permission( 'admin.cms:0.can_create_block' ) ) :
 
-			show_404();
+			unauthorised();
 
 		endif;
 
@@ -831,6 +854,14 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
 	public function sliders()
 	{
+		if ( ! user_has_permission( 'admin.cms:0.can_manage_sliders' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Load common slider items
 		$this->load->model( 'cms/cms_slider_model' );
 
@@ -880,6 +911,14 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
 	protected function _sliders_create()
 	{
+		if ( ! user_has_permission( 'admin.cms:0.can_create_slider' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		$this->data['page']->title = 'Create Slider';
 
 		// --------------------------------------------------------------------------
@@ -900,6 +939,14 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
 	protected function _sliders_edit()
 	{
+		if ( ! user_has_permission( 'admin.cms:0.can_edit_slider' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		$this->data['slider'] = $this->cms_slider_model->get_by_id( $this->uri->segment( 5 ), TRUE );
 
 		if ( ! $this->data['slider'] ) :
@@ -929,6 +976,14 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
 	protected function _sliders_delete()
 	{
+		if ( ! user_has_permission( 'admin.cms:0.can_delete_slider' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> slider deletion is a TODO just now.' );
 		redirect( 'admin/cms/sliders' );
 	}
@@ -939,6 +994,14 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
 	public function menus()
 	{
+		if ( ! user_has_permission( 'admin.cms:0.can_manage_menus' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Load common menu items
 		$this->load->model( 'cms/cms_menu_model' );
 
@@ -988,6 +1051,14 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
 	protected function _menus_create()
 	{
+		if ( ! user_has_permission( 'admin.cms:0.can_create_menu' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		$this->data['page']->title = 'Create Menu';
 
 		// --------------------------------------------------------------------------
@@ -1058,6 +1129,14 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
 	protected function _menus_edit()
 	{
+		if ( ! user_has_permission( 'admin.cms:0.can_edit_menu' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		$this->data['menu'] = $this->cms_menu_model->get_by_id( $this->uri->segment( 5 ), TRUE, FALSE );
 
 		if ( ! $this->data['menu'] ) :
@@ -1135,6 +1214,14 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
 	protected function _menus_delete()
 	{
+		if ( ! user_has_permission( 'admin.cms:0.can_delete_menu' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		$_menu = $this->cms_menu_model->get_by_id( $this->uri->segment( 5 ) );
 
 		if ( ! $_menu ) :

@@ -138,7 +138,7 @@
 
 										// --------------------------------------------------------------------------
 
-										if ( user_has_permission( 'admin.shop.orders_view' ) ) :
+										if ( user_has_permission( 'admin.shop:0.orders_view' ) ) :
 
 											$_buttons[] = anchor( 'admin/shop/orders/view/' . $order->id, lang( 'action_view' ), 'class="awesome green small fancybox" data-fancybox-type="iframe"' );
 
@@ -146,7 +146,7 @@
 
 										// --------------------------------------------------------------------------
 
-										if ( user_has_permission( 'admin.shop.orders_download' ) ) :
+										if ( user_has_permission( 'admin.shop:0.orders_download' ) ) :
 
 											$_buttons[] = anchor( 'admin/shop/orders/download_invoice/' . $order->id, 'Download', 'class="awesome small"' );
 
@@ -154,7 +154,7 @@
 
 										// --------------------------------------------------------------------------
 
-										// if ( user_has_permission( 'admin.shop.orders_reprocess' ) ) :
+										// if ( user_has_permission( 'admin.shop:0.orders_reprocess' ) ) :
 
 										// 	$_buttons[] = anchor( 'admin/shop/orders/reprocess/' . $order->id, 'Process', 'class="awesome small orange confirm" data-title="Are you sure?" data-body="Processing the order again may result in multiple dispatch of items."' );
 

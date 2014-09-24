@@ -26,8 +26,19 @@
 							echo $testimonial->order;
 						echo '</td>';
 						echo '<td class="actions">';
-							echo anchor( 'admin/testimonial/edit/' . $testimonial->id, lang( 'action_edit' ), 'class="awesome small"' );
-							echo anchor( 'admin/testimonial/delete/' . $testimonial->id, lang( 'action_delete' ), 'class="awesome red small confirm" data-title="Are you sure?" data-body="You cannot undo this action"' );
+
+							if ( user_has_permission( 'admin.testimonial:0.can_edit' ) ) :
+
+								echo anchor( 'admin/testimonial/edit/' . $testimonial->id, lang( 'action_edit' ), 'class="awesome small"' );
+
+							endif;
+
+							if ( user_has_permission( 'admin.testimonial:0.can_delete' ) ) :
+
+								echo anchor( 'admin/testimonial/delete/' . $testimonial->id, lang( 'action_delete' ), 'class="awesome red small confirm" data-title="Are you sure?" data-body="You cannot undo this action"' );
+
+							endif;
+
 						echo '</td>';
 					echo '<tr>';
 

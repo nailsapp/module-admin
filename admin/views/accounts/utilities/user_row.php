@@ -86,7 +86,7 @@
 				// --------------------------------------------------------------------------
 
 				//	Login as?
-				if ( $member->id != active_user( 'id' ) && user_has_permission( 'admin.accounts.can_login_as' ) ) :
+				if ( $member->id != active_user( 'id' ) && user_has_permission( 'admin.accounts:0.can_login_as' ) ) :
 
 					//	Generate the return string
 					$_url = uri_string();
@@ -119,9 +119,9 @@
 				// --------------------------------------------------------------------------
 
 				//	Edit
-				if ( user_has_permission('admin.accounts.edit') ) :
+				if ( user_has_permission('admin.accounts:0.edit') ) :
 
-					if ( $member->id == active_user( 'id' ) || user_has_permission( 'admin.accounts.can_edit_others' ) ) :
+					if ( $member->id == active_user( 'id' ) || user_has_permission( 'admin.accounts:0.can_edit_others' ) ) :
 
 						$_buttons[] = anchor( 'admin/accounts/edit/' . $member->id . $_return, lang( 'action_edit' ), 'data-fancybox-type="iframe" class="edit fancybox-max awesome small grey"' );
 
@@ -134,7 +134,7 @@
 				//	Suspend user
 				if ( $member->is_suspended ) :
 
-					if ( user_has_permission( 'admin.accounts.unsuspend' ) ) :
+					if ( user_has_permission( 'admin.accounts:0.suspend' ) ) :
 
 						$_buttons[] = anchor( 'admin/accounts/unsuspend/' . $member->id . $_return, lang( 'action_unsuspend' ), 'class="awesome small green"' );
 
@@ -142,7 +142,7 @@
 
 				else :
 
-					if ( user_has_permission( 'admin.accounts.suspend' ) ) :
+					if ( user_has_permission( 'admin.accounts:0.suspend' ) ) :
 
 						$_buttons[] = anchor( 'admin/accounts/suspend/' . $member->id . $_return, lang( 'action_suspend' ), 'class="awesome small red"' );
 
@@ -152,7 +152,7 @@
 
 				// --------------------------------------------------------------------------
 
-				if ( user_has_permission( 'admin.accounts.delete' ) && $member->id != active_user( 'id' ) && $member->group_id != 1 ) :
+				if ( user_has_permission( 'admin.accounts:0.delete' ) && $member->id != active_user( 'id' ) && $member->group_id != 1 ) :
 
 					$_buttons[] = anchor( 'admin/accounts/delete/' . $member->id . $_return, lang( 'action_delete' ), 'class="confirm awesome small red" data-title="Delete user &quot;' . $member->first_name . ' ' . $member->last_name . '&quot?" data-body="Are you sure you want to delete this user? This action is not undoable."' );
 
