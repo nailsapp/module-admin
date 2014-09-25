@@ -77,7 +77,6 @@ class NAILS_Dashboard extends NAILS_Admin_Controller
 	{
 		//	Page Data
 		$this->data['page']->title	= lang( 'dashboard_welcome_title' );
-		$this->data['has_modules']	= $this->_loaded_modules ? TRUE : FALSE;
 
 		// --------------------------------------------------------------------------
 

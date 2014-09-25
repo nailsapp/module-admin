@@ -118,7 +118,8 @@ class NAILS_Admin_Controller extends NAILS_Controller
 		$this->data['loaded_modules']	=& $this->_loaded_modules;
 
 		//	Fetch all available modules for this installation and user
-		$this->_loaded_modules = $this->admin_model->get_active_modules();
+		$this->_loaded_modules		= $this->admin_model->get_active_modules();
+		$this->data['has_modules']	= count( $this->_loaded_modules ) ? TRUE : FALSE;
 
 		//	Fetch the current module, if this is NULL then it means no access
 		$this->_current_module = $this->admin_model->get_current_module();
