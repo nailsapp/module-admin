@@ -50,25 +50,25 @@ class NAILS_Cms extends NAILS_Admin_Controller
 		//	Navigation options
 		$d->funcs = array();
 
-		if ( user_has_permission( 'admin.cms:0.can_manage_menus' ) ) :
+		if ( user_has_permission( 'admin.cms:0.can_manage_menu' ) ) :
 
 			$d->funcs['menus'] = 'Manage Menus';
 
 		endif;
 
-		if ( user_has_permission( 'admin.cms:0.can_manage_pages' ) ) :
+		if ( user_has_permission( 'admin.cms:0.can_manage_page' ) ) :
 
 			$d->funcs['pages'] = 'Manage Pages';
 
 		endif;
 
-		if ( user_has_permission( 'admin.cms:0.can_manage_blocks' ) ) :
+		if ( user_has_permission( 'admin.cms:0.can_manage_block' ) ) :
 
 			$d->funcs['blocks'] = 'Manage Blocks';
 
 		endif;
 
-		if ( user_has_permission( 'admin.cms:0.can_manage_sliders' ) ) :
+		if ( user_has_permission( 'admin.cms:0.can_manage_slider' ) ) :
 
 			$d->funcs['sliders'] = 'Manage Sliders';
 
@@ -189,7 +189,7 @@ class NAILS_Cms extends NAILS_Admin_Controller
 	 **/
 	public function pages()
 	{
-		if ( ! user_has_permission( 'admin.cms:0.can_manage_pages' ) ) :
+		if ( ! user_has_permission( 'admin.cms:0.can_manage_page' ) ) :
 
 			unauthorised();
 
@@ -570,7 +570,7 @@ class NAILS_Cms extends NAILS_Admin_Controller
 	 **/
 	public function blocks()
 	{
-		if ( ! user_has_permission( 'admin.cms:0.can_manage_blocks' ) ) :
+		if ( ! user_has_permission( 'admin.cms:0.can_manage_block' ) ) :
 
 			unauthorised();
 
@@ -854,7 +854,7 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
 	public function sliders()
 	{
-		if ( ! user_has_permission( 'admin.cms:0.can_manage_sliders' ) ) :
+		if ( ! user_has_permission( 'admin.cms:0.can_manage_slider' ) ) :
 
 			unauthorised();
 
@@ -994,7 +994,7 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
 	public function menus()
 	{
-		if ( ! user_has_permission( 'admin.cms:0.can_manage_menus' ) ) :
+		if ( ! user_has_permission( 'admin.cms:0.can_manage_menu' ) ) :
 
 			unauthorised();
 
