@@ -286,8 +286,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 					//	Set flashdata and redirect
 					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Post was created.' );
-					redirect( 'admin/blog' );
-					return;
+					redirect( 'admin/blog/' . $this->_blog_id );
 
 				else :
 
@@ -375,8 +374,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 		if ( ! $this->data['post'] ) :
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> I could\'t find a post by that ID.' );
-			redirect( 'admin/blog' );
-			return;
+			redirect( 'admin/blog/' . $this->_blog_id );
 
 		endif;
 
@@ -534,8 +532,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 					// --------------------------------------------------------------------------
 
 					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Post was updated.' );
-					redirect( 'admin/blog' );
-					return;
+					redirect( 'admin/blog/' . $this->_blog_id );
 
 				else :
 
@@ -616,8 +613,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 		if ( ! $_post || $_post->blog_id != $this->_blog_id ) :
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> I could\'t find a post by that ID.' );
-			redirect( 'admin/blog' );
-			return;
+			redirect( 'admin/blog/' . $this->_blog_id );
 
 		endif;
 
@@ -639,9 +635,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 		endif;
 
-		redirect( 'admin/blog' );
-		return;
-
+		redirect( 'admin/blog/' . $this->_blog_id );
 	}
 
 
@@ -678,9 +672,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 		endif;
 
-		redirect( 'admin/blog' );
-		return;
-
+		redirect( 'admin/blog/' . $this->_blog_id );
 	}
 
 
@@ -810,7 +802,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 				if ( $this->blog_category_model->create( $_data ) ) :
 
 					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Category created successfully.' );
-					redirect( 'admin/blog/manage/category' . $this->data['is_fancybox'] );
+					redirect( 'admin/blog/' . $this->_blog_id . '/manage/category' . $this->data['is_fancybox'] );
 
 				else :
 
@@ -893,7 +885,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 				if ( $this->blog_category_model->update( $this->data['category']->id, $_data ) ) :
 
 					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Category saved successfully.' );
-					redirect( 'admin/blog/manage/category' . $this->data['is_fancybox'] );
+					redirect( 'admin/blog/' . $this->_blog_id . '/manage/category' . $this->data['is_fancybox'] );
 
 				else :
 
@@ -953,7 +945,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 		endif;
 
-		redirect( 'admin/blog/manage/category' . $this->data['is_fancybox'] );
+		redirect( 'admin/blog/' . $this->_blog_id . '/manage/category' . $this->data['is_fancybox'] );
 	}
 
 
@@ -1049,7 +1041,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 				if ( $this->blog_tag_model->create( $_data ) ) :
 
 					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Tag created successfully.' );
-					redirect( 'admin/blog/manage/tag' . $this->data['is_fancybox'] );
+					redirect( 'admin/blog/' . $this->_blog_id . '/manage/tag' . $this->data['is_fancybox'] );
 
 				else :
 
@@ -1132,7 +1124,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 				if ( $this->blog_tag_model->update( $this->data['tag']->id, $_data ) ) :
 
 					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Tag saved successfully.' );
-					redirect( 'admin/blog/manage/tag' . $this->data['is_fancybox'] );
+					redirect( 'admin/blog/' . $this->_blog_id . '/manage/tag' . $this->data['is_fancybox'] );
 
 				else :
 
@@ -1192,7 +1184,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
 		endif;
 
-		redirect( 'admin/blog/manage/tag' . $this->data['is_fancybox'] );
+		redirect( 'admin/blog/' . $this->_blog_id . '/manage/tag' . $this->data['is_fancybox'] );
 	}
 
 
