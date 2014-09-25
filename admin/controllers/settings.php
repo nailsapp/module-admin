@@ -556,7 +556,8 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
 		if ( count( $this->data['blogs'] ) == 1 ) :
 
-			$this->data['selected_blog'] = reset( $this->data['blogs'] );
+			reset( $this->data['blogs'] );
+			$this->data['selected_blog'] = key( $this->data['blogs'] );
 
 		elseif ( $this->input->get( 'blog_id' ) ) :
 
