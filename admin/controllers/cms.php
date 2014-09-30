@@ -324,7 +324,6 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> no page found by that ID' );
 			redirect( 'admin/cms/pages' );
-			return;
 
 		endif;
 
@@ -695,7 +694,6 @@ class NAILS_Cms extends NAILS_Admin_Controller
 			//	Send the user on their merry way
 			$this->session->set_flashdata( 'success', '<strong>Success!</strong> The block was updated successfully!' );
 			redirect( 'admin/cms/blocks' );
-			return;
 
 		endif;
 
@@ -759,7 +757,6 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
 					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Block created successfully.' );
 					redirect( 'admin/cms/blocks' );
-					return;
 
 				else :
 

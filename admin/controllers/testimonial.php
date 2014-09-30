@@ -170,7 +170,6 @@ class NAILS_Testimonial extends NAILS_Admin_Controller
 
 					$this->session->set_flashdata( 'success', lang( 'testimonials_create_ok' ) );
 					redirect( 'admin/testimonial' );
-					return;
 
 				else :
 
@@ -214,7 +213,6 @@ class NAILS_Testimonial extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', lang( 'testimonials_common_bad_id' ) );
 			redirect( 'admin/testimonial' );
-			return;
 
 		endif;
 
@@ -246,7 +244,6 @@ class NAILS_Testimonial extends NAILS_Admin_Controller
 
 					$this->session->set_flashdata( 'success', lang( 'testimonials_edit_ok' ) );
 					redirect( 'admin/testimonial' );
-					return;
 
 				else :
 
@@ -290,7 +287,6 @@ class NAILS_Testimonial extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', lang( 'testimonials_common_bad_id' ) );
 			redirect( 'admin/testimonial' );
-			return;
 
 		endif;
 

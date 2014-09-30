@@ -403,7 +403,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Product was created successfully.' );
 					redirect( 'admin/shop/inventory' );
-					return;
 
 				else :
 
@@ -766,7 +765,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Product was updated successfully.' );
 					redirect( 'admin/shop/inventory' );
-					return;
 
 				else :
 
@@ -839,7 +837,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> a product with that ID could not be found.' );
 			redirect( 'admin/shop/inventory/index' );
-			return;
 
 		endif;
 
@@ -1068,7 +1065,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to view order details.' );
 			redirect( 'admin/shop/orders' );
-			return;
 
 		endif;
 
@@ -1083,7 +1079,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> no order exists by that ID.' );
 			redirect( 'admin/shop/orders' );
-			return;
 
 		endif;
 
@@ -1134,7 +1129,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to reprocess orders.' );
 			redirect( 'admin/shop/orders' );
-			return;
 
 		endif;
 
@@ -1148,7 +1142,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> I couldn\'t find an order by that ID.' );
 			redirect( 'admin/shop/orders' );
-			return;
 
 		endif;
 
@@ -1193,7 +1186,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to process order items.' );
 			redirect( 'admin/shop/orders' );
-			return;
 
 		endif;
 
@@ -1264,7 +1256,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to download orders.' );
 			redirect( 'admin/shop/orders' );
-			return;
 
 		endif;
 
@@ -1279,7 +1270,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> no order exists by that ID.' );
 			redirect( 'admin/shop/orders' );
-			return;
 
 		endif;
 
@@ -1457,7 +1447,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to create vouchers.' );
 			redirect( 'admin/shop/vouchers' );
-			return;
 
 		endif;
 
@@ -1774,7 +1763,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to activate vouchers.' );
 			redirect( 'admin/shop/vouchers' );
-			return;
 
 		endif;
 
@@ -1805,7 +1793,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to suspend vouchers.' );
 			redirect( 'admin/shop/vouchers' );
-			return;
 
 		endif;
 

@@ -509,7 +509,6 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', lang( 'accounts_edit_error_unknown_id' ) );
 			redirect( $this->input->get( 'return_to' ) );
-			return;
 
 		endif;
 
@@ -519,7 +518,6 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 			$this->session->set_flashdata( 'error', lang( 'accounts_edit_error_noteditable' ) );
 			$_return_to = $this->input->get( 'return_to' ) ? $this->input->get( 'return_to' ) : 'admin/dashboard';
 			redirect( $_return_to );
-			return;
 
 		endif;
 
@@ -529,7 +527,6 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 			$this->session->set_flashdata( 'error', lang( 'accounts_edit_error_noteditable' ) );
 			$_return_to = $this->input->get( 'return_to' ) ? $this->input->get( 'return_to' ) : 'admin/dashboard';
 			redirect( $_return_to );
-			return;
 
 		endif;
 
@@ -936,7 +933,6 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', lang( 'accounts_edit_error_noteditable' ) );
 			redirect( $this->input->get( 'return_to' ) );
-			return;
 
 		endif;
 
@@ -1008,7 +1004,6 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', lang( 'accounts_edit_error_noteditable' ) );
 			redirect( $this->input->get( 'return_to' ) );
-			return;
 
 		endif;
 
@@ -1059,7 +1054,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 	 **/
 	public function delete()
 	{
-		if ( ! user_has_permission( 'admin.accounts:0.can_delete_user' ) ) :
+		if ( ! user_has_permission( 'admin.accounts:0.can_delete_others' ) ) :
 
 			unauthorised();
 
@@ -1078,7 +1073,6 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', lang( 'accounts_edit_error_noteditable' ) );
 			redirect( $this->input->get( 'return_to' ) );
-			return;
 
 		endif;
 
@@ -1091,7 +1085,13 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', lang( 'accounts_edit_error_unknown_id' ) );
 			redirect( $this->input->get( 'return_to' ) );
-			return;
+
+		endif;
+
+		if ( $_user->id == active_user( 'id' ) ) :
+
+			$this->session->set_flashdata( 'error', lang( 'accounts_delete_error_selfie' ) );
+			redirect( $this->input->get( 'return_to' ) );
 
 		endif;
 
@@ -1148,7 +1148,6 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 				$this->session->set_flashdata( 'error', lang( 'accounts_edit_error_noteditable' ) );
 				redirect( $_return_to );
-				return;
 
 			endif;
 

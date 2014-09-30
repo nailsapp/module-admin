@@ -307,7 +307,6 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to export that data.' );
 			redirect( 'admin/utilities/export' );
-			return;
 
 		endif;
 
@@ -400,7 +399,6 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to export that data.' );
 			redirect( 'admin/utilities/export' );
-			return;
 
 		endif;
 
@@ -427,7 +425,6 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to export that data.' );
 			redirect( 'admin/utilities/export' );
-			return;
 
 		endif;
 
@@ -508,7 +505,6 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to export that data.' );
 			redirect( 'admin/utilities/export' );
-			return;
 
 		endif;
 
