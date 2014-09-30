@@ -490,7 +490,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 	 **/
 	public function edit()
 	{
-		if ( ! user_has_permission( 'admin.accounts:0.can_edit_user' ) ) :
+		if ( $this->uri->segment( 4 ) != active_user( 'id' ) && ! user_has_permission( 'admin.accounts:0.can_edit_others' ) ) :
 
 			unauthorised();
 
@@ -1122,7 +1122,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 	public function delete_profile_img()
 	{
-		if ( ! user_has_permission( 'admin.accounts:0.can_edit_user' ) ) :
+		if ( $this->uri->segment( 4 ) != active_user( 'id' ) && ! user_has_permission( 'admin.accounts:0.can_edit_others' ) ) :
 
 			unauthorised();
 
