@@ -131,6 +131,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		$_permissions['can_suspend_user']		= 'Can suspend/unsuspend users';
 		$_permissions['can_login_as']			= 'Can log in as another user';
 		$_permissions['can_edit_others']		= 'Can edit other users';
+		$_permissions['can_delete_others']		= 'Can delete other users';
 		$_permissions['can_manage_groups']		= 'Can manage user groups';
 		$_permissions['can_create_group']		= 'Can create user groups';
 		$_permissions['can_edit_group']			= 'Can edit user groups';

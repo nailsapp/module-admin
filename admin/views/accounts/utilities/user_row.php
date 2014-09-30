@@ -119,7 +119,7 @@
 				// --------------------------------------------------------------------------
 
 				//	Edit
-				if ( user_has_permission('admin.accounts:0.edit') ) :
+				if ( user_has_permission('admin.accounts:0.can_edit_others') ) :
 
 					if ( $member->id == active_user( 'id' ) || user_has_permission( 'admin.accounts:0.can_edit_others' ) ) :
 
@@ -134,7 +134,7 @@
 				//	Suspend user
 				if ( $member->is_suspended ) :
 
-					if ( user_has_permission( 'admin.accounts:0.suspend' ) ) :
+					if ( user_has_permission( 'admin.accounts:0.can_suspend_user' ) ) :
 
 						$_buttons[] = anchor( 'admin/accounts/unsuspend/' . $member->id . $_return, lang( 'action_unsuspend' ), 'class="awesome small green"' );
 
@@ -142,7 +142,7 @@
 
 				else :
 
-					if ( user_has_permission( 'admin.accounts:0.suspend' ) ) :
+					if ( user_has_permission( 'admin.accounts:0.can_suspend_user' ) ) :
 
 						$_buttons[] = anchor( 'admin/accounts/suspend/' . $member->id . $_return, lang( 'action_suspend' ), 'class="awesome small red"' );
 
@@ -152,7 +152,7 @@
 
 				// --------------------------------------------------------------------------
 
-				if ( user_has_permission( 'admin.accounts:0.delete' ) && $member->id != active_user( 'id' ) && $member->group_id != 1 ) :
+				if ( user_has_permission( 'admin.accounts:0.can_delete_others' ) && $member->id != active_user( 'id' ) && ! $this->user_model->is_superuser( $member->id ) ) :
 
 					$_buttons[] = anchor( 'admin/accounts/delete/' . $member->id . $_return, lang( 'action_delete' ), 'class="confirm awesome small red" data-title="Delete user &quot;' . $member->first_name . ' ' . $member->last_name . '&quot?" data-body="Are you sure you want to delete this user? This action is not undoable."' );
 
