@@ -72,17 +72,24 @@
 
 					echo '</td>';
 
-					if ( $post->is_published ) :
+					if ( $post->is_published && strtotime( $post->published ) <= time() ) :
 
 						echo '<td class="status success">';
-						echo '<span class="fa fa-check-circle"></span>';
-						echo '<small class="nice-time">' . user_datetime( $post->published, 'Y-m-d', 'H:i:s' ) . '</small>';
+							echo '<span class="fa fa-check-circle"></span>';
+							echo '<small class="nice-time">' . user_datetime( $post->published, 'Y-m-d', 'H:i:s' ) . '</small>';
+						echo '</td>';
+
+					elseif ( $post->is_published && strtotime( $post->published ) > time() ) :
+
+						echo '<td class="status notice">';
+							echo '<span class="fa fa-clock-o "></span>';
+							echo 'Scheduled <small class="nice-time">' . user_datetime( $post->published, 'Y-m-d', 'H:i:s' ) . '</small>';
 						echo '</td>';
 
 					else :
 
 						echo '<td class="status error">';
-						echo '<span class="fa fa-times-circle"></span>';
+							echo '<span class="fa fa-times-circle"></span>';
 						echo '</td>';
 
 					endif;
