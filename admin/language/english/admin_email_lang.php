@@ -36,12 +36,6 @@
 
 	// --------------------------------------------------------------------------
 
-	//	Compose message
-	$lang['email_compose_title']	= 'Compose New Message';
-	$lang['email_compose_intro']	= 'This page allows you to compose, and send, branded email from the site to a particular set of users.';
-
-	// --------------------------------------------------------------------------
-
 	//	Campaign Manager
 	$lang['email_campaign_title']	= 'Campaigns';
 	$lang['email_campaign_intro']	= 'Use campaigns to send an email to your users. You can choose to send to everyone or just to a particular sub-set.';

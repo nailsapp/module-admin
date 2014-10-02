@@ -60,12 +60,6 @@ class NAILS_Blog extends NAILS_Admin_Controller
 			$d->funcs							= array();
 			$d->funcs[$blog->id . '/index']		= 'Manage Posts';
 
-			if ( user_has_permission( 'admin.blog:' . $blog->id . '.post_create' ) ) :
-
-				$d->funcs[$blog->id . '/create']	= 'Create New Post';
-
-			endif;
-
 			if ( user_has_permission( 'admin.blog:' . $blog->id . '.category_manage' ) && app_setting( 'categories_enabled', 'blog-' . $blog->id ) ) :
 
 				$d->funcs[$blog->id . '/manage/category'] = 'Manage Categories';
@@ -606,11 +600,10 @@ class NAILS_Blog extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Fetch and check post
-		$_post_id = $this->uri->segment( 5 );
+		$_post_id	= $this->uri->segment( 5 );
+		$_post		= $this->blog_post_model->get_by_id( $_post_id );
 
-		$_post = $this->blog_post_model->get_by_id( $_post_id );
-
-		if ( ! $_post || $_post->blog_id != $this->_blog_id ) :
+		if ( ! $_post || $_post->blog->id != $this->_blog_id ) :
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> I could\'t find a post by that ID.' );
 			redirect( 'admin/blog/' . $this->_blog_id );

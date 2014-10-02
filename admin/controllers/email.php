@@ -53,12 +53,6 @@ class NAILS_Email extends NAILS_Admin_Controller
 
 		endif;
 
-		if ( user_has_permission( 'admin.email:0.can_compose' ) ) :
-
-			$d->funcs['compose'] = lang( 'email_nav_compose' );
-
-		endif;
-
 		if ( user_has_permission( 'admin.email:0.can_manage_campaigns' ) ) :
 
 			$d->funcs['campaign'] = lang( 'email_nav_campaign' );
@@ -141,38 +135,6 @@ class NAILS_Email extends NAILS_Admin_Controller
 
 
 	/**
-	 * Compose a new message
-	 *
-	 * @access	public
-	 * @param	none
-	 * @return	void
-	 **/
-	public function compose()
-	{
-		if ( ! user_has_permission( 'admin.email:0.can_compose' ) ) :
-
-			unauthorised();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		//	Page Title
-		$this->data['page']->title = lang( 'email_compose_title' );
-
-		// --------------------------------------------------------------------------
-
-		//	Load views
-		$this->load->view( 'structure/header',		$this->data );
-		$this->load->view( 'admin/email/compose',	$this->data );
-		$this->load->view( 'structure/footer',		$this->data );
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	/**
 	 * Manage email campaigns
 	 *
 	 * @access	public
@@ -195,9 +157,9 @@ class NAILS_Email extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Load views
-		$this->load->view( 'structure/header',		$this->data );
-		$this->load->view( 'admin/email/campaign',	$this->data );
-		$this->load->view( 'structure/footer',		$this->data );
+		$this->load->view( 'structure/header',				$this->data );
+		$this->load->view( 'admin/email/campaign/index',	$this->data );
+		$this->load->view( 'structure/footer',				$this->data );
 	}
 }
 
