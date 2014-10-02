@@ -1,6 +1,15 @@
 <div class="group-blog manage">
 	<p>
 		This page shows all the posts on site and allows you to manage them.
+		<?php
+
+			if ( user_has_permission( 'admin.blog:' . $blog_id . '.post_create' ) ) :
+
+				echo anchor( 'admin/blog/' . $blog_id . '/create', 'New Blog Post', 'class="awesome small green right"' );
+
+			endif;
+
+		?>
 	</p>
 
 	<hr />

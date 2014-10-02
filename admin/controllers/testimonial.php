@@ -47,7 +47,6 @@ class NAILS_Testimonial extends NAILS_Admin_Controller
 		//	Navigation options
 		$d->funcs				= array();
 		$d->funcs['index']		= lang( 'testimonials_nav_index' );
-		$d->funcs['create']		= lang( 'testimonials_nav_create' );
 
 		// --------------------------------------------------------------------------
 

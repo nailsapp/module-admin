@@ -59,12 +59,6 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		$d->funcs			= array();
 		$d->funcs['index']	= lang( 'accounts_nav_index' );
 
-		if ( user_has_permission( 'admin.accounts:0.can_create_user' ) ) :
-
-			$d->funcs['create']	= lang( 'accounts_nav_create' );
-
-		endif;
-
 		if ( user_has_permission( 'admin.accounts:0.can_manage_groups' ) ) :
 
 			$d->funcs['groups']	= 'Manage User Groups';
@@ -283,9 +277,9 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Load views
-		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/accounts/overview',	$this->data );
-		$this->load->view( 'structure/footer',			$this->data );
+		$this->load->view( 'structure/header',		$this->data );
+		$this->load->view( 'admin/accounts/index',	$this->data );
+		$this->load->view( 'structure/footer',		$this->data );
 	}
 
 

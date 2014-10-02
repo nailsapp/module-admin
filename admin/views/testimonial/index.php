@@ -1,6 +1,16 @@
 <div class="group-testimonials browse">
 	<p>
-		<?=lang( 'testimonials_index_intro' )?>
+	<?php
+
+		echo lang( 'testimonials_index_intro' );
+
+		if ( user_has_permission( 'admin.testimonial:0.can_create' ) ) :
+
+			echo anchor( 'admin/testimonial/create', lang( 'testimonials_nav_create' ), 'class="awesome small green right"' );
+
+		endif;
+
+	?>
 	</p>
 	<table style="margin-bottom:1.5em;">
 		<thead>

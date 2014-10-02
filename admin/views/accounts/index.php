@@ -1,6 +1,17 @@
 <div class="group-members all">
 	<p>
-		<?=isset( $page->description ) ? $page->description : lang( 'accounts_index_intro' ) ?>
+	<?php
+
+		echo isset( $page->description ) ? $page->description : lang( 'accounts_index_intro' );
+
+		if ( user_has_permission( 'admin.accounts:0.can_create_user' ) ) :
+
+			echo anchor( 'admin/accounts/create', lang( 'accounts_nav_create' ), 'class="awesome small green right"' );
+
+		endif;
+
+	?>
+
 	</p>
 
 	<?php
