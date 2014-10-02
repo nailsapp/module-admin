@@ -615,7 +615,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 		if ( $this->blog_post_model->delete( $_post_id ) ) :
 
 			$_flashdata  = '<strong>Success!</strong> Post was deleted successfully.';
-			$_flashdata .=  user_has_permission( 'admin.blog:' . $this->_blog_id . '.post_restore' ) ? ' ' . anchor( 'admin/blog/restore/' . $_post_id, 'Undo?' ) : '';
+			$_flashdata .=  user_has_permission( 'admin.blog:' . $this->_blog_id . '.post_restore' ) ? ' ' . anchor( 'admin/blog/' . $this->_blog_id . '/restore/' . $_post_id, 'Undo?' ) : '';
 
 			$this->session->set_flashdata( 'success', $_flashdata );
 
