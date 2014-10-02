@@ -78,22 +78,33 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Default export sources
-		$_acl						= active_user( 'acl' );
-		$this->_export_sources		= array();
+		$this->_export_sources = array();
 
-		if ( $this->user_model->is_superuser() || isset( $_acl['admin']['accounts']['index'] ) )
-		$this->_export_sources[]	= array( 'Members: All', 'Export a list of all the site\'s registered users and their meta data.', 'users_all' );
+		if ( user_has_permission( 'admin.accounts:0' ) ) :
+
+			$this->_export_sources[] = array( 'Members: All', 'Export a list of all the site\'s registered users and their meta data.', 'users_all' );
+
+		endif;
 
 		if ( module_is_enabled( 'shop' ) ) :
 
-			if ( $this->user_model->is_superuser() || isset( $_acl['admin']['shop']['inventory'] ) )
-			$this->_export_sources[]	= array( 'Shop: Inventory', 'Export a list of the shop\'s inventory.', 'shop_inventory' );
+			if ( user_has_permission( 'admin.shop:0.inventory_manage' ) ) :
 
-			if ( $this->user_model->is_superuser() || isset( $_acl['admin']['shop']['orders'] ) )
-			$this->_export_sources[]	= array( 'Shop: Orders', 'Export a list of all shop orders and their products.', 'shop_orders' );
+				$this->_export_sources[] = array( 'Shop: Inventory', 'Export a list of the shop\'s inventory.', 'shop_inventory' );
 
-			if ( $this->user_model->is_superuser() || isset( $_acl['admin']['shop']['vouchers'] ) )
-			$this->_export_sources[]	= array( 'Shop: Vouchers', 'Export a list of all shop vouchers.', 'shop_vouchers' );
+			endif;
+
+			if ( user_has_permission( 'admin.shop:0.orders_manage' ) ) :
+
+				$this->_export_sources[] = array( 'Shop: Orders', 'Export a list of all shop orders and their products.', 'shop_orders' );
+
+			endif;
+
+			if ( user_has_permission( 'admin.shop:0.vouchers_manage' ) ) :
+
+				$this->_export_sources[] = array( 'Shop: Vouchers', 'Export a list of all shop vouchers.', 'shop_vouchers' );
+
+			endif;
 
 		endif;
 
@@ -103,6 +114,7 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 		$this->_export_formats		= array();
 		$this->_export_formats[]	= array( 'CSV', 'Easily imports to many software packages, including Microsoft Excel.', 'csv' );
 		$this->_export_formats[]	= array( 'HTML', 'Produces an HTML table containing the data', 'html' );
+		$this->_export_formats[]	= array( 'PDF', 'Saves a PDF using the data from the HTML export option', 'pdf' );
 		$this->_export_formats[]	= array( 'PHP Serialize', 'Export as an object serialized using PHP\'s serialize() function', 'serialize' );
 		$this->_export_formats[]	= array( 'JSON', 'Export as a JSON array', 'json' );
 	}
@@ -237,26 +249,31 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 					//	All seems well, export data!
 					$_data = $this->{'_export_source_' . $_source[2]}();
 
-					//	if $_data is an array then we need to write multiple files to a zip
-					if ( is_array( $_data ) ) :
+					//	Anything to report?
+					if ( ! empty( $_data ) ) :
 
-						//	Load Zip class
-						$this->load->library( 'zip' );
+						//	if $_data is an array then we need to write multiple files to a zip
+						if ( is_array( $_data ) ) :
 
-						//	Process each file
-						foreach( $_data AS $data ) :
+							//	Load Zip class
+							$this->load->library( 'zip' );
 
-							$_file = $this->{'_export_format_' . $_format[2]}( $data, TRUE );
+							//	Process each file
+							foreach( $_data AS $data ) :
 
-							$this->zip->add_data( $_file[0], $_file[1] );
+								$_file = $this->{'_export_format_' . $_format[2]}( $data, TRUE );
 
-						endforeach;
+								$this->zip->add_data( $_file[0], $_file[1] );
 
-						$this->zip->download( 'data-export-' . $_source[2] . '-' . date( 'Y-m-d_H-i-s' ) );
+							endforeach;
 
-					else :
+							$this->zip->download( 'data-export-' . $_source[2] . '-' . date( 'Y-m-d_H-i-s' ) );
 
-						$this->{'_export_format_' . $_format[2]}( $_data );
+						else :
+
+							$this->{'_export_format_' . $_format[2]}( $_data );
+
+						endif;
 
 					endif;
 
@@ -302,11 +319,9 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 
 	protected function _export_source_users_all( $out = array() )
 	{
-		$_acl = active_user( 'acl' );
-		if ( ! $this->user_model->is_superuser() && ! isset( $_acl['admin']['accounts']['index'] ) ) :
+		if ( ! user_has_permission( 'admin.accounts:0' ) ) :
 
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to export that data.' );
-			redirect( 'admin/utilities/export' );
+			return FALSE;
 
 		endif;
 
@@ -318,6 +333,7 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 
 		//	User
 		$_out[$_counter]			= new stdClass();
+		$_out[$_counter]->label		= 'Users';
 		$_out[$_counter]->filename	= NAILS_DB_PREFIX . 'user';
 		$_out[$_counter]->fields	= array();
 		$_out[$_counter]->data		= array();
@@ -325,6 +341,7 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 
 		//	user_group
 		$_out[$_counter]			= new stdClass();
+		$_out[$_counter]->label		= 'User Groups';
 		$_out[$_counter]->filename	= NAILS_DB_PREFIX . 'user_group';
 		$_out[$_counter]->fields	= array();
 		$_out[$_counter]->data		= array();
@@ -332,6 +349,7 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 
 		//	user_meta
 		$_out[$_counter]			= new stdClass();
+		$_out[$_counter]->label		= 'User Meta';
 		$_out[$_counter]->filename	= NAILS_DB_PREFIX . 'user_meta';
 		$_out[$_counter]->fields	= array();
 		$_out[$_counter]->data		= array();
@@ -344,6 +362,7 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 			$_table = array_values( (array) $table );
 
 			$_out[$_counter]			= new stdClass();
+			$_out[$_counter]->label		= 'Table: ' . $_table[0];
 			$_out[$_counter]->filename	= $_table[0];
 			$_out[$_counter]->fields	= array();
 			$_out[$_counter]->data		= array();
@@ -359,6 +378,7 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 			$_table = array_values( (array) $table );
 
 			$_out[$_counter]			= new stdClass();
+			$_out[$_counter]->label		= 'Table: ' . $_table[0];
 			$_out[$_counter]->filename	= $_table[0];
 			$_out[$_counter]->fields	= array();
 			$_out[$_counter]->data		= array();
@@ -394,17 +414,16 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 
 	protected function _export_source_shop_inventory()
 	{
-		$_acl = active_user( 'acl' );
-		if ( ! $this->user_model->is_superuser() && ! isset( $_acl['admin']['shop']['inventory'] ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.inventory_manage' ) ) :
 
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to export that data.' );
-			redirect( 'admin/utilities/export' );
+			return FALSE;
 
 		endif;
 
 		// --------------------------------------------------------------------------
 
 		$_out			= new stdClass();
+		$_out->label	= 'Shop: Inventory';
 		$_out->filename	= 'shop_inventory';
 		$_out->fields	= array( 'TODO' );
 		$_out->data		= array( array( 'TODO' ) );
@@ -420,11 +439,9 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 
 	protected function _export_source_shop_orders()
 	{
-		$_acl = active_user( 'acl' );
-		if ( ! $this->user_model->is_superuser() && ! isset( $_acl['admin']['shop']['orders'] ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.orders_manage' ) ) :
 
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to export that data.' );
-			redirect( 'admin/utilities/export' );
+			return FALSE;
 
 		endif;
 
@@ -435,12 +452,14 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 		//	Orders
 		$_out				= array();
 		$_out[0]			= new stdClass();
+		$_out[0]->label		= 'Shop: Orders';
 		$_out[0]->filename	= NAILS_DB_PREFIX . 'shop_orders';
 		$_out[0]->fields	= array();
 		$_out[0]->data		= array();
 
 		//	Order_products
 		$_out[1]			= new stdClass();
+		$_out[1]->label		= 'Shop: Order Products';
 		$_out[1]->filename	= NAILS_DB_PREFIX . 'shop_order_products';
 		$_out[1]->fields	= array();
 		$_out[1]->data		= array();
@@ -500,17 +519,16 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 
 	protected function _export_source_shop_vouchers()
 	{
-		$_acl = active_user( 'acl' );
-		if ( ! $this->user_model->is_superuser() && ! isset( $_acl['admin']['shop']['vouchers'] ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.vouchers_manage' ) ) :
 
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to export that data.' );
-			redirect( 'admin/utilities/export' );
+			return FALSE;
 
 		endif;
 
 		// --------------------------------------------------------------------------
 
 		$_out			= new stdClass();
+		$_out->label	= 'Shop: Vouchers';
 		$_out->filename	= NAILS_DB_PREFIX . 'shop_vouchers';
 		$_out->fields	= array();
 		$_out->data		= array();
@@ -556,6 +574,7 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Set view data
+		$this->data['label']	= $data->label;
 		$this->data['fields']	= $data->fields;
 		$this->data['data']		= $data->data;
 
@@ -599,6 +618,7 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Set view data
+		$this->data['label']	= $data->label;
 		$this->data['fields']	= $data->fields;
 		$this->data['data']		= $data->data;
 
@@ -614,6 +634,40 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 			$_out	= array();
 			$_out[]	= $data->filename . '.html';
 			$_out[]	= $this->load->view( 'admin/utilities/export/html', $this->data, TRUE );
+
+			return $_out;
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _export_format_pdf( $data, $return_data = FALSE )
+	{
+		$_html = $this->_export_format_html( $data, TRUE );
+
+		// --------------------------------------------------------------------------
+
+		$this->load->library( 'pdf/pdf' );
+		$this->pdf->set_paper_size( 'A4', 'landscape' );
+		$this->pdf->load_html( $_html[1] );
+
+		//	Load view
+		if ( ! $return_data ) :
+
+			$this->pdf->download( $data->filename . '.pdf' );
+
+		else :
+
+			$this->pdf->render();
+
+			$_out	= array();
+			$_out[]	= $data->filename . '.pdf';
+			$_out[]	= $this->pdf->output();
+
+			$this->pdf->reset();
 
 			return $_out;
 
@@ -684,7 +738,7 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Set view data
-		$this->data['data']		= $data;
+		$this->data['data'] = $data;
 
 		// --------------------------------------------------------------------------
 
@@ -807,6 +861,7 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 
 	protected function _cdn_orphans_cli()
 	{
+		//	TODO: Complete CLI functionality for report generating
 		echo 'Sorry, this functionality is not complete yet. If you are experiencing timeouts please increase the timeout limit for PHP.';
 	}
 

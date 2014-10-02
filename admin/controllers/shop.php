@@ -19,6 +19,10 @@ require_once '_admin.php';
 
 class NAILS_Shop extends NAILS_Admin_Controller
 {
+	protected $_report_sources;
+	protected $_report_formats;
+
+	// --------------------------------------------------------------------------
 
 	/**
 	 * Announces this module's details to those in the know.
@@ -49,13 +53,39 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		//	Navigation options
 		$d->funcs				= array();
-		// $d->funcs['featured']	= 'Manage Featured Items';
-		$d->funcs['inventory']	= 'Manage Inventory';
-		$d->funcs['orders']		= 'Manage Orders';
-		$d->funcs['vouchers']	= 'Manage Vouchers';
-		$d->funcs['sales']		= 'Manage Sales';
-		$d->funcs['manage']		= 'Other Managers';
-		$d->funcs['reports']	= 'Generate Reports';
+
+		if ( user_has_permission( 'admin.shop:0.inventory_manage' ) ) :
+
+			$d->funcs['inventory'] = 'Manage Inventory';
+
+		endif;
+
+		if ( user_has_permission( 'admin.shop:0.orders_manage' ) ) :
+
+			$d->funcs['orders'] = 'Manage Orders';
+
+		endif;
+
+		if ( user_has_permission( 'admin.shop:0.vouchers_manage' ) ) :
+
+			$d->funcs['vouchers'] = 'Manage Vouchers';
+
+		endif;
+
+		if ( user_has_permission( 'admin.shop:0.sale_manage' ) ) :
+
+			$d->funcs['sales'] = 'Manage Sales';
+
+		endif;
+
+		//	TODO: Handle permissions here?
+		$d->funcs['manage'] = 'Other Managers';
+
+		if ( user_has_permission( 'admin.shop:0.can_generate_reports' ) ) :
+
+			$d->funcs['reports'] = 'Generate Reports';
+
+		endif;
 
 		// --------------------------------------------------------------------------
 
@@ -102,69 +132,87 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		//	Featured
-		$_permissions['featured_edit']			= 'Featured Items: Edit';
-
 		//	Inventory
+		$_permissions['inventory_manage']		= 'Inventory: Manage';
 		$_permissions['inventory_create']		= 'Inventory: Create';
 		$_permissions['inventory_edit']			= 'Inventory: Edit';
 		$_permissions['inventory_delete']		= 'Inventory: Delete';
 		$_permissions['inventory_restore']		= 'Inventory: Restore';
 
 		//	Orders
+		$_permissions['orders_manage']			= 'Orders: Manage';
 		$_permissions['orders_view']			= 'Orders: View';
 		$_permissions['orders_reprocess']		= 'Orders: Reprocess';
 		$_permissions['orders_process']			= 'Orders: Process';
 
 		//	Vouchers
+		$_permissions['vouchers_manage']		= 'Vouchers: Manage';
 		$_permissions['vouchers_create']		= 'Vouchers: Create';
 		$_permissions['vouchers_activate']		= 'Vouchers: Activate';
 		$_permissions['vouchers_deactivate']	= 'Vouchers: Deactivate';
 
 		//	Attributes
 		$_permissions['attribute_create']		= 'Attribute: Create';
+		$_permissions['attribute_create']		= 'Attribute: Create';
 		$_permissions['attribute_edit']			= 'Attribute: Edit';
 		$_permissions['attribute_delete']		= 'Attribute: Delete';
 
 		//	Brands
+		$_permissions['brand_manage']			= 'Brand: Manage';
 		$_permissions['brand_create']			= 'Brand: Create';
 		$_permissions['brand_edit']				= 'Brand: Edit';
 		$_permissions['brand_delete']			= 'Brand: Delete';
 
 		//	Categories
+		$_permissions['category_manage']		= 'Category: Manage';
 		$_permissions['category_create']		= 'Category: Create';
 		$_permissions['category_edit']			= 'Category: Edit';
 		$_permissions['category_delete']		= 'Category: Delete';
 
 		//	Collections
+		$_permissions['collection_manage']		= 'Collection: Manage';
 		$_permissions['collection_create']		= 'Collection: Create';
 		$_permissions['collection_edit']		= 'Collection: Edit';
 		$_permissions['collection_delete']		= 'Collection: Delete';
 
 		//	Ranges
+		$_permissions['range_manage']			= 'Range: Manage';
 		$_permissions['range_create']			= 'Range: Create';
 		$_permissions['range_edit']				= 'Range: Edit';
 		$_permissions['range_delete']			= 'Range: Delete';
 
+		//	Sales
+		$_permissions['sale_manage']			= 'Sale: Manage';
+		$_permissions['sale_create']			= 'Sale: Create';
+		$_permissions['sale_edit']				= 'Sale: Edit';
+		$_permissions['sale_delete']			= 'Sale: Delete';
+
 		//	Tags
+		$_permissions['tag_manage']				= 'Tag: Manage';
 		$_permissions['tag_create']				= 'Tag: Create';
 		$_permissions['tag_edit']				= 'Tag: Edit';
 		$_permissions['tag_delete']				= 'Tag: Delete';
 
 		//	Tax Rates
+		$_permissions['tax_rate_manage']		= 'Tax Rate: Manage';
 		$_permissions['tax_rate_create']		= 'Tax Rate: Create';
 		$_permissions['tax_rate_edit']			= 'Tax Rate: Edit';
 		$_permissions['tax_rate_delete']		= 'Tax Rate: Delete';
 
 		//	Product Types
+		$_permissions['product_type_manage']	= 'Product Type: Manage';
 		$_permissions['product_type_create']	= 'Product Type: Create';
 		$_permissions['product_type_edit']		= 'Product Type: Edit';
 		$_permissions['product_type_delete']	= 'Product Type: Delete';
 
 		//	Product Type Meta Fields
+		$_permissions['product_type_meta_manage']	= 'Product Type Meta: Manage';
 		$_permissions['product_type_meta_create']	= 'Product Type Meta: Create';
 		$_permissions['product_type_meta_edit']		= 'Product Type Meta: Edit';
 		$_permissions['product_type_meta_delete']	= 'Product Type Meta: Delete';
+
+		//	Reports
+		$_permissions['can_generate_reports']	= 'Can generate Reports';
 
 		// --------------------------------------------------------------------------
 
@@ -239,42 +287,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
 	// --------------------------------------------------------------------------
 
 
-	public function featured()
-	{
-		$_method = $this->uri->segment( 4 ) ? $this->uri->segment( 4 ) : 'home';
-
-		if ( method_exists( $this, '_featured_' . $_method ) ) :
-
-			$this->data['page']->title = 'Manage Featured Items &rsaquo; ';
-
-			$this->{'_featured_' . $_method}();
-
-		else :
-
-			show_404();
-
-		endif;
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _featured_home()
-	{
-		$this->data['page']->title .= 'Shop Home Page';
-
-		// --------------------------------------------------------------------------
-
-		//	Load Views
-		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/shop/featured/home',	$this->data );
-		$this->load->view( 'structure/footer',			$this->data );
-	}
-
-	// --------------------------------------------------------------------------
-
-
 	/**
 	 * Manage the inventory
 	 *
@@ -284,6 +296,14 @@ class NAILS_Shop extends NAILS_Admin_Controller
 	 **/
 	public function inventory()
 	{
+		if ( ! user_has_permission( 'admin.shop:0.inventory_manage' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		$_method = $this->uri->segment( 4 ) ? $this->uri->segment( 4 ) : 'index';
 
 		if ( method_exists( $this, '_inventory_' . $_method ) ) :
@@ -884,6 +904,14 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	public function orders()
 	{
+		if ( ! user_has_permission( 'admin.shop:0.orders_manage' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		$_method = $this->uri->segment( 4 ) ? $this->uri->segment( 4 ) : 'index';
 
 		if ( method_exists( $this, '_orders_' . $_method ) ) :
@@ -1309,6 +1337,14 @@ class NAILS_Shop extends NAILS_Admin_Controller
 	 **/
 	public function vouchers()
 	{
+		if ( ! user_has_permission( 'admin.shop:0.vouchers_manage' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Load voucher model
 		$this->load->model( 'shop/shop_voucher_model' );
 
@@ -1826,6 +1862,14 @@ class NAILS_Shop extends NAILS_Admin_Controller
 	 **/
 	public function sales()
 	{
+		if ( ! user_has_permission( 'admin.shop:0.sale_manage' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		$_method = $this->uri->segment( 4 ) ? $this->uri->segment( 4 ) : 'index';
 
 		if ( method_exists( $this, '_sales_' . $_method ) ) :
@@ -1951,6 +1995,14 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_attribute()
 	{
+		if ( ! user_has_permission( 'admin.shop:0.attribute_manage' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Load model
 		$this->load->model( 'shop/shop_attribute_model' );
 
@@ -2165,6 +2217,14 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_brand()
 	{
+		if ( ! user_has_permission( 'admin.shop:0.brand_manage' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Load model
 		$this->load->model( 'shop/shop_brand_model' );
 
@@ -2407,6 +2467,14 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_category()
 	{
+		if ( ! user_has_permission( 'admin.shop:0.category_manage' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Load model
 		$this->load->model( 'shop/shop_category_model' );
 
@@ -2643,6 +2711,14 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_collection()
 	{
+		if ( ! user_has_permission( 'admin.shop:0.collection_manage' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Load model
 		$this->load->model( 'shop/shop_collection_model' );
 
@@ -2879,6 +2955,14 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_range()
 	{
+		if ( ! user_has_permission( 'admin.shop:0.range_manage' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Load model
 		$this->load->model( 'shop/shop_range_model' );
 
@@ -3115,6 +3199,14 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_tag()
 	{
+		if ( ! user_has_permission( 'admin.shop:0.tag_manage' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Load model
 		$this->load->model( 'shop/shop_tag_model' );
 
@@ -3347,6 +3439,14 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_tax_rate()
 	{
+		if ( ! user_has_permission( 'admin.shop:0.tax_rate_manage' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Load model
 		$this->load->model( 'shop/shop_tax_rate_model' );
 
@@ -3563,6 +3663,14 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_product_type()
 	{
+		if ( ! user_has_permission( 'admin.shop:0.product_type_manage' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Load model
 		$this->load->model( 'shop/shop_product_type_model' );
 
@@ -3766,6 +3874,14 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _manage_product_type_meta()
 	{
+		if ( ! user_has_permission( 'admin.shop:0.product_type_meta__manage' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
 		//	Load model
 		$this->load->model( 'shop/shop_product_type_model' );
 
@@ -4008,6 +4124,35 @@ class NAILS_Shop extends NAILS_Admin_Controller
 	 **/
 	public function reports()
 	{
+		if ( ! user_has_permission( 'admin.shop:0.can_generate_reports' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Default report sources
+		$this->_report_sources = array();
+
+		if ( user_has_permission( 'admin.shop:0.inventory_manage' ) ) :
+
+			$this->_report_sources[] = array( 'Inventory', 'Out of Stock variants', 'out_of_stock_variants' );
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Default report formats
+		$this->_report_formats		= array();
+		$this->_report_formats[]	= array( 'CSV', 'Easily imports to many software packages, including Microsoft Excel.', 'csv' );
+		$this->_report_formats[]	= array( 'HTML', 'Produces an HTML table containing the data', 'html' );
+		$this->_report_formats[]	= array( 'PDF', 'Saves a PDF using the data from the HTML export option', 'pdf' );
+		$this->_report_formats[]	= array( 'PHP Serialize', 'Export as an object serialized using PHP\'s serialize() function', 'serialize' );
+		$this->_report_formats[]	= array( 'JSON', 'Export as a JSON array', 'json' );
+
+		// --------------------------------------------------------------------------
+
 		$_method = $this->uri->segment( 4 ) ? $this->uri->segment( 4 ) : 'index';
 
 		if ( method_exists( $this, '_reports_' . $_method ) ) :
@@ -4027,11 +4172,17 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _reports_index()
 	{
-		if ( ! user_has_permission( 'admin.shop:0.reports' ) ) :
+		if ( $this->input->is_cli_request() ) :
 
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to generate reports.' );
-			redirect( 'admin/shop' );
-			return;
+			return $this->_reports_index_cli();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		if ( ! user_has_permission( 'admin.shop:0.can_generate_reports' ) ) :
+
+			unauthorised();
 
 		endif;
 
@@ -4042,18 +4193,348 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		//	Process POST
 		if ( $this->input->post() ) :
 
-			//	TODO
+			//	Form validation and update
+			$this->load->library( 'form_validation' );
+
+			//	Define rules
+			$this->form_validation->set_rules( 'report', '', 'xss_clean|required' );
+			$this->form_validation->set_rules( 'format', '', 'xss_clean|required' );
+
+			//	Set Messages
+			$this->form_validation->set_message( 'required',	lang( 'fv_required' ) );
+
+			//	Execute
+			if ( $this->form_validation->run() && isset( $this->_report_sources[$this->input->post( 'source' )] ) && isset( $this->_report_formats[$this->input->post( 'format' )] ) ) :
+
+				$_source = $this->_report_sources[$this->input->post( 'source' )];
+				$_format = $this->_report_formats[$this->input->post( 'format' )];
+
+				if ( ! method_exists( $this, '_report_source_' . $_source[2] ) ) :
+
+					$this->data['error'] = '<strong>Sorry,</strong> that data source is not available.';
+
+				elseif ( ! method_exists( $this, '_report_format_' . $_format[2] ) ) :
+
+					$this->data['error'] = '<strong>Sorry,</strong> that format type is not available.';
+
+				else :
+
+					//	All seems well, generate the report!
+					$_data = $this->{'_report_source_' . $_source[2]}();
+
+					//	Anything to report?
+					if ( ! empty( $_data ) ) :
+
+						//	if $_data is an array then we need to write multiple files to a zip
+						if ( is_array( $_data ) ) :
+
+							//	Load Zip class
+							$this->load->library( 'zip' );
+
+							//	Process each file
+							foreach( $_data AS $data ) :
+
+								$_file = $this->{'_report_format_' . $_format[2]}( $data, TRUE );
+
+								$this->zip->add_data( $_file[0], $_file[1] );
+
+							endforeach;
+
+							$this->zip->download( 'shop-report-' . $_source[2] . '-' . date( 'Y-m-d_H-i-s' ) );
+
+						else :
+
+							$this->{'_report_format_' . $_format[2]}( $_data );
+
+						endif;
+
+					endif;
+
+					return;
+
+				endif;
+
+			elseif ( ! isset( $this->_report_sources[ $this->input->post( 'source' ) ] ) ) :
+
+				$this->data['error'] = '<strong>Sorry,</strong> invalid data source.';
+
+			elseif ( ! isset( $this->_report_formats[ $this->input->post( 'format' ) ] ) ) :
+
+				$this->data['error'] = '<strong>Sorry,</strong> invalid format type.';
+
+			else:
+
+				$this->data['error'] = lang( 'fv_there_were_errors' );
+
+			endif;
 
 		endif;
+
+		$this->data['sources'] = $this->_report_sources;
+		$this->data['formats'] = $this->_report_formats;
 
 		// --------------------------------------------------------------------------
 
 		$this->load->view( 'structure/header',			$this->data );
 		$this->load->view( 'admin/shop/reports/index',	$this->data );
 		$this->load->view( 'structure/footer',			$this->data );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _reports_index_cli()
+	{
+		//	TODO: Complete CLI functionality for report generating
+		echo 'Sorry, this functionality is not complete yet. If you are experiencing timeouts please increase the timeout limit for PHP.';
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _report_source_out_of_stock_variants()
+	{
+		if ( ! user_has_permission( 'admin.shop:0.inventory_manage' ) ) :
+
+			return FALSE;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$_out			= new stdClass();
+		$_out->label	= 'Out of Stock variants';
+		$_out->filename	= NAILS_DB_PREFIX . 'out_of_stock_variants';
+		$_out->fields	= array();
+		$_out->data		= array();
+
+		// --------------------------------------------------------------------------
+
+		//	Fetch all variants which are out of stock
+		$this->db->select( 'p.id product_id, p.label product_label, v.id variation_id, v.label variation_label, v.sku, v.quantity_available' );
+		$this->db->join( NAILS_DB_PREFIX . 'shop_product p', 'p.id = v.product_id', 'LEFT' );
+		$this->db->where( 'v.stock_status', 'OUT_OF_STOCK' );
+		$_out->data = $this->db->get( NAILS_DB_PREFIX . 'shop_product_variation v' )->result_array();
+
+		if ( $_out->data ) :
+
+			$_out->fields = array_keys( $_out->data[0] );
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		return $_out;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _report_format_csv( $data, $return_data = FALSE )
+	{
+		//	Send header
+		if ( ! $return_data ) :
+
+			$this->output->set_content_type( 'application/octet-stream' );
+			$this->output->set_header( 'Pragma: public' );
+			$this->output->set_header( 'Expires: 0' );
+			$this->output->set_header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
+			$this->output->set_header( 'Cache-Control: private', FALSE );
+			$this->output->set_header( 'Content-Disposition: attachment; filename=data-export-' . $data->filename . '-' . date( 'Y-m-d_H-i-s' ) . '.csv;' );
+			$this->output->set_header( 'Content-Transfer-Encoding: binary' );
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Set view data
+		$this->data['label']	= $data->label;
+		$this->data['fields']	= $data->fields;
+		$this->data['data']		= $data->data;
+
+		// --------------------------------------------------------------------------
+
+			//	Load view
+		if ( ! $return_data ) :
+
+			$this->load->view( 'admin/shop/reports/csv', $this->data );
+
+		else :
+
+			$_out	= array();
+			$_out[]	= $data->filename . '.csv';
+			$_out[]	= $this->load->view( 'admin/shop/reports/csv', $this->data, TRUE );
+
+			return $_out;
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _report_format_html( $data, $return_data = FALSE )
+	{
+		//	Send header
+		if ( ! $return_data ) :
+
+			$this->output->set_content_type( 'application/octet-stream' );
+			$this->output->set_header( 'Pragma: public' );
+			$this->output->set_header( 'Expires: 0' );
+			$this->output->set_header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
+			$this->output->set_header( 'Cache-Control: private', FALSE );
+			$this->output->set_header( 'Content-Disposition: attachment; filename=data-export-' . $data->filename . '-' . date( 'Y-m-d_H-i-s' ) . '.html;' );
+			$this->output->set_header( 'Content-Transfer-Encoding: binary' );
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Set view data
+		$this->data['label']	= $data->label;
+		$this->data['fields']	= $data->fields;
+		$this->data['data']		= $data->data;
+
+		// --------------------------------------------------------------------------
+
+		//	Load view
+		if ( ! $return_data ) :
+
+			$this->load->view( 'admin/shop/reports/html', $this->data );
+
+		else :
+
+			$_out	= array();
+			$_out[]	= $data->filename . '.html';
+			$_out[]	= $this->load->view( 'admin/shop/reports/html', $this->data, TRUE );
+
+			return $_out;
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _report_format_serialize( $data, $return_data = FALSE )
+	{
+		//	Send header
+		if ( ! $return_data ) :
+
+			$this->output->set_content_type( 'application/octet-stream' );
+			$this->output->set_header( 'Pragma: public' );
+			$this->output->set_header( 'Expires: 0' );
+			$this->output->set_header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
+			$this->output->set_header( 'Cache-Control: private', FALSE );
+			$this->output->set_header( 'Content-Disposition: attachment; filename=data-export-' . $data->filename . '-' . date( 'Y-m-d_H-i-s' ) . '.txt;' );
+			$this->output->set_header( 'Content-Transfer-Encoding: binary' );
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Set view data
+		$this->data['data'] = $data;
+
+		// --------------------------------------------------------------------------
+
+		//	Load view
+		if ( ! $return_data ) :
+
+			$this->load->view( 'admin/shop/reports/serialize', $this->data );
+
+		else :
+
+			$_out	= array();
+			$_out[]	= $data->filename . '.txt';
+			$_out[]	= $this->load->view( 'admin/shop/reports/serialize', $this->data, TRUE );
+
+			return $_out;
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _report_format_json( $data, $return_data = FALSE )
+	{
+		//	Send header
+		if ( ! $return_data ) :
+
+			$this->output->set_content_type( 'application/octet-stream' );
+			$this->output->set_header( 'Pragma: public' );
+			$this->output->set_header( 'Expires: 0' );
+			$this->output->set_header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
+			$this->output->set_header( 'Cache-Control: private', FALSE );
+			$this->output->set_header( 'Content-Disposition: attachment; filename=data-export-' . $data->filename . '-' . date( 'Y-m-d_H-i-s' ) . '.json;' );
+			$this->output->set_header( 'Content-Transfer-Encoding: binary' );
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Set view data
+		$this->data['data'] = $data;
+
+		// --------------------------------------------------------------------------
+
+		//	Load view
+		if ( ! $return_data ) :
+
+			$this->load->view( 'admin/shop/reports/json', $this->data );
+
+		else :
+
+			$_out	= array();
+			$_out[]	= $data->filename . '.json';
+			$_out[]	= $this->load->view( 'admin/shop/reports/json', $this->data, TRUE );
+
+			return $_out;
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _report_format_pdf( $data, $return_data = FALSE )
+	{
+		$_html = $this->_report_format_html( $data, TRUE );
+
+		// --------------------------------------------------------------------------
+
+		$this->load->library( 'pdf/pdf' );
+		$this->pdf->set_paper_size( 'A4', 'landscape' );
+		$this->pdf->load_html( $_html[1] );
+
+		//	Load view
+		if ( ! $return_data ) :
+
+			$this->pdf->download( $data->filename . '.pdf' );
+
+		else :
+
+			$this->pdf->render();
+
+			$_out	= array();
+			$_out[]	= $data->filename . '.pdf';
+			$_out[]	= $this->pdf->output();
+
+			$this->pdf->reset();
+
+			return $_out;
+
+		endif;
 	}
 
 

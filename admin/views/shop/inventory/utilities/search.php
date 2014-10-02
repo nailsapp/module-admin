@@ -49,7 +49,6 @@
 		echo anchor( uri_string(), lang( 'action_reset' ), 'class="awesome small right"' );
 		echo form_submit( 'submit', lang( 'action_search' ), 'class="awesome small right"' );
 
-
 		// --------------------------------------------------------------------------
 
 		echo form_close();
