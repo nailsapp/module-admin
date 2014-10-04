@@ -1495,8 +1495,8 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
 			$this->form_validation->set_rules( 'omnipay_WorldPay_installationId',	'', 'xss_clean|required' );
 			$this->form_validation->set_rules( 'omnipay_WorldPay_accountId',		'', 'xss_clean|required' );
-			$this->form_validation->set_rules( 'omnipay_WorldPay_secretWord',		'', 'xss_clean' );
-			$this->form_validation->set_rules( 'omnipay_WorldPay_callbackPassword',	'', 'xss_clean' );
+			$this->form_validation->set_rules( 'omnipay_WorldPay_secretWord',		'', 'xss_clean|required' );
+			$this->form_validation->set_rules( 'omnipay_WorldPay_callbackPassword',	'', 'xss_clean|required' );
 
 			$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
 
@@ -1538,6 +1538,11 @@ class NAILS_Settings extends NAILS_Admin_Controller
 			$this->data['footer_override'] = 'structure/footer/nails-admin-blank';
 
 		endif;
+
+		// --------------------------------------------------------------------------
+
+		$this->asset->load( 'nails.admin.shop.settings.paymentgateway.worldpay.min.js', 'NAILS' );
+		$this->asset->inline( '<script>_worldpay_config = new NAILS_Admin_Shop_Settings_PaymentGateway_WorldPay();</script>' );
 
 		// --------------------------------------------------------------------------
 

@@ -1,634 +1,307 @@
-<div class="group-shop orders view">
-	<fieldset id="order-view-basic">
-		<legend>Basic Info</legend>
-		<?php
+<div class="group-shop orders single">
+	<div class="col-3-container">
+		<div class="col-3">
+			<fieldset class="no-collapse">
+				<legend>Order Details</legend>
+				<div class="table-responsive">
+					<table>
+						<tbody>
+							<tr>
+								<td class="label">ID</td>
+								<td class="value"><?=$order->id?></td>
+							</tr>
+							<tr>
+								<td class="label">Ref</td>
+								<td class="value"><?=$order->ref?></td>
+							</tr>
+							<tr>
+								<td class="label">Created</td>
+								<?php $this->load->view( 'admin/_utilities/table-cell-datetime', array( 'datetime' => $order->created ) ) ?>
+							</tr>
+							<tr>
+								<td class="label">Modified</td>
+								<?php $this->load->view( 'admin/_utilities/table-cell-datetime', array( 'datetime' => $order->modified ) ) ?>
+							</tr>
+							<tr>
+								<td class="label">Voucher</td>
+								<td class="value">
+								<?php
+
+									if ( empty( $order->voucher ) ) :
+
+										echo '<span class="text-muted">No Voucher Used</span>';
+
+									else :
+
+										//	TODO: Show voucher details
+										echo 'TODO: voucher display';
+
+									endif;
+
+								?>
+								</td>
+							</tr>
+							<tr>
+								<td class="label">Total</td>
+								<td class="value">
+								<?php
+
+									echo $order->totals->base_formatted->grand;
+
+									if ( $order->currency == $order->base_currency ) :
+
+										echo '<small>';
+											echo 'User checked out in ' . $order->currency . ': ' . $order->totals->user_formatted->grand;
+										echo '</small>';
+
+									endif;
+
+								?>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</fieldset>
+		</div>
+		<div class="col-3">
+			<fieldset class="no-collapse">
+				<legend>Customer Details</legend>
+				<div class="table-responsive">
+					<table>
+						<tbody>
+							<tr>
+								<td class="label">Name &amp; Email</td>
+								<?php $this->load->view( 'admin/_utilities/table-cell-user', $order->user ) ?>
+							</tr>
+							<tr>
+								<td class="label">Telephone</td>
+								<td class="value">
+								<?php
+
+									echo $order->user->telephone ? '<a href="tel:' . $order->user->telephone . '</a>' : '<span class="text-muted">Not supplied</span>';
+
+								?>
+								</td>
+							</tr>
+							<tr>
+								<td class="label">Billing Address</td>
+								<td class="value">
+								<?php
+
+									$_address = array_filter( (array) $order->billing_address );
+									echo implode( '<br />', $_address );
+									echo '<small>' . anchor( 'https://www.google.com/maps/?q=' . urlencode( implode( ', ', $_address ) ), '<b class="fa fa-map-marker"></b> Map', 'target="_blank"' ) . '</small>';
+
+								?>
+								</td>
+							</tr>
+							<tr>
+								<td class="label">Shipping Address</td>
+								<td class="value">
+								<?php
 
-			//	ID
-			$_field					= array();
-			$_field['key']			= 'id';
-			$_field['label']		= 'ID';
-			$_field['default']		= $order->id;
-			$_field['readonly']		= TRUE;
+									$_address = array_filter( (array) $order->shipping_address );
+									echo implode( '<br />', $_address );
+									echo '<small>' . anchor( 'https://www.google.com/maps/?q=' . urlencode( implode( ', ', $_address ) ), '<b class="fa fa-map-marker"></b> Map', 'target="_blank"' ) . '</small>';
 
-			echo form_field( $_field );
+								?>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</fieldset>
+		</div>
+		<div class="col-3">
+			<fieldset class="no-collapse">
+				<legend>Order Status</legend>
+				<div class="order-status-container">
+					<div class="order-status <?=strtolower( $order->status )?>">
+					<?php
 
-			// --------------------------------------------------------------------------
+						switch ( $order->status ) :
 
-			//	REF
-			$_field					= array();
-			$_field['key']			= 'ref';
-			$_field['label']		= 'Reference';
-			$_field['default']		= $order->ref;
-			$_field['readonly']		= TRUE;
+							case 'UNPAID' :
 
-			echo form_field( $_field );
+								echo '<h1><b class="fa fa-exclamation-triangle"></b> Unpaid</h1>';
+								echo '<p>The user was sent to the payment gateway but has not yet completed payment.</p>';
 
-			// --------------------------------------------------------------------------
+								if ( time() - strtotime( $order->created ) > 3600 ) :
 
-			//	Status
-			$_field					= array();
-			$_field['key']			= 'status';
-			$_field['label']		= 'Order Status';
-			$_field['default']		= $order->status;
-			$_field['readonly']		= TRUE;
+									echo '<p><small>This order looks to be quite old now, it\'s likely the user abandoned checkout.</small></p>';
 
-			echo form_field( $_field );
+								endif;
 
-			// --------------------------------------------------------------------------
+							break;
 
-			//	Name
-			$_field					= array();
-			$_field['key']			= 'customer_name';
-			$_field['label']		= 'Customer Name';
-			$_field['default']		= $order->user->first_name . ' ' . $order->user->last_name;
-			$_field['readonly']		= TRUE;
+							case 'PAID' :
 
-			echo form_field( $_field );
+								echo '<h1><b class="fa fa-check-circle-o"></b> Paid</h1>';
+								echo '<p>This order has been fully paid.</p>';
 
+							break;
 
-			// --------------------------------------------------------------------------
+							case 'ABANDONED' :
 
-			//	Group
-			$_field					= array();
-			$_field['key']			= 'customer_group';
-			$_field['label']		= 'Customer Group';
-			$_field['default']		= $order->user->group->id ? $order->user->group->label : 'Unregistered User';
-			$_field['readonly']		= TRUE;
+								echo '<h1><b class="fa fa-times-circle"></b> Abandoned</h1>';
+								echo '<p>This order was abandoned by the user prior to reaching checkout.</p>';
 
-			echo form_field( $_field );
+							break;
 
-			// --------------------------------------------------------------------------
+							case 'CANCELLED' :
 
-			//	Email
-			$_field					= array();
-			$_field['key']			= 'customer_email';
-			$_field['label']		= 'Customer Email';
-			$_field['default']		= $order->user->email;
-			$_field['readonly']		= TRUE;
+								echo '<h1><b class="fa fa-times-circle"></b> Cancelled</h1>';
+								echo '<p>The user cancelled this order during checkout.</p>';
 
-			echo form_field( $_field );
+							break;
 
-			// --------------------------------------------------------------------------
+							case 'FAILED' :
 
-			//	Payment Gateway
-			$_field					= array();
-			$_field['key']			= 'payment_gateway';
-			$_field['label']		= 'Checked out using';
-			$_field['default']		= $order->payment_gateway->label;
-			$_field['readonly']		= TRUE;
+								echo '<h1><b class="fa fa-exclamation-triangle"></b> Failed</h1>';
+								echo '<p>There was an issue processing this order. Failure details of the failure mayhave been provided from the payment gateway, if so these will be shown below.</p>';
 
-			echo form_field( $_field );
+								//	TODO: Show failure details
 
-			// --------------------------------------------------------------------------
+							break;
 
-			//	Specific payment gateway variables
-			switch ( $order->payment_gateway->slug ) :
+							case 'PENDING' :
 
-				case 'paypal' :
+								echo '<h1><b class="fa fa-clock-o fa-spin"></b> Pending</h1>';
+								echo '<p>This order is pending action, details and further options may be shown below.</p>';
 
-					$_field					= array();
-					$_field['key']			= 'pp_txn_id';
-					$_field['label']		= 'PayPal Transaction ID';
-					$_field['default']		= $order->pp_txn_id;
-					$_field['readonly']		= TRUE;
+								//	TODO: Show pending reasons/actions
 
-					echo form_field( $_field );
+							break;
 
-				break;
+							default :
 
-			endswitch;
+								$_status = ucwords( strtolower( $order->status ) );
+								echo '<h1>' . $_status . '</h1>';
+								echo '<p>"' . $_status . '" is not an order status I understand, there may be a problem.</p>';
 
-		?>
-	</fieldset>
+							break;
 
-	<fieldset id="order-view-totals">
-		<legend>Totals</legend>
-		<?php
+						endswitch;
 
-			$_symbol	= html_entity_decode( $order->currency->order->symbol, ENT_COMPAT, 'UTF-8' );
-			$_precision	= $order->currency->order->precision;
+					?>
+					</div>
+				</div>
+				<div class="order-status-container">
+					<div class="order-status <?=strtolower( $order->fulfilment_status )?>">
+					<?php
 
-			//	Shortcut variable for base and order currencies
-			$_ocurrency = $order->currency->order->id;
-			$_bcurrency = $order->currency->base->id;
+						switch ( $order->fulfilment_status ) :
 
-			// --------------------------------------------------------------------------
+							case 'FULFILLED' :
 
-			if ( $order->requires_shipping ) :
+								echo '<h1><b class="fa fa-truck"></b> Fulfilled</h1>';
+								echo '<p>This order has been fulfilled, no further action is nessecary.</p>';
 
-				//	Sub Total
-				$_field				= array();
-				$_field['key']		= 'total_sub';
-				$_field['label']	= 'Sub Total';
-				$_field['readonly']	= TRUE;
-				$_field['default']	= shop_format_price( $order->totals->sub, TRUE, TRUE, $_bcurrency, TRUE );
+							break;
 
-				if ( $order->currency->order->id !== $order->currency->base->id ) :
+							case 'UNFULFILLED' :
 
-					$_field['default'] .= ' (' . shop_format_price( $order->totals->sub_render, TRUE, TRUE, $_ocurrency, TRUE ) . ')';
+								echo '<h1>Unfulfilled</h1>';
+								echo '<p>This order has <strong>not</strong> been fulfilled.</p>';
+								echo '<p>' . anchor( '', 'Mark Fulfilled', 'class="awesome green todo"' ) . '</p>';
 
-				endif;
+							break;
 
-				echo form_field( $_field );
+							default :
 
-				//	Shipping Total
-				$_field				= array();
-				$_field['key']		= 'total_shipping';
-				$_field['label']	= 'Shipping';
-				$_field['readonly']	= TRUE;
-				$_field['default']	= shop_format_price( $order->totals->shipping, TRUE, TRUE, $_bcurrency, TRUE );
+								$_status = ucwords( strtolower( $order->fulfilment_status ) );
+								echo '<h1>' . $_status . '</h1>';
+								echo '<p>"' . $_status . '" is not a fulfilment status I understand, there may be a problem.</p>';
 
-				if ( $order->currency->order->id !== $order->currency->base->id ) :
+							break;
 
-					$_field['default'] .= ' (' . shop_format_price( $order->totals->shipping_render, TRUE, TRUE, $_ocurrency, TRUE ) . ')';
+						endswitch;
 
-				endif;
-
-				echo form_field( $_field );
-
-				// --------------------------------------------------------------------------
-
-				//	Tax
-				$_field				= array();
-				$_field['key']		= 'total_tax';
-				$_field['label']	= 'Tax (items)';
-				$_field['readonly']	= TRUE;
-				$_field['default']	= shop_format_price( $order->totals->tax_items, TRUE, TRUE, $_bcurrency, TRUE );
-
-				if ( $order->currency->order->id !== $order->currency->base->id ) :
-
-					$_field['default'] .= ' (' . shop_format_price( $order->totals->tax_items_render, TRUE, TRUE, $_ocurrency, TRUE ) . ')';
-
-				endif;
-
-				echo form_field( $_field );
-
-
-				// --------------------------------------------------------------------------
-
-				//	Tax
-				$_field				= array();
-				$_field['key']		= 'total_tax';
-				$_field['label']	= 'Tax (shipping)';
-				$_field['readonly']	= TRUE;
-				$_field['default']	= shop_format_price( $order->totals->tax_shipping, TRUE, TRUE, $_bcurrency, TRUE );
-
-				if ( $order->currency->order->id !== $order->currency->base->id ) :
-
-					$_field['default'] .= ' (' . shop_format_price( $order->totals->tax_shipping_render, TRUE, TRUE, $_ocurrency, TRUE ) . ')';
-
-				endif;
-
-				echo form_field( $_field );
-
-				// --------------------------------------------------------------------------
-
-				if ( $order->discount->items ) :
-
-					//	Sub Total
-					$_field				= array();
-					$_field['key']		= 'discount_items';
-					$_field['label']	= 'Discount (items)';
-					$_field['readonly']	= TRUE;
-					$_field['default']	= shop_format_price( $order->discount->items, TRUE, TRUE, $_bcurrency, TRUE );
-
-					if ( $order->currency->order->id !== $order->currency->base->id ) :
-
-						$_field['default'] .= ' (' . shop_format_price( $order->discount->items_render, TRUE, TRUE, $_ocurrency, TRUE ) . ')';
-
-					endif;
-
-					$_tip = 'Used voucher/gift card \'' . $order->voucher->code . '\'';
-
-					echo form_field( $_field, $_tip );
-
-				endif;
-
-				if ( $order->discount->shipping ) :
-
-					//	Sub Total
-					$_field				= array();
-					$_field['key']		= 'discount_shipping';
-					$_field['label']	= 'Discount (shipping';
-					$_field['readonly']	= TRUE;
-					$_field['default']	= shop_format_price( $order->discount->shipping, TRUE, TRUE, $_bcurrency, TRUE );
-
-					if ( $order->currency->order->id !== $order->currency->base->id ) :
-
-						$_field['default'] .= ' (' . shop_format_price( $order->discount->shipping, TRUE, TRUE, $_ocurrency, TRUE ) . ')';
-
-					endif;
-
-					$_tip = 'Used voucher/gift card \'' . $order->voucher->code . '\'';
-
-					echo form_field( $_field, $_tip );
-
-				endif;
-
-				// --------------------------------------------------------------------------
-
-				//	Grand Total
-				$_field				= array();
-				$_field['key']		= 'total_grand';
-				$_field['label']	= 'Grand Total';
-				$_field['readonly']	= TRUE;
-				$_field['default']	= shop_format_price( $order->totals->grand, TRUE, TRUE, $_bcurrency, TRUE );
-
-				if ( $order->currency->order->id !== $order->currency->base->id ) :
-
-					$_field['default'] .= ' (' . shop_format_price( $order->totals->grand, TRUE, TRUE, $_ocurrency, TRUE ) . ')';
-
-				endif;
-
-				echo form_field( $_field );
-
-				// --------------------------------------------------------------------------
-
-				//	Fees
-				$_field				= array();
-				$_field['key']		= 'total_fee';
-				$_field['label']	= 'Payment Gateway Fee';
-				$_field['readonly']	= TRUE;
-				$_field['default']	= shop_format_price( $order->totals->fees, TRUE, TRUE, $_bcurrency, TRUE );
-
-				echo form_field( $_field );
-
-			else :
-
-				//	Sub Total
-				$_field				= array();
-				$_field['key']		= 'total_sub';
-				$_field['label']	= 'Sub Total';
-				$_field['readonly']	= TRUE;
-				$_field['default']	= shop_format_price( $order->totals->sub, TRUE, TRUE, $_bcurrency, TRUE );
-
-				if ( $order->currency->order->id !== $order->currency->base->id ) :
-
-					$_field['default'] .= ' (' . shop_format_price( $order->totals->sub_render, TRUE, TRUE, $_ocurrency, TRUE ) . ')';
-
-				endif;
-
-				echo form_field( $_field );
-
-				// --------------------------------------------------------------------------
-
-				//	Tax
-				$_field				= array();
-				$_field['key']		= 'total_tax';
-				$_field['label']	= 'Tax';
-				$_field['readonly']	= TRUE;
-				$_field['default']	= shop_format_price( $order->totals->tax_items, TRUE, TRUE, $_bcurrency, TRUE );
-
-				if ( $order->currency->order->id !== $order->currency->base->id ) :
-
-					$_field['default'] .= ' (' . shop_format_price( $order->totals->tax_items_render, TRUE, TRUE, $_ocurrency, TRUE ) . ')';
-
-				endif;
-
-				echo form_field( $_field );
-
-				// --------------------------------------------------------------------------
-
-				if ( $order->discount->items ) :
-
-					//	Sub Total
-					$_field				= array();
-					$_field['key']		= 'discount_items';
-					$_field['label']	= 'Discount';
-					$_field['default']	= $_symbol . number_format( $order->discount->items, $_precision );
-					$_field['readonly']	= TRUE;
-					$_field['default']	= shop_format_price( $order->discount->items, TRUE, TRUE, $_bcurrency, TRUE );
-
-					if ( $order->currency->order->id !== $order->currency->base->id ) :
-
-						$_field['default'] .= ' (' . shop_format_price( $order->discount->items_render, TRUE, TRUE, $_ocurrency, TRUE ) . ')';
-
-					endif;
-
-					$_tip = 'Used voucher/gift card \'' . $order->voucher->code . '\'';
-
-					echo form_field( $_field, $_tip );
-
-				endif;
-
-				// --------------------------------------------------------------------------
-
-				//	Grand Total
-				$_field				= array();
-				$_field['key']		= 'total_grand';
-				$_field['label']	= 'Grand Total';
-				$_field['readonly']	= TRUE;
-				$_field['default']	= shop_format_price( $order->totals->grand, TRUE, TRUE, $_bcurrency, TRUE );
-
-				if ( $order->currency->order->id !== $order->currency->base->id ) :
-
-					$_field['default'] .= ' (' . shop_format_price( $order->totals->grand_render, TRUE, TRUE, $_ocurrency, TRUE ) . ')';
-
-				endif;
-
-				echo form_field( $_field );
-
-				// --------------------------------------------------------------------------
-
-				//	Fees
-				$_field				= array();
-				$_field['key']		= 'total_fee';
-				$_field['label']	= 'Payment Gateway Fee';
-				$_field['default']	= $_symbol . number_format( $order->totals->fees, $_precision );
-				$_field['readonly']	= TRUE;
-				$_field['default']	= shop_format_price( $order->totals->fees, TRUE, TRUE, $_bcurrency, TRUE );
-
-				echo form_field( $_field );
-
-			endif;
-
-			// --------------------------------------------------------------------------
-
-			//	Checkout Currency
-			$_field				= array();
-			$_field['key']		= 'checkout_currency';
-			$_field['label']	= 'Checkout Currency';
-			$_field['default']	= $order->currency->order->code;
-			$_field['readonly']	= TRUE;
-
-			echo form_field( $_field );
-
-			// --------------------------------------------------------------------------
-
-			//	Base Currency
-			$_field				= array();
-			$_field['key']		= 'base_currency';
-			$_field['label']	= 'Base Currency at time';
-			$_field['default']	= $order->currency->base->code;
-			$_field['readonly']	= TRUE;
-
-			echo form_field( $_field );
-
-			// --------------------------------------------------------------------------
-
-			//	Exchange Rate
-			$_field				= array();
-			$_field['key']		= 'exchange_rate';
-			$_field['label']	= 'Exchange Rate Used';
-			$_field['default']	= $order->currency->exchange_rate;
-			$_field['readonly']	= TRUE;
-
-			echo form_field( $_field );
-
-		?>
-	</fieldset>
-
-	<?php if ( $order->requires_shipping ) : ?>
-	<fieldset id="order-view-shipping">
-		<legend>Shipping Details</legend>
-		<?php
-
-			//	Addressee
-			$_field					= array();
-			$_field['key']			= 'addressee';
-			$_field['label']		= 'Addressee';
-			$_field['default']		= $order->shipping_details->addressee;
-			$_field['readonly']		= TRUE;
-
-			echo form_field( $_field );
-
-			// --------------------------------------------------------------------------
-
-			//	Line 1
-			$_field					= array();
-			$_field['key']			= 'line1';
-			$_field['label']		= 'Line 1';
-			$_field['default']		= $order->shipping_details->line_1;
-			$_field['readonly']		= TRUE;
-
-			echo form_field( $_field );
-
-			// --------------------------------------------------------------------------
-
-			//	Addressee
-			$_field					= array();
-			$_field['key']			= 'line2';
-			$_field['label']		= 'line_2';
-			$_field['default']		= $order->shipping_details->line_2;
-			$_field['readonly']		= TRUE;
-
-			echo form_field( $_field );
-
-			// --------------------------------------------------------------------------
-
-			//	Town
-			$_field					= array();
-			$_field['key']			= 'town';
-			$_field['label']		= 'Town';
-			$_field['default']		= $order->shipping_details->town;
-			$_field['readonly']		= TRUE;
-
-			echo form_field( $_field );
-
-			// --------------------------------------------------------------------------
-
-			//	PostCode
-			$_field					= array();
-			$_field['key']			= 'postcode';
-			$_field['label']		= 'PostCode';
-			$_field['default']		= $order->shipping_details->postcode;
-			$_field['readonly']		= TRUE;
-
-			echo form_field( $_field );
-
-			// --------------------------------------------------------------------------
-
-			//	State
-			$_field					= array();
-			$_field['key']			= 'state';
-			$_field['label']		= 'State';
-			$_field['default']		= $order->shipping_details->state;
-			$_field['readonly']		= TRUE;
-
-			echo form_field( $_field );
-
-			// --------------------------------------------------------------------------
-
-			//	Country
-			$_field					= array();
-			$_field['key']			= 'country';
-			$_field['label']		= 'Country';
-			$_field['default']		= $order->shipping_details->country;
-			$_field['readonly']		= TRUE;
-
-			echo form_field( $_field );
-
-			// --------------------------------------------------------------------------
-
-			//	Shipping Method
-			$_field					= array();
-			$_field['key']			= 'shipping_courier';
-			$_field['label']		= 'Shipping Courier';
-			$_field['default']		= $order->shipping_method->courier;
-			$_field['readonly']		= TRUE;
-
-			echo form_field( $_field );
-
-			// --------------------------------------------------------------------------
-
-			//	Addressee
-			$_field					= array();
-			$_field['key']			= 'shipping_method';
-			$_field['label']		= 'Shipping Method';
-			$_field['default']		= $order->shipping_method->method;
-			$_field['readonly']		= TRUE;
-
-			echo form_field( $_field );
-
-		?>
-	</fieldset>
-	<?php endif; ?>
-
-	<fieldset id="order-view-products">
+					?>
+					</div>
+				</div>
+			</fieldset>
+		</div>
+	</div>
+	<fieldset class="notcollapsable">
 		<legend>Products</legend>
-		<table>
-			<thead>
-				<tr>
-					<th class="details">Details</th>
-					<th class="quantity">Quantity</th>
-					<th class="price">Price</th>
-					<?php if ( $order->status == 'PAID' ) : ?>
-					<th class="processed">Processed</th>
-					<th class="actions">Actions</th>
-					<?php endif; ?>
-				</tr>
-			</thead>
-			<tbody>
-			<?php
+		<div class="table-responsive">
+			<table>
+				<thead>
+					<tr>
+						<th>Item</th>
+						<th>Type</th>
+						<th class="text-center">Quantity</th>
+						<th class="text-center">SKU</th>
+						<th class="text-center">Unit Cost</th>
+						<th class="text-center">Tax</th>
+						<th class="text-center">Total</th>
+						<th class="text-center">Refunded</th>
+						<th class="text-center">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+				<?php
 
-				foreach ( $order->items AS $item ) :
+					if ( ! empty( $order->items ) ) :
 
-					echo '<tr>';
-					echo '<td class="details">';
+						foreach ( $order->items AS $item ) :
 
-					if ( $item->was_on_sale ) :
+							echo '<tr>';
+								echo '<td>';
+									echo $item->product_label;
+									echo $item->variant_label != $item->product_label ? '<br /><small>' . $item->variant_label . '</small>' : '';
+								echo '</td>';
+								echo '<td>';
+									echo $item->type->label;
+								echo '</td>';
+								echo '<td class="text-center">';
+									echo $item->quantity;
+								echo '</td>';
+								echo '<td class="text-center">';
+									echo $item->sku;
+								echo '</td>';
+								echo '<td class="text-center">';
+									echo $item->price->base_formatted->value_ex_tax;
+								echo '</td>';
+								echo '<td class="text-center">';
+									echo $item->price->base_formatted->value_tax;
+								echo '</td>';
+								echo '<td class="text-center">';
+									echo $item->price->base_formatted->value;
+								echo '</td>';
+								echo '<td class="text-center">';
 
-						echo img( array( 'src' => NAILS_ASSETS_URL . 'img/modules/shop/basket/ribbon-on-sale.png', 'class' => 'ribbon' ) );
+									if ( $item->refunded ) :
 
-					endif;
+										echo 'Refunded ' . $item->refunded_date;
 
-					$this->load->view( 'admin/shop/orders/view-item-cell', array( 'item' => &$item ) );
+									else :
 
-					echo '</td>';
+										echo 'No';
 
-					// --------------------------------------------------------------------------
+									endif;
+								echo '</td>';
+								echo '<td class="text-center">';
+									echo anchor( '', 'View', 'class="awesome small green todo"' );
+									echo anchor( '', 'Refund', 'class="awesome small todo"' );
+								echo '</td>';
+							echo '</tr>';
 
-					echo '<td class="quantity">' . $item->quantity . '</th>';
-
-					// --------------------------------------------------------------------------
-
-					echo '<td class="price">';
-
-					if ( $item->was_on_sale ) :
-
-						echo shop_format_price( $item->sale_price, TRUE, TRUE, $_bcurrency, TRUE );
-
-						if ( $order->currency->order->id !== $order->currency->base->id ) :
-
-							echo ' (' . shop_format_price( $item->sale_price_render, TRUE, TRUE, $_ocurrency, TRUE ) . ')';
-
-						endif;
-
-						echo '<small>';
-
-							echo 'was ' . shop_format_price( $item->price, TRUE, TRUE, $_bcurrency, TRUE );
-
-							if ( $order->currency->order->id !== $order->currency->base->id ) :
-
-								echo ' (' . shop_format_price( $item->price_render, TRUE, TRUE, $_ocurrency, TRUE ) . ')';
-
-							endif;
-
-						echo '</small>';
+						endforeach;
 
 					else :
 
-						echo shop_format_price( $item->price, TRUE, TRUE, $_bcurrency, TRUE );
-
-						if ( $order->currency->order->id !== $order->currency->base->id ) :
-
-							echo ' (' . shop_format_price( $item->price_render, TRUE, TRUE, $_ocurrency, TRUE ) . ')';
-
-						endif;
+						echo '<tr>';
+							echo '<td colspan="9" class="no-data">No Items</td>';
+						echo '</tr>';
 
 					endif;
 
-					echo '</td>';
-
-					if ( $order->status == 'PAID' ) :
-
-						$_is_fancybox = $this->input->get( 'is_fancybox' ) ? '?is_fancybox=true' : '';
-
-						if ( $item->processed ) :
-
-							echo '<td class="processed yes">' . lang( 'yes' ) . '</td>';
-
-							// --------------------------------------------------------------------------
-
-							echo '<td class="actions">';
-							if ( user_has_permission( 'admin.shop:0.process' ) ) :
-
-								echo anchor( 'admin/shop/orders/process/' . $order->id . '/' . $item->id . '/unprocessed' . $_is_fancybox, 'Mark as Unprocessed', 'class="awesome small red"' );
-
-							else :
-
-								echo '<span class="blank">&mdash;</span>';
-
-							endif;
-							echo '</td>';
-
-						else :
-
-							echo '<td class="processed no">' . lang( 'no' ) . '</td>';
-
-							// --------------------------------------------------------------------------
-
-							echo '<td class="actions">';
-							if ( user_has_permission( 'admin.shop:0.process' ) ) :
-
-								echo anchor( 'admin/shop/orders/process/' . $order->id . '/' . $item->id . '/processed' . $_is_fancybox, 'Mark as Processed', 'class="awesome small green"' );
-
-							else :
-
-								echo '<span class="blank">&mdash;</span>';
-
-							endif;
-							echo '</td>';
-
-						endif;
-
-					endif;
-
-					echo '</tr>';
-				endforeach;
-
-			?>
-			</tbody>
-		</table>
+				?>
+				</tbody>
+			</table>
+		</div>
 	</fieldset>
 </div>
-
-<?php
-
-	if ( $this->input->get( 'is_fancybox' ) && $order->status == 'PAID' ) :
-
-		echo '<script type="text/javascript">';
-		if ( $order->fulfilment_status == 'FULFILLED' ) :
-
-			echo 'parent.mark_fulfilled( ' . $order->id . ' );';
-
-		else :
-
-			echo 'parent.mark_unfulfilled( ' . $order->id . ' );';
-
-		endif;
-		echo '</script>';
-
-	endif;
-
-?>

@@ -12,7 +12,9 @@
 		<table>
 			<thead>
 				<tr>
-					<th class="checkbox">&nbsp;</th>
+					<th class="checkbox">
+						<input type="checkbox" id="toggle-all" />
+					</th>
 					<th class="ref">Ref</th>
 					<th class="datetime">Placed</th>
 					<th class="user">Customer</th>
@@ -140,7 +142,7 @@
 
 										if ( user_has_permission( 'admin.shop:0.orders_view' ) ) :
 
-											$_buttons[] = anchor( 'admin/shop/orders/view/' . $order->id, lang( 'action_view' ), 'class="awesome green small fancybox" data-fancybox-type="iframe"' );
+											$_buttons[] = anchor( 'admin/shop/orders/view/' . $order->id, lang( 'action_view' ), 'class="awesome green small"' );
 
 										endif;
 
@@ -199,7 +201,7 @@
 
 			if ( $orders->data ) :
 
-				$_options = array();
+				$_options						= array();
 				$_options['']					= 'Choose';
 				$_options['mark-fulfilled']		= 'Mark Fulfilled';
 				$_options['mark-unfulfilled']	= 'Mark Unfulfilled';

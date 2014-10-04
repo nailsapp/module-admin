@@ -87,6 +87,12 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		endif;
 
+		if ( user_has_permission( 'admin.shop:0.notifications_manage' ) ) :
+
+			$d->funcs['product_availability_notifications'] = 'Product Availability Notifications';
+
+		endif;
+
 		// --------------------------------------------------------------------------
 
 		return $d;
@@ -213,6 +219,12 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		//	Reports
 		$_permissions['can_generate_reports']	= 'Can generate Reports';
+
+		//	Notifications
+		$_permissions['notifications_manage']	= 'Can manage Product notifications';
+		$_permissions['notifications_create']	= 'Can create Product notifications';
+		$_permissions['notifications_edit']		= 'Can edit Product notifications';
+		$_permissions['notifications_delete']	= 'Can delete Product notifications';
 
 		// --------------------------------------------------------------------------
 
@@ -1112,24 +1124,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		//	Fulfilled?
-		$this->load->helper( 'date' );
-		if ( $this->data['order']->status == 'PAID' ) :
-
-			if ( $this->data['order']->fulfilment_status == 'UNFULFILLED' ) :
-
-				$this->data['message'] = '<strong>This order has not been fulfilled; order was placed ' . nice_time( strtotime( $this->data['order']->created ) ) . '</strong><br />Once all purchased items are marked as processed the order will be automatically marked as fulfilled.';
-
-			elseif ( ! $this->data['success'] ):
-
-				$this->data['success'] = '<strong>This order was fulfilled ' . nice_time( strtotime( $this->data['order']->fulfilled ) ) . '</strong>';
-
-			endif;
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
 		//	Set method info
 		$this->data['page']->title = 'View Order &rsaquo; ' . $this->data['order']->ref;
 
@@ -1141,6 +1135,11 @@ class NAILS_Shop extends NAILS_Admin_Controller
 			$this->data['footer_override'] = 'structure/footer/nails-admin-blank';
 
 		endif;
+
+		// --------------------------------------------------------------------------
+
+		$this->asset->load( 'nails.admin.shop.order.view.min.js', TRUE );
+		$this->asset->inline( 'var _SHOP_ORDER_VIEW = new NAILS_Admin_Shop_Order_View()', 'JS' );
 
 		// --------------------------------------------------------------------------
 
@@ -4535,6 +4534,92 @@ class NAILS_Shop extends NAILS_Admin_Controller
 			return $_out;
 
 		endif;
+	}
+
+
+/**
+	 * Manage vouchers
+	 *
+	 * @access public
+	 * @param none
+	 * @return void
+	 **/
+	public function product_availability_notifications()
+	{
+		if ( ! user_has_permission( 'admin.shop:0.notifications_manage' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Load voucher model
+		$this->load->model( 'shop/shop_inform_product_available_model' );
+
+		// --------------------------------------------------------------------------
+
+		$_method = $this->uri->segment( 4 ) ? $this->uri->segment( 4 ) : 'index';
+
+		if ( method_exists( $this, '_product_availability_notifications_' . $_method ) ) :
+
+			$this->{'_product_availability_notifications_' . $_method}();
+
+		else :
+
+			show_404();
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _product_availability_notifications_index()
+	{
+		//	Set method info
+		$this->data['page']->title = 'Manage Product Availability Notifications';
+
+		// --------------------------------------------------------------------------
+
+		$this->data['notifications'] = array();
+
+		// --------------------------------------------------------------------------
+
+		$this->load->view( 'structure/header',										$this->data );
+		$this->load->view( 'admin/shop/product_availability_notifications/index',	$this->data );
+		$this->load->view( 'structure/footer',									$this->data );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _product_availability_notifications_create()
+	{
+		$this->session->set_flashdata( 'message', '<strong>Coming soon!</strong> Creating notifications is in the pipeline.' );
+		redirect( 'admin/shop/product_availability_notifications' );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _product_availability_notifications_edit()
+	{
+		$this->session->set_flashdata( 'message', '<strong>Coming soon!</strong> Editing notifications is in the pipeline.' );
+		redirect( 'admin/shop/product_availability_notifications' );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _product_availability_notifications_delete()
+	{
+		$this->session->set_flashdata( 'message', '<strong>Coming soon!</strong> Deleting notifications is in the pipeline.' );
+		redirect( 'admin/shop/product_availability_notifications' );
 	}
 
 
