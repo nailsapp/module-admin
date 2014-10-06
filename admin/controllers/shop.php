@@ -1124,6 +1124,12 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
+		//	Get associated payments
+		$this->load->model( 'shop/shop_order_payment_model' );
+		$this->data['payments'] = $this->shop_order_payment_model->get_for_order( $this->data['order']->id );
+
+		// --------------------------------------------------------------------------
+
 		//	Set method info
 		$this->data['page']->title = 'View Order &rsaquo; ' . $this->data['order']->ref;
 

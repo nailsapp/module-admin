@@ -22,7 +22,7 @@
 
 	//	Archive browser
 	$lang['email_index_title']			= 'Message Archive';
-	$lang['email_index_intro']			= 'This page shows you all the mail which has been sent by the system (including messages which are still queued for sending).';
+	$lang['email_index_intro']			= 'This page shows you all the mail which has been sent by the system.';
 	$lang['email_index_thead_id']		= 'ID';
 	$lang['email_index_thead_ref']		= 'Ref';
 	$lang['email_index_thead_to']		= 'To';

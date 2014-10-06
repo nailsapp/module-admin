@@ -79,7 +79,7 @@
 								<td class="value">
 								<?php
 
-									echo $order->user->telephone ? '<a href="tel:' . $order->user->telephone . '</a>' : '<span class="text-muted">Not supplied</span>';
+									echo $order->user->telephone ? '<a href="tel:' . $order->user->telephone . '">' . $order->user->telephone . '</a>' : '<span class="text-muted">Not supplied</span>';
 
 								?>
 								</td>
@@ -295,6 +295,55 @@
 
 						echo '<tr>';
 							echo '<td colspan="9" class="no-data">No Items</td>';
+						echo '</tr>';
+
+					endif;
+
+				?>
+				</tbody>
+			</table>
+		</div>
+	</fieldset>
+	<fieldset class="notcollapsable">
+		<legend>Payments</legend>
+		<div class="table-responsive">
+			<table>
+				<thead>
+					<tr>
+						<th>Payment Gateway</th>
+						<th>Transaction ID</th>
+						<th>Amount</th>
+						<th>Created</th>
+					</tr>
+				</thead>
+				<tbody>
+				<?php
+
+					if ( ! empty( $payments ) ) :
+
+						foreach ( $payments AS $payment ) :
+
+							echo '<tr>';
+								echo '<td>';
+									echo $payment->payment_gateway;
+								echo '</td>';
+								echo '<td>';
+									echo $payment->transaction_id;
+								echo '</td>';
+								echo '<td>';
+									echo $this->shop_currency_model->format_base( $payment->amount_base );
+								echo '</td>';
+
+								echo $this->load->view( '_utilities/table-cell-datetime', array( 'datetime' => $payment->created ), TRUE );
+
+							echo '</tr>';
+
+						endforeach;
+
+					else :
+
+						echo '<tr>';
+							echo '<td colspan="4" class="no-data">No Payments</td>';
 						echo '</tr>';
 
 					endif;

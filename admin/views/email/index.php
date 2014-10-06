@@ -44,7 +44,7 @@
 
 							?>
 							<td class="type">
-								<?=$email->name?>
+								<?=$email->type->name?>
 								<small><?=lang( 'email_index_subject', $email->subject )?></small>
 							</td>
 							<td class="reads"><?=$email->read_count?></td>
