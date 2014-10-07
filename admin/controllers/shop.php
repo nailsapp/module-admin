@@ -4589,13 +4589,18 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		$this->data['notifications'] = array();
+		$this->data['notifications'] = $this->shop_inform_product_available_model->get_all();
+
+		// --------------------------------------------------------------------------
+
+		$this->asset->load( 'nails.admin.shop.productavailabilitynotification.browse.min.js', TRUE );
+		$this->asset->inline( 'var _SHOP_PRODUCT_AVAILABILITY_NOTIFICATION_BROWSE = new NAILS_Admin_Shop_Product_Availability_Notification_Browse()', 'JS' );
 
 		// --------------------------------------------------------------------------
 
 		$this->load->view( 'structure/header',										$this->data );
 		$this->load->view( 'admin/shop/product_availability_notifications/index',	$this->data );
-		$this->load->view( 'structure/footer',									$this->data );
+		$this->load->view( 'structure/footer',										$this->data );
 	}
 
 
@@ -4604,8 +4609,67 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _product_availability_notifications_create()
 	{
-		$this->session->set_flashdata( 'message', '<strong>Coming soon!</strong> Creating notifications is in the pipeline.' );
-		redirect( 'admin/shop/product_availability_notifications' );
+		if ( ! user_has_permission( 'admin.shop:0.notification_create' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		if ( $this->input->post() ) :
+
+			$this->load->library( 'form_validation' );
+
+			$this->form_validation->set_rules( 'email',	'',	'xss_clean|required|valid_email' );
+			$this->form_validation->set_rules( 'item',	'',	'xss_clean|required' );
+
+			$this->form_validation->set_message( 'required',	lang( 'fv_required' ) );
+			$this->form_validation->set_message( 'valid_email',	lang( 'fv_valid_email' ) );
+
+			if ( $this->form_validation->run() ) :
+
+				$_item = explode( ':', $this->input->post( 'item' ) );
+
+				$_data					= new stdClass();
+				$_data->email			= $this->input->post( 'email' );
+				$_data->product_id		= isset( $_item[0] ) ? (int) $_item[0] : NULL;
+				$_data->variation_id	= isset( $_item[1] ) ? (int) $_item[1] : NULL;
+
+				if ( $this->shop_inform_product_available_model->create( $_data ) ) :
+
+					//	Redirect to clear form
+					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Product Availability Notification created successfully.' );
+					redirect( 'admin/shop/product_availability_notifications' );
+
+				else :
+
+					$this->data['error'] = '<strong>Sorry,</strong> there was a problem creating the Product Availability Notification. ' . $this->shop_inform_product_available_model->last_error();
+
+				endif;
+
+			else :
+
+				$this->data['error'] = lang( 'fv_there_were_errors' );
+
+			endif;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Set method info
+		$this->data['page']->title = 'Create Product Availability Notification';
+
+		// --------------------------------------------------------------------------
+
+		$this->data['products_variations_flat'] = $this->shop_product_model->get_all_product_variation_flat();
+
+		// --------------------------------------------------------------------------
+
+		$this->load->view( 'structure/header',										$this->data );
+		$this->load->view( 'admin/shop/product_availability_notifications/edit',	$this->data );
+		$this->load->view( 'structure/footer',										$this->data );
 	}
 
 
@@ -4614,8 +4678,77 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _product_availability_notifications_edit()
 	{
-		$this->session->set_flashdata( 'message', '<strong>Coming soon!</strong> Editing notifications is in the pipeline.' );
-		redirect( 'admin/shop/product_availability_notifications' );
+		if ( ! user_has_permission( 'admin.shop:0.notification_edit' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$this->data['notification'] = $this->shop_inform_product_available_model->get_by_id( $this->uri->segment( 5 ) );
+
+		if ( ! $this->data['notification'] ) :
+
+			show_404();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		if ( $this->input->post() ) :
+
+			$this->load->library( 'form_validation' );
+
+			$this->form_validation->set_rules( 'email',	'',	'xss_clean|required|valid_email' );
+			$this->form_validation->set_rules( 'item',	'',	'xss_clean|required' );
+
+			$this->form_validation->set_message( 'required',	lang( 'fv_required' ) );
+			$this->form_validation->set_message( 'valid_email',	lang( 'fv_valid_email' ) );
+
+			if ( $this->form_validation->run() ) :
+
+				$_item = explode( ':', $this->input->post( 'item' ) );
+
+				$_data					= new stdClass();
+				$_data->email			= $this->input->post( 'email' );
+				$_data->product_id		= isset( $_item[0] ) ? (int) $_item[0] : NULL;
+				$_data->variation_id	= isset( $_item[1] ) ? (int) $_item[1] : NULL;
+
+				if ( $this->shop_inform_product_available_model->update( $this->data['notification']->id, $_data ) ) :
+
+					//	Redirect to clear form
+					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Product Availability Notification updated successfully.' );
+					redirect( 'admin/shop/product_availability_notifications' );
+
+				else :
+
+					$this->data['error'] = '<strong>Sorry,</strong> there was a problem updated the Product Availability Notification. ' . $this->shop_inform_product_available_model->last_error();
+
+				endif;
+
+			else :
+
+				$this->data['error'] = lang( 'fv_there_were_errors' );
+
+			endif;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		//	Set method info
+		$this->data['page']->title = 'Edit Product Availability Notification';
+
+		// --------------------------------------------------------------------------
+
+		$this->data['products_variations_flat'] = $this->shop_product_model->get_all_product_variation_flat();
+
+		// --------------------------------------------------------------------------
+
+		$this->load->view( 'structure/header',										$this->data );
+		$this->load->view( 'admin/shop/product_availability_notifications/edit',	$this->data );
+		$this->load->view( 'structure/footer',										$this->data );
 	}
 
 
@@ -4624,7 +4757,26 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _product_availability_notifications_delete()
 	{
-		$this->session->set_flashdata( 'message', '<strong>Coming soon!</strong> Deleting notifications is in the pipeline.' );
+		if ( ! user_has_permission( 'admin.shop:0.notifications_delete' ) ) :
+
+			unauthorised();
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$_id = $this->uri->segment( 5 );
+
+		if ( $this->shop_inform_product_available_model->delete( $_id ) ) :
+
+			$this->session->set_flashdata( 'success', '<strong>Success!</strong> Product Availability Notification was deleted successfully.' );
+
+		else :
+
+			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> there was a problem deleting the Product availability Notification. ' . $this->shop_inform_product_available_model->last_error() );
+
+		endif;
+
 		redirect( 'admin/shop/product_availability_notifications' );
 	}
 

@@ -16,11 +16,13 @@
 		<table>
 			<thead>
 				<tr>
-					<th class="id">&nbsp;</th>
+					<th class="checkbox">
+						<input type="checkbox" id="toggle-all" />
+					</th>
 					<th class="user">User</th>
 					<th class="product">Product</th>
 					<th class="created">Created</th>
-					<th class="actions">Actions</th>
+					<th class="actions text-center">Actions</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -31,16 +33,35 @@
 						foreach ( $notifications AS $item ) :
 
 							?>
-							<tr>
-								<td class="id">&nbsp;</td>
-								<td class="user"></td>
-								<td class="product"></td>
+							<tr id="notification-<?=$item->id?>">
+								<td class="checkbox">
+									<input type="checkbox" class="batch-checkbox" value="<?=$item->id?>" />
+								</td>
+
+								<?php
+
+									$this->load->view( 'admin/_utilities/table-cell-user',	$item->user );
+
+								?>
+								<td class="product">
+								<?php
+
+									echo '<strong>' . anchor( 'admin/shop/inventory/edit/' . $item->product->id, $item->product->label ) . '</strong>';
+
+									if ( $item->product->label != $item->variation->label ) :
+
+										echo '<br />' . $item->variation->label;
+
+									endif;
+
+								?>
+								</td>
 								<?php
 
 									$this->load->view( 'admin/_utilities/table-cell-datetime',	array( 'datetime' => $item->created ) );
 
 								?>
-								<td class="actions">
+								<td class="actions text-center">
 									<?php
 
 										//	Render buttons
