@@ -1445,10 +1445,6 @@ class NAILS_Settings extends NAILS_Admin_Controller
 	{
 		//	Prepare update
 		$_settings								= array();
-		// $_settings['domicile']					= $this->input->post( 'domicile' );
-		// $_settings['ship_to_continents']		= array_filter( (array) $this->input->post( 'ship_to_continents' ) );
-		// $_settings['ship_to_countries']			= array_filter( (array) $this->input->post( 'ship_to_countries' ) );
-		// $_settings['ship_to_exclude']			= array_filter( (array) $this->input->post( 'ship_to_exclude' ) );
 		$_settings['enabled_shipping_driver']	= $this->input->post( 'enabled_shipping_driver' );
 
 		// --------------------------------------------------------------------------
@@ -1468,16 +1464,107 @@ class NAILS_Settings extends NAILS_Admin_Controller
 	// --------------------------------------------------------------------------
 
 
+	/**
+	 * Configure the Payment Gateways
+	 * @return void
+	 */
 	public function shop_pg()
 	{
-		$_method = $this->uri->segment( 4 ) ? $this->uri->segment( 4 ) : '';
+		//	Check if valid gateway
+		$this->load->model( 'shop/shop_payment_gateway_model' );
 
-		if ( method_exists( $this, '_shop_pg_' . strtolower( $_method ) ) ) :
+		$_gateway	= $this->uri->segment( 4 ) ? strtolower( $this->uri->segment( 4 ) ) : '';
+		$_available = $this->shop_payment_gateway_model->is_available( $_gateway );
 
-			$this->{'_shop_pg_' . strtolower( $_method )}();
+		if ( $_available ) :
+
+			$_params = $this->shop_payment_gateway_model->get_default_params( $_gateway );
+
+			$this->data['params']		= $_params;
+			$this->data['gateway_name']	= ucwords( str_replace( '_', ' ', $_gateway ) );
+			$this->data['gateway_slug']	= $this->shop_payment_gateway_model->get_correct_casing( $_gateway );
+
+			//	Handle POST
+			if ( $this->input->post() ) :
+
+				$this->load->library( 'form_validation' );
+
+				foreach ( $_params AS $key => $value ) :
+
+					$this->form_validation->set_rules( 'omnipay_' . $this->data['gateway_slug'] . '_' . $key, '', 'xss_clean|required' );
+
+				endforeach;
+
+				$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
+
+				if ( $this->form_validation->run() ) :
+
+					$_settings				= array();
+					$_settings_encrypted	= array();
+
+					//	Customisation params
+					$_settings['omnipay_' . $this->data['gateway_slug'] . '_customise_label']	= $this->input->post( 'omnipay_' . $this->data['gateway_slug'] . '_customise_label' );
+					$_settings['omnipay_' . $this->data['gateway_slug'] . '_customise_img']		= $this->input->post( 'omnipay_' . $this->data['gateway_slug'] . '_customise_img' );
+
+					//	Gateway params
+					foreach ( $_params AS $key => $value ) :
+
+						$_settings_encrypted['omnipay_' . $this->data['gateway_slug'] . '_' . $key] = $this->input->post( 'omnipay_' . $this->data['gateway_slug'] . '_' . $key );
+
+					endforeach;
+
+					$this->db->trans_begin();
+
+					$_result			= $this->app_setting_model->set( $_settings, 'shop', NULL, FALSE );
+					$_result_encrypted	= $this->app_setting_model->set( $_settings_encrypted, 'shop', NULL, TRUE );
+
+					if ( $this->db->trans_status() !== FALSE && $_result && $_result_encrypted ) :
+
+						$this->db->trans_commit();
+						$this->data['success'] = '<strong>Success!</strong> ' . $this->data['gateway_name'] . ' Payment Gateway settings have been saved.';
+
+
+					else :
+
+						$this->db->trans_rollback();
+						$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving the ' . $this->data['gateway_name'] . ' Payment Gateway settings.';
+
+					endif;
+
+				else :
+
+					$this->data['error'] = lang( 'fv_there_were_errors' );
+
+				endif;
+
+			endif;
+
+			//	Handle modal viewing
+			if ( $this->input->get( 'is_fancybox' ) ) :
+
+				$this->data['header_override'] = 'structure/header/nails-admin-blank';
+				$this->data['footer_override'] = 'structure/footer/nails-admin-blank';
+
+			endif;
+
+			//	Render the interface
+			$this->data['page']->title = 'Shop Payment Gateway Configuration &rsaquo; ' . $this->data['gateway_name'];
+
+			if ( method_exists( $this, '_shop_pg_' . $_gateway ) ) :
+
+				//	Specific configuration form available
+				$this->{'_shop_pg_' . $_gateway}();
+
+			else :
+
+				//	Show the generic gateway configuration form
+				$this->_shop_pg_generic( $_gateway );
+
+			endif;
 
 		else :
 
+			//	Bad gateway name
 			show_404();
 
 		endif;
@@ -1487,60 +1574,27 @@ class NAILS_Settings extends NAILS_Admin_Controller
 	// --------------------------------------------------------------------------
 
 
+	/**
+	 * Renders a generic Payment Gateway configuration interface
+	 * @return void
+	 */
+	protected function _shop_pg_generic()
+	{
+		$this->load->view( 'structure/header',					$this->data );
+		$this->load->view( 'admin/settings/shop_pg/generic',	$this->data );
+		$this->load->view( 'structure/footer',					$this->data );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	/**
+	 * Renders an interface specific for WorldPay
+	 * @return void
+	 */
 	protected function _shop_pg_worldpay()
 	{
-		if ( $this->input->post() ) :
-
-			$this->load->library( 'form_validation' );
-
-			$this->form_validation->set_rules( 'omnipay_WorldPay_installationId',	'', 'xss_clean|required' );
-			$this->form_validation->set_rules( 'omnipay_WorldPay_accountId',		'', 'xss_clean|required' );
-			$this->form_validation->set_rules( 'omnipay_WorldPay_secretWord',		'', 'xss_clean|required' );
-			$this->form_validation->set_rules( 'omnipay_WorldPay_callbackPassword',	'', 'xss_clean|required' );
-
-			$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
-
-			if ( $this->form_validation->run() ) :
-
-				$_settings_encrypted										= array();
-				$_settings_encrypted['omnipay_WorldPay_installationId']		= $this->input->post( 'omnipay_WorldPay_installationId' );
-				$_settings_encrypted['omnipay_WorldPay_accountId']			= $this->input->post( 'omnipay_WorldPay_accountId' );
-				$_settings_encrypted['omnipay_WorldPay_secretWord']			= $this->input->post( 'omnipay_WorldPay_secretWord' );
-				$_settings_encrypted['omnipay_WorldPay_callbackPassword']	= $this->input->post( 'omnipay_WorldPay_callbackPassword' );
-
-				if ( $this->app_setting_model->set( $_settings_encrypted, 'shop', NULL, TRUE ) ) :
-
-					$this->data['success'] = '<strong>Success!</strong> Shipping settings have been saved.';
-
-				else :
-
-					$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
-
-				endif;
-
-			else :
-
-				$this->data['error'] = lang( 'fv_there_were_errors' );
-
-			endif;
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		$this->data['page']->title = 'Shop Payment Gateway Configuration &rsaquo; WorldPay';
-
-		// --------------------------------------------------------------------------
-
-		if ( $this->input->get( 'is_fancybox' ) ) :
-
-			$this->data['header_override'] = 'structure/header/nails-admin-blank';
-			$this->data['footer_override'] = 'structure/footer/nails-admin-blank';
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
 		$this->asset->load( 'nails.admin.shop.settings.paymentgateway.worldpay.min.js', 'NAILS' );
 		$this->asset->inline( '<script>_worldpay_config = new NAILS_Admin_Shop_Settings_PaymentGateway_WorldPay();</script>' );
 
@@ -1549,6 +1603,21 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		$this->load->view( 'structure/header',					$this->data );
 		$this->load->view( 'admin/settings/shop_pg/worldpay',	$this->data );
 		$this->load->view( 'structure/footer',					$this->data );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+/**
+	 * Renders an interface specific for Stripe
+	 * @return void
+	 */
+	protected function _shop_pg_stripe()
+	{
+		$this->load->view( 'structure/header',				$this->data );
+		$this->load->view( 'admin/settings/shop_pg/stripe',	$this->data );
+		$this->load->view( 'structure/footer',				$this->data );
 	}
 
 
