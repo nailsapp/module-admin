@@ -35,7 +35,7 @@
 					$_field				= array();
 					$_field['key']		= 'omnipay_' . $gateway_slug . '_customise_img';
 					$_field['label']	= 'Image';
-					$_field['bucket']	= 'shop-payment-gateway-image-' . $gateway_slug;
+					$_field['bucket']	= 'shop-pg-img-' . $gateway_slug;
 					$_field['default']	= app_setting( $_field['key'], 'shop' );
 					$_field['tip']		= 'No image is shown by default, but you can choose to show one, perhaps a logo, or an image showing which cards are accepted.';
 
@@ -57,7 +57,7 @@
 						$_label		= $key;
 						$_label		= preg_replace( '/([a-z])([A-Z])/', '$1 $2', $_label );
 						$_label		= ucwords( $_label );
-						$_replace	= array( 'API', 'ID' );
+						$_replace	= array( 'API', 'ID', 'URL' );
 						$_label		= str_ireplace( $_replace, $_replace, $_label );
 
 						$_field				= array();

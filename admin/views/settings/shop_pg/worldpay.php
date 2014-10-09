@@ -41,7 +41,7 @@
 						$_field				= array();
 						$_field['key']		= 'omnipay_' . $gateway_slug . '_customise_image';
 						$_field['label']	= 'Label';
-						$_field['bucket']	= 'shop-payment-gateway-image-' . $gateway_slug;
+						$_field['bucket']	= 'shop-pg-img-' . $gateway_slug;
 						$_field['default']	= app_setting( $_field['key'], 'shop' );
 
 						echo form_field_mm_image( $_field );

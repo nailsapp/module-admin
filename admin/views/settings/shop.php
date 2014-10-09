@@ -539,10 +539,11 @@
 						foreach ( $skin_current->settings AS $setting ) :
 
 							$_field					= array();
-							$_field['key']			= ! empty( $setting->key ) ? 'skin_config[' . $setting->key . ']' : '';;
-							$_field['label']		= ! empty( $setting->label ) ? $setting->label : '';;
-							$_field['placeholder']	= ! empty( $setting->placeholder ) ? $setting->placeholder : '';;
-							$_field['tip']			= ! empty( $setting->tip ) ? $setting->tip : '';;
+							$_field['key']			= ! empty( $setting->key ) ? 'skin_config[' . $setting->key . ']' : '';
+							$_field['label']		= ! empty( $setting->label ) ? $setting->label : '';
+							$_field['placeholder']	= ! empty( $setting->placeholder ) ? $setting->placeholder : '';
+							$_field['tip']			= ! empty( $setting->tip ) ? $setting->tip : '';
+							$_field['type']			= ! empty( $setting->type ) ? $setting->type : '';
 
 							if ( empty( $_field['key'] ) ) :
 

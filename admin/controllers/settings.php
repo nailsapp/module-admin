@@ -1495,6 +1495,21 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
 				endforeach;
 
+				//	Additional params
+				switch( $_gateway ) :
+
+					case 'paypal_express' :
+
+						$this->form_validation->set_rules( 'omnipay_' . $this->data['gateway_slug'] . '_brandName',			'', 'xss_clean' );
+						$this->form_validation->set_rules( 'omnipay_' . $this->data['gateway_slug'] . '_headerImageUrl',	'', 'xss_clean' );
+						$this->form_validation->set_rules( 'omnipay_' . $this->data['gateway_slug'] . '_logoImageUrl',		'', 'xss_clean' );
+						$this->form_validation->set_rules( 'omnipay_' . $this->data['gateway_slug'] . '_borderColor',		'', 'xss_clean' );
+						$this->form_validation->set_rules( 'omnipay_' . $this->data['gateway_slug'] . '_testMode',			'', 'xss_clean' );
+
+					break;
+
+				endswitch;
+
 				$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
 
 				if ( $this->form_validation->run() ) :
@@ -1512,6 +1527,17 @@ class NAILS_Settings extends NAILS_Admin_Controller
 						$_settings_encrypted['omnipay_' . $this->data['gateway_slug'] . '_' . $key] = $this->input->post( 'omnipay_' . $this->data['gateway_slug'] . '_' . $key );
 
 					endforeach;
+
+					//	Additional params
+					switch( $_gateway ) :
+
+						case 'stripe' :
+
+							$_settings_encrypted['omnipay_' . $this->data['gateway_slug'] . '_publishableKey'] = $this->input->post( 'omnipay_' . $this->data['gateway_slug'] . '_publishableKey' );
+
+						break;
+
+					endswitch;
 
 					$this->db->trans_begin();
 
@@ -1609,15 +1635,32 @@ class NAILS_Settings extends NAILS_Admin_Controller
 	// --------------------------------------------------------------------------
 
 
-/**
+	/**
 	 * Renders an interface specific for Stripe
 	 * @return void
 	 */
 	protected function _shop_pg_stripe()
 	{
+		//	Additional params
 		$this->load->view( 'structure/header',				$this->data );
 		$this->load->view( 'admin/settings/shop_pg/stripe',	$this->data );
 		$this->load->view( 'structure/footer',				$this->data );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	/**
+	 * Renders an interface specific for PayPal_Express
+	 * @return void
+	 */
+	protected function _shop_pg_paypal_express()
+	{
+		//	Additional params
+		$this->load->view( 'structure/header',						$this->data );
+		$this->load->view( 'admin/settings/shop_pg/paypal_express',	$this->data );
+		$this->load->view( 'structure/footer',						$this->data );
 	}
 
 
