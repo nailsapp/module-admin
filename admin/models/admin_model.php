@@ -17,7 +17,7 @@
 
 class NAILS_Admin_Model extends NAILS_Model
 {
-	protected $search_paths;
+	protected $_search_paths;
 
 
 	// --------------------------------------------------------------------------
@@ -42,8 +42,8 @@ class NAILS_Admin_Model extends NAILS_Model
 		 *
 		 **/
 
-		$this->search_paths[] = FCPATH . APPPATH . 'modules/admin/controllers/';	//	Admin controllers specific for this app only.
-		$this->search_paths[] = NAILS_PATH . 'module-admin/admin/controllers/';
+		$this->_search_paths[] = FCPATH . APPPATH . 'modules/admin/controllers/';	//	Admin controllers specific for this app only.
+		$this->_search_paths[] = NAILS_PATH . 'module-admin/admin/controllers/';
 	}
 
 
@@ -65,7 +65,7 @@ class NAILS_Admin_Model extends NAILS_Model
 
 		//	Look in our search paths for a controller of the same name as the module.
 
-		foreach ( $this->search_paths AS $path ) :
+		foreach ( $this->_search_paths AS $path ) :
 
 			if ( file_exists( $path . $module . '.php' ) ) :
 
@@ -235,7 +235,7 @@ class NAILS_Admin_Model extends NAILS_Model
 		 * sort alphabetically by name.
 		 */
 
-		$_user_nav_pref = @unserialize( active_user( 'admin_nav' ) );
+		$_user_nav_pref = $this->admin_model->get_admin_data( 'nav' );
 		$_out			= array();
 
 		if ( ! empty( $_user_nav_pref ) ) :
@@ -390,6 +390,200 @@ class NAILS_Admin_Model extends NAILS_Model
 		endforeach;
 
 		return $_current;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	/**
+	 * Sets a piece of admin data
+	 * @param  string  $key     The key to set
+	 * @param  mixed   $value   The value to set
+	 * @param  mixed   $user_id The user's ID, if NULL active user is used.
+	 * @return boolean
+	 */
+	public function set_admin_data( $key, $value, $user_id = NULL )
+	{
+		return $this->_setunset_admin_data( $key, $value, $user_id, TRUE );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	/**
+	 * Unsets a piece of admin data
+	 * @param  string  $key     The key to set
+	 * @param  mixed   $user_id The user's ID, if NULL active user is used.
+	 * @return boolean
+	 */
+	public function unset_admin_data( $key, $user_id = NULL )
+	{
+		return $this->_setunset_admin_data( $key, NULL, $user_id, FALSE );
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	/**
+	 * Handles the setting and unsetting of admin data
+	 * @param  string  $key     The key to set
+	 * @param  mixed   $value   The value to set
+	 * @param  mixed   $user_id The user's ID, if NULL active user is used.
+	 * @param  boolean $set     Whether the data is being set or unset
+	 * @return boolean
+	 */
+	protected function _setunset_admin_data( $key, $value, $user_id, $set )
+	{
+		//	Get the user ID
+		$_user_id = $this->_admindata_get_user_id( $user_id );
+
+		//	Get the existing data for this user
+		$_existing = $this->get_admin_data( NULL, $_user_id );
+
+		if ( $set ) :
+
+			//	Set the new key
+			$_existing[$key] = $value;
+
+		else :
+
+			//	Unset the existing key
+			unset( $_existing[$key] );
+
+		endif;
+
+		//	Save to the DB
+		$_data = array( 'admin_data' => serialize( $_existing ) );
+		if ( $this->user_model->update( $_user_id, $_data ) ) :
+
+			//	Save to the cache
+			$this->_set_cache( 'admin-data-' . $_user_id, $_existing );
+			return TRUE;
+
+		else :
+
+			return FALSE;
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	/**
+	 * Gets items from the admin data, or the entire array of $key is NULL
+	 * @param  string $key     The key to set
+	 * @param  mixed  $user_id The user's ID, if NULL active user is used.
+	 * @return mixed
+	 */
+	public function get_admin_data( $key = NULL, $user_id = NULL )
+	{
+		//	Get the user ID
+		$_user_id = $this->_admindata_get_user_id( $user_id );
+
+		//	Check if data is already in the cache
+		$_cache_key	= 'admin-data-' . $_user_id;
+		$_cache		= $this->_get_cache( $_cache_key );
+
+		if ( $_cache ) :
+
+			$_data = $_cache;
+
+		else :
+
+			$this->db->select( 'admin_data' );
+			$this->db->where( 'id', $_user_id );
+			$_result = $this->db->get( NAILS_DB_PREFIX . 'user' )->row();
+
+			if ( ! isset( $_result->admin_data ) ) :
+
+				$_data = array();
+
+			else :
+
+				$_data = unserialize( $_result->admin_data );
+
+			endif;
+
+			$this->_set_cache( $_cache_key, $_data );
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		/**
+		 * If no key is returned, return the entire data array, alternatively return
+		 * the key if it exists.
+		 */
+
+		if ( is_null( $key ) ) :
+
+			return $_data;
+
+		elseif ( isset( $_data[$key] ) ) :
+
+			return $_data[$key];
+
+		else :
+
+			return NULL;
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	/**
+	 * Completely clears out the admin array
+	 * @param  mixed   $user_id The user's ID, if NULL active user is used.
+	 * @return boolean
+	 */
+	public function clear_admin_data( $user_id )
+	{
+		//	Get the user ID
+		$_user_id = $this->_admindata_get_user_id( $user_id );
+
+		$_data = array( 'admin_data' => NULL );
+		if ( $this->user_model->update( $_user_id, $_data ) ) :
+
+			$this->_unset_cache( 'admin-data-' . $_user_id );
+			return TRUE;
+
+		else :
+
+			return FALSE;
+
+		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	/**
+	 * Extracts the user ID to use
+	 * @param  int $user_id The User ID, or NULL for active user
+	 * @return int
+	 */
+	protected function _admindata_get_user_id( $user_id )
+	{
+		if ( is_null( $user_id ) ) :
+
+			$_user_id = active_user( 'id' );
+
+		else :
+
+			$_user_id = $user_id;
+
+		endif;
+
+		return $_user_id;
 	}
 }
 
