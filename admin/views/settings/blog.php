@@ -487,7 +487,7 @@
 
 							// --------------------------------------------------------------------------
 
-							if ( ! empty( $settings['catrgories_enabled'] ) ) :
+							if ( ! empty( $settings['categories_enabled'] ) ) :
 
 								$_field				= array();
 								$_field['key']		= 'sidebar_categories';

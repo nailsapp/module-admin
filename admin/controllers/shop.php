@@ -549,10 +549,10 @@ class NAILS_Shop extends NAILS_Admin_Controller
 				//	Details
 				//	-------
 
-				$this->form_validation->set_rules( 'variation[' . $index . '][label]', '', 'xss_clean|required' );
+				$this->form_validation->set_rules( 'variation[' . $index . '][label]', '', 'xss_clean|trim|required' );
 
 				$_v_id = ! empty( $v['id'] ) ? $v['id'] : '';
-				$this->form_validation->set_rules( 'variation[' . $index . '][sku]', '', 'xss_clean|callback__callback_inventory_valid_sku[' . $_v_id . ']' );
+				$this->form_validation->set_rules( 'variation[' . $index . '][sku]', '', 'xss_clean|trim|callback__callback_inventory_valid_sku[' . $_v_id . ']' );
 
 				//	Stock
 				//	-----
@@ -565,15 +565,15 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 					case 'IN_STOCK' :
 
-						$this->form_validation->set_rules( 'variation[' . $index . '][quantity_available]',	'',	'xss_clean|callback__callback_inventory_valid_quantity' );
-						$this->form_validation->set_rules( 'variation[' . $index . '][lead_time]',			'',	'xss_clean' );
+						$this->form_validation->set_rules( 'variation[' . $index . '][quantity_available]',	'',	'xss_clean|trim|callback__callback_inventory_valid_quantity' );
+						$this->form_validation->set_rules( 'variation[' . $index . '][lead_time]',			'',	'xss_clean|trim' );
 
 					break;
 
 					case 'OUT_OF_STOCK' :
 
-						$this->form_validation->set_rules( 'variation[' . $index . '][quantity_available]',	'',	'xss_clean' );
-						$this->form_validation->set_rules( 'variation[' . $index . '][lead_time]',			'',	'xss_clean' );
+						$this->form_validation->set_rules( 'variation[' . $index . '][quantity_available]',	'',	'xss_clean|trim' );
+						$this->form_validation->set_rules( 'variation[' . $index . '][lead_time]',			'',	'xss_clean|trim' );
 
 					break;
 
