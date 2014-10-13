@@ -1309,14 +1309,14 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Load up the shop's skin
-		$_skin = app_setting( 'skin', 'shop' ) ? app_setting( 'skin', 'shop' ) : 'skin-shop-gettingstarted';
+		$_skin = app_setting( 'skin_front', 'shop' ) ? app_setting( 'skin_front', 'shop' ) : 'shop-skin-front-classic';
 
-		$this->load->model( 'shop/shop_skin_model' );
-		$_skin = $this->shop_skin_model->get( $_skin );
+		$this->load->model( 'shop/shop_skin_front_model' );
+		$_skin = $this->shop_skin_front_model->get( $_skin );
 
 		if ( ! $_skin ) :
 
-			show_fatal_error( 'Failed to load shop skin "' . $_skin . '"', 'Shop skin "' . $_skin . '" failed to load at ' . APP_NAME . ', the following reason was given: ' . $this->shop_skin_model->last_error() );
+			show_fatal_error( 'Failed to load shop skin "' . $_skin . '"', 'Shop skin "' . $_skin . '" failed to load at ' . APP_NAME . ', the following reason was given: ' . $this->shop_skin_front_model->last_error() );
 
 		endif;
 

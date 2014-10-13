@@ -1148,7 +1148,8 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		$this->load->model( 'shop/shop_shipping_driver_model' );
 		$this->load->model( 'shop/shop_payment_gateway_model' );
 		$this->load->model( 'shop/shop_tax_rate_model' );
-		$this->load->model( 'shop/shop_skin_model' );
+		$this->load->model( 'shop/shop_skin_front_model' );
+		$this->load->model( 'shop/shop_skin_checkout_model' );
 		$this->load->model( 'system/country_model' );
 
 		// --------------------------------------------------------------------------
@@ -1176,15 +1177,22 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		$this->data['settings']					= app_setting( NULL, 'shop', TRUE );
 		$this->data['payment_gateways']			= $this->shop_payment_gateway_model->get_available();
 		$this->data['shipping_drivers']			= $this->shop_shipping_driver_model->get_available();
-		$this->data['skins']					= $this->shop_skin_model->get_available();
-		$this->data['skin_selected']			= $_selected_skin = app_setting( 'skin', 'shop' ) ? app_setting( 'skin', 'shop' ) : 'skin-shop-gettingstarted';
-		$this->data['skin_current']				= $this->shop_skin_model->get( $this->data['skin_selected'] );
 		$this->data['currencies']				= $this->shop_currency_model->get_all( );
 		$this->data['tax_rates']				= $this->shop_tax_rate_model->get_all();
 		$this->data['tax_rates_flat']			= $this->shop_tax_rate_model->get_all_flat();
 		$this->data['countries_flat']			= $this->country_model->get_all_flat();
 		$this->data['continents_flat']			= $this->country_model->get_all_continents_flat();
 		array_unshift( $this->data['tax_rates_flat'], 'No Tax');
+
+		//	"Front of house" skins
+		$this->data['skins_front']				= $this->shop_skin_front_model->get_available();
+		$this->data['skin_front_selected']		= app_setting( 'skin_front', 'shop' ) ? app_setting( 'skin_front', 'shop' ) : 'shop-skin-front-classic';
+		$this->data['skin_front_current']		= $this->shop_skin_front_model->get( $this->data['skin_front_selected'] );
+
+		//	"Checkout" skins
+		$this->data['skins_checkout']			= $this->shop_skin_checkout_model->get_available();
+		$this->data['skin_checkout_selected']	= app_setting( 'skin_checkout', 'shop' ) ? app_setting( 'skin_checkout', 'shop' ) : 'shop-skin-checkout-classic';
+		$this->data['skin_checkout_current']	= $this->shop_skin_checkout_model->get( $this->data['skin_checkout_selected'] );
 
 		// --------------------------------------------------------------------------
 
@@ -1296,8 +1304,9 @@ class NAILS_Settings extends NAILS_Admin_Controller
 	protected function _shop_update_skin()
 	{
 		//	Prepare update
-		$_settings			= array();
-		$_settings['skin']	= $this->input->post( 'skin' );
+		$_settings					= array();
+		$_settings['skin_front']	= $this->input->post( 'skin_front' );
+		$_settings['skin_checkout']	= $this->input->post( 'skin_checkout' );
 
 		// --------------------------------------------------------------------------
 
@@ -1319,24 +1328,39 @@ class NAILS_Settings extends NAILS_Admin_Controller
 	protected function _shop_update_skin_config()
 	{
 		//	Prepare update
-		$_settings	= array();
 		$_configs	= (array) $this->input->post( 'skin_config' );
 		$_configs	= array_filter( $_configs );
+		$_success	= TRUE;
 
-		foreach( $_configs AS $key => $value ) :
+		foreach( $_configs AS $slug => $configs ) :
 
-			$_settings[$key] = $value;
+			//	Clear out the grouping; booleans not specified should be assumed FALSE
+			$this->app_setting_model->delete_group( 'shop-' . $slug );
+
+			//	New settings
+			$_settings = array();
+			foreach( $configs AS $key => $value ) :
+
+				$_settings[$key] = $value;
+
+			endforeach;
+
+			if ( $_settings ) :
+
+				if ( ! $this->app_setting_model->set( $_settings, 'shop-' . $slug ) ) :
+
+					$_success = FALSE;
+					break;
+
+				endif;
+
+			endif;
 
 		endforeach;
 
 		// --------------------------------------------------------------------------
 
-		//	Clear out the grouping
-		$this->app_setting_model->delete_group( 'shop-' . $this->input->post( 'skin_slug' ) );
-
-		// --------------------------------------------------------------------------
-
-		if ( $this->app_setting_model->set( $_settings, 'shop-' . $this->input->post( 'skin_slug' ) ) ) :
+		if ( $_success ) :
 
 			$this->data['success'] = '<strong>Success!</strong> Skin settings have been saved.';
 
