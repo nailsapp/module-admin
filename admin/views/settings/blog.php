@@ -194,7 +194,7 @@
 
 						if ( $skins ) :
 
-							$_selected_skin = ! empty( $settings['skin'] ) ? $settings['skin'] : 'skin-blog-gettingstarted';
+							$_selected_skin = ! empty( $settings['skin'] ) ? $settings['skin'] : 'blog-skin-classic';
 
 							echo '<ul class="skins">';
 							foreach( $skins AS $skin ) :
