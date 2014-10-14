@@ -636,7 +636,7 @@
 
 							endif;
 
-							switch( $setting->type ) :
+							switch ( $_field['type'] ) :
 
 								case 'bool' :
 								case 'boolean' :
@@ -743,7 +743,7 @@
 
 							endif;
 
-							switch( $setting->type ) :
+							switch( $_field['type'] ) :
 
 								case 'bool' :
 								case 'boolean' :
