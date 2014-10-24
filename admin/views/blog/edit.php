@@ -60,12 +60,12 @@
 
 					$_field					= array();
 					$_field['key']			= 'excerpt';
-					$_field['type']			= 'textarea';
+					$_field['class']		= 'wysiwyg-basic';
 					$_field['label']		= 'Excerpt';
-					$_field['default']		= isset( $post->excerpt ) ? html_entity_decode( $post->excerpt ) : '';
+					$_field['default']		= isset( $post->excerpt ) ? $post->excerpt : '';
 					$_field['placeholder']	= 'A short excerpt of the post, this will be shown in locations where a summary is required. If not specified the a truncated version of the main body will be used instead.';
 
-					echo form_field( $_field );
+					echo form_field_wysiwyg( $_field );
 
 				endif;
 

@@ -61,12 +61,10 @@
 					$_field					= array();
 					$_field['key']			= 'description';
 					$_field['label']		= 'Description';
-					$_field['type']			= 'textarea';
-					$_field['class']		= 'wysiwyg';
 					$_field['placeholder']	= 'This text may be used on the tag\'s overview page.';
 					$_field['default']		= isset( $tag->description ) ? $tag->description : '';
 
-					echo form_field( $_field );
+					echo form_field_wysiwyg( $_field );
 
 				?>
 			</fieldset>
