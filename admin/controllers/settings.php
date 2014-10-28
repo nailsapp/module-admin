@@ -1515,7 +1515,15 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
 				foreach ( $_params AS $key => $value ) :
 
-					$this->form_validation->set_rules( 'omnipay_' . $this->data['gateway_slug'] . '_' . $key, '', 'xss_clean|required' );
+					if ( $key == 'testMode' ) :
+
+						$this->form_validation->set_rules( 'omnipay_' . $this->data['gateway_slug'] . '_' . $key, '', 'xss_clean' );
+
+					else :
+
+						$this->form_validation->set_rules( 'omnipay_' . $this->data['gateway_slug'] . '_' . $key, '', 'xss_clean|required' );
+
+					endif;
 
 				endforeach;
 
@@ -1528,7 +1536,6 @@ class NAILS_Settings extends NAILS_Admin_Controller
 						$this->form_validation->set_rules( 'omnipay_' . $this->data['gateway_slug'] . '_headerImageUrl',	'', 'xss_clean' );
 						$this->form_validation->set_rules( 'omnipay_' . $this->data['gateway_slug'] . '_logoImageUrl',		'', 'xss_clean' );
 						$this->form_validation->set_rules( 'omnipay_' . $this->data['gateway_slug'] . '_borderColor',		'', 'xss_clean' );
-						$this->form_validation->set_rules( 'omnipay_' . $this->data['gateway_slug'] . '_testMode',			'', 'xss_clean' );
 
 					break;
 
