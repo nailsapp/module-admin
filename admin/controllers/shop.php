@@ -1323,6 +1323,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Views
+		$this->data['for_user'] = 'ADMIN';
 		$this->load->library( 'pdf/pdf' );
 		$this->pdf->set_paper_size( 'A4', 'landscape' );
 		$this->pdf->load_view( $_skin->path . 'views/order/invoice', $this->data );
