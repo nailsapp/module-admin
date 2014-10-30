@@ -79,7 +79,7 @@
 								<td class="value">
 								<?php
 
-									echo $order->user->telephone ? '<a href="tel:' . $order->user->telephone . '">' . $order->user->telephone . '</a>' : '<span class="text-muted">Not supplied</span>';
+									echo $order->user->telephone ? tel($order->user->telephone) : '<span class="text-muted">Not supplied</span>';
 
 								?>
 								</td>
@@ -197,6 +197,7 @@
 
 								echo '<h1><b class="fa fa-truck"></b> Fulfilled</h1>';
 								echo '<p>This order has been fulfilled, no further action is nessecary.</p>';
+								echo '<p>' . anchor( 'admin/shop/orders/unfulfil/' . $order->id, 'Mark Unfulfilled', 'class="awesome red"' ) . '</p>';
 
 							break;
 
@@ -204,7 +205,7 @@
 
 								echo '<h1>Unfulfilled</h1>';
 								echo '<p>This order has <strong>not</strong> been fulfilled.</p>';
-								echo '<p>' . anchor( '', 'Mark Fulfilled', 'class="awesome green todo"' ) . '</p>';
+								echo '<p>' . anchor( 'admin/shop/orders/fulfil/' . $order->id, 'Mark Fulfilled', 'class="awesome green"' ) . '</p>';
 
 							break;
 
@@ -284,7 +285,6 @@
 									endif;
 								echo '</td>';
 								echo '<td class="text-center">';
-									echo anchor( '', 'View', 'class="awesome small green todo"' );
 									echo anchor( '', 'Refund', 'class="awesome small todo"' );
 								echo '</td>';
 							echo '</tr>';

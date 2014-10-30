@@ -148,6 +148,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		//	Orders
 		$_permissions['orders_manage']			= 'Orders: Manage';
 		$_permissions['orders_view']			= 'Orders: View';
+		$_permissions['orders_edit']			= 'Orders: Edit';
 		$_permissions['orders_reprocess']		= 'Orders: Reprocess';
 		$_permissions['orders_process']			= 'Orders: Process';
 
@@ -1001,6 +1002,16 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		$this->data['search']->show			= $this->input->get( 'show' );
 		$this->data['search']->fulfilled	= $this->input->get( 'fulfilled' );
 
+		/**
+		 * Small hack(?) - if no status has been specified, and the $_GET array is
+		 * empty (i.e no form of searching is being done) then set a few defaults.
+		 */
+
+		if (empty($_GET) && empty($this->data['search']->show)) {
+
+			$this->data['search']->show = array('paid' => true);
+		}
+
 		// --------------------------------------------------------------------------
 
 		//	Prepare the where
@@ -1285,7 +1296,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 	protected function _orders_download_invoice()
 	{
-		if ( ! user_has_permission( 'admin.shop:0.orders_download' ) ) :
+		if ( ! user_has_permission( 'admin.shop:0.orders_view' ) ) :
 
 			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you do not have permission to download orders.' );
 			redirect( 'admin/shop/orders' );
@@ -1329,6 +1340,168 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		$this->pdf->load_view( $_skin->path . 'views/order/invoice', $this->data );
 		$this->pdf->download( 'INVOICE-' . $this->data['order']->ref . '.pdf' );
 	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	protected function _orders_fulfil()
+	{
+        if (!user_has_permission('admin.shop:0.orders_edit')) {
+
+        	$msg    = '<strong>Sorry,</strong> you do not have permission to edit orders.';
+            $status = 'error';
+            $this->session->set_flashdata($status, $msg);
+            redirect('admin/shop/orders');
+        }
+
+        // --------------------------------------------------------------------------
+
+        //    Fetch and check order
+        $this->load->model('shop/shop_order_model');
+
+        $order = $this->shop_order_model->get_by_id($this->uri->segment(5));
+
+        if (!$order) {
+
+        	$msg    = '<strong>Sorry,</strong> no order exists by that ID.';
+            $status = 'error';
+            $this->session->set_flashdata($status, $msg);
+            redirect('admin/shop/orders');
+        }
+
+        // --------------------------------------------------------------------------
+
+        if ($this->shop_order_model->fulfil($order->id)) {
+
+            $msg    = '<strong>Success!</strong> Order ' . $order->ref . ' was marked as fulfilled.';
+            $status = 'success';
+
+        } else {
+
+            $msg    = '<strong>Sorry,</strong> failed to mark order ' . $order->ref . ' as fulfilled.';
+            $status = 'error';
+        }
+
+        $this->session->set_flashdata($status, $msg);
+        redirect('admin/shop/orders/view/' . $order->id);
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+    protected function _orders_fulfil_batch()
+    {
+        if (!user_has_permission('admin.shop:0.orders_edit')) {
+
+            $msg    = '<strong>Sorry,</strong> you do not have permission to edit orders.';
+            $status = 'error';
+            $this->session->set_flashdata($status, $msg);
+            redirect('admin/shop/orders');
+        }
+
+        // --------------------------------------------------------------------------
+
+        //    Fetch and check orders
+        $this->load->model('shop/shop_order_model');
+
+        if ($this->shop_order_model->fulfilBatch($this->input->get('ids'))) {
+
+            $msg    = '<strong>Success!</strong> Orders were marked as fulfilled.';
+            $status = 'success';
+
+        } else {
+
+            $msg     = '<strong>Sorry,</strong> failed to mark orders as fulfilled. ';
+            $msg    .= $this->shop_order_model->last_error();
+            $status  = 'error';
+        }
+
+        $this->session->set_flashdata($status, $msg);
+        redirect('admin/shop/orders');
+    }
+
+
+	// --------------------------------------------------------------------------
+
+
+    protected function _orders_unfulfil()
+    {
+        if (!user_has_permission('admin.shop:0.orders_edit')) {
+
+        	$msg    = '<strong>Sorry,</strong> you do not have permission to edit orders.';
+            $status = 'error';
+            $this->session->set_flashdata($status, $msg);
+            redirect('admin/shop/orders');
+        }
+
+        // --------------------------------------------------------------------------
+
+        //    Fetch and check order
+        $this->load->model('shop/shop_order_model');
+
+        $order = $this->shop_order_model->get_by_id($this->uri->segment(5));
+
+        if (!$order) {
+
+        	$msg    = '<strong>Sorry,</strong> no order exists by that ID.';
+            $status = 'error';
+            $this->session->set_flashdata($status, $msg);
+            redirect('admin/shop/orders');
+        }
+
+        // --------------------------------------------------------------------------
+
+        if ($this->shop_order_model->unfulfil($order->id)) {
+
+            $msg    = '<strong>Success!</strong> Order ' . $order->ref . ' was marked as unfulfilled.';
+            $status = 'success';
+
+        } else {
+
+            $msg    = '<strong>Sorry,</strong> failed to mark order ' . $order->ref . ' as unfulfilled.';
+            $status = 'error';
+        }
+
+        $this->session->set_flashdata($status, $msg);
+        redirect('admin/shop/orders/view/' . $order->id);
+    }
+
+
+    // --------------------------------------------------------------------------
+
+
+    protected function _orders_unfulfil_batch()
+    {
+        if (!user_has_permission('admin.shop:0.orders_edit')) {
+
+            $msg    = '<strong>Sorry,</strong> you do not have permission to edit orders.';
+            $status = 'error';
+            $this->session->set_flashdata($status, $msg);
+            redirect('admin/shop/orders');
+        }
+
+        // --------------------------------------------------------------------------
+
+        //    Fetch and check orders
+        $this->load->model('shop/shop_order_model');
+
+        if ($this->shop_order_model->unfulfilBatch($this->input->get('ids'))) {
+
+            $msg    = '<strong>Success!</strong> Orders were marked as unfulfilled.';
+            $status = 'success';
+
+        } else {
+
+            $msg     = '<strong>Sorry,</strong> failed to mark orders as unfulfilled. ';
+            $msg    .= $this->shop_order_model->last_error();
+            $status  = 'error';
+        }
+
+        $this->session->set_flashdata($status, $msg);
+        redirect('admin/shop/orders');
+    }
 
 
 	// --------------------------------------------------------------------------

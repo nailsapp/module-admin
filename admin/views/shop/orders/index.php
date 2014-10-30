@@ -120,13 +120,14 @@
 									if ( $order->fulfilment_status == 'FULFILLED' ) :
 
 										echo '<td class="status success">';
-											echo '<b class="fa fa-tick-circle fa-lg"></b>';
+											echo '<b class="fa fa-check-circle fa-2x"></b>';
+											echo '<small class="nice-time">' . user_datetime( $order->fulfilled, 'Y-m-d', 'H:i:s' ) . '</small>';
 										echo '</td>';
 
 									else :
 
 										echo '<td class="status error">';
-											echo '<b class="fa fa-times-circle fa-lg"></b>';
+											echo '<b class="fa fa-times-circle fa-2x"></b>';
 										echo '</td>';
 
 									endif;
@@ -143,13 +144,6 @@
 										if ( user_has_permission( 'admin.shop:0.orders_view' ) ) :
 
 											$_buttons[] = anchor( 'admin/shop/orders/view/' . $order->id, lang( 'action_view' ), 'class="awesome green small"' );
-
-										endif;
-
-										// --------------------------------------------------------------------------
-
-										if ( user_has_permission( 'admin.shop:0.orders_download' ) ) :
-
 											$_buttons[] = anchor( 'admin/shop/orders/download_invoice/' . $order->id, 'Download', 'class="awesome small"' );
 
 										endif;
