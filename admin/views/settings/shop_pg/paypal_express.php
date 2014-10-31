@@ -102,7 +102,8 @@
 				<fieldset>
 					<legend>API Credentials</legend>
 					<p>
-					You can get these details from within your PayPal account's settings.
+						You can get these details from within your PayPal account's settings.
+						<b class="fa fa-question-circle fa-lg" rel="tipsy" title="You'll want &quot;Option 2&quot; in &quot;API Access&quot; under &quot;My Selling Preferences&quot;"></b>
 					</p>
 					<?php
 
@@ -145,8 +146,13 @@
 						$_field['label']	= 'Solution Type';
 						$_field['default']	= app_setting( $_field['key'], 'shop' );
 						$_field['required']	= TRUE;
+						$_field['class']	= 'select2';
 
-						echo form_field( $_field );
+						$_field['options']			= array();
+						$_field['options']['Sole']	= 'Sole - Buyer does not need to create a PayPal account to check out';
+						$_field['options']['Mark']	= 'Mark - Buyer must have a PayPal account to check out';
+
+						echo form_field_dropdown( $_field );
 
 						// --------------------------------------------------------------------------
 
@@ -155,8 +161,13 @@
 						$_field['label']	= 'Landing Page';
 						$_field['default']	= app_setting( $_field['key'], 'shop' );
 						$_field['required']	= TRUE;
+						$_field['class']	= 'select2';
 
-						echo form_field( $_field );
+						$_field['options']				= array();
+						$_field['options']['Billing']	= 'Billing – Non-PayPal account';
+						$_field['options']['Login']		= 'Login – PayPal account login';
+
+						echo form_field_dropdown( $_field );
 
 					?>
 				</fieldset>
