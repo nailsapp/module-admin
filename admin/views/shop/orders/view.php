@@ -48,13 +48,32 @@
 
 									echo $order->totals->base_formatted->grand;
 
-									if ( $order->currency == $order->base_currency ) :
+									if ( $order->currency != $order->base_currency ) :
 
 										echo '<small>';
 											echo 'User checked out in ' . $order->currency . ': ' . $order->totals->user_formatted->grand;
 										echo '</small>';
 
 									endif;
+
+								?>
+								</td>
+							</tr>
+							<tr>
+								<td class="label">Note</td>
+								<td class="value">
+								<?php
+
+									if (empty($order->note)) {
+
+										echo '<span class="text-muted">No Note Specified</span>';
+
+									} else {
+
+										//	TODO: Show voucher details
+										echo $order->note;
+
+									}
 
 								?>
 								</td>
