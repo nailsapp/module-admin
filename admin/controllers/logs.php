@@ -188,7 +188,7 @@ class NAILS_Logs extends NAILS_Admin_Controller
 
 		if ( $this->input->get( 'event_type' ) ) :
 
-			$_where[] = 'e.type_id IN (' . implode( ',', $this->input->get( 'event_type' ) ) . ')';
+			$_where[] = 'e.type IN ("' . implode( '","', $this->input->get( 'event_type' ) ) . '")';
 
 		endif;
 
@@ -201,7 +201,7 @@ class NAILS_Logs extends NAILS_Admin_Controller
 
 			//	Fetch events
 			$this->data['events'] = new stdClass();
-			$this->data['events'] = $this->event->get_all( $_order, NULL, $_where );
+			$this->data['events'] = $this->event->get_all($_order, NULL, $_where);
 
 			// --------------------------------------------------------------------------
 
@@ -226,7 +226,7 @@ class NAILS_Logs extends NAILS_Admin_Controller
 			$this->data['pagination']				= new stdClass();
 			$this->data['pagination']->page			= $this->input->get( 'page' )		? $this->input->get( 'page' )		: 0;
 			$this->data['pagination']->per_page		= $this->input->get( 'per_page' )	? $this->input->get( 'per_page' )	: 50;
-			$this->data['pagination']->total_rows	= $this->event->count_all( $_where );
+			$this->data['pagination']->total_rows	= $this->event->count_all($_where);
 
 			//	Fetch all the items for this page
 			$this->data['events'] = $this->event->get_all( $_order, $_limit, $_where );
