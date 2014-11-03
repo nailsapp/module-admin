@@ -4498,6 +4498,9 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		$this->db->select( '(SELECT GROUP_CONCAT(DISTINCT `b`.`label` ORDER BY `b`.`label` SEPARATOR \', \') FROM `' . NAILS_DB_PREFIX . 'shop_product_brand` pb JOIN `' . NAILS_DB_PREFIX . 'shop_brand` b ON `b`.`id` = `pb`.`brand_id` WHERE `pb`.`product_id` = `p`.`id` GROUP BY `pb`.`product_id`) brands', FALSE );
 		$this->db->join( NAILS_DB_PREFIX . 'shop_product p', 'p.id = v.product_id', 'LEFT' );
 		$this->db->where( 'v.stock_status', 'OUT_OF_STOCK' );
+		$this->db->where( 'p.is_deleted', 0 );
+		$this->db->where( 'v.is_deleted', 0 );
+		$this->db->where( 'p.is_active', 1 );
 		$_out->data = $this->db->get( NAILS_DB_PREFIX . 'shop_product_variation v' )->result_array();
 
 		if ( $_out->data ) :
