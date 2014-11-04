@@ -4317,6 +4317,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		if ( user_has_permission( 'admin.shop:0.inventory_manage' ) ) :
 
 			$this->_report_sources[] = array( 'Inventory', 'Out of Stock variants', 'out_of_stock_variants' );
+			$this->_report_sources[] = array( 'Sales', 'Product Sales', 'product_sales' );
 
 		endif;
 
@@ -4385,9 +4386,9 @@ class NAILS_Shop extends NAILS_Admin_Controller
 			$this->form_validation->set_message( 'required',	lang( 'fv_required' ) );
 
 			//	Execute
-			if ( $this->form_validation->run() && isset( $this->_report_sources[$this->input->post( 'source' )] ) && isset( $this->_report_formats[$this->input->post( 'format' )] ) ) :
+			if ( $this->form_validation->run() && isset( $this->_report_sources[$this->input->post( 'report' )] ) && isset( $this->_report_formats[$this->input->post( 'format' )] ) ) :
 
-				$_source = $this->_report_sources[$this->input->post( 'source' )];
+				$_source = $this->_report_sources[$this->input->post( 'report' )];
 				$_format = $this->_report_formats[$this->input->post( 'format' )];
 
 				if ( ! method_exists( $this, '_report_source_' . $_source[2] ) ) :
@@ -4502,6 +4503,48 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		$this->db->where( 'v.is_deleted', 0 );
 		$this->db->where( 'p.is_active', 1 );
 		$_out->data = $this->db->get( NAILS_DB_PREFIX . 'shop_product_variation v' )->result_array();
+
+		if ( $_out->data ) :
+
+			$_out->fields = array_keys( $_out->data[0] );
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		return $_out;
+	}
+
+
+    // --------------------------------------------------------------------------
+
+
+	protected function _report_source_product_sales()
+	{
+		if ( ! user_has_permission( 'admin.shop:0.inventory_manage' ) ) :
+
+			return FALSE;
+
+		endif;
+
+		// --------------------------------------------------------------------------
+
+		$_out			= new stdClass();
+		$_out->label	= 'Product Sales';
+		$_out->filename	= NAILS_DB_PREFIX . 'product_sales';
+		$_out->fields	= array();
+		$_out->data		= array();
+
+		// --------------------------------------------------------------------------
+
+		//	Fetch all products from the order products table
+		$this->db->select( 'o.id, o.created, op.quantity as quantity_sold, p.id product_id, p.label product_label, v.id variation_id, v.label variation_label, v.sku, v.quantity_available' );
+		$this->db->select( '(SELECT GROUP_CONCAT(DISTINCT `b`.`label` ORDER BY `b`.`label` SEPARATOR \', \') FROM `' . NAILS_DB_PREFIX . 'shop_product_brand` pb JOIN `' . NAILS_DB_PREFIX . 'shop_brand` b ON `b`.`id` = `pb`.`brand_id` WHERE `pb`.`product_id` = `p`.`id` GROUP BY `pb`.`product_id`) brands', FALSE );
+		$this->db->join( NAILS_DB_PREFIX . 'shop_order o', 'o.id = op.order_id', 'LEFT' );
+		$this->db->join( NAILS_DB_PREFIX . 'shop_product p', 'p.id = op.variant_id', 'LEFT' );
+		$this->db->join( NAILS_DB_PREFIX . 'shop_product_variation v', 'v.product_id = p.id', 'LEFT' );
+		$this->db->where( 'o.status', 'PAID' );
+		$_out->data = $this->db->get( NAILS_DB_PREFIX . 'shop_order_product op' )->result_array();
 
 		if ( $_out->data ) :
 
