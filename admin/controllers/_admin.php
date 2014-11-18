@@ -160,6 +160,7 @@ class NAILS_Admin_Controller extends NAILS_Controller
 		$this->asset->load( 'tipsy/src/javascripts/jquery.tipsy.js',	'BOWER' );
 		$this->asset->load( 'jquery.scrollTo/jquery.scrollTo.min.js',	'BOWER' );
 		$this->asset->load( 'jquery-cookie/jquery.cookie.js',			'BOWER' );
+		$this->asset->load( 'retina.js/dist/retina.min.js',				'BOWER' );
 		$this->asset->load( 'nails.default.min.js',						TRUE );
 		$this->asset->load( 'nails.admin.min.js',						TRUE );
 		$this->asset->load( 'nails.forms.min.js',						TRUE );
