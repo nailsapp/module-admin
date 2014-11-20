@@ -29,54 +29,69 @@ class NAILS_Blog extends NAILS_Admin_Controller
 	 **/
 	static function announce()
 	{
-		if ( ! module_is_enabled( 'blog' ) ) :
+		if (!module_is_enabled('blog')) {
 
-			return FALSE;
-
-		endif;
+			return false;
+		}
 
 		// --------------------------------------------------------------------------
 
 		//	Fetch the blogs, each blog should have it's own admin section
 		$_ci =& get_instance();
-		$_ci->load->model( 'blog/blog_model' );
-		$_blogs = $_ci->blog_model->get_all();
+		$_ci->load->model('blog/blog_model');
+		$blogs = $_ci->blog_model->get_all();
 
 		$_out = array();
 
-		foreach ( $_blogs AS $blog ) :
+		if (!empty($blogs)) {
 
-			$d = new stdClass();
+			foreach ($blogs AS $blog) {
 
-			// --------------------------------------------------------------------------
+				$d = new stdClass();
 
-			//	Configurations
-			$d->name = count( $_blogs ) > 1 ? 'Blog: ' . $blog->label : 'Blog';
-			$d->icon = 'fa-pencil-square-o';
+				// --------------------------------------------------------------------------
 
-			// --------------------------------------------------------------------------
+				//	Configurations
+				$d->name = count($blogs) > 1 ? 'Blog: ' . $blog->label : 'Blog';
+				$d->icon = 'fa-pencil-square-o';
 
-			//	Navigation options
-			$d->funcs							= array();
-			$d->funcs[$blog->id . '/index']		= 'Manage Posts';
+				// --------------------------------------------------------------------------
 
-			if ( user_has_permission( 'admin.blog:' . $blog->id . '.category_manage' ) && app_setting( 'categories_enabled', 'blog-' . $blog->id ) ) :
+				//	Navigation options
+				$d->funcs							= array();
+				$d->funcs[$blog->id . '/index']		= 'Manage Posts';
 
-				$d->funcs[$blog->id . '/manage/category'] = 'Manage Categories';
+				$hasPermission	= user_has_permission('admin.blog:' . $blog->id . '.category_manage');
+				$enabled		= app_setting('categories_enabled', 'blog-' . $blog->id);
 
-			endif;
+				if ($hasPermission && $enabled) {
 
-			if ( user_has_permission( 'admin.blog:' . $blog->id . '.tag_manage' ) && app_setting( 'tags_enabled', 'blog-' . $blog->id ) ) :
+					$d->funcs[$blog->id . '/manage/category'] = 'Manage Categories';
+				}
 
-				$d->funcs[$blog->id . '/manage/tag'] = 'Manage Tags';
+				$hasPermission	= user_has_permission('admin.blog:' . $blog->id . '.tag_manage');
+				$enabled		= app_setting('tags_enabled', 'blog-' . $blog->id);
 
-			endif;
+				if ($hasPermission && $enabled) {
 
-			// --------------------------------------------------------------------------
+					$d->funcs[$blog->id . '/manage/tag'] = 'Manage Tags';
+				}
 
-			$_out[$blog->id] = $d;
+				// --------------------------------------------------------------------------
 
-		endforeach;
+				$_out[$blog->id] = $d;
+			}
+
+		} else {
+
+			$d							= new stdClass();
+			$d->name					= 'Blog';
+			$d->icon					= 'fa-pencil-square-o';
+			$d->funcs					= array();
+			$d->funcs['create_blog']	= 'Create New Blog';
+
+			$_out = $d;
+		}
 
 		// --------------------------------------------------------------------------
 
@@ -1184,8 +1199,13 @@ class NAILS_Blog extends NAILS_Admin_Controller
 	// --------------------------------------------------------------------------
 
 
-	public function _remap()
+	public function _remap($method)
 	{
+		//	creating a new blog?
+		if ($method == 'create_blog') {
+			redirect( 'admin/settings/blog/create' );
+		}
+
 		//	We got blogs?
 		if ( empty( $this->data['blogs'] ) ) :
 
