@@ -253,7 +253,7 @@
 
 
 			echo form_error( $_field['key'], '<p class="system-alert error">', '</p>' );
-			echo form_textarea( $_field['key'], set_value( $_field['key'], $_field['default'] ), 'class="wysiwyg"' );
+			echo form_textarea( $_field['key'], set_value( $_field['key'], $_field['default'] ), 'class="wysiwyg" id="productDescription"' );
 
 		?>
 		</div>
