@@ -15,6 +15,19 @@
 
 		// --------------------------------------------------------------------------
 
+		if (count($categoriesFlat)) {
+
+			$options = array('All Categories') + $categoriesFlat;
+
+			echo '<div class="search-category" style="position:relative;">';
+				echo '<div style="width:120px;position:absolute;left:0;top:8px;">Search only items in </div>';
+				echo '<div style="width:100%;padding-left:120px;padding-right:10px;box-sizing:border-box">';
+					echo form_dropdown('category', $options, $category_id, 'class="select2" style="width:100%;"');
+				echo '</div>';
+			echo '</div>';
+		}
+		// --------------------------------------------------------------------------
+
 		$_sort = array(
 			'p.id'		    => 'ID',
 			'p.label'		=> 'Label',

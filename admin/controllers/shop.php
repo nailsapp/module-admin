@@ -355,6 +355,15 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		$this->data['sort_on']		= $_data['sort']['column']	= $_sort_on;
 		$this->data['sort_order']	= $_data['sort']['order']	= $_sort_order;
 		$this->data['search']		= $_data['search']			= $_search;
+		$this->data['category_id']	= $_data['category_id']		= $this->input->get('category');
+
+		if (!empty($_data['category_id'])) {
+
+			$_data['category_id'] = array($_data['category_id']) + $this->shop_category_model->get_ids_of_children($_data['category_id']);
+		} else {
+
+			unset($_data['category_id']);
+		}
 
 		//	Define and populate the pagination object
 		$this->data['pagination']				= new stdClass();
@@ -364,7 +373,8 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		//	Fetch all the items for this page
 		$this->data['products']			= $this->shop_product_model->get_all( $_page, $_per_page, $_data );
-		$this->data['product_types']	= $this->shop_product_type_model->get_all();
+		$this->data['productTypes']		= $this->shop_product_type_model->get_all();
+		$this->data['categoriesFlat']	= $this->shop_category_model->get_all_nested_flat();
 
 		// --------------------------------------------------------------------------
 

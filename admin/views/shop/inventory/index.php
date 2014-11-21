@@ -28,7 +28,7 @@
 					<th class="label">Label &amp; Description</th>
 					<?php
 
-						if ( count( $product_types ) > 1 ) :
+						if ( count( $productTypes ) > 1 ) :
 
 							echo '<th class="type">Type</th>';
 
@@ -86,7 +86,7 @@
 								</td>
 								<?php
 
-									if ( count( $product_types ) > 1 ) :
+									if ( count( $productTypes ) > 1 ) :
 
 										echo '<td class="type">' . $item->type->label . '</td>';
 
