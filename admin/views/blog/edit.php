@@ -329,7 +329,7 @@
 
 						foreach( $_gallery_items AS $image ) :
 
-							$this->load->view( 'admin/blog/_utilities/template-mustache-gallery-item', array( 'object_id' => $image ) );
+							$this->load->view('admin/blog/_utilities/template-mustache-gallery-item', array('objectId' => $image));
 
 						endforeach;
 
@@ -398,7 +398,7 @@
 <script type="text/template" id="template-gallery-item">
 <?php
 
-	$this->load->view( 'admin/blog/_utilities/template-mustache-gallery-item', array( 'object_id' => NULL ) );
+	$this->load->view('admin/blog/_utilities/template-mustache-gallery-item', array('objectId' => null));
 
 ?>
 </script>
