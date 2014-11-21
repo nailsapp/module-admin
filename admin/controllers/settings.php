@@ -1063,63 +1063,6 @@ class NAILS_Settings extends NAILS_Admin_Controller
 	// --------------------------------------------------------------------------
 
 
-	protected function _email_update_driver()
-	{
-		//	Prepare update
-		$_settings					= array();
-		$_settings_encrypted		= array();
-
-		$_environments		= array();
-		$_environments[]	= 'DEVELOPMENT';
-		$_environments[]	= 'STAGING';
-		$_environments[]	= 'PRODUCTION';
-
-		foreach ( $_environments AS $environment ) :
-
-			$_settings[$environment . '_driver']		= $this->input->post( $environment . '_driver' );
-			$_settings[$environment . '_smtp_host']		= $this->input->post( $environment . '_smtp_host' );
-			$_settings[$environment . '_smtp_username']	= $this->input->post( $environment . '_smtp_username' );
-			$_settings[$environment . '_smtp_port']		= $this->input->post( $environment . '_smtp_port' );
-
-			$_settings_encrypted[$environment . '_smtp_password']		= $this->input->post( $environment . '_smtp_password' );
-			$_settings_encrypted[$environment . '_mandrill_api_key']	= $this->input->post( $environment . '_mandrill_api_key' );
-
-		endforeach;
-
-		$this->db->trans_begin();
-		$_rollback = FALSE;
-
-		if ( ! $this->app_setting_model->set( $_settings, 'email' ) ) :
-
-			$_error		= $this->app_setting_model->last_error();
-			$_rollback	= TRUE;
-
-		endif;
-
-		if ( ! $this->app_setting_model->set( $_settings_encrypted, 'email', NULL, TRUE ) ) :
-
-			$_error		= $this->app_setting_model->last_error();
-			$_rollback	= TRUE;
-
-		endif;
-
-		if ( $_rollback ) :
-
-			$this->db->trans_rollback();
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving email driver settings. ' . $_error;
-
-		else :
-
-			$this->db->trans_commit();
-			$this->data['success'] = '<strong>Success!</strong> Email driver settings were saved.';
-
-		endif;
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
 	/**
 	 * Configure the shop
 	 *
