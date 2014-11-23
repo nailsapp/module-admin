@@ -6,7 +6,7 @@
 	<p class="system-alert message">
 		<strong>Please note:</strong> This process can take some time to execute on large Databases and may time out. If
 		you are experiencing timeouts consider increasing the timeout limit for PHP temporarily or executing
-		<u rel="tipsy" title="Use command: `php index.php admin shop report`">via the command line</u>.
+		<u rel="tipsy" title="Use command: `php index.php admin shop reports`">via the command line</u>.
 	</p>
 
 	<?=form_open()?>

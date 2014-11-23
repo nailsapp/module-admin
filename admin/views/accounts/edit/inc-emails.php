@@ -1,38 +1,105 @@
-<fieldset id="edit-user-emails">
+<fieldset id="edit-user-emails" class="emails">
+    <legend><?=lang('accounts_edit_emails_legend')?></legend>
+    <div class="box-container">
+        <table>
+            <thead>
+                <tr>
+                    <th class="email"><?=lang('accounts_edit_emails_th_email')?></th>
+                    <th class="isPrimary"><?=lang('accounts_edit_emails_th_primary')?></th>
+                    <th class="isVerified"><?=lang('accounts_edit_emails_th_verified')?></th>
+                    <th class="dateAdded"><?=lang('accounts_edit_emails_th_date_added')?></th>
+                    <th class="dateVerified"><?=lang('accounts_edit_emails_th_date_verified')?></th>
+                    <th class="actions"><?=lang('accounts_edit_emails_th_actions')?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
 
-	<legend><?=lang( 'accounts_edit_emails_legend' )?></legend>
+                foreach($user_emails as $email) {
 
-	<div class="box-container">
+                    echo '<tr data-email="' . $email->email . '" class="existingEmail">';
+                    echo '<td class="email">';
+                        echo mailto($email->email);
+                    echo '</td>';
+                    if ($email->is_primary) {
 
-		<table>
-			<thead>
-				<tr>
-					<th><?=lang( 'accounts_edit_emails_th_email' )?></th>
-					<th><?=lang( 'accounts_edit_emails_th_primary' )?></th>
-					<th><?=lang( 'accounts_edit_emails_th_verified' )?></th>
-					<th><?=lang( 'accounts_edit_emails_th_date_added' )?></th>
-					<th><?=lang( 'accounts_edit_emails_th_date_verified' )?></th>
-				</tr>
-			</thead>
-			<tbody>
-			<?php
+                        echo '<td class="isPrimary success">';
+                            echo  '<b class="fa fa-check-circle fa-lg"></b>';
+                        echo '</td>';
 
-				foreach( $user_emails AS $email ) :
+                    } else {
 
-					echo '<tr>';
-					echo '<td>' . mailto( $email->email ) . '</td>';
-					echo '<td>' . ( $email->is_primary ? lang( 'yes' ) : lang( 'no' ) ) . '</td>';
-					echo '<td>' . ( $email->is_verified ? lang( 'yes' ) : lang( 'no' ) ) . '</td>';
-					echo '<td>' . user_datetime( $email->date_added ) . '</td>';
-					echo '<td>' . ( $email->is_verified ? user_datetime( $email->date_added ) : lang( 'accounts_edit_emails_td_not_verified' ) ) . '</td>';
-					echo '</tr>';
+                        echo '<td class="isPrimary error">';
+                            echo  '<b class="fa fa-times-circle fa-lg"></b>';
+                        echo '</td>';
+                    }
+                    if ($email->is_verified) {
 
-				endforeach;
+                        echo '<td class="isVerified success">';
+                            echo  '<b class="fa fa-check-circle fa-lg"></b>';
+                        echo '</td>';
 
-			?>
-			</tbody>
-		</table>
+                    } else {
 
-	</div>
+                        echo '<td class="isVerified error">';
+                            echo  '<b class="fa fa-times-circle fa-lg"></b>';
+                        echo '</td>';
+                    }
+                    echo '<td class="dateAdded">';
+                        echo user_datetime($email->date_added);
+                    echo '</td>';
+                    echo '<td class="dateVerified">';
+                        if ($email->is_verified) {
 
+                            echo user_datetime($email->date_added);
+
+                        } else {
+
+                            echo '<span class="text-muted">';
+                                echo lang('accounts_edit_emails_td_not_verified');
+                            echo '</span>';
+                        }
+                    echo '</td>';
+                    echo '<td class="actions">';
+
+                        if (!$email->is_primary) {
+
+                            echo anchor('', 'Make Primary', 'data-action="makePrimary" class="awesome small green"');
+                            echo anchor('', 'Delete', 'data-action="delete" class="awesome small red"');
+
+                        }
+
+                        if (!$email->is_verified) {
+
+                            echo anchor('', 'Verify', 'data-action="verify" class="awesome small green"');
+                        }
+
+                    echo '</td>';
+                    echo '</tr>';
+                }
+
+                ?>
+                <tr id="addEmailForm">
+                    <td class="email">
+                        <input type="email" name="email" placeholder="Type an email address to add to the user here"/>
+                    </td>
+                    <td class="isPrimary">
+                        <input type="checkbox" name="isPrimary" value="1"/>
+                    </td>
+                    <td class="isVerified">
+                        <input type="checkbox" name="isVerified" value="1"/>
+                    </td>
+                    <td class="dateAdded">
+                        <span class="text-muted">&mdash;</span>
+                    </td>
+                    <td class="dateVerified">
+                        <span class="text-muted">&mdash;</span>
+                    </td>
+                    <td class="actions">
+                        <button type="submit" class="awesome small green">Add Email</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </fieldset>

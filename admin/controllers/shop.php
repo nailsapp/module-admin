@@ -276,7 +276,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		$this->shop_orders_sortfields[] = array( 'label' => 'ID',				'col' => 'o.id' );
 		$this->shop_orders_sortfields[] = array( 'label' => 'Date Placed',		'col' => 'o.created' );
 		$this->shop_orders_sortfields[] = array( 'label' => 'Last Modified',	'col' => 'o.modified' );
-		$this->shop_orders_sortfields[] = array( 'label' => 'Value',			'col' => 'o.grand_total' );
 
 		$this->shop_vouchers_sortfields[] = array( 'label' => 'ID',				'col' => 'v.id' );
 		$this->shop_vouchers_sortfields[] = array( 'label' => 'Code',			'col' => 'v.code' );

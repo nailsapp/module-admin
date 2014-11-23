@@ -1,4 +1,4 @@
-<div class="group-members groups overview">
+<div class="group-accounts groups overview">
 
 	<p>
 	<?php

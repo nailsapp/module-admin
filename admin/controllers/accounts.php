@@ -881,6 +881,12 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
+		//	Assets
+		$this->asset->load('nails.admin.accounts.edit.min.js', true);
+		$this->asset->inline('_nailsAdminAccountsEdit = new NAILS_Admin_Accounts_Edit();', 'JS');
+
+		// --------------------------------------------------------------------------
+
 		//	Load views
 		if ( $this->input->get( 'inline' ) || $this->input->get( 'is_fancybox' ) ) :
 
@@ -1178,6 +1184,108 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 			redirect( $_return_to );
 
 		endif;
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	public function email()
+	{
+		$action	= $this->input->post('action');
+		$email	= $this->input->post('email');
+		$id		= $this->input->post('id');
+
+		switch($action) {
+
+			case 'add' :
+
+				$isPrimary  = (bool) $this->input->post('isPrimary');
+				$isVerified = (bool) $this->input->post('isVerified');
+
+				if ($this->user_model->email_add($email, $id, $isPrimary, $isVerified)) {
+
+					$status  = 'success';
+					$message = '<strong>Success!</strong> "' . $email . '" was added successfully. ';
+
+				} else {
+
+					$status   = 'error';
+					$message  = '<strong>Sorry,</strong> failed to add email "' . $email . '". ';
+					$message .= $this->user_model->last_error();
+				}
+				break;
+
+			case 'delete' :
+
+				if ($this->user_model->email_delete($email, $id)) {
+
+					$status  = 'success';
+					$message = '<strong>Success!</strong> "' . $email . '" was deleted successfully. ';
+
+				} else {
+
+					$status   = 'error';
+					$message  = '<strong>Sorry,</strong> failed to delete email "' . $email . '". ';
+					$message .= $this->user_model->last_error();
+				}
+				break;
+
+			case 'makePrimary' :
+
+				if ($this->user_model->email_make_primary($email, $id)) {
+
+					$status  = 'success';
+					$message = '<strong>Success!</strong> "' . $email . '" was set as the primary email.';
+
+				} else {
+
+					$status   = 'error';
+					$message  = '<strong>Sorry,</strong> failed to mark "' . $email . '" as the primary address. ';
+					$message .= $this->user_model->last_error();
+				}
+				break;
+
+			case 'verify' :
+
+				//	Get the code for this email
+				$userEmails = $this->user_model->get_emails_for_user($id);
+				$code		= '';
+
+				foreach($userEmails AS $userEmail) {
+					if ($userEmail->email == $email) {
+						$code = $userEmail->code;
+					}
+				}
+
+				if (!empty($code) && $this->user_model->email_verify($id, $code)) {
+
+					$status  = 'success';
+					$message = '<strong>Success!</strong> "' . $email . '" was verified successfully.';
+
+				} elseif (empty($code)) {
+
+					$status   = 'error';
+					$message  = '<strong>Sorry,</strong> failed to mark "' . $email . '" as verified. ';
+					$message .= 'Could not determine email\'s security code.';
+
+				} else {
+
+					$status   = 'error';
+					$message  = '<strong>Sorry,</strong> failed to mark "' . $email . '" as verified. ';
+					$message .= $this->user_model->last_error();
+				}
+				break;
+
+			default:
+
+				$status  = 'error';
+				$message = 'Unknown action: "' . $action . '"';
+				break;
+		}
+
+		$this->session->set_flashdata($status, $message);
+		redirect($this->input->post('return'));
 	}
 
 

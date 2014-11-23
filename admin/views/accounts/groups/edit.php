@@ -1,4 +1,4 @@
-<div class="group-members groups edit">
+<div class="group-accounts groups edit">
 	<div class="system-alert message">
 		<div class="padder">
 			<p>

@@ -1,6 +1,6 @@
 <?php
 
-	echo '<div class="group-members create">';
+	echo '<div class="group-accounts create">';
 	echo form_open();
 
 	echo '<p>' . lang( 'accounts_create_intro' ) .'</p>';
