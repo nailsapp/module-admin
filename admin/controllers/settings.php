@@ -996,67 +996,63 @@ class NAILS_Settings extends NAILS_Admin_Controller
 	public function email()
 	{
 		//	Set method info
-		$this->data['page']->title = lang( 'settings_email_title' );
+		$this->data['page']->title = lang('settings_email_title');
 
 		// --------------------------------------------------------------------------
 
 		//	Process POST
-		if ( $this->input->post() ) :
+		if ($this->input->post()) {
 
-			$_method =  $this->input->post( 'update' );
+			$method = $this->input->post('update');
+			if (method_exists($this, '_email_update_' . $method)) {
 
-			if ( method_exists( $this, '_email_update_' . $_method ) ) :
+				$this->{'_email_update_' . $method}();
 
-				$this->{'_email_update_' . $_method}();
-
-			else :
+			} else {
 
 				$this->data['error'] = '<strong>Sorry,</strong> I can\'t determine what type of update you are trying to perform.';
-
-			endif;
-
-		endif;
+			}
+		}
 
 		// --------------------------------------------------------------------------
 
 		//	Get data
-		$this->data['settings'] = app_setting( NULL, 'email', TRUE );
+		$this->data['settings'] = app_setting(null, 'email', true);
 
 		// --------------------------------------------------------------------------
 
 		//	Assets
-		$this->asset->load( 'nails.admin.email.settings.min.js', TRUE );
-		$this->asset->inline( '<script>_nails_settings = new NAILS_Admin_Email_Settings();</script>' );
+		$this->asset->load('nails.admin.email.settings.min.js', true);
+		$this->asset->inline('<script>_nails_settings = new NAILS_Admin_Email_Settings();</script>');
 
 		// --------------------------------------------------------------------------
 
-		$this->load->view( 'structure/header',		$this->data );
-		$this->load->view( 'admin/settings/email',	$this->data );
-		$this->load->view( 'structure/footer',		$this->data );
+		$this->load->view('structure/header', $this->data);
+		$this->load->view('admin/settings/email', $this->data);
+		$this->load->view('structure/footer', $this->data);
 	}
 
 
 	// --------------------------------------------------------------------------
 
 
-	protected function _email_update_customise()
+	protected function _email_update_general()
 	{
 		//	Prepare update
-		$_settings					= array();
-		$_settings['from_name']		= $this->input->post( 'from_name' );
-		$_settings['from_email']	= $this->input->post( 'from_email' );
+		$settings					= array();
+		$settings['from_name']		= $this->input->post('from_name');
+		$settings['from_email']	= $this->input->post('from_email');
 
 		// --------------------------------------------------------------------------
 
-		if ( $this->app_setting_model->set( $_settings, 'email' ) ) :
+		if ($this->app_setting_model->set($settings, 'email')) {
 
-			$this->data['success'] = '<strong>Success!</strong> Email customisation settings have been saved.';
+			$this->data['success'] = '<strong>Success!</strong> General email settings have been saved.';
 
-		else :
+		} else {
 
 			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
-
-		endif;
+		}
 	}
 
 
