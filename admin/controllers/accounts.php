@@ -1,4 +1,4 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php  if (! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
  * Name:		Admin: Accounts
@@ -45,21 +45,21 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Load the laguage file
-		get_instance()->lang->load( 'admin_accounts' );
+		get_instance()->lang->load('admin_accounts');
 
 		// --------------------------------------------------------------------------
 
 		//	Configurations
-		$d->name = lang( 'accounts_module_name' );
+		$d->name = lang('accounts_module_name');
 		$d->icon = 'fa-users';
 
 		// --------------------------------------------------------------------------
 
 		//	Navigation options
 		$d->funcs			= array();
-		$d->funcs['index']	= lang( 'accounts_nav_index' );
+		$d->funcs['index']	= lang('accounts_nav_index');
 
-		if ( user_has_permission( 'admin.accounts:0.can_manage_groups' ) ) :
+		if (user_has_permission('admin.accounts:0.can_manage_groups')) :
 
 			$d->funcs['groups']	= 'Manage User Groups';
 
@@ -92,11 +92,11 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		$_notifications['index']['type']	= 'split';
 		$_notifications['index']['options']	= array();
 
-		$_ci->db->where( 'is_suspended', TRUE );
-		$_notifications['index']['options'][] = array( 'title' => 'Suspended', 'type' => 'alert', 'value' => $_ci->db->count_all_results( NAILS_DB_PREFIX . 'user' ) );
+		$_ci->db->where('is_suspended', TRUE);
+		$_notifications['index']['options'][] = array('title' => 'Suspended', 'type' => 'alert', 'value' => $_ci->db->count_all_results(NAILS_DB_PREFIX . 'user'));
 
-		$_ci->db->where( 'is_suspended', FALSE );
-		$_notifications['index']['options'][] = array( 'title' => 'Active', 'type' => 'info', 'value' => $_ci->db->count_all_results( NAILS_DB_PREFIX . 'user' ) );
+		$_ci->db->where('is_suspended', FALSE);
+		$_notifications['index']['options'][] = array('title' => 'Active', 'type' => 'info', 'value' => $_ci->db->count_all_results(NAILS_DB_PREFIX . 'user'));
 
 		// --------------------------------------------------------------------------
 
@@ -114,9 +114,9 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 	 * @param	none
 	 * @return	array
 	 **/
-	static function permissions( $class_index = NULL )
+	static function permissions($class_index = NULL)
 	{
-		$_permissions = parent::permissions( $class_index );
+		$_permissions = parent::permissions($class_index);
 
 		// --------------------------------------------------------------------------
 
@@ -163,11 +163,11 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		$this->accounts_sortfields[] = array( 'label' => lang( 'accounts_sort_id' ),		'col' => 'u.id' );
-		$this->accounts_sortfields[] = array( 'label' => lang( 'accounts_sort_group_id' ),	'col' => 'u.group_id' );
-		$this->accounts_sortfields[] = array( 'label' => lang( 'accounts_sort_first' ),		'col' => 'u.first_name' );
-		$this->accounts_sortfields[] = array( 'label' => lang( 'accounts_sort_last' ),		'col' => 'u.last_name' );
-		$this->accounts_sortfields[] = array( 'label' => lang( 'accounts_sort_email' ),		'col' => 'ue.email' );
+		$this->accounts_sortfields[] = array('label' => lang('accounts_sort_id'),		'col' => 'u.id');
+		$this->accounts_sortfields[] = array('label' => lang('accounts_sort_group_id'),	'col' => 'u.group_id');
+		$this->accounts_sortfields[] = array('label' => lang('accounts_sort_first'),		'col' => 'u.first_name');
+		$this->accounts_sortfields[] = array('label' => lang('accounts_sort_last'),		'col' => 'u.last_name');
+		$this->accounts_sortfields[] = array('label' => lang('accounts_sort_email'),		'col' => 'ue.email');
 	}
 
 
@@ -184,48 +184,48 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 	public function index()
 	{
 		//	Searching, sorting, ordering and paginating.
-		$_hash = 'search_' . md5( uri_string() ) . '_';
+		$_hash = 'search_' . md5(uri_string()) . '_';
 
-		if ( $this->input->get( 'reset' ) ) :
+		if ($this->input->get('reset')) :
 
-			$this->session->unset_userdata( $_hash . 'per_page' );
-			$this->session->unset_userdata( $_hash . 'sort' );
-			$this->session->unset_userdata( $_hash . 'order' );
+			$this->session->unset_userdata($_hash . 'per_page');
+			$this->session->unset_userdata($_hash . 'sort');
+			$this->session->unset_userdata($_hash . 'order');
 
 		endif;
 
-		$_default_per_page	= $this->session->userdata( $_hash . 'per_page' ) ? $this->session->userdata( $_hash . 'per_page' ) : 50;
-		$_default_sort		= $this->session->userdata( $_hash . 'sort' ) ? 	$this->session->userdata( $_hash . 'sort' ) : 'u.id';
-		$_default_order		= $this->session->userdata( $_hash . 'order' ) ? 	$this->session->userdata( $_hash . 'order' ) : 'ASC';
+		$_default_per_page	= $this->session->userdata($_hash . 'per_page') ? $this->session->userdata($_hash . 'per_page') : 50;
+		$_default_sort		= $this->session->userdata($_hash . 'sort') ? 	$this->session->userdata($_hash . 'sort') : 'u.id';
+		$_default_order		= $this->session->userdata($_hash . 'order') ? 	$this->session->userdata($_hash . 'order') : 'ASC';
 
 		//	Define vars
-		$_search			= array( 'keywords' => $this->input->get( 'search' ), 'columns' => array() );
+		$_search			= array('keywords' => $this->input->get('search'), 'columns' => array());
 
-		foreach ( $this->accounts_sortfields AS $field ) :
+		foreach ($this->accounts_sortfields AS $field) :
 
-			$_search['columns'][strtolower( $field['label'] )] = $field['col'];
+			$_search['columns'][strtolower($field['label'])] = $field['col'];
 
 		endforeach;
 
 		//	Add any other permenantly searchable fields here
-		$_search['columns']['name']		= array( ' ', 'u.first_name', 'u.last_name' );
+		$_search['columns']['name']		= array(' ', 'u.first_name', 'u.last_name');
 		$_search['columns']['gender']	= 'u.gender';
 
 		$_limit		= array(
-						$this->input->get( 'per_page' ) ? $this->input->get( 'per_page' ) : $_default_per_page,
-						$this->input->get( 'offset' ) ? $this->input->get( 'offset' ) : 0
+						$this->input->get('per_page') ? $this->input->get('per_page') : $_default_per_page,
+						$this->input->get('offset') ? $this->input->get('offset') : 0
 					);
 		$_order		= array(
-						$this->input->get( 'sort' ) ? $this->input->get( 'sort' ) : $_default_sort,
-						$this->input->get( 'order' ) ? $this->input->get( 'order' ) : $_default_order
+						$this->input->get('sort') ? $this->input->get('sort') : $_default_sort,
+						$this->input->get('order') ? $this->input->get('order') : $_default_order
 					);
 
-		$this->accounts_group = ! empty( $this->accounts_group ) ? $this->accounts_group : $this->input->get( 'filter' );
+		$this->accounts_group = ! empty($this->accounts_group) ? $this->accounts_group : $this->input->get('filter');
 
 		//	Set sorting and ordering info in session data so it's remembered for when user returns
-		$this->session->set_userdata( $_hash . 'per_page', $_limit[0] );
-		$this->session->set_userdata( $_hash . 'sort', $_order[0] );
-		$this->session->set_userdata( $_hash . 'order', $_order[1] );
+		$this->session->set_userdata($_hash . 'per_page', $_limit[0]);
+		$this->session->set_userdata($_hash . 'sort', $_order[0]);
+		$this->session->set_userdata($_hash . 'order', $_order[1]);
 
 		//	Set values for the page
 		$this->data['search']			= new stdClass();
@@ -236,7 +236,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Is a group set?
-		if ( $this->accounts_group ) :
+		if ($this->accounts_group) :
 
 			$this->accounts_where['u.group_id'] = $this->accounts_group;
 
@@ -246,24 +246,24 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 		//	Get the accounts
 		$this->data['users']		= new stdClass();
-		$this->data['users']->data	= $this->user_model->get_all( FALSE, $_order, $_limit, $this->accounts_where, $_search );
+		$this->data['users']->data	= $this->user_model->get_all(FALSE, $_order, $_limit, $this->accounts_where, $_search);
 
 		//	Work out pagination
 		$this->data['users']->pagination				= new stdClass();
-		$this->data['users']->pagination->total_results	= $this->user_model->count_all( $this->accounts_where, $_search );
+		$this->data['users']->pagination->total_results	= $this->user_model->count_all($this->accounts_where, $_search);
 
 		// --------------------------------------------------------------------------
 
 		//	Override the title (used when loading this method from one of the other methods)
-		$this->data['page']->title	 = ( ! empty( $this->data['page']->title ) ) ? $this->data['page']->title : lang( 'accounts_index_title' );
+		$this->data['page']->title	 = (! empty($this->data['page']->title)) ? $this->data['page']->title : lang('accounts_index_title');
 
-		if ( $_search['keywords'] ) :
+		if ($_search['keywords']) :
 
-			$this->data['page']->title	.= ' (' . lang( 'accounts_index_search_results', array( $_search['keywords'], number_format( $this->data['users']->pagination->total_results ) ) ) . ')';
+			$this->data['page']->title	.= ' (' . lang('accounts_index_search_results', array($_search['keywords'], number_format($this->data['users']->pagination->total_results))) . ')';
 
 		else :
 
-			$this->data['page']->title	.= ' (' . number_format( $this->data['users']->pagination->total_results ) . ')';
+			$this->data['page']->title	.= ' (' . number_format($this->data['users']->pagination->total_results) . ')';
 
 		endif;
 
@@ -277,9 +277,9 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Load views
-		$this->load->view( 'structure/header',		$this->data );
-		$this->load->view( 'admin/accounts/index',	$this->data );
-		$this->load->view( 'structure/footer',		$this->data );
+		$this->load->view('structure/header',		$this->data);
+		$this->load->view('admin/accounts/index',	$this->data);
+		$this->load->view('structure/footer',		$this->data);
 	}
 
 
@@ -288,7 +288,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 	public function create()
 	{
-		if ( ! user_has_permission( 'admin.accounts:0.can_create_user' ) ) :
+		if (! user_has_permission('admin.accounts:0.can_create_user')) :
 
 			unauthorised();
 
@@ -297,156 +297,134 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Page Title
-		$this->data['page']->title = lang( 'accounts_create_title' );
+		$this->data['page']->title = lang('accounts_create_title');
 
 		// --------------------------------------------------------------------------
 
 		//	Attempt to create the new user account
-		if ( $this->input->post() ) :
+		if ($this->input->post()) :
 
-			$this->load->library( 'form_validation' );
+			$this->load->library('form_validation');
 
 			//	Set rules
-			$this->form_validation->set_rules( 'group_id',			'',	'xss_clean|required|is_natural_no_zero' );
-			$this->form_validation->set_rules( 'password',			'',	'xss_clean' );
-			$this->form_validation->set_rules( 'send_activation',	'',	'xss_clean' );
-			$this->form_validation->set_rules( 'temp_pw',			'',	'xss_clean' );
-			$this->form_validation->set_rules( 'first_name',		'',	'xss_clean|required' );
-			$this->form_validation->set_rules( 'last_name',			'',	'xss_clean|required' );
+			$this->form_validation->set_rules('group_id',			'',	'xss_clean|required|is_natural_no_zero');
+			$this->form_validation->set_rules('password',			'',	'xss_clean');
+			$this->form_validation->set_rules('send_activation',	'',	'xss_clean');
+			$this->form_validation->set_rules('temp_pw',			'',	'xss_clean');
+			$this->form_validation->set_rules('first_name',			'',	'xss_clean|required');
+			$this->form_validation->set_rules('last_name',			'',	'xss_clean|required');
 
-			if ( APP_NATIVE_LOGIN_USING == 'EMAIL' ) :
+			$emailRules   = array();
+			$emailRules[] = 'xss_clean';
+			$emailRules[] = 'required';
+			$emailRules[] = 'valid_email';
+			$emailRules[] = 'is_unique[' . NAILS_DB_PREFIX . 'user_email.email]';
 
-				$this->form_validation->set_rules( 'email',			'',	'xss_clean|required|valid_email|is_unique[' . NAILS_DB_PREFIX . 'user_email.email]' );
+			if (APP_NATIVE_LOGIN_USING == 'EMAIL') {
 
-				if ( $this->input->post( 'username' ) ) :
+				$this->form_validation->set_rules('email', '', implode('|', $emailRules));
 
-					$this->form_validation->set_rules( 'username',	'',	'xss_clean|trim|alpha_dash_period|min_length[2]|is_unique[' . NAILS_DB_PREFIX . 'user.username]' );
+				if ($this->input->post('username')) {
 
-				else :
+					$this->form_validation->set_rules('username', '', implode('|', 'xss_clean'));
+				}
 
-					$this->form_validation->set_rules( 'username',		'',	'xss_clean|trim|alpha_dash_period|min_length[2]' );
+			} elseif (APP_NATIVE_LOGIN_USING == 'USERNAME') {
 
-				endif;
+				$this->form_validation->set_rules('username', '', implode('|', 'xss_clean|required'));
 
-			elseif ( APP_NATIVE_LOGIN_USING == 'USERNAME' ) :
+				if ($this->input->post('email')) {
 
-				$this->form_validation->set_rules( 'username',		'',	'xss_clean|trim|alpha_dash_period|min_length[2]|is_unique[' . NAILS_DB_PREFIX . 'user.username]' );
+					$this->form_validation->set_rules('email', '', implode('|', $emailRules));
+				}
 
-				if ( $this->input->post( 'email' ) ) :
+			} else {
 
-					$this->form_validation->set_rules( 'email',		'',	'xss_clean|valid_email|is_unique[' . NAILS_DB_PREFIX . 'user_email.email]' );
-
-				else :
-
-					$this->form_validation->set_rules( 'email',		'',	'xss_clean' );
-
-				endif;
-
-			else :
-
-				if ( $this->input->post( 'email' ) ) :
-
-					$this->form_validation->set_rules( 'email',		'',	'xss_clean|valid_email|is_unique[' . NAILS_DB_PREFIX . 'user_email.email]' );
-
-				else :
-
-					$this->form_validation->set_rules( 'email',		'',	'xss_clean' );
-
-				endif;
-
-				if ( $this->input->post( 'username' ) ) :
-
-					$this->form_validation->set_rules( 'username',	'',	'xss_clean|trim|alpha_dash_period|min_length[2]|is_unique[' . NAILS_DB_PREFIX . 'user.username]' );
-
-				else :
-
-					$this->form_validation->set_rules( 'username',		'',	'xss_clean|trim|alpha_dash_period|min_length[2]' );
-
-				endif;
-
-			endif;
+				$this->form_validation->set_rules('email',		'',	implode('|', $emailRules));
+				$this->form_validation->set_rules('username',	'',	'xss_clean|required');
+			}
 
 			//	Set messages
-			$this->form_validation->set_message( 'required',			lang( 'fv_required' ) );
-			$this->form_validation->set_message( 'min_length',			lang( 'fv_min_length' ) );
-			$this->form_validation->set_message( 'alpha_dash_period',	lang( 'fv_alpha_dash_period' ) );
-			$this->form_validation->set_message( 'is_natural_no_zero',	lang( 'fv_required' ) );
-			$this->form_validation->set_message( 'valid_email',			lang( 'fv_valid_email' ) );
-			$this->form_validation->set_message( 'is_unique',			lang( 'fv_email_already_registered' ) );
+			$this->form_validation->set_message('required',				lang('fv_required'));
+			$this->form_validation->set_message('min_length',			lang('fv_min_length'));
+			$this->form_validation->set_message('alpha_dash_period',	lang('fv_alpha_dash_period'));
+			$this->form_validation->set_message('is_natural_no_zero',	lang('fv_required'));
+			$this->form_validation->set_message('valid_email',			lang('fv_valid_email'));
+			$this->form_validation->set_message('is_unique',			lang('fv_email_already_registered'));
 
 			//	Execute
-			if ( $this->form_validation->run() ) :
+			if ($this->form_validation->run()) :
 
 				//	Success
 				$_data				= array();
-				$_data['group_id']	= (int) $this->input->post( 'group_id' );
-				$_data['password']	= trim( $this->input->post( 'password' ) );
+				$_data['group_id']	= (int) $this->input->post('group_id');
+				$_data['password']	= trim($this->input->post('password'));
 
-				if ( ! $_data['password'] ) :
+				if (! $_data['password']) :
 
 					//	Password isn't set, generate one
 					$_data['password'] = $this->user_password_model->generate();
 
 				endif;
 
-				if ( $this->input->post( 'email' ) ) :
+				if ($this->input->post('email')) :
 
-					$_data['email'] = strtolower( $this->input->post( 'email' ) );
-
-				endif;
-
-				if ( $this->input->post( 'username' ) ) :
-
-					$_data['username'] = strtolower( $this->input->post( 'username' ) );
+					$_data['email'] = $this->input->post('email');
 
 				endif;
 
-				$_data['first_name']		= $this->input->post( 'first_name' );
-				$_data['last_name']			= $this->input->post( 'last_name' );
-				$_data['temp_pw']			= string_to_boolean( $this->input->post( 'temp_pw' ) );
+				if ($this->input->post('username')) :
+
+					$_data['username'] = $this->input->post('username');
+
+				endif;
+
+				$_data['first_name']		= $this->input->post('first_name');
+				$_data['last_name']			= $this->input->post('last_name');
+				$_data['temp_pw']			= string_to_boolean($this->input->post('temp_pw'));
 				$_data['inform_user_pw']	= TRUE;
 
-				$_new_user = $this->user_model->create( $_data, string_to_boolean( $this->input->post( 'send_activation' ) ) );
+				$_new_user = $this->user_model->create($_data, string_to_boolean($this->input->post('send_activation')));
 
-				if ( $_new_user ) :
+				if ($_new_user) :
 
 					//	Any errors happen? While the user can be created successfully other problems might happen along the way
-					if ( $this->user_model->get_errors() ) :
+					if ($this->user_model->get_errors()) :
 
 						$_message  = '<strong>Please Note,</strong> while the user was created successfully, the following issues were encountered:';
-						$_message .= '<ul><li>' . implode( '</li><li>', $this->user_model->get_errors() ) . '</li></ul>';
+						$_message .= '<ul><li>' . implode('</li><li>', $this->user_model->get_errors()) . '</li></ul>';
 
-						$this->session->set_flashdata( 'message', $_message );
+						$this->session->set_flashdata('message', $_message);
 
 					endif;
 
 					// --------------------------------------------------------------------------
 
 					//	Add item to admin changelog
-					$_name = '#' . number_format( $_new_user->id );
+					$_name = '#' . number_format($_new_user->id);
 
-					if ( $_new_user->first_name ) :
+					if ($_new_user->first_name) :
 
 						$_name .= ' ' . $_new_user->first_name;
 
 					endif;
 
-					if ( $_new_user->last_name ) :
+					if ($_new_user->last_name) :
 
 						$_name .= ' ' . $_new_user->last_name;
 
 					endif;
 
-					$this->admin_changelog_model->add( 'created', 'a', 'user', $_new_user->id,  $_name, 'admin/accounts/edit/' . $_new_user->id );
+					$this->admin_changelog_model->add('created', 'a', 'user', $_new_user->id,  $_name, 'admin/accounts/edit/' . $_new_user->id);
 
 					// --------------------------------------------------------------------------
 
-					$this->session->set_flashdata( 'success', '<strong>Success!</strong> A user account was created for <strong>' . $_new_user->first_name . '</strong>, update their details now.' );
-					redirect( 'admin/accounts/edit/' . $_new_user->id );
+					$this->session->set_flashdata('success', '<strong>Success!</strong> A user account was created for <strong>' . $_new_user->first_name . '</strong>, update their details now.');
+					redirect('admin/accounts/edit/' . $_new_user->id);
 
 				else :
 
-					$this->data['error'] = '<strong>Sorry,</strong> there was an error when creating the user account:<br />&rsaquo; ' . implode( '<br />&rsaquo; ', $this->user_model->get_errors() );
+					$this->data['error'] = '<strong>Sorry,</strong> there was an error when creating the user account:<br />&rsaquo; ' . implode('<br />&rsaquo; ', $this->user_model->get_errors());
 
 				endif;
 
@@ -466,9 +444,9 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Load views
-		$this->load->view( 'structure/header',				$this->data );
-		$this->load->view( 'admin/accounts/create/index',	$this->data );
-		$this->load->view( 'structure/footer',				$this->data );
+		$this->load->view('structure/header',				$this->data);
+		$this->load->view('admin/accounts/create/index',	$this->data);
+		$this->load->view('structure/footer',				$this->data);
 	}
 
 
@@ -484,7 +462,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 	 **/
 	public function edit()
 	{
-		if ( $this->uri->segment( 4 ) != active_user( 'id' ) && ! user_has_permission( 'admin.accounts:0.can_edit_others' ) ) :
+		if ($this->uri->segment(4) != active_user('id') && ! user_has_permission('admin.accounts:0.can_edit_others')) :
 
 			unauthorised();
 
@@ -497,47 +475,47 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		 * (we need to know the group of the user so we can pull up the correct cols/rules)
 		 */
 
-		$_user = $this->user_model->get_by_id( $this->uri->segment( 4 ) );
+		$_user = $this->user_model->get_by_id($this->uri->segment(4));
 
-		if ( ! $_user ) :
+		if (! $_user) :
 
-			$this->session->set_flashdata( 'error', lang( 'accounts_edit_error_unknown_id' ) );
-			redirect( $this->input->get( 'return_to' ) );
+			$this->session->set_flashdata('error', lang('accounts_edit_error_unknown_id'));
+			redirect($this->input->get('return_to'));
 
 		endif;
 
 		//	Non-superusers editing superusers is not cool
-		if ( ! $this->user_model->is_superuser() && user_has_permission( 'superuser', $_user ) ) :
+		if (! $this->user_model->is_superuser() && user_has_permission('superuser', $_user)) :
 
-			$this->session->set_flashdata( 'error', lang( 'accounts_edit_error_noteditable' ) );
-			$_return_to = $this->input->get( 'return_to' ) ? $this->input->get( 'return_to' ) : 'admin/dashboard';
-			redirect( $_return_to );
+			$this->session->set_flashdata('error', lang('accounts_edit_error_noteditable'));
+			$_return_to = $this->input->get('return_to') ? $this->input->get('return_to') : 'admin/dashboard';
+			redirect($_return_to);
 
 		endif;
 
 		//	Is this user editing someone other than themselves? If so, do they have permission?
-		if ( active_user( 'id' ) != $_user->id && ! user_has_permission( 'admin.accounts:0.can_edit_others' ) ) :
+		if (active_user('id') != $_user->id && ! user_has_permission('admin.accounts:0.can_edit_others')) :
 
-			$this->session->set_flashdata( 'error', lang( 'accounts_edit_error_noteditable' ) );
-			$_return_to = $this->input->get( 'return_to' ) ? $this->input->get( 'return_to' ) : 'admin/dashboard';
-			redirect( $_return_to );
+			$this->session->set_flashdata('error', lang('accounts_edit_error_noteditable'));
+			$_return_to = $this->input->get('return_to') ? $this->input->get('return_to') : 'admin/dashboard';
+			redirect($_return_to);
 
 		endif;
 
 		// --------------------------------------------------------------------------
 
 		//	Load helpers
-		$this->load->helper( 'date' );
+		$this->load->helper('date');
 
 		// --------------------------------------------------------------------------
 
 		//	Load the user_meta_cols; loaded here because it's needed for both the view
 		//	and the form validation
 
-		$_user_meta_cols	= $this->config->item( 'user_meta_cols' );
-		$_group_id			= $this->input->post( 'group_id' ) ? $this->input->post( 'group_id' ) : $_user->group_id;
+		$_user_meta_cols	= $this->config->item('user_meta_cols');
+		$_group_id			= $this->input->post('group_id') ? $this->input->post('group_id') : $_user->group_id;
 
-		if ( isset( $_user_meta_cols[$_group_id] ) ) :
+		if (isset($_user_meta_cols[$_group_id])) :
 
 			$this->data['user_meta_cols'] = $_user_meta_cols[$_user->group_id];
 
@@ -555,15 +533,15 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		//	If no cols were found, DESCRIBE the user_meta table - where possible
 		//	you should manually set columns, including datatypes
 
-		if ( NULL === $this->data['user_meta_cols'] ) :
+		if (NULL === $this->data['user_meta_cols']) :
 
-			$_describe = $this->db->query( 'DESCRIBE `' . NAILS_DB_PREFIX . 'user_meta`' )->result();
+			$_describe = $this->db->query('DESCRIBE `' . NAILS_DB_PREFIX . 'user_meta`')->result();
 			$this->data['user_meta_cols'] = array();
 
-			foreach ( $_describe AS $col ) :
+			foreach ($_describe AS $col) :
 
 				//	Always ignore some fields
-				if ( array_search( $col->Field, $this->data['ignored_fields'] ) !== FALSE )
+				if (array_search($col->Field, $this->data['ignored_fields']) !== FALSE)
 					continue;
 
 				// --------------------------------------------------------------------------
@@ -572,7 +550,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 				$_datatype	= 'string';
 				$_type		= 'text';
 
-				switch( strtolower( $col->Type ) ) :
+				switch(strtolower($col->Type)) :
 
 					case 'text' :					$_type = 'textarea';	break;
 					case 'date' :					$_datatype = 'date';	break;
@@ -585,7 +563,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 				$this->data['user_meta_cols'][$col->Field] = array(
 					'datatype'		=> $_datatype,
 					'type'			=> $_type,
-					'label'			=> ucwords( str_replace( '_', ' ', $col->Field ) )
+					'label'			=> ucwords(str_replace('_', ' ', $col->Field))
 				);
 
 			endforeach;
@@ -595,47 +573,47 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Validate if we're saving, otherwise get the data and display the edit form
-		if ( $this->input->post() ) :
+		if ($this->input->post()) :
 
 			//	Load validation library
-			$this->load->library( 'form_validation' );
+			$this->load->library('form_validation');
 
 			// --------------------------------------------------------------------------
 
 			//	Define user table rules
-			$this->form_validation->set_rules( 'username',					'',	'xss_clean|trim|alpha_dash_period|min_length[2]|unique_if_diff[' . NAILS_DB_PREFIX . 'user.username.' . $this->input->post( 'username_orig' ) . ']' );
-			$this->form_validation->set_rules( 'first_name',				'',	'xss_clean|trim|required' );
-			$this->form_validation->set_rules( 'last_name',					'',	'xss_clean|trim|required' );
-			$this->form_validation->set_rules( 'gender',					'',	'xss_clean|required' );
-			$this->form_validation->set_rules( 'dob',						'',	'xss_clean|valid_date' );
-			$this->form_validation->set_rules( 'timezone',					'',	'xss_clean|required' );
-			$this->form_validation->set_rules( 'datetime_format_date',		'',	'xss_clean|required' );
-			$this->form_validation->set_rules( 'datetime_format_time',		'',	'xss_clean|required' );
-			$this->form_validation->set_rules( 'password',					'',	'xss_clean' );
-			$this->form_validation->set_rules( 'temp_pw',					'',	'xss_clean' );
-			$this->form_validation->set_rules( 'reset_security_questions',	'',	'xss_clean' );
+			$this->form_validation->set_rules('username',					'',	'xss-clean');
+			$this->form_validation->set_rules('first_name',					'',	'xss_clean|trim|required');
+			$this->form_validation->set_rules('last_name',					'',	'xss_clean|trim|required');
+			$this->form_validation->set_rules('gender',						'',	'xss_clean|required');
+			$this->form_validation->set_rules('dob',						'',	'xss_clean|valid_date');
+			$this->form_validation->set_rules('timezone',					'',	'xss_clean|required');
+			$this->form_validation->set_rules('datetime_format_date',		'',	'xss_clean|required');
+			$this->form_validation->set_rules('datetime_format_time',		'',	'xss_clean|required');
+			$this->form_validation->set_rules('password',					'',	'xss_clean');
+			$this->form_validation->set_rules('temp_pw',					'',	'xss_clean');
+			$this->form_validation->set_rules('reset_security_questions',	'',	'xss_clean');
 
 			// --------------------------------------------------------------------------
 
 			//	Define user_meta table rules
-			foreach ( $this->data['user_meta_cols'] AS $col => $value ) :
+			foreach ($this->data['user_meta_cols'] AS $col => $value) :
 
-				$_datatype	= isset( $value['datatype'] )	? $value['datatype'] : 'string';
-				$_label		= isset( $value['label'] )		? $value['label'] : ucwords( str_replace( '_', ' ', $col ) );
+				$_datatype	= isset($value['datatype'])	? $value['datatype'] : 'string';
+				$_label		= isset($value['label'])		? $value['label'] : ucwords(str_replace('_', ' ', $col));
 
 				//	Some data types require different handling
-				switch ( $_datatype ) :
+				switch ($_datatype) :
 
 					case 'date' :
 
 						//	Dates must validate
-						if ( isset( $value['validation'] ) ) :
+						if (isset($value['validation'])) :
 
-							$this->form_validation->set_rules( $col, $_label, 'xss_clean|' . $value['validation'] . '|valid_date[' . $col . ']' );
+							$this->form_validation->set_rules($col, $_label, 'xss_clean|' . $value['validation'] . '|valid_date[' . $col . ']');
 
 						else :
 
-							$this->form_validation->set_rules( $col, $_label, 'xss_clean|valid_date[' . $col . ']' );
+							$this->form_validation->set_rules($col, $_label, 'xss_clean|valid_date[' . $col . ']');
 
 						endif;
 
@@ -648,13 +626,13 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 					case 'string' :
 					default :
 
-						if ( isset( $value['validation'] ) ) :
+						if (isset($value['validation'])) :
 
-							$this->form_validation->set_rules( $col, $_label, 'xss_clean|' . $value['validation'] );
+							$this->form_validation->set_rules($col, $_label, 'xss_clean|' . $value['validation']);
 
 						else :
 
-							$this->form_validation->set_rules( $col, $_label, 'xss_clean' );
+							$this->form_validation->set_rules($col, $_label, 'xss_clean');
 
 						endif;
 
@@ -667,17 +645,17 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 			// --------------------------------------------------------------------------
 
 			//	Set messages
-			$this->form_validation->set_message( 'required',			lang( 'fv_required' ) );
-			$this->form_validation->set_message( 'min_length',			lang( 'fv_min_length' ) );
-			$this->form_validation->set_message( 'alpha_dash_period',	lang( 'fv_alpha_dash_period' ) );
-			$this->form_validation->set_message( 'is_natural_no_zero',	lang( 'fv_required' ) );
-			$this->form_validation->set_message( 'valid_date',			lang( 'fv_valid_date' ) );
-			$this->form_validation->set_message( 'valid_datetime',		lang( 'fv_valid_datetime' ) );
+			$this->form_validation->set_message('required',				lang('fv_required'));
+			$this->form_validation->set_message('min_length',			lang('fv_min_length'));
+			$this->form_validation->set_message('alpha_dash_period',	lang('fv_alpha_dash_period'));
+			$this->form_validation->set_message('is_natural_no_zero',	lang('fv_required'));
+			$this->form_validation->set_message('valid_date',			lang('fv_valid_date'));
+			$this->form_validation->set_message('valid_datetime',		lang('fv_valid_datetime'));
 
 			// --------------------------------------------------------------------------
 
 			//	Data is valid; ALL GOOD :]
-			if ( $this->form_validation->run( $this ) ) :
+			if ($this->form_validation->run($this)) :
 
 				//	Define the data var
 				$_data = array();
@@ -685,18 +663,18 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 				// --------------------------------------------------------------------------
 
 				//	If we have a profile image, attempt to upload it
-				if ( isset( $_FILES['profile_img'] ) && $_FILES['profile_img']['error'] != 4 ) :
+				if (isset($_FILES['profile_img']) && $_FILES['profile_img']['error'] != 4) :
 
-					$_object = $this->cdn->object_replace( $_user->profile_img, 'profile-images', 'profile_img' );
+					$_object = $this->cdn->object_replace($_user->profile_img, 'profile-images', 'profile_img');
 
-					if ( $_object ) :
+					if ($_object) :
 
 						$_data['profile_img'] = $_object->id;
 
 					else :
 
 						$this->data['upload_error']	= $this->cdn->get_errors();
-						$this->data['error']		= lang( 'accounts_edit_error_profile_img' );
+						$this->data['error']		= lang('accounts_edit_error_profile_img');
 
 					endif;
 
@@ -704,37 +682,37 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 				// --------------------------------------------------------------------------
 
-				if ( ! isset( $this->data['upload_error'] ) ) :
+				if (! isset($this->data['upload_error'])) :
 
 					//	Set basic data
-					$_data['temp_pw']					= string_to_boolean( $this->input->post( 'temp_pw' ) );
-					$_data['reset_security_questions']	= string_to_boolean( $this->input->post( 'reset_security_questions' ) );
-					$_data['first_name']				= $this->input->post( 'first_name' );
-					$_data['last_name']					= $this->input->post( 'last_name' );
-					$_data['username']					= $this->input->post( 'username' );
-					$_data['gender']					= $this->input->post( 'gender' );
-					$_data['dob']						= $this->input->post( 'dob' );
-					$_data['dob']						= ! empty( $_data['dob'] ) ? $_data['dob'] : NULL;
-					$_data['timezone']					= $this->input->post( 'timezone' );
-					$_data['datetime_format_date']		= $this->input->post( 'datetime_format_date' );
-					$_data['datetime_format_time']		= $this->input->post( 'datetime_format_time' );
+					$_data['temp_pw']					= string_to_boolean($this->input->post('temp_pw'));
+					$_data['reset_security_questions']	= string_to_boolean($this->input->post('reset_security_questions'));
+					$_data['first_name']				= $this->input->post('first_name');
+					$_data['last_name']					= $this->input->post('last_name');
+					$_data['username']					= $this->input->post('username');
+					$_data['gender']					= $this->input->post('gender');
+					$_data['dob']						= $this->input->post('dob');
+					$_data['dob']						= ! empty($_data['dob']) ? $_data['dob'] : NULL;
+					$_data['timezone']					= $this->input->post('timezone');
+					$_data['datetime_format_date']		= $this->input->post('datetime_format_date');
+					$_data['datetime_format_time']		= $this->input->post('datetime_format_time');
 
-					if ( $this->input->post( 'password' ) ) :
+					if ($this->input->post('password')) :
 
-						$_data['password']	= $this->input->post( 'password' );
+						$_data['password']	= $this->input->post('password');
 
 					endif;
 
 					//	Set meta data
-					foreach ( $this->data['user_meta_cols'] AS $col => $value ) :
+					foreach ($this->data['user_meta_cols'] AS $col => $value) :
 
-						switch ( $value['datatype'] ) :
+						switch ($value['datatype']) :
 
 							case 'bool' :
 							case 'boolean' :
 
 								//	Convert all to boolean from string
-								$_data[$col] = string_to_boolean( $this->input->post( $col ) );
+								$_data[$col] = string_to_boolean($this->input->post($col));
 
 							break;
 
@@ -742,7 +720,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 							default :
 
-								$_data[$col] = $this->input->post( $col );
+								$_data[$col] = $this->input->post($col);
 
 							break;
 
@@ -753,33 +731,33 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 					// --------------------------------------------------------------------------
 
 					//	Update account
-					if ( $this->user_model->update( $this->input->post( 'id' ), $_data ) ) :
+					if ($this->user_model->update($this->input->post('id'), $_data)) :
 
-						$_name = $this->input->post(  'first_name' ) . ' ' . $this->input->post( 'last_name' );
-						$this->data['success'] = lang( 'accounts_edit_ok', array( title_case( $_name ) ) );
+						$_name = $this->input->post( 'first_name') . ' ' . $this->input->post('last_name');
+						$this->data['success'] = lang('accounts_edit_ok', array(title_case($_name)));
 
 						// --------------------------------------------------------------------------
 
 						//	Set Admin changelogs
-						$_name = '#' . number_format( $this->input->post( 'id' ) );
+						$_name = '#' . number_format($this->input->post('id'));
 
-						if ( $_data['first_name'] ) :
+						if ($_data['first_name']) :
 
 							$_name .= ' ' . $_data['first_name'];
 
 						endif;
 
-						if ( $_data['last_name'] ) :
+						if ($_data['last_name']) :
 
 							$_name .= ' ' . $_data['last_name'];
 
 						endif;
 
-						foreach ( $_data AS $field => $value ) :
+						foreach ($_data AS $field => $value) :
 
-							if ( isset( $_user->$field ) ) :
+							if (isset($_user->$field)) :
 
-								$this->admin_changelog_model->add( 'updated', 'a', 'user', $this->input->post( 'id' ),  $_name, 'admin/accounts/edit/' . $this->input->post( 'id' ), $field, $_user->$field, $value, FALSE );
+								$this->admin_changelog_model->add('updated', 'a', 'user', $this->input->post('id'),  $_name, 'admin/accounts/edit/' . $this->input->post('id'), $field, $_user->$field, $value, FALSE);
 
 							endif;
 
@@ -788,12 +766,12 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 						// --------------------------------------------------------------------------
 
 						//	refresh the user object
-						$_user = $this->user_model->get_by_id( $this->input->post( 'id' ) );
+						$_user = $this->user_model->get_by_id($this->input->post('id'));
 
 					//	The account failed to update, feedback to user
 					else:
 
-						$this->data['error'] = lang( 'accounts_edit_fail', implode( ', ', $this->user_model->get_errors() ) );
+						$this->data['error'] = lang('accounts_edit_fail', implode(', ', $this->user_model->get_errors()));
 
 					endif;
 
@@ -802,7 +780,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 			//	Update failed for another reason
 			else:
 
-				$this->data['error'] = lang( 'fv_there_were_errors' );
+				$this->data['error'] = lang('fv_there_were_errors');
 
 			endif;
 
@@ -812,11 +790,11 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Get the user's meta data
-		if ( $this->data['user_meta_cols'] ) :
+		if ($this->data['user_meta_cols']) :
 
-			$this->db->select( implode( ',', array_keys( $this->data['user_meta_cols'] ) ) );
-			$this->db->where( 'user_id', $_user->id );
-			$_user_meta = $this->db->get( NAILS_DB_PREFIX . 'user_meta' )->row();
+			$this->db->select(implode(',', array_keys($this->data['user_meta_cols'])));
+			$this->db->where('user_id', $_user->id);
+			$_user_meta = $this->db->get(NAILS_DB_PREFIX . 'user_meta')->row();
 
 		else :
 
@@ -827,7 +805,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Get the user's email addresses
-		$this->data['user_emails'] = $this->user_model->get_emails_for_user( $_user->id );
+		$this->data['user_emails'] = $this->user_model->get_emails_for_user($_user->id);
 
 		// --------------------------------------------------------------------------
 
@@ -835,7 +813,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		$this->data['user_meta']	= $_user_meta;
 
 		//	Page Title
-		$this->data['page']->title = lang( 'accounts_edit_title', title_case( $_user->first_name . ' ' . $_user->last_name ) );
+		$this->data['page']->title = lang('accounts_edit_title', title_case($_user->first_name . ' ' . $_user->last_name));
 
 		//	Get the groups, timezones and languages
 		$this->data['groups']		= $this->user_group_model->get_all();
@@ -845,33 +823,33 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		$this->data['languages']	= $this->language_model->get_all_enabled_flat();
 
 		//	Fetch any user uploads
-		if ( module_is_enabled( 'cdn' ) ) :
+		if (module_is_enabled('cdn')) :
 
-			$this->data['user_uploads'] = $this->cdn->get_objects_for_user( $_user->id );
+			$this->data['user_uploads'] = $this->cdn->get_objects_for_user($_user->id);
 
 		endif;
 
 		// --------------------------------------------------------------------------
 
-		if ( active_user( 'id' ) == $_user->id ) :
+		if (active_user('id') == $_user->id) :
 
-			switch ( active_user( 'gender' ) ) :
+			switch (active_user('gender')) :
 
 				case 'male' :
 
-					$this->data['notice'] = lang( 'accounts_edit_editing_self_m' );
+					$this->data['notice'] = lang('accounts_edit_editing_self_m');
 
 				break;
 
 				case 'female' :
 
-					$this->data['notice'] = lang( 'accounts_edit_editing_self_f' );
+					$this->data['notice'] = lang('accounts_edit_editing_self_f');
 
 				break;
 
 				default :
 
-					$this->data['notice'] = lang( 'accounts_edit_editing_self_u' );
+					$this->data['notice'] = lang('accounts_edit_editing_self_u');
 
 				break;
 
@@ -888,16 +866,16 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Load views
-		if ( $this->input->get( 'inline' ) || $this->input->get( 'is_fancybox' ) ) :
+		if ($this->input->get('inline') || $this->input->get('is_fancybox')) :
 
 			$this->data['header_override'] = 'structure/header/nails-admin-blank';
 			$this->data['footer_override'] = 'structure/footer/nails-admin-blank';
 
 		endif;
 
-		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/accounts/edit/index',	$this->data );
-		$this->load->view( 'structure/footer',			$this->data );
+		$this->load->view('structure/header',			$this->data);
+		$this->load->view('admin/accounts/edit/index',	$this->data);
+		$this->load->view('structure/footer',			$this->data);
 	}
 
 
@@ -913,7 +891,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 	 **/
 	public function suspend()
 	{
-		if ( ! user_has_permission( 'admin.accounts:0.can_suspend_user' ) ) :
+		if (! user_has_permission('admin.accounts:0.can_suspend_user')) :
 
 			unauthorised();
 
@@ -922,53 +900,53 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Get the user's details
-		$_uid		= $this->uri->segment( 4 );
-		$_user		= $this->user_model->get_by_id( $_uid );
+		$_uid		= $this->uri->segment(4);
+		$_user		= $this->user_model->get_by_id($_uid);
 		$_old_value = $_user->is_suspended;
 
 		// --------------------------------------------------------------------------
 
 		//	Non-superusers editing superusers is not cool
-		if ( ! $this->user_model->is_superuser() && user_has_permission( 'superuser', $_user ) ) :
+		if (! $this->user_model->is_superuser() && user_has_permission('superuser', $_user)) :
 
-			$this->session->set_flashdata( 'error', lang( 'accounts_edit_error_noteditable' ) );
-			redirect( $this->input->get( 'return_to' ) );
+			$this->session->set_flashdata('error', lang('accounts_edit_error_noteditable'));
+			redirect($this->input->get('return_to'));
 
 		endif;
 
 		// --------------------------------------------------------------------------
 
 		//	Suspend user
-		$this->user_model->suspend( $_uid );
+		$this->user_model->suspend($_uid);
 
 		// --------------------------------------------------------------------------
 
 		//	Get the user's details, again
-		$_user		= $this->user_model->get_by_id( $_uid );
+		$_user		= $this->user_model->get_by_id($_uid);
 		$_new_value	= $_user->is_suspended;
 
 
 		// --------------------------------------------------------------------------
 
 		//	Define messages
-		if ( ! $_user->is_suspended ) :
+		if (! $_user->is_suspended) :
 
-			$this->session->set_flashdata( 'error', lang( 'accounts_suspend_error', title_case( $_user->first_name . ' ' . $_user->last_name ) ) );
+			$this->session->set_flashdata('error', lang('accounts_suspend_error', title_case($_user->first_name . ' ' . $_user->last_name)));
 
 		else :
 
-			$this->session->set_flashdata( 'success', lang( 'accounts_suspend_success', title_case( $_user->first_name . ' ' . $_user->last_name ) ) );
+			$this->session->set_flashdata('success', lang('accounts_suspend_success', title_case($_user->first_name . ' ' . $_user->last_name)));
 
 		endif;
 
 		// --------------------------------------------------------------------------
 
 		//	Update admin changelog
-		$this->admin_changelog_model->add( 'suspended', 'a', 'user', $_uid,  '#' . number_format( $_uid ) . ' ' . $_user->first_name . ' ' . $_user->last_name, 'admin/accounts/edit/' . $_uid, 'is_suspended', $_old_value, $_new_value, FALSE );
+		$this->admin_changelog_model->add('suspended', 'a', 'user', $_uid,  '#' . number_format($_uid) . ' ' . $_user->first_name . ' ' . $_user->last_name, 'admin/accounts/edit/' . $_uid, 'is_suspended', $_old_value, $_new_value, FALSE);
 
 		// --------------------------------------------------------------------------
 
-		redirect( $this->input->get( 'return_to' ) );
+		redirect($this->input->get('return_to'));
 	}
 
 
@@ -984,7 +962,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 	 **/
 	public function unsuspend()
 	{
-		if ( ! user_has_permission( 'admin.accounts:0.can_suspend_user' ) ) :
+		if (! user_has_permission('admin.accounts:0.can_suspend_user')) :
 
 			unauthorised();
 
@@ -993,52 +971,52 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Get the user's details
-		$_uid		= $this->uri->segment( 4 );
-		$_user		= $this->user_model->get_by_id( $_uid );
+		$_uid		= $this->uri->segment(4);
+		$_user		= $this->user_model->get_by_id($_uid);
 		$_old_value	= $_user->is_suspended;
 
 		// --------------------------------------------------------------------------
 
 		//	Non-superusers editing superusers is not cool
-		if ( ! $this->user_model->is_superuser() && user_has_permission( 'superuser', $_user ) ) :
+		if (! $this->user_model->is_superuser() && user_has_permission('superuser', $_user)) :
 
-			$this->session->set_flashdata( 'error', lang( 'accounts_edit_error_noteditable' ) );
-			redirect( $this->input->get( 'return_to' ) );
+			$this->session->set_flashdata('error', lang('accounts_edit_error_noteditable'));
+			redirect($this->input->get('return_to'));
 
 		endif;
 
 		// --------------------------------------------------------------------------
 
 		//	Unsuspend user
-		$this->user_model->unsuspend( $_uid );
+		$this->user_model->unsuspend($_uid);
 
 		// --------------------------------------------------------------------------
 
 		//	Get the user's details, again
-		$_user		= $this->user_model->get_by_id( $_uid );
+		$_user		= $this->user_model->get_by_id($_uid);
 		$_new_value	= $_user->is_suspended;
 
 		// --------------------------------------------------------------------------
 
 		//	Define messages
-		if ( $_user->is_suspended ) :
+		if ($_user->is_suspended) :
 
-			$this->session->set_flashdata( 'error', lang( 'accounts_unsuspend_error', title_case( $_user->first_name . ' ' . $_user->last_name ) ) );
+			$this->session->set_flashdata('error', lang('accounts_unsuspend_error', title_case($_user->first_name . ' ' . $_user->last_name)));
 
 		else :
 
-			$this->session->set_flashdata( 'success', lang( 'accounts_unsuspend_success', title_case( $_user->first_name . ' ' . $_user->last_name ) ) );
+			$this->session->set_flashdata('success', lang('accounts_unsuspend_success', title_case($_user->first_name . ' ' . $_user->last_name)));
 
 		endif;
 
 		// --------------------------------------------------------------------------
 
 		//	Update admin changelog
-		$this->admin_changelog_model->add( 'unsuspended', 'a', 'user', $_uid,  '#' . number_format( $_uid ) . ' ' . $_user->first_name . ' ' . $_user->last_name, 'admin/accounts/edit/' . $_uid, 'is_suspended', $_old_value, $_new_value, FALSE );
+		$this->admin_changelog_model->add('unsuspended', 'a', 'user', $_uid,  '#' . number_format($_uid) . ' ' . $_user->first_name . ' ' . $_user->last_name, 'admin/accounts/edit/' . $_uid, 'is_suspended', $_old_value, $_new_value, FALSE);
 
 		// --------------------------------------------------------------------------
 
-		redirect( $this->input->get( 'return_to' ) );
+		redirect($this->input->get('return_to'));
 	}
 
 
@@ -1054,7 +1032,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 	 **/
 	public function delete()
 	{
-		if ( ! user_has_permission( 'admin.accounts:0.can_delete_others' ) ) :
+		if (! user_has_permission('admin.accounts:0.can_delete_others')) :
 
 			unauthorised();
 
@@ -1063,57 +1041,57 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Get the user's details
-		$_uid	= $this->uri->segment( 4 );
-		$_user	= $this->user_model->get_by_id( $_uid );
+		$_uid	= $this->uri->segment(4);
+		$_user	= $this->user_model->get_by_id($_uid);
 
 		// --------------------------------------------------------------------------
 
 		//	Non-superusers editing superusers is not cool
-		if ( ! $this->user_model->is_superuser() && user_has_permission( 'superuser', $_user ) ) :
+		if (! $this->user_model->is_superuser() && user_has_permission('superuser', $_user)) :
 
-			$this->session->set_flashdata( 'error', lang( 'accounts_edit_error_noteditable' ) );
-			redirect( $this->input->get( 'return_to' ) );
+			$this->session->set_flashdata('error', lang('accounts_edit_error_noteditable'));
+			redirect($this->input->get('return_to'));
 
 		endif;
 
 		// --------------------------------------------------------------------------
 
 		//	Delete user
-		$_user = $this->user_model->get_by_id( $_uid );
+		$_user = $this->user_model->get_by_id($_uid);
 
-		if ( ! $_user ) :
+		if (! $_user) :
 
-			$this->session->set_flashdata( 'error', lang( 'accounts_edit_error_unknown_id' ) );
-			redirect( $this->input->get( 'return_to' ) );
+			$this->session->set_flashdata('error', lang('accounts_edit_error_unknown_id'));
+			redirect($this->input->get('return_to'));
 
 		endif;
 
-		if ( $_user->id == active_user( 'id' ) ) :
+		if ($_user->id == active_user('id')) :
 
-			$this->session->set_flashdata( 'error', lang( 'accounts_delete_error_selfie' ) );
-			redirect( $this->input->get( 'return_to' ) );
+			$this->session->set_flashdata('error', lang('accounts_delete_error_selfie'));
+			redirect($this->input->get('return_to'));
 
 		endif;
 
 		// --------------------------------------------------------------------------
 
 		//	Define messages
-		if ( $this->user_model->destroy( $_uid ) ) :
+		if ($this->user_model->destroy($_uid)) :
 
-			$this->session->set_flashdata( 'success', lang( 'accounts_delete_success', title_case( $_user->first_name . ' ' . $_user->last_name ) ) );
+			$this->session->set_flashdata('success', lang('accounts_delete_success', title_case($_user->first_name . ' ' . $_user->last_name)));
 
 			//	Update admin changelog
-			$this->admin_changelog_model->add( 'deleted', 'a', 'user', $_uid,  '#' . number_format( $_uid ) . ' ' . $_user->first_name . ' ' . $_user->last_name );
+			$this->admin_changelog_model->add('deleted', 'a', 'user', $_uid,  '#' . number_format($_uid) . ' ' . $_user->first_name . ' ' . $_user->last_name);
 
 		else :
 
-			$this->session->set_flashdata( 'error', lang( 'accounts_delete_error', title_case( $_user->first_name . ' ' . $_user->last_name ) ) );
+			$this->session->set_flashdata('error', lang('accounts_delete_error', title_case($_user->first_name . ' ' . $_user->last_name)));
 
 		endif;
 
 		// --------------------------------------------------------------------------
 
-		redirect( $this->input->get( 'return_to' ) );
+		redirect($this->input->get('return_to'));
 	}
 
 
@@ -1122,7 +1100,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 	public function delete_profile_img()
 	{
-		if ( $this->uri->segment( 4 ) != active_user( 'id' ) && ! user_has_permission( 'admin.accounts:0.can_edit_others' ) ) :
+		if ($this->uri->segment(4) != active_user('id') && ! user_has_permission('admin.accounts:0.can_edit_others')) :
 
 			unauthorised();
 
@@ -1130,58 +1108,58 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		$_uid		= $this->uri->segment( 4 );
-		$_user		= $this->user_model->get_by_id( $_uid );
-		$_return_to	= $this->input->get( 'return_to' ) ? $this->input->get( 'return_to' ) : 'admin/accounts/edit/' . $_uid;
+		$_uid		= $this->uri->segment(4);
+		$_user		= $this->user_model->get_by_id($_uid);
+		$_return_to	= $this->input->get('return_to') ? $this->input->get('return_to') : 'admin/accounts/edit/' . $_uid;
 
 		// --------------------------------------------------------------------------
 
-		if ( ! $_user ) :
+		if (! $_user) :
 
-			$this->session->set_flashdata( 'error', lang( 'accounts_delete_img_error_noid' ) );
-			redirect( 'admin/accounts' );
+			$this->session->set_flashdata('error', lang('accounts_delete_img_error_noid'));
+			redirect('admin/accounts');
 
 		else :
 
 			//	Non-superusers editing superusers is not cool
-			if ( ! $this->user_model->is_superuser() && user_has_permission( 'superuser', $_user ) ) :
+			if (! $this->user_model->is_superuser() && user_has_permission('superuser', $_user)) :
 
-				$this->session->set_flashdata( 'error', lang( 'accounts_edit_error_noteditable' ) );
-				redirect( $_return_to );
+				$this->session->set_flashdata('error', lang('accounts_edit_error_noteditable'));
+				redirect($_return_to);
 
 			endif;
 
 			// --------------------------------------------------------------------------
 
-			if ( $_user->profile_img ) :
+			if ($_user->profile_img) :
 
-				if ( $this->cdn->object_delete( $_user->profile_img, 'profile-images' ) ) :
+				if ($this->cdn->object_delete($_user->profile_img, 'profile-images')) :
 
 					//	Update the user
 					$_data = array();
 					$_data['profile_img'] = NULL;
 
-					$this->user_model->update( $_uid, $_data );
+					$this->user_model->update($_uid, $_data);
 
 					// --------------------------------------------------------------------------
 
-					$this->session->set_flashdata( 'success', lang( 'accounts_delete_img_success' ) );
+					$this->session->set_flashdata('success', lang('accounts_delete_img_success'));
 
 				else :
 
-					$this->session->set_flashdata( 'error', lang( 'accounts_delete_img_error', implode( '", "', $this->cdn->get_errors() ) ) );
+					$this->session->set_flashdata('error', lang('accounts_delete_img_error', implode('", "', $this->cdn->get_errors())));
 
 				endif;
 
 			else :
 
-				$this->session->set_flashdata( 'notice', lang( 'accounts_delete_img_error_noimg' ) );
+				$this->session->set_flashdata('notice', lang('accounts_delete_img_error_noimg'));
 
 			endif;
 
 			// --------------------------------------------------------------------------
 
-			redirect( $_return_to );
+			redirect($_return_to);
 
 		endif;
 	}
@@ -1294,7 +1272,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 	public function groups()
 	{
-		if ( ! user_has_permission( 'admin.accounts:0.can_manage_groups' ) ) :
+		if (! user_has_permission('admin.accounts:0.can_manage_groups')) :
 
 			unauthorised();
 
@@ -1302,9 +1280,9 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		$_method = $this->uri->segment( 4 ) ? $this->uri->segment( 4 ) : 'index';
+		$_method = $this->uri->segment(4) ? $this->uri->segment(4) : 'index';
 
-		if ( method_exists( $this, '_groups_' . $_method ) ) :
+		if (method_exists($this, '_groups_' . $_method)) :
 
 			$this->{'_groups_' . $_method}();
 
@@ -1330,9 +1308,9 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		$this->load->view( 'structure/header',				$this->data );
-		$this->load->view( 'admin/accounts/groups/index',	$this->data );
-		$this->load->view( 'structure/footer',				$this->data );
+		$this->load->view('structure/header',				$this->data);
+		$this->load->view('admin/accounts/groups/index',	$this->data);
+		$this->load->view('structure/footer',				$this->data);
 	}
 
 
@@ -1341,7 +1319,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 	protected function _groups_create()
 	{
-		if ( ! user_has_permission( 'admin.accounts:0.can_create_group' ) ) :
+		if (! user_has_permission('admin.accounts:0.can_create_group')) :
 
 			show_404();
 
@@ -1349,8 +1327,8 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		$this->session->set_flashdata( 'message', '<strong>Coming soon!</strong> The ability to dynamically create groups is on the roadmap.' );
-		redirect( 'admin/accounts/groups' );
+		$this->session->set_flashdata('message', '<strong>Coming soon!</strong> The ability to dynamically create groups is on the roadmap.');
+		redirect('admin/accounts/groups');
 	}
 
 
@@ -1359,7 +1337,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 	protected function _groups_edit()
 	{
-		if ( ! user_has_permission( 'admin.accounts:0.can_edit_group' ) ) :
+		if (! user_has_permission('admin.accounts:0.can_edit_group')) :
 
 			show_404();
 
@@ -1367,56 +1345,56 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		$_gid = $this->uri->segment( 5, NULL );
+		$_gid = $this->uri->segment(5, NULL);
 
-		$this->data['group'] = $this->user_group_model->get_by_id( $_gid );
+		$this->data['group'] = $this->user_group_model->get_by_id($_gid);
 
-		if ( ! $this->data['group'] ) :
+		if (! $this->data['group']) :
 
-			$this->session->set_flashdata( 'error', 'Group does not exist.' );
-			redirect( 'admin/accounts/groups' );
+			$this->session->set_flashdata('error', 'Group does not exist.');
+			redirect('admin/accounts/groups');
 
 		endif;
 
 		// --------------------------------------------------------------------------
 
-		if ( $this->input->post() ) :
+		if ($this->input->post()) :
 
 			//	Load library
-			$this->load->library( 'form_validation' );
+			$this->load->library('form_validation');
 
 			//	Define rules
-			$this->form_validation->set_rules( 'slug',					'', 'xss_clean|unique_if_diff[' . NAILS_DB_PREFIX . 'user_group.slug.' . $this->data['group']->slug . ']' );
-			$this->form_validation->set_rules( 'label',					'', 'xss_clean|required' );
-			$this->form_validation->set_rules( 'description',			'', 'xss_clean|required' );
-			$this->form_validation->set_rules( 'default_homepage',		'', 'xss_clean|required' );
-			$this->form_validation->set_rules( 'registration_redirect',	'', 'xss_clean' );
-			$this->form_validation->set_rules( 'acl[]',					'', 'xss_clean' );
-			$this->form_validation->set_rules( 'acl[superuser]',		'', 'xss_clean' );
-			$this->form_validation->set_rules( 'acl[admin]',			'', 'xss_clean' );
-			$this->form_validation->set_rules( 'acl[admin][]',			'', 'xss_clean' );
+			$this->form_validation->set_rules('slug',					'', 'xss_clean|unique_if_diff[' . NAILS_DB_PREFIX . 'user_group.slug.' . $this->data['group']->slug . ']');
+			$this->form_validation->set_rules('label',					'', 'xss_clean|required');
+			$this->form_validation->set_rules('description',			'', 'xss_clean|required');
+			$this->form_validation->set_rules('default_homepage',		'', 'xss_clean|required');
+			$this->form_validation->set_rules('registration_redirect',	'', 'xss_clean');
+			$this->form_validation->set_rules('acl[]',					'', 'xss_clean');
+			$this->form_validation->set_rules('acl[superuser]',		'', 'xss_clean');
+			$this->form_validation->set_rules('acl[admin]',			'', 'xss_clean');
+			$this->form_validation->set_rules('acl[admin][]',			'', 'xss_clean');
 
 			//	Set messages
-			$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
-			$this->form_validation->set_message( 'required', lang( 'fv_unique_if_diff' ) );
+			$this->form_validation->set_message('required', lang('fv_required'));
+			$this->form_validation->set_message('required', lang('fv_unique_if_diff'));
 
-			if ( $this->form_validation->run() ) :
+			if ($this->form_validation->run()) :
 
 				$_data							= array();
-				$_data['slug']					= $this->input->post( 'slug' );
-				$_data['label']					= $this->input->post( 'label' );
-				$_data['description']			= $this->input->post( 'description' );
-				$_data['default_homepage']		= $this->input->post( 'default_homepage' );
-				$_data['registration_redirect']	= $this->input->post( 'registration_redirect' );
+				$_data['slug']					= $this->input->post('slug');
+				$_data['label']					= $this->input->post('label');
+				$_data['description']			= $this->input->post('description');
+				$_data['default_homepage']		= $this->input->post('default_homepage');
+				$_data['registration_redirect']	= $this->input->post('registration_redirect');
 
 				//	Parse ACL's
-				$_acl			= $this->input->post( 'acl' );
-				$_data['acl']	= serialize( $_acl );
+				$_acl			= $this->input->post('acl');
+				$_data['acl']	= serialize($_acl);
 
-				if ( $this->user_group_model->update( $_gid, $_data ) ) :
+				if ($this->user_group_model->update($_gid, $_data)) :
 
-					$this->session->set_flashdata( 'success', '<strong>Huzzah!</strong> Group updated successfully!' );
-					redirect( 'admin/accounts/groups' );
+					$this->session->set_flashdata('success', '<strong>Huzzah!</strong> Group updated successfully!');
+					redirect('admin/accounts/groups');
 
 				else :
 
@@ -1426,7 +1404,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 			else :
 
-				$this->data['error'] = lang( 'fv_there_were_errors' );
+				$this->data['error'] = lang('fv_there_were_errors');
 
 			endif;
 
@@ -1435,14 +1413,14 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Page title
-		$this->data['page']->title = lang( 'accounts_groups_edit_title', $this->data['group']->label );
+		$this->data['page']->title = lang('accounts_groups_edit_title', $this->data['group']->label);
 
 		// --------------------------------------------------------------------------
 
 		//	Load views
-		$this->load->view( 'structure/header',				$this->data );
-		$this->load->view( 'admin/accounts/groups/edit',	$this->data );
-		$this->load->view( 'structure/footer',				$this->data );
+		$this->load->view('structure/header',				$this->data);
+		$this->load->view('admin/accounts/groups/edit',	$this->data);
+		$this->load->view('structure/footer',				$this->data);
 	}
 
 
@@ -1451,7 +1429,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 	protected function _groups_delete()
 	{
-		if ( ! user_has_permission( 'admin.accounts:0.can_delete_group' ) ) :
+		if (! user_has_permission('admin.accounts:0.can_delete_group')) :
 
 			show_404();
 
@@ -1459,8 +1437,8 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		$this->session->set_flashdata( 'message', '<strong>Coming soon!</strong> The ability to delete groups is on the roadmap.' );
-		redirect( 'admin/accounts/groups' );
+		$this->session->set_flashdata('message', '<strong>Coming soon!</strong> The ability to delete groups is on the roadmap.');
+		redirect('admin/accounts/groups');
 	}
 
 
@@ -1469,7 +1447,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 	protected function _groups_set_default()
 	{
-		if ( ! user_has_permission( 'admin.accounts:0.can_set_default_group' ) ) :
+		if (! user_has_permission('admin.accounts:0.can_set_default_group')) :
 
 			show_404();
 
@@ -1477,16 +1455,16 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		if ( $this->user_group_model->set_as_default( $this->uri->segment( 5 ) ) ) :
+		if ($this->user_group_model->set_as_default($this->uri->segment(5))) :
 
-			$this->session->set_flashdata( 'success', '<strong>Success!</strong> Group set as default successfully.' );
+			$this->session->set_flashdata('success', '<strong>Success!</strong> Group set as default successfully.');
 
 		else :
 
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> I could not set that group as the default user group. ' . $this->user_group_model->last_error() );
+			$this->session->set_flashdata('error', '<strong>Sorry,</strong> I could not set that group as the default user group. ' . $this->user_group_model->last_error());
 
 		endif;
-		redirect( 'admin/accounts/groups' );
+		redirect('admin/accounts/groups');
 	}
 }
 
@@ -1518,7 +1496,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
  *
  **/
 
-if ( ! defined( 'NAILS_ALLOW_EXTENSION_ACCOUNTS' ) ) :
+if (! defined('NAILS_ALLOW_EXTENSION_ACCOUNTS')) :
 
 	class Accounts extends NAILS_Accounts
 	{

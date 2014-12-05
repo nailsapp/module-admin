@@ -96,7 +96,7 @@
                         <span class="text-muted">&mdash;</span>
                     </td>
                     <td class="actions">
-                        <button type="submit" class="awesome small green">Add Email</button>
+                        <a href="#" class="submit awesome small green">Add Email</a>
                     </td>
                 </tr>
             </tbody>
