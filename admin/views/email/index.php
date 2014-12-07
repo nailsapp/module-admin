@@ -137,13 +137,16 @@
 
 								echo anchor(site_url('email/view_online/' . $email->ref, page_is_secure()), lang('action_preview'), 'class="awesome small fancybox fancybox.iframe" target="_blank"');
 
-								$return = uri_string();
-								if ($this->input->server('QUERY_STRING')) {
+								if (!user_has_permission('admin.email:0.can_resend')) {
 
-									$return .= '?' . $this->input->server('QUERY_STRING');
+									$return = uri_string();
+									if ($this->input->server('QUERY_STRING')) {
+
+										$return .= '?' . $this->input->server('QUERY_STRING');
+									}
+									$return = urlencode($return);
+									echo anchor('admin/email/resend/' . $email->id . '?return=' . $return, 'Resend', 'class="awesome small green"');
 								}
-								$return = urlencode($return);
-								echo anchor('admin/email/resend/' . $email->id . '?return=' . $return, 'Resend', 'class="awesome small green"');
 
 							?>
 							</td>
