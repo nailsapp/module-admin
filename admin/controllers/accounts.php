@@ -59,11 +59,15 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		$d->funcs			= array();
 		$d->funcs['index']	= lang('accounts_nav_index');
 
-		if (user_has_permission('admin.accounts:0.can_manage_groups')) :
+		if (user_has_permission('admin.accounts:0.can_manage_groups')) {
 
 			$d->funcs['groups']	= 'Manage User Groups';
+		}
 
-		endif;
+		if (user_has_permission('admin.accounts:0.can_merge_users')) {
+
+			$d->funcs['merge']	= 'Merge Users';
+		}
 
 		// --------------------------------------------------------------------------
 
@@ -126,6 +130,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		$_permissions['can_login_as']			= 'Can log in as another user';
 		$_permissions['can_edit_others']		= 'Can edit other users';
 		$_permissions['can_delete_others']		= 'Can delete other users';
+		$_permissions['can_merge_users']		= 'Can merge users';
 		$_permissions['can_manage_groups']		= 'Can manage user groups';
 		$_permissions['can_create_group']		= 'Can create user groups';
 		$_permissions['can_edit_group']			= 'Can edit user groups';
@@ -1418,9 +1423,9 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Load views
-		$this->load->view('structure/header',				$this->data);
-		$this->load->view('admin/accounts/groups/edit',	$this->data);
-		$this->load->view('structure/footer',				$this->data);
+		$this->load->view('structure/header', $this->data);
+		$this->load->view('admin/accounts/groups/edit', $this->data);
+		$this->load->view('structure/footer', $this->data);
 	}
 
 
@@ -1465,6 +1470,61 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 		endif;
 		redirect('admin/accounts/groups');
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	public function merge()
+	{
+		if (!user_has_permission('admin.accounts:0.can_merge_users')) {
+
+			show_404();
+		}
+
+		// --------------------------------------------------------------------------
+
+
+		if ($this->input->post()) {
+
+			$userId   = $this->input->post('userId');
+			$mergeIds = explode(',', $this->input->post('mergeIds'));
+
+			if (!in_array(active_user('id'), $mergeIds)) {
+
+				if ($this->user_model->merge($userId, $mergeIds)) {
+
+					$this->session->set_flashdata('success', '<strong>Success!</strong> Users were merged successfully.');
+					redirect('admin/accounts/merge');
+
+				} else {
+
+					$this->data['error'] = 'Failed to merge users. ' . $this->user_model->last_error();
+				}
+
+			} else {
+
+				$this->data['error'] = '<strong>Sorry,</strong> you cannot list yourself as an account to merge.';
+			}
+		}
+
+		// --------------------------------------------------------------------------
+
+		//	Page title
+		$this->data['page']->title = 'Merge Users';
+
+		// --------------------------------------------------------------------------
+
+		$this->asset->load('nails.admin.accounts.merge.min.js', 'NAILS');
+		$this->asset->inline('var _accountsMerge = new NAILS_Admin_Accounts_Merge()', 'JS');
+
+		// --------------------------------------------------------------------------
+
+		//	Load views
+		$this->load->view('structure/header', $this->data);
+		$this->load->view('admin/accounts/merge/index', $this->data);
+		$this->load->view('structure/footer', $this->data);
 	}
 }
 
