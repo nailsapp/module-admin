@@ -75,6 +75,7 @@ class NAILS_Email extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		$_permissions['can_browse_archive']		= 'Can browse email archive';
+		$_permissions['can_resend']				= 'Can resend email';
 		$_permissions['can_compose']			= 'Can compose email';
 		$_permissions['can_manage_campaigns']	= 'Can manage campaigns';
 		$_permissions['can_create_campaign']	= 'Can create draft campaigns';
@@ -99,24 +100,24 @@ class NAILS_Email extends NAILS_Admin_Controller
 	 **/
 	public function index()
 	{
-		if ( ! user_has_permission( 'admin.email:0.can_browse_archive' ) ) :
+		if (!user_has_permission('admin.email:0.can_browse_archive')) {
 
 			unauthorised();
-
-		endif;
+		}
 
 		// --------------------------------------------------------------------------
 
 		//	Page Title
-		$this->data['page']->title = lang( 'email_index_title' );
+		$this->data['page']->title = lang('email_index_title');
 
 		// --------------------------------------------------------------------------
 
 		//	Fetch emails from the archive
-		$_offset = $this->input->get( 'offset' );
+		$offset  = $this->input->get('offset');
+		$perPage = $this->input->get('per_page') ? $this->input->get('per_page') : 25;
 
 		$this->data['emails']		= new stdClass();
-		$this->data['emails']->data	= $this->emailer->get_all( NULL, 'DESC', $_offset );
+		$this->data['emails']->data	= $this->emailer->get_all(null, 'DESC', $offset, $perPage);
 
 		//	Work out pagination
 		$this->data['emails']->pagination					= new stdClass();
@@ -125,9 +126,40 @@ class NAILS_Email extends NAILS_Admin_Controller
 		// --------------------------------------------------------------------------
 
 		//	Load views
-		$this->load->view( 'structure/header',	$this->data );
-		$this->load->view( 'admin/email/index',	$this->data );
-		$this->load->view( 'structure/footer',	$this->data );
+		$this->load->view('structure/header', $this->data);
+		$this->load->view('admin/email/index', $this->data);
+		$this->load->view('structure/footer', $this->data);
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	public function resend()
+	{
+		if (!user_has_permission('admin.email:0.can_resend')) {
+
+			unauthorised();
+		}
+
+		// --------------------------------------------------------------------------
+
+		$emailId = $this->uri->segment(4);
+		$return  = $this->input->get('return') ? $this->input->get('return') : 'admin/email/index';
+
+		if ($this->emailer->resend($emailId)) {
+
+			$status  = 'success';
+			$message = 'Message was resent successfully.';
+
+		} else {
+
+			$status  = 'error';
+			$message = 'Message failed to resend.';
+		}
+
+		$this->session->Set_flashdata($status, $message);
+		redirect($return);
 	}
 
 

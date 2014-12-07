@@ -28,6 +28,7 @@
 	$lang['email_index_thead_to']		= 'To';
 	$lang['email_index_thead_sent']		= 'Sent';
 	$lang['email_index_thead_type']		= 'Type';
+	$lang['email_index_thead_status']	= 'Status';
 	$lang['email_index_thead_reads']	= 'Opens';
 	$lang['email_index_thead_clicks']	= 'Clicks';
 	$lang['email_index_thead_actions']	= 'Actions';
