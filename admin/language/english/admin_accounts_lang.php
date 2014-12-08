@@ -122,6 +122,7 @@
 	$lang['accounts_edit_basic_field_referral_label']			= 'Referral Code';
 	$lang['accounts_edit_basic_field_referred_by_label']		= 'Referred By';
 	$lang['accounts_edit_basic_field_referred_by_placeholder']	= 'The user who referred this user, if any';
+	$lang['accounts_edit_basic_field_language_label']			= 'Language';
 
 	$lang['accounts_edit_emails_legend']			= 'Email Addresses';
 	$lang['accounts_edit_emails_th_email']			= 'Email Address';
@@ -130,6 +131,7 @@
 	$lang['accounts_edit_emails_th_date_added']		= 'Date Added';
 	$lang['accounts_edit_emails_th_date_verified']	= 'Date Verified';
 	$lang['accounts_edit_emails_td_not_verified']	= 'Not Verified';
+	$lang['accounts_edit_emails_td_actions']		= 'Actions';
 
 	$lang['accounts_edit_meta_legend']		= 'Meta Information';
 	$lang['accounts_edit_meta_noeditable']	= 'There is no editable meta information for this user.';
