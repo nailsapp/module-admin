@@ -123,7 +123,7 @@
 
 					if ( $member->id == active_user( 'id' ) || user_has_permission( 'admin.accounts:0.can_edit_others' ) ) :
 
-						$_buttons[] = anchor( 'admin/accounts/edit/' . $member->id . $_return, lang( 'action_edit' ), 'data-fancybox-type="iframe" class="edit fancybox-max awesome small grey"' );
+						$_buttons[] = anchor( 'admin/accounts/edit/' . $member->id . $_return, lang( 'action_edit' ), 'data-fancybox-type="iframe" class="edit fancybox-max awesome small"' );
 
 					endif;
 
@@ -152,11 +152,29 @@
 
 				// --------------------------------------------------------------------------
 
+				//	Delete user
 				if ( user_has_permission( 'admin.accounts:0.can_delete_others' ) && $member->id != active_user( 'id' ) && ! $this->user_model->is_superuser( $member->id ) ) :
 
 					$_buttons[] = anchor( 'admin/accounts/delete/' . $member->id . $_return, lang( 'action_delete' ), 'class="confirm awesome small red" data-title="Delete user &quot;' . $member->first_name . ' ' . $member->last_name . '&quot?" data-body="Are you sure you want to delete this user? This action is not undoable."' );
 
 				endif;
+
+				// --------------------------------------------------------------------------
+
+				//	Update user's group
+				if (user_has_permission('admin.accounts:0.can_change_user_group')) {
+
+					//	If this user us a super user and the current user is not a super user then don't allow this option
+					if ($this->user_model->is_superuser($member->id) && !$this->user_model->is_superuser()) {
+
+						//	Nothing
+
+					} else {
+
+						$_buttons[] = anchor( 'admin/accounts/change_group?users=' . $member->id, 'Edit Group', 'class="awesome small"' );
+
+					}
+				}
 
 				// --------------------------------------------------------------------------
 

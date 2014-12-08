@@ -129,6 +129,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		$_permissions['can_suspend_user']		= 'Can suspend/unsuspend users';
 		$_permissions['can_login_as']			= 'Can log in as another user';
 		$_permissions['can_edit_others']		= 'Can edit other users';
+		$_permissions['can_change_user_group']	= 'Can change a user\'s group';
 		$_permissions['can_delete_others']		= 'Can delete other users';
 		$_permissions['can_merge_users']		= 'Can merge users';
 		$_permissions['can_manage_groups']		= 'Can manage user groups';
@@ -881,6 +882,62 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		$this->load->view('structure/header',			$this->data);
 		$this->load->view('admin/accounts/edit/index',	$this->data);
 		$this->load->view('structure/footer',			$this->data);
+	}
+
+
+	// --------------------------------------------------------------------------
+
+
+	public function change_group()
+	{
+		if (!user_has_permission('admin.accounts:0.can_change_user_group')) {
+
+			show_404();
+		}
+
+		// --------------------------------------------------------------------------
+
+		$userIds             = explode(',', $this->input->get('users'));
+		$this->data['users'] = $this->user_model->get_by_ids($userIds);
+
+		if (!$this->data['users']) {
+
+			show_404();
+		}
+
+		foreach($this->data['users'] AS $user) {
+
+			if ($this->user_model->is_superuser($user->id) && !$this->user_model->is_superuser()) {
+
+				show_404();
+			}
+		}
+
+		// --------------------------------------------------------------------------
+
+		$this->data['userGroups'] = $this->user_group_model->get_all_flat();
+
+		// --------------------------------------------------------------------------
+
+		if ($this->input->post())
+		{
+			if ($this->user_group_model->changeUserGroup($userIds, $this->input->post('newGroupId'))) {
+
+				$this->session->set_flashdata('success', '<strong>Success!</strong> User group was updated successfully.');
+				redirect('admin/accounts/index');
+
+			} else {
+
+				$this->data['error'] = '<strong>Sorry,</strong> failed to update user group. ' . $this->user_group_model->last_error();
+			}
+		}
+
+		// --------------------------------------------------------------------------
+
+		//	Load views
+		$this->load->view('structure/header', $this->data);
+		$this->load->view('admin/accounts/change_group/index', $this->data);
+		$this->load->view('structure/footer', $this->data);
 	}
 
 
