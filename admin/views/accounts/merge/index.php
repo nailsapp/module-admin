@@ -3,7 +3,7 @@
         Use this tool to merge two or more accounts into one
     </p>
     <hr />
-    <?=form_open()?>
+    <?=form_open(null, 'id="theForm"')?>
     <fieldset>
         <legend>User to Keep</legend>
         <p>

@@ -1485,18 +1485,36 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
+		$this->data['page']->title = 'Merge Users';
+
+		// --------------------------------------------------------------------------
 
 		if ($this->input->post()) {
 
 			$userId   = $this->input->post('userId');
 			$mergeIds = explode(',', $this->input->post('mergeIds'));
+			$preview  = ! $this->input->post('doMerge') ? true : false;
 
 			if (!in_array(active_user('id'), $mergeIds)) {
 
-				if ($this->user_model->merge($userId, $mergeIds)) {
+				$mergeResult = $this->user_model->merge($userId, $mergeIds, $preview);
 
-					$this->session->set_flashdata('success', '<strong>Success!</strong> Users were merged successfully.');
-					redirect('admin/accounts/merge');
+				if ($mergeResult) {
+
+					if ($preview) {
+
+						$this->data['mergeResult'] = $mergeResult;
+
+						$this->load->view('structure/header', $this->data);
+						$this->load->view('admin/accounts/merge/preview', $this->data);
+						$this->load->view('structure/footer', $this->data);
+						return;
+
+					} else {
+
+						$this->session->set_flashdata('success', '<strong>Success!</strong> Users were merged successfully.');
+						redirect('admin/accounts/merge');
+					}
 
 				} else {
 
@@ -1505,14 +1523,9 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 			} else {
 
-				$this->data['error'] = '<strong>Sorry,</strong> you cannot list yourself as an account to merge.';
+				$this->data['error'] = '<strong>Sorry,</strong> you cannot list yourself as a user to merge.';
 			}
 		}
-
-		// --------------------------------------------------------------------------
-
-		//	Page title
-		$this->data['page']->title = 'Merge Users';
 
 		// --------------------------------------------------------------------------
 
