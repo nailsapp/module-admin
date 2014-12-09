@@ -205,17 +205,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 		$_default_order		= $this->session->userdata($_hash . 'order') ? 	$this->session->userdata($_hash . 'order') : 'ASC';
 
 		//	Define vars
-		$_search			= array('keywords' => $this->input->get('search'), 'columns' => array());
-
-		foreach ($this->accounts_sortfields AS $field) :
-
-			$_search['columns'][strtolower($field['label'])] = $field['col'];
-
-		endforeach;
-
-		//	Add any other permenantly searchable fields here
-		$_search['columns']['name']		= array(' ', 'u.first_name', 'u.last_name');
-		$_search['columns']['gender']	= 'u.gender';
+		$searchTerm = $this->input->get('search');
 
 		$_limit		= array(
 						$this->input->get('per_page') ? $this->input->get('per_page') : $_default_per_page,
@@ -252,20 +242,20 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 		//	Get the accounts
 		$this->data['users']		= new stdClass();
-		$this->data['users']->data	= $this->user_model->get_all(FALSE, $_order, $_limit, $this->accounts_where, $_search);
+		$this->data['users']->data	= $this->user_model->get_all(FALSE, $_order, $_limit, $this->accounts_where, $searchTerm);
 
 		//	Work out pagination
 		$this->data['users']->pagination				= new stdClass();
-		$this->data['users']->pagination->total_results	= $this->user_model->count_all($this->accounts_where, $_search);
+		$this->data['users']->pagination->total_results	= $this->user_model->count_all($this->accounts_where, $searchTerm);
 
 		// --------------------------------------------------------------------------
 
 		//	Override the title (used when loading this method from one of the other methods)
 		$this->data['page']->title	 = (! empty($this->data['page']->title)) ? $this->data['page']->title : lang('accounts_index_title');
 
-		if ($_search['keywords']) :
+		if ($searchTerm) :
 
-			$this->data['page']->title	.= ' (' . lang('accounts_index_search_results', array($_search['keywords'], number_format($this->data['users']->pagination->total_results))) . ')';
+			$this->data['page']->title	.= ' (' . lang('accounts_index_search_results', array($searchTerm, number_format($this->data['users']->pagination->total_results))) . ')';
 
 		else :
 
