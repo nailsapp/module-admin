@@ -37,13 +37,13 @@
 						echo '</td>';
 						echo '<td class="actions">';
 
-							if ( user_has_permission( 'admin.testimonial:0.can_edit' ) ) :
+							if ( user_has_permission( 'admin.testimonial:0.can_edit_objects' ) ) :
 
 								echo anchor( 'admin/testimonial/edit/' . $testimonial->id, lang( 'action_edit' ), 'class="awesome small"' );
 
 							endif;
 
-							if ( user_has_permission( 'admin.testimonial:0.can_delete' ) ) :
+							if ( user_has_permission( 'admin.testimonial:0.can_delete_objects' ) ) :
 
 								echo anchor( 'admin/testimonial/delete/' . $testimonial->id, lang( 'action_delete' ), 'class="awesome red small confirm" data-title="Are you sure?" data-body="You cannot undo this action"' );
 
