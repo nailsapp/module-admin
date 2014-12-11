@@ -1332,11 +1332,10 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		$this->load->model( 'shop/shop_skin_checkout_model' );
 		$_skin = $this->shop_skin_checkout_model->get( $_skin );
 
-		if ( ! $_skin ) :
+		if ( ! $_skin ) {
 
-			show_fatal_error( 'Failed to load shop skin "' . $_skin . '"', 'Shop skin "' . $_skin . '" failed to load at ' . APP_NAME . ', the following reason was given: ' . $this->shop_skin_checkout_model->last_error() );
-
-		endif;
+			showFatalError('Failed to load shop skin "' . $_skin . '"', 'Shop skin "' . $_skin . '" failed to load at ' . APP_NAME . ', the following reason was given: ' . $this->shop_skin_checkout_model->last_error());
+		}
 
 		// --------------------------------------------------------------------------
 
