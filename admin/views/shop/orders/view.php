@@ -207,36 +207,51 @@
 					</div>
 				</div>
 				<div class="order-status-container">
-					<div class="order-status <?=strtolower( $order->fulfilment_status )?>">
+					<div class="order-status <?=strtolower($order->fulfilment_status)?>">
 					<?php
 
-						switch ( $order->fulfilment_status ) :
+						$verbFulfilled   = $order->delivery_type == 'DELIVER' ? 'fulfilled' : 'collected';
+						$verbUnfulfilled = $order->delivery_type == 'DELIVER' ? 'unfulfilled' : 'uncollected';
 
-							case 'FULFILLED' :
+						switch ( $order->fulfilment_status ) {
 
-								echo '<h1><b class="fa fa-truck"></b> Fulfilled</h1>';
-								echo '<p>This order has been fulfilled, no further action is nessecary.</p>';
-								echo '<p>' . anchor( 'admin/shop/orders/unfulfil/' . $order->id, 'Mark Unfulfilled', 'class="awesome red"' ) . '</p>';
+							case 'FULFILLED':
 
-							break;
+								$buttonUrl   = 'admin/shop/orders/unfulfil/' . $order->id;
+								$buttonLabel = 'Mark ' . ucfirst($verbUnfulfilled);
 
-							case 'UNFULFILLED' :
+								echo '<h1><b class="fa fa-truck"></b> ' . strtoupper($verbFulfilled) . '</h1>';
+								echo '<p>';
+									echo 'This order has been ' . $verbFulfilled . ', no further action is nessecary.';
+								echo '</p>';
+								echo '<p>';
+									echo anchor($buttonUrl, $buttonLabel, 'class="awesome red"');
+								echo '</p>';
+								break;
 
-								echo '<h1>Unfulfilled</h1>';
-								echo '<p>This order has <strong>not</strong> been fulfilled.</p>';
-								echo '<p>' . anchor( 'admin/shop/orders/fulfil/' . $order->id, 'Mark Fulfilled', 'class="awesome green"' ) . '</p>';
+							case 'UNFULFILLED':
 
-							break;
+								$buttonUrl   = 'admin/shop/orders/fulfil/' . $order->id;
+								$buttonLabel = 'Mark ' . ucfirst($verbFulfilled);
 
-							default :
+								echo '<h1>' . strtoupper($verbUnfulfilled) . '</h1>';
+								echo '<p>';
+									echo 'This order has <strong>not</strong> been ' . $verbFulfilled . '.';
+								echo '</p>';
+								echo '<p>';
+									echo anchor($buttonUrl, $buttonLabel, 'class="awesome green"');
+								echo '</p>';
+								break;
+
+							default:
 
 								$_status = ucwords( strtolower( $order->fulfilment_status ) );
 								echo '<h1>' . $_status . '</h1>';
-								echo '<p>"' . $_status . '" is not a fulfilment status I understand, there may be a problem.</p>';
-
-							break;
-
-						endswitch;
+								echo '<p>';
+								echo '"' . $_status . '" is not a fulfilment status I understand, there may be a problem.';
+								echo '</p>';
+								break;
+						}
 
 					?>
 					</div>
