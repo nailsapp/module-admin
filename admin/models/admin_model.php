@@ -168,42 +168,45 @@ class NAILS_Admin_Model extends NAILS_Model
 
 		foreach ( $_paths AS $path ) :
 
-			$_controllers = directory_map( $path[0] );
+			if (is_dir($path[0])) {
 
-			if ( is_array( $_controllers ) ) :
+				$_controllers = directory_map( $path[0] );
 
-				foreach ( $_controllers AS $controller ) :
+				if ( is_array( $_controllers ) ) :
 
-					if ( preg_match( $_regex, $controller ) ) :
+					foreach ( $_controllers AS $controller ) :
 
-						$_module = pathinfo( $controller );
-						$_module = $_module['filename'];
+						if ( preg_match( $_regex, $controller ) ) :
 
-						if ( ! empty( $path[1] ) ) :
+							$_module = pathinfo( $controller );
+							$_module = $_module['filename'];
 
-							//	Module looks valid, is it a potential module, and if so, is it available?
-							if ( array_search( 'nailsapp/module-' . $_module, $_modules_potential ) !== FALSE ) :
+							if ( ! empty( $path[1] ) ) :
 
-								if ( array_search( 'nailsapp/module-' . $_module, $_modules_unavailable ) !== FALSE ) :
+								//	Module looks valid, is it a potential module, and if so, is it available?
+								if ( array_search( 'nailsapp/module-' . $_module, $_modules_potential ) !== FALSE ) :
 
-									//	Not installed
-									continue;
+									if ( array_search( 'nailsapp/module-' . $_module, $_modules_unavailable ) !== FALSE ) :
+
+										//	Not installed
+										continue;
+
+									endif;
 
 								endif;
 
 							endif;
 
+							// --------------------------------------------------------------------------
+
+							$_modules_available[] = $_module;
+
 						endif;
 
-						// --------------------------------------------------------------------------
+					endforeach;
 
-						$_modules_available[] = $_module;
-
-					endif;
-
-				endforeach;
-
-			endif;
+				endif;
+			}
 
 		endforeach;
 
