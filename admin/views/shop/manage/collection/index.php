@@ -55,20 +55,19 @@
 									echo '<td class="count">';
 										echo ! isset( $collection->product_count ) ? 'Unknown' : $collection->product_count;
 									echo '</td>';
-									echo $this->load->view( '_utilities/table-cell-datetime', array( 'datetime' => $collection->modified ), TRUE );
-									if ( $collection->is_active ) :
 
-										echo '<td class="active success">';
-											echo '<span class="fa fa-check-circle"></span>';
-										echo '</td>';
+									$viewData = array(
+										'datetime' => $collection->modified
+									);
 
-									else :
+									$this->load->view('admin/_utilities/table-cell-datetime', $viewData);
 
-										echo '<td class="active error">';
-											echo '<span class="fa fa-times-circle"></span>';
-										echo '</td>';
+									$viewData = array(
+										'value' => $collection->is_active
+									);
 
-									endif;
+									$this->load->view('admin/_utilities/table-cell-boolean', $viewData);
+
 									echo '<td class="actions">';
 
 										if ( user_has_permission( 'admin.shop:0.collection_edit' ) ) :

@@ -40,19 +40,7 @@
 				</td>
 				<?php
 
-					if ( $group->is_default ) :
-
-						echo '<td class="default success">';
-							echo '<span class="fa fa-check-circle"></span>';
-						echo '</td>';
-
-					else :
-
-						echo '<td class="default error">';
-							echo '<span class="fa fa-times-circle"></span>';
-						echo '</td>';
-
-					endif;
+					$this->load->view('admin/_utilities/table-cell-boolean', array('value' => $group->is_default));
 
 				?>
 				<td class="actions">

@@ -117,20 +117,12 @@
 										echo $order->status;
 									echo '</td>';
 
-									if ( $order->fulfilment_status == 'FULFILLED' ) :
+									$viewData = array(
+										'value' => $order->fulfilment_status == 'FULFILLED',
+										'datetime' => $order->fulfilled
+									);
 
-										echo '<td class="status success">';
-											echo '<b class="fa fa-check-circle fa-2x"></b>';
-											echo '<small class="nice-time">' . user_datetime( $order->fulfilled, 'Y-m-d', 'H:i:s' ) . '</small>';
-										echo '</td>';
-
-									else :
-
-										echo '<td class="status error">';
-											echo '<b class="fa fa-times-circle fa-2x"></b>';
-										echo '</td>';
-
-									endif;
+									$this->load->view('admin/_utilities/table-cell-boolean', $viewData);
 
 								?>
 								<td class="actions">

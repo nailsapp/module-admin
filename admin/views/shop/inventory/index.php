@@ -65,19 +65,11 @@
 								</td>
 								<?php
 
-									if ( $item->is_active ) :
+									$viewData = array(
+										'value' => $item->is_active
+									);
 
-										echo '<td class="status success">';
-											echo '<span class="fa fa-check-circle"></span>';
-										echo '</td>';
-
-									else :
-
-										echo '<td class="status error">';
-											echo '<span class="fa fa-times-circle"></span>';
-										echo '</td>';
-
-									endif;
+									$this->load->view('admin/_utilities/table-cell-boolean', $viewData);
 
 								?>
 								<td class="label">
