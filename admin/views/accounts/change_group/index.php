@@ -9,7 +9,7 @@
         echo form_open($formUrl);
 
     ?>
-    <fieldset class="no-collapse">
+    <fieldset>
         <legend>Users to Update</legend>
         <table>
             <thead>
@@ -36,7 +36,7 @@
             </tbody>
         </table>
     </fieldset>
-    <fieldset class="no-collapse">
+    <fieldset>
         <legend>New Group</legend>
         <select name="newGroupId" class="select2">
         <?php

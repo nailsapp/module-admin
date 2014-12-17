@@ -515,10 +515,11 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		$this->form_validation->set_rules('type_id',		'',	'xss_clean|required');
 		$this->form_validation->set_rules('label',			'',	'xss_clean|required');
 		$this->form_validation->set_rules('is_active',		'',	'xss_clean');
-		$this->form_validation->set_rules('brands',		'',	'xss_clean');
-		$this->form_validation->set_rules('categories',	'',	'xss_clean');
+		$this->form_validation->set_rules('brands',			'',	'xss_clean');
+		$this->form_validation->set_rules('categories',		'',	'xss_clean');
 		$this->form_validation->set_rules('tags',			'',	'xss_clean');
 		$this->form_validation->set_rules('tax_rate_id',	'',	'xss_clean|required');
+		$this->form_validation->set_rules('published',		'',	'xss_clean|required');
 
 		// --------------------------------------------------------------------------
 

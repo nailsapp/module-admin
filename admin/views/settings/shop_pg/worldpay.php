@@ -25,7 +25,7 @@
 				<p>
 					These settings allow you to customise how the customer percieves the payment gateway.
 				</p>
-				<fieldset class="no-collapse">
+				<fieldset>
 					<?php
 
 						$_field					= array();
@@ -54,7 +54,7 @@
 				<p>
 					These settings will be provided by <?=$gateway_name?> and should be entered carefully here.
 				</p>
-				<fieldset class="no-collapse">
+				<fieldset>
 				<?php
 
 					$_field					= array();
@@ -83,7 +83,7 @@
 					These settings are defined by the user, it is important that details are entered <strong>exactly</strong>
 					as they are on <?=$gateway_name?>.
 				</p>
-				<fieldset class="no-collapse">
+				<fieldset>
 				<?php
 
 					$_field					= array();
@@ -123,7 +123,7 @@
 					The following settings are not configurable at this end, but should be set in the
 					<?=$gateway_name?> Installation Administration area.
 				</p>
-				<fieldset class="no-collapse">
+				<fieldset>
 					<?php
 
 						$_field					= array();
@@ -279,7 +279,7 @@
 					In order to make the checkout experience more pleasant for the user, we recommend replacing
 					the default <?=$gateway_name?> template files with these ones:
 				</p>
-				<fieldset class="no-collapse">
+				<fieldset>
 					<ul>
 						<li>
 							<a href="#template-resultY" class="fancybox">resultY.html</a>

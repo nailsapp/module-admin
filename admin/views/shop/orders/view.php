@@ -1,7 +1,7 @@
 <div class="group-shop orders single">
 	<div class="col-3-container">
 		<div class="col-3">
-			<fieldset class="no-collapse">
+			<fieldset>
 				<legend>Order Details</legend>
 				<div class="table-responsive">
 					<table>
@@ -84,7 +84,7 @@
 			</fieldset>
 		</div>
 		<div class="col-3">
-			<fieldset class="no-collapse">
+			<fieldset>
 				<legend>Customer Details</legend>
 				<div class="table-responsive">
 					<table>
@@ -133,7 +133,7 @@
 			</fieldset>
 		</div>
 		<div class="col-3">
-			<fieldset class="no-collapse">
+			<fieldset>
 				<legend>Order Status</legend>
 				<div class="order-status-container">
 					<div class="order-status <?=strtolower( $order->status )?>">
