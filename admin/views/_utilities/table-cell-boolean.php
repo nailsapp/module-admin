@@ -16,7 +16,7 @@
             if (!is_null($datetime)) {
 
                 echo '<small class="nice-time">';
-                    echo user_datetime($datetime, 'Y-m-d', 'H:i:s');
+                    echo nice_time($datetime);
                 echo '</small>';
             }
         echo '</td>';

@@ -1,4 +1,4 @@
-<?php  if (! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
 
 /**
  * Name:		Admin: Accounts
@@ -813,7 +813,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 		//	Get the groups, timezones and languages
 		$this->data['groups']		= $this->user_group_model->get_all();
-		$this->data['timezones']	= $this->datetime_model->get_all_timezone_flat();
+		$this->data['timezones']	= $this->datetime_model->get_all_timezone();
 		$this->data['date_formats']	= $this->datetime_model->get_all_date_format();
 		$this->data['time_formats']	= $this->datetime_model->get_all_time_format();
 		$this->data['languages']	= $this->language_model->get_all_enabled_flat();

@@ -76,14 +76,14 @@
 
 						echo '<td class="status success">';
 							echo '<span class="fa fa-check-circle"></span>';
-							echo '<small class="nice-time">' . user_datetime( $post->published, 'Y-m-d', 'H:i:s' ) . '</small>';
+							echo '<br />' . nice_time($post->published);
 						echo '</td>';
 
 					elseif ( $post->is_published && strtotime( $post->published ) > time() ) :
 
 						echo '<td class="status notice">';
 							echo '<span class="fa fa-clock-o "></span>';
-							echo 'Scheduled <small class="nice-time">' . user_datetime( $post->published, 'Y-m-d', 'H:i:s' ) . '</small>';
+							echo nice_time($post->published);
 						echo '</td>';
 
 					else :

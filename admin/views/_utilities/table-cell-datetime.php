@@ -1,22 +1,24 @@
 <?php
 
-	if ( $datetime && $datetime != '0000-00-00 00:00:00' ) :
+    if (!empty($datetime) && $datetime != '0000-00-00 00:00:00') {
 
-		echo '<td class="datetime">';
-		echo '<span class="nice-time" data-capitalise="true">' . user_datetime( $datetime, 'Y-m-d', 'H:i:s' ) . '</span>';
-		echo '<small>' . user_datetime( $datetime ) . '</small>';
-		echo '</td>';
+        echo '<td class="datetime">';
+            echo nice_time($datetime);
+            echo '<small>';
+                echo user_datetime($datetime);
+            echo '</small>';
+        echo '</td>';
 
-	else :
+    } else {
 
-		if ( isset( $nodata ) ) :
+        if (isset($nodata)) {
 
-			echo '<td class="datetime no-data">' . $nodata . '</td>';
+            echo '<td class="datetime no-data">';
+                echo $nodata;
+            echo '</td>';
 
-		else :
+        } else {
 
-			echo '<td class="datetime no-data">&mdash;</td>';
-
-		endif;
-
-	endif;
+            echo '<td class="datetime no-data">&mdash;</td>';
+        }
+    }
