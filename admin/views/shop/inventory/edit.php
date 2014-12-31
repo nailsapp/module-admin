@@ -192,7 +192,7 @@
 				$_field['label']		= 'Published';
 				$_field['required']		= true;
 				$_field['placeholder']	= 'What date and time should this item be published on site.';
-				$_field['default']		= !empty($item->published) ? $item->published : date('Y-m-d H:i:00');
+				$_field['default']		= !empty($item->published) ? user_mysql_datetime($item->published) : date('Y-m-d H:i:00');
 				$_field['info']			= 'You can specify a date in the future if you wish, the system will not show ';
 				$_field['info']         .= 'products where the published date is in the future.';
 
