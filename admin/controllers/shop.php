@@ -420,8 +420,8 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		//	Fetch shipping data, used in form validation
 		$this->load->model('shop/shop_shipping_driver_model');
-		$this->data['shipping_driver']			= $this->shop_shipping_driver_model->get_enabled();
-		$this->data['shipping_options_variant'] = $this->shop_shipping_driver_model->options_variant();
+		$this->data['shipping_driver']			= $this->shop_shipping_driver_model->getEnabled();
+		$this->data['shipping_options_variant'] = $this->shop_shipping_driver_model->optionsVariant();
 
 		// --------------------------------------------------------------------------
 
@@ -623,7 +623,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 				$this->form_validation->set_rules('variation[' . $index . '][shipping][collection_only]',	'',	'xss_clean');
 
 				//	Foreach of the driver's settings and apply any rules, but if collect only is on then don't bother
-				$_shipping_options = $this->shop_shipping_driver_model->options_variant();
+				$_shipping_options = $this->shop_shipping_driver_model->optionsVariant();
 				foreach($_shipping_options AS $option) :
 
 					$_rules		= array();
@@ -782,8 +782,8 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		//	Fetch shipping data, used in form validation
 		$this->load->model('shop/shop_shipping_driver_model');
-		$this->data['shipping_driver']			= $this->shop_shipping_driver_model->get_enabled();
-		$this->data['shipping_options_variant'] = $this->shop_shipping_driver_model->options_variant();
+		$this->data['shipping_driver']			= $this->shop_shipping_driver_model->getEnabled();
+		$this->data['shipping_options_variant'] = $this->shop_shipping_driver_model->optionsVariant();
 
 		// --------------------------------------------------------------------------
 

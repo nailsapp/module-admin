@@ -1115,7 +1115,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		//	Get data
 		$this->data['settings']					= app_setting( NULL, 'shop', TRUE );
 		$this->data['payment_gateways']			= $this->shop_payment_gateway_model->get_available();
-		$this->data['shipping_drivers']			= $this->shop_shipping_driver_model->get_available();
+		$this->data['shipping_drivers']			= $this->shop_shipping_driver_model->getAvailable();
 		$this->data['currencies']				= $this->shop_currency_model->get_all( );
 		$this->data['tax_rates']				= $this->shop_tax_rate_model->get_all();
 		$this->data['tax_rates_flat']			= $this->shop_tax_rate_model->get_all_flat();
