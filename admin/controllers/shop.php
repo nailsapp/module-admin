@@ -347,8 +347,8 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		$_page			= $this->input->get('page')		? $this->input->get('page')		: 0;
 		$_per_page		= $this->input->get('per_page')	? $this->input->get('per_page')	: 50;
 		$_sort_on		= $this->input->get('sort_on')	? $this->input->get('sort_on')	: 'p.label';
-		$_sort_order	= $this->input->get('order')		? $this->input->get('order')		: 'desc';
-		$_search		= $this->input->get('search')		? $this->input->get('search')		: '';
+		$_sort_order	= $this->input->get('order')	? $this->input->get('order')	: 'desc';
+		$_search		= $this->input->get('search')	? $this->input->get('search')	: '';
 
 		//	Set sort variables for view and for $_data
 		$this->data['sort_on']		= $_data['sort']['column']	= $_sort_on;
@@ -359,6 +359,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 		if (!empty($_data['category_id'])) {
 
 			$_data['category_id'] = array($_data['category_id']) + $this->shop_category_model->get_ids_of_children($_data['category_id']);
+
 		} else {
 
 			unset($_data['category_id']);
@@ -377,9 +378,9 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		$this->load->view('structure/header',				$this->data);
-		$this->load->view('admin/shop/inventory/index',	$this->data);
-		$this->load->view('structure/footer',				$this->data);
+		$this->load->view('structure/header', $this->data);
+		$this->load->view('admin/shop/inventory/index', $this->data);
+		$this->load->view('structure/footer', $this->data);
 	}
 
 
@@ -876,7 +877,9 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		if (!$_product) :
 
-			$this->session->set_flashdata('error', '<strong>Sorry,</strong> a product with that ID could not be found.');
+			$status = 'error';
+			$msg    = '<strong>Sorry,</strong> a product with that ID could not be found.';
+			$this->session->set_flashdata($status, $msg);
 			redirect('admin/shop/inventory/index');
 
 		endif;
@@ -885,13 +888,19 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		if ($this->shop_product_model->delete($_product->id)) :
 
-			$this->session->set_flashdata('success', '<strong>Success!</strong> Product successfully deleted!You can restore this product by ' . anchor('/admin/shop/inventory/restore/' . $_product->id, 'clicking here') . '.');
+			$status  = 'success';
+			$msg     = '<strong>Success!</strong> Product successfully deleted! You can restore this product by ';
+			$msg    .= anchor('/admin/shop/inventory/restore/' . $_product->id, 'clicking here') . '.';
 
 		else :
 
-			$this->session->set_flashdata('error', '<strong>Sorry,</strong> that product could not be deleted. ' . $this->shop_product_model->last_error());
+			$status  = 'error';
+			$msg     = '<strong>Sorry,</strong> that product could not be deleted. ';
+			$msg    .= $this->shop_product_model->last_error();
 
 		endif;
+
+		$this->session->set_flashdata($status, $msg);
 
 		// --------------------------------------------------------------------------
 
