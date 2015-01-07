@@ -187,12 +187,21 @@
 				<legend>Dates &amp; Times</legend>
 				<?php
 
+				if (!empty($item->published) && $item->published != '0000-00-00 00:00:00') {
+
+					$publishedTime = user_mysql_datetime($item->published);
+
+				} else {
+
+					$publishedTime = date('Y-m-d H:i:00');
+				}
+
 				$_field					= array();
 				$_field['key']			= 'published';
 				$_field['label']		= 'Published';
 				$_field['required']		= true;
 				$_field['placeholder']	= 'What date and time should this item be published on site.';
-				$_field['default']		= !empty($item->published) ? user_mysql_datetime($item->published) : date('Y-m-d H:i:00');
+				$_field['default']		= $publishedTime;
 				$_field['info']			= 'You can specify a date in the future if you wish, the system will not show ';
 				$_field['info']         .= 'products where the published date is in the future.';
 
@@ -651,8 +660,10 @@
 	var _CREATE_EDIT;
 	$(function(){
 
-		_CREATE_EDIT	= new NAILS_Admin_Shop_Inventory_Create_Edit();
-		_CREATE_EDIT.init( <?=json_encode($product_types)?>, '<?=$this->cdn->generate_api_upload_token(active_user('id')) ?>');
+		var productTypes = <?=json_encode($product_types)?>;
+		var uploadToken  = '<?=$this->cdn->generate_api_upload_token(active_user('id')) ?>';
+		_CREATE_EDIT     = new NAILS_Admin_Shop_Inventory_Create_Edit();
+		_CREATE_EDIT.init(productTypes, uploadToken);
 
 	});
 </script>
