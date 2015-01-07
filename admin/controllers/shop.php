@@ -4916,7 +4916,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		$this->data['products_variations_flat'] = $this->shop_product_model->get_all_product_variation_flat();
+		$this->data['products_variations_flat'] = $this->shop_product_model->getAllProductVariationFlat();
 
 		// --------------------------------------------------------------------------
 
@@ -4995,7 +4995,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		$this->data['products_variations_flat'] = $this->shop_product_model->get_all_product_variation_flat();
+		$this->data['products_variations_flat'] = $this->shop_product_model->getAllProductVariationFlat();
 
 		// --------------------------------------------------------------------------
 
