@@ -1507,7 +1507,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
 
 		// --------------------------------------------------------------------------
 
-		if ($this->user_group_model->set_as_default($this->uri->segment(5))) :
+		if ($this->user_group_model->setAsDefault($this->uri->segment(5))) :
 
 			$this->session->set_flashdata('success', '<strong>Success!</strong> Group set as default successfully.');
 

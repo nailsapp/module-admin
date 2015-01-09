@@ -10,7 +10,7 @@
 		$_field['key']			= 'group_id';
 		$_field['label']		= lang( 'accounts_create_field_group_label' );
 		$_field['required']		= TRUE;
-		$_field['default']		= $this->user_group_model->get_default_group_id();
+		$_field['default']		= $this->user_group_model->getDefaultGroupId();
 		$_field['class']		= 'select2';
 
 		//	Prepare ID's
@@ -43,7 +43,7 @@
 
 			// --------------------------------------------------------------------------
 
-			$_display = $group->id == $this->user_group_model->get_default_group_id() ? 'block' : 'none';
+			$_display = $group->id == $this->user_group_model->getDefaultGroupId() ? 'block' : 'none';
 			echo '<li class="system-alert notice" id="user-group-' . $group->id . '" style="display:' . $_display . ';">';
 			echo  '<strong>' . $group->label . ':</strong> ' . $group->description;
 			echo '</li>';

@@ -1274,7 +1274,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 		foreach( $_configs AS $slug => $configs ) :
 
 			//	Clear out the grouping; booleans not specified should be assumed FALSE
-			$this->app_setting_model->delete_group( 'shop-' . $slug );
+			$this->app_setting_model->deleteGroup( 'shop-' . $slug );
 
 			//	New settings
 			$_settings = array();

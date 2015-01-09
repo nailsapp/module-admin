@@ -1,0 +1,7 @@
+# INITIAL ADMIN DB
+# This is the schema of the admin module database as of 09/01/2015
+DROP TABLE IF EXISTS `nails_admin_changelog`;
+CREATE TABLE `nails_admin_changelog` (`id` int(11) unsigned NOT NULL AUTO_INCREMENT, `user_id` int(11) unsigned DEFAULT NULL, `verb` varchar(25) DEFAULT NULL, `article` varchar(3) DEFAULT NULL, `item` varchar(75) DEFAULT NULL, `item_id` int(11) unsigned DEFAULT NULL, `title` varchar(100) DEFAULT NULL, `url` varchar(255) DEFAULT NULL, `changes` text, `created` datetime NOT NULL, `created_by` int(10) unsigned DEFAULT NULL, `modified` datetime NOT NULL, `modified_by` int(11) unsigned DEFAULT NULL, PRIMARY KEY (`id`), KEY `user_id` (`user_id`), KEY `created_by` (`created_by`), KEY `modified_by` (`modified_by`), CONSTRAINT `nails_admin_changelog_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `nails_user` (`id`) ON DELETE SET NULL, CONSTRAINT `nails_admin_changelog_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `nails_user` (`id`) ON DELETE SET NULL, CONSTRAINT `nails_admin_changelog_ibfk_3` FOREIGN KEY (`modified_by`) REFERENCES `nails_user` (`id`) ON DELETE SET NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `nails_admin_help_video`;
+CREATE TABLE `nails_admin_help_video` (`id` int(11) unsigned NOT NULL AUTO_INCREMENT, `title` varchar(150) NOT NULL DEFAULT '', `description` text NOT NULL, `vimeo_id` varchar(10) NOT NULL DEFAULT '', PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+DROP TABLE IF EXISTS `nails_app_notification`;
