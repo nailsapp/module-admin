@@ -1,1678 +1,1591 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
 
-/**
- * Name:		Admin: Settings
- * Description:	A holder for all site settings
- *
- **/
-
-//	Include Admin_Controller; executes common admin functionality.
+//  Include NAILS_Admin_Controller; executes common admin functionality.
 require_once '_admin.php';
 
 /**
- * OVERLOADING NAILS' ADMIN MODULES
+ * Manage app settings
  *
- * Note the name of this class; done like this to allow apps to extend this class.
- * Read full explanation at the bottom of this file.
- *
- **/
-
+ * @package     Nails
+ * @subpackage  module-admin
+ * @category    Controller
+ * @author      Nails Dev Team
+ * @link
+ */
 class NAILS_Settings extends NAILS_Admin_Controller
 {
-	/**
-	 * Announces this module's details to anyone who asks.
-	 *
-	 * @access	static
-	 * @param	none
-	 * @return	void
-	 **/
-	static function announce()
-	{
-		$d = new stdClass();
+    /**
+     * Announces this controllers details
+     * @return stdClass
+     */
+    public static function announce()
+    {
+        $d = new stdClass();
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Load the laguage file
-		get_instance()->lang->load( 'admin_settings' );
+        //  Load the laguage file
+        get_instance()->lang->load('admin_settings');
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Configurations
-		$d->name = lang( 'settings_module_name' );
-		$d->icon = 'fa-wrench';
+        //  Configurations
+        $d->name = lang('settings_module_name');
+        $d->icon = 'fa-wrench';
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Navigation options
-		$d->funcs			= array();
-		$d->funcs['admin']	= lang( 'settings_nav_admin' );
-		$d->funcs['site']	= lang( 'settings_nav_site' );
+        //  Navigation options
+        $d->funcs          = array();
+        $d->funcs['admin'] = lang('settings_nav_admin');
+        $d->funcs['site']  = lang('settings_nav_site');
 
-		if ( module_is_enabled( 'blog' ) ) :
+        if (module_is_enabled('blog')) {
 
-			$d->funcs['blog'] = lang( 'settings_nav_blog' );
+            $d->funcs['blog'] = lang('settings_nav_blog');
+        }
 
-		endif;
+        if (module_is_enabled('email')) {
 
-		if ( module_is_enabled( 'email' ) ) :
+            $d->funcs['email'] = lang('settings_nav_email');
+        }
 
-			$d->funcs['email'] = lang( 'settings_nav_email' );
+        if (module_is_enabled('shop')) {
 
-		endif;
+            $d->funcs['shop'] = lang('settings_nav_shop');
+        }
 
-		if ( module_is_enabled( 'shop' ) ) :
+        // --------------------------------------------------------------------------
 
-			$d->funcs['shop'] = lang( 'settings_nav_shop' );
+        return $d;
+    }
 
-		endif;
+    // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+    /**
+     * Manage Admin settings
+     * @return void
+     */
+    public function admin()
+    {
+        //  Set method info
+        $this->data['page']->title = lang('settings_admin_title');
 
-		return $d;
-	}
+        // --------------------------------------------------------------------------
 
+        //  Process POST
+        if ($this->input->post()) {
 
-	// --------------------------------------------------------------------------
+            $method =  $this->input->post('update');
 
+            if (method_exists($this, '_admin_update_' . $method)) {
 
-	public function admin()
-	{
-		//	Set method info
+                $this->{'_admin_update_' . $method}();
 
-		$this->data['page']->title = lang( 'settings_admin_title' );
+            } else {
 
-		// --------------------------------------------------------------------------
+                $this->data['error'] = '<strong>Sorry,</strong> I can\'t determine what type of update you are trying to perform.';
+            }
+        }
 
-		//	Process POST
-		if ( $this->input->post() ) :
+        // --------------------------------------------------------------------------
 
-			$_method =  $this->input->post( 'update' );
+        //  Get data
+        $this->data['settings'] = app_setting(null, 'admin', true);
 
-			if ( method_exists( $this, '_admin_update_' . $_method ) ) :
+        // --------------------------------------------------------------------------
 
-				$this->{'_admin_update_' . $_method}();
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/settings/admin', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-			else :
+    // --------------------------------------------------------------------------
 
-				$this->data['error'] = '<strong>Sorry,</strong> I can\'t determine what type of update you are trying to perform.';
+    /**
+     * Set Admin branding settings
+     * @return void
+     */
+    protected function _admin_update_branding()
+    {
+        //  Prepare update
+        $settings                     = array();
+        $settings['primary_colour']   = $this->input->post('primary_colour');
+        $settings['secondary_colour'] = $this->input->post('secondary_colour');
+        $settings['highlight_colour'] = $this->input->post('highlight_colour');
 
-			endif;
+        // --------------------------------------------------------------------------
 
-		endif;
+        //  Save
+        if ($this->app_setting_model->set($settings, 'admin')) {
 
-		// --------------------------------------------------------------------------
+            $this->data['success'] = '<strong>Success!</strong> Admin branding settings have been saved.';
 
-		//	Get data
-		$this->data['settings'] = app_setting( NULL, 'admin', TRUE );
+        } else {
 
-		// --------------------------------------------------------------------------
+            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving admin branding settings.';
+        }
+    }
 
-		$this->load->view( 'structure/header',		$this->data );
-		$this->load->view( 'admin/settings/admin',	$this->data );
-		$this->load->view( 'structure/footer',		$this->data );
-	}
+    // --------------------------------------------------------------------------
 
+    /**
+     * Set Admin IP whitelist settings
+     * @return void
+     */
+    protected function _admin_update_whitelist()
+    {
+        //  Prepare the whitelist
+        $whitelistRaw = $this->input->post('whitelist');
+        $whitelistRaw = str_replace("\n\r", "\n", $whitelistRaw);
+        $whitelistRaw = explode("\n", $whitelistRaw);
+        $whitelist     = array();
 
-	// --------------------------------------------------------------------------
+        foreach ($whitelistRaw as $line) {
 
+            $whitelist = array_merge(explode(',', $line), $whitelist);
+        }
 
-	protected function _admin_update_branding()
-	{
-		//	Prepare update
-		$_settings						= array();
-		$_settings['primary_colour']	= $this->input->post( 'primary_colour' );
-		$_settings['secondary_colour']	= $this->input->post( 'secondary_colour' );
-		$_settings['highlight_colour']	= $this->input->post( 'highlight_colour' );
+        $whitelist = array_unique($whitelist);
+        $whitelist = array_filter($whitelist);
+        $whitelist = array_map('trim', $whitelist);
+        $whitelist = array_values($whitelist);
 
-		// --------------------------------------------------------------------------
+        //  Prepare update
+        $settings              = array();
+        $settings['whitelist'] = $whitelist;
 
-		//	Save
-		if ( $this->app_setting_model->set( $_settings, 'admin' ) ) :
+        // --------------------------------------------------------------------------
 
-			$this->data['success'] = '<strong>Success!</strong> Admin branding settings have been saved.';
+        //  Save
+        if ($this->app_setting_model->set($settings, 'admin')) {
 
-		else :
+            $this->data['success'] = '<strong>Success!</strong> Admin whitelist settings have been saved.';
 
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving admin branding settings.';
+        } else {
 
-		endif;
-	}
+            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving admin whitelist settings.';
+        }
+    }
 
+    // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+    /**
+     * Manage Site settings
+     * @return void
+     */
+    public function site()
+    {
+        //  Set method info
+        $this->data['page']->title = lang('settings_site_title');
 
+        // --------------------------------------------------------------------------
 
-	protected function _admin_update_whitelist()
-	{
-		//	Prepare the whitelist
-		$_whitelist_raw	= $this->input->post( 'whitelist' );
-		$_whitelist_raw	= str_replace( "\n\r", "\n", $_whitelist_raw );
-		$_whitelist_raw	= explode( "\n", $_whitelist_raw );
-		$_whitelist		= array();
+        //  Process POST
+        if ($this->input->post()) {
 
-		foreach ( $_whitelist_raw AS $line ) :
+            $method =  $this->input->post('update');
 
-			$_whitelist = array_merge( explode( ',', $line ), $_whitelist );
+            if (method_exists($this, '_site_update_' . $method)) {
 
-		endforeach;
+                $this->{'_site_update_' . $method}();
 
-		$_whitelist = array_unique( $_whitelist );
-		$_whitelist = array_filter( $_whitelist );
-		$_whitelist = array_map( 'trim', $_whitelist );
-		$_whitelist = array_values( $_whitelist );
+            } else {
 
-		//	Prepare update
-		$_settings				= array();
-		$_settings['whitelist']	= $_whitelist;
+                $this->data['error'] = '<strong>Sorry,</strong> I can\'t determine what type of update you are trying to perform.';
+            }
+        }
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Save
-		if ( $this->app_setting_model->set( $_settings, 'admin' ) ) :
+        //  Get data
+        $this->data['settings'] = app_setting(null, 'app', true);
 
-			$this->data['success'] = '<strong>Success!</strong> Admin whitelist settings have been saved.';
+        // --------------------------------------------------------------------------
 
-		else :
+        //  Load assets
+        $this->asset->load('nails.admin.site.settings.min.js', true);
+        $this->asset->inline('<script>_nails_settings = new NAILS_Admin_Site_Settings();</script>');
 
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving admin whitelist settings.';
+        $this->load->library('auth/social_signon');
+        $this->data['providers'] = $this->social_signon->get_providers();
 
-		endif;
-	}
+        // --------------------------------------------------------------------------
 
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/settings/site', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-	// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
+    /**
+     * Set Site Analytics settings
+     * @return void
+     */
+    protected function _site_update_analytics()
+    {
+        //  Prepare update
+        $settings                             = array();
+        $settings['google_analytics_account'] = $this->input->post('google_analytics_account');
 
-	/**
-	 * Configure Site settings
-	 *
-	 * @access public
-	 * @param none
-	 * @return void
-	 **/
-	public function site()
-	{
-		//	Set method info
-		$this->data['page']->title = lang( 'settings_site_title' );
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Save
+        if ($this->app_setting_model->set($settings, 'app')) {
 
-		//	Process POST
-		if ( $this->input->post() ) :
+            $this->data['success'] = '<strong>Success!</strong> Site settings have been saved.';
 
-			$_method =  $this->input->post( 'update' );
+        } else {
 
-			if ( method_exists( $this, '_site_update_' . $_method ) ) :
+            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
+        }
+    }
 
-				$this->{'_site_update_' . $_method}();
+    // --------------------------------------------------------------------------
 
-			else :
+    /**
+     * Set Site Auth settings
+     * @return void
+     */
+    protected function _site_update_auth()
+    {
+        $this->load->library('auth/social_signon');
+        $providers = $this->social_signon->get_providers();
 
-				$this->data['error'] = '<strong>Sorry,</strong> I can\'t determine what type of update you are trying to perform.';
+        // --------------------------------------------------------------------------
 
-			endif;
+        //  Prepare update
+        $settings            = array();
+        $settings_encrypted = array();
 
-		endif;
+        $settings['user_registration_enabled'] = $this->input->post('user_registration_enabled');
 
-		// --------------------------------------------------------------------------
+        //  Disable social signon, if any providers are proeprly enabled it'll turn itself on again.
+        $settings['auth_social_signon_enabled'] = false;
 
-		//	Get data
-		$this->data['settings'] = app_setting( NULL, 'app', TRUE );
+        foreach ($providers as $provider) {
 
-		// --------------------------------------------------------------------------
+            $settings['auth_social_signon_' . $provider['slug'] . '_enabled'] = (bool) $this->input->post('auth_social_signon_' . $provider['slug'] . '_enabled');
 
-		//	Load assets
-		$this->asset->load( 'nails.admin.site.settings.min.js', TRUE );
-		$this->asset->inline( '<script>_nails_settings = new NAILS_Admin_Site_Settings();</script>' );
+            if ($settings['auth_social_signon_' . $provider['slug'] . '_enabled']) {
 
-		$this->load->library( 'auth/social_signon' );
-		$this->data['providers'] = $this->social_signon->get_providers();
+                //  null out each key
+                if ($provider['fields']) {
 
-		// --------------------------------------------------------------------------
+                    foreach ($provider['fields'] as $key => $label) {
 
-		$this->load->view( 'structure/header',		$this->data );
-		$this->load->view( 'admin/settings/site',	$this->data );
-		$this->load->view( 'structure/footer',		$this->data );
-	}
+                        if (is_array($label) && !isset($label['label'])) {
 
+                            foreach ($label as $key1 => $label1) {
 
-	// --------------------------------------------------------------------------
+                                $value = $this->input->post('auth_social_signon_' . $provider['slug'] . '_' . $key . '_' . $key1);
 
+                                if (!empty($label1['required']) && empty($value)) {
 
-	protected function _site_update_analytics()
-	{
-		//	Prepare update
-		$_settings								= array();
-		$_settings['google_analytics_account']	= $this->input->post( 'google_analytics_account' );
+                                    $error = 'Provider "' . $provider['label'] . '" was enabled, but was missing required field "' . $label1['label'] . '".';
+                                    break 3;
 
-		// --------------------------------------------------------------------------
+                                }
 
-		//	Save
-		if ( $this->app_setting_model->set( $_settings, 'app' ) ) :
+                                if ( empty($label1['encrypted'])) {
 
-			$this->data['success'] = '<strong>Success!</strong> Site settings have been saved.';
+                                    $settings['auth_social_signon_' . $provider['slug'] . '_' . $key . '_' . $key1] = $value;
 
-		else :
+                                } else {
 
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
+                                    $settings_encrypted['auth_social_signon_' . $provider['slug'] . '_' . $key . '_' . $key1] = $value;
+                                }
+                            }
 
-		endif;
-	}
+                        } else {
 
+                            $value = $this->input->post('auth_social_signon_' . $provider['slug'] . '_' . $key);
 
-	// --------------------------------------------------------------------------
+                            if (!empty($label['required']) && empty($value)) {
 
+                                $error = 'Provider "' . $provider['label'] . '" was enabled, but was missing required field "' . $label['label'] . '".';
+                                break 2;
+                            }
 
-	protected function _site_update_auth()
-	{
-		$this->load->library( 'auth/social_signon' );
-		$_providers = $this->social_signon->get_providers();
+                            if ( empty($label['encrypted'])) {
 
-		// --------------------------------------------------------------------------
+                                $settings['auth_social_signon_' . $provider['slug'] . '_' . $key] = $value;
 
-		//	Prepare update
-		$_settings				= array();
-		$_settings_encrypted	= array();
+                            } else {
 
-		$_settings['user_registration_enabled']	= $this->input->post( 'user_registration_enabled' );
+                                $settings_encrypted['auth_social_signon_' . $provider['slug'] . '_' . $key] = $value;
+                            }
+                        }
+                    }
+                }
 
-		//	Disable social signon, if any providers are proeprly enabled it'll turn itself on again.
-		$_settings['auth_social_signon_enabled'] = FALSE;
+                //  Turn on social signon
+                $settings['auth_social_signon_enabled'] = true;
 
-		foreach( $_providers AS $provider ) :
+            } else {
 
-			$_settings['auth_social_signon_' . $provider['slug'] . '_enabled'] = (bool) $this->input->post( 'auth_social_signon_' . $provider['slug'] . '_enabled' );
+                //  null out each key
+                if ($provider['fields']) {
 
-			if ( $_settings['auth_social_signon_' . $provider['slug'] . '_enabled'] ) :
+                    foreach ($provider['fields'] as $key => $label) {
 
-				//	NULL out each key
-				if ( $provider['fields'] ) :
+                        /**
+                         * Secondary conditional detects an actual array fo fields rather than
+                         * just the label/required array. Design could probably be improved...
+                         **/
 
-					foreach( $provider['fields'] AS $key => $label ) :
+                        if (is_array($label) && !isset($label['label'])) {
 
-						if ( is_array( $label ) && ! isset( $label['label'] ) ) :
+                            foreach ($label as $key1 => $label1) {
 
-							foreach ( $label AS $key1 => $label1 ) :
+                                $settings['auth_social_signon_' . $provider['slug'] . '_' . $key . '_' . $key1] = null;
+                            }
 
-								$_value = $this->input->post( 'auth_social_signon_' . $provider['slug'] . '_' . $key . '_' . $key1 );
+                        } else {
 
-								if ( ! empty( $label1['required'] ) && empty( $_value ) ) :
+                            $settings['auth_social_signon_' . $provider['slug'] . '_' . $key] = null;
+                        }
+                    }
+                }
+            }
+        }
 
-									$_error = 'Provider "' . $provider['label'] . '" was enabled, but was missing required field "' . $label1['label'] . '".';
-									break 3;
+        // --------------------------------------------------------------------------
 
-								endif;
+        //  Save
+        if (empty($error)) {
 
-								if (  empty( $label1['encrypted'] ) ) :
+            $this->db->trans_begin();
+            $rollback = false;
 
-									$_settings['auth_social_signon_' . $provider['slug'] . '_' . $key . '_' . $key1] = $_value;
+            if (!empty($settings)) {
 
-								else :
+                if (!$this->app_setting_model->set($settings, 'app')) {
 
-									$_settings_encrypted['auth_social_signon_' . $provider['slug'] . '_' . $key . '_' . $key1] = $_value;
+                    $error    = $this->app_setting_model->last_error();
+                    $rollback = true;
+                }
+            }
 
-								endif;
+            if (!empty($settings_encrypted)) {
 
-							endforeach;
+                if (!$this->app_setting_model->set($settings_encrypted, 'app', null, true)) {
 
-						else :
+                    $error    = $this->app_setting_model->last_error();
+                    $rollback = true;
+                }
+            }
 
-							$_value = $this->input->post( 'auth_social_signon_' . $provider['slug'] . '_' . $key );
+            if ($rollback) {
 
-							if ( ! empty( $label['required'] ) && empty( $_value ) ) :
+                $this->db->trans_rollback();
+                $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving authentication settings. ' . $error;
 
-								$_error = 'Provider "' . $provider['label'] . '" was enabled, but was missing required field "' . $label['label'] . '".';
-								break 2;
+            } else {
 
-							endif;
+                $this->db->trans_commit();
+                $this->data['success'] = '<strong>Success!</strong> Authentication settings were saved.';
 
-							if (  empty( $label['encrypted'] ) ) :
+            }
 
-								$_settings['auth_social_signon_' . $provider['slug'] . '_' . $key] = $_value;
+        } else {
 
-							else :
+            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving authentication settings. ' . $error;
+        }
+    }
 
-								$_settings_encrypted['auth_social_signon_' . $provider['slug'] . '_' . $key] = $_value;
+    // --------------------------------------------------------------------------
 
-							endif;
+    /**
+     * Set Site Maintenance settings
+     * @return void
+     */
+    protected function _site_update_maintenance()
+    {
+        //  Prepare the whitelist
+        $whitelistRaw = $this->input->post('maintenance_mode_whitelist');
+        $whitelistRaw = str_replace("\n\r", "\n", $whitelistRaw);
+        $whitelistRaw = explode("\n", $whitelistRaw);
+        $whitelist    = array();
 
-						endif;
+        foreach ($whitelistRaw as $line) {
 
-					endforeach;
+            $whitelist = array_merge(explode(',', $line), $whitelist);
+        }
 
-				endif;
+        $whitelist = array_unique($whitelist);
+        $whitelist = array_filter($whitelist);
+        $whitelist = array_map('trim', $whitelist);
+        $whitelist = array_values($whitelist);
 
-				//	Turn on social signon
-				$_settings['auth_social_signon_enabled'] = TRUE;
+        //  Prepare update
+        $settings                               = array();
+        $settings['maintenance_mode_enabled']   = (bool) $this->input->post('maintenance_mode_enabled');
+        $settings['maintenance_mode_whitelist'] = $whitelist;
 
-			else :
+        // --------------------------------------------------------------------------
 
-				//	NULL out each key
-				if ( $provider['fields'] ) :
+        //  Save
+        if ($this->app_setting_model->set($settings, 'app')) {
 
-					foreach( $provider['fields'] AS $key => $label ) :
+            $this->data['success'] = '<strong>Success!</strong> Maintenance settings have been saved.';
 
-						/**
-						 * Secondary conditional detects an actual array fo fields rather than
-						 * just the label/required array. Design could probably be improved...
-						 **/
+        } else {
 
-						if ( is_array( $label ) && ! isset( $label['label'] ) ) :
+            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving maintenance settings.';
+        }
+    }
 
-							foreach ( $label AS $key1 => $label1 ) :
+    // --------------------------------------------------------------------------
 
-								$_settings['auth_social_signon_' . $provider['slug'] . '_' . $key . '_' . $key1] = NULL;
+    /**
+     * Manage Blog settings
+     * @return void
+     */
+    public function blog()
+    {
+        if (!module_is_enabled('blog')) {
 
-							endforeach;
+            show_404();
+        }
 
-						else :
+        // --------------------------------------------------------------------------
 
-							$_settings['auth_social_signon_' . $provider['slug'] . '_' . $key] = NULL;
+        //  Load models
+        $this->load->model('blog/blog_model');
+        $this->load->model('blog/blog_skin_model');
 
-						endif;
+        // --------------------------------------------------------------------------
 
-					endforeach;
+        //  Catch blog adding/editing
+        switch ($this->uri->segment(4)) {
 
-				endif;
+            case 'index':
 
-			endif;
+                $this->_blog_index();
+                return;
+                break;
 
-		endforeach;
+            case 'create':
 
-		// --------------------------------------------------------------------------
+                $this->_blog_create();
+                return;
+                break;
 
-		//	Save
-		if ( empty( $_error ) ) :
+            case 'edit':
 
-			$this->db->trans_begin();
-			$_rollback = FALSE;
+                $this->_blog_edit();
+                return;
+                break;
 
-			if ( ! empty( $_settings ) ) :
+            case 'delete':
 
-				if ( ! $this->app_setting_model->set( $_settings, 'app' ) ) :
+                $this->_blog_delete();
+                return;
+                break;
+        }
 
-					$_error		= $this->app_setting_model->last_error();
-					$_rollback	= TRUE;
+        // --------------------------------------------------------------------------
 
-				endif;
+        //  Set method info
+        $this->data['page']->title = lang('settings_blog_title');
 
-			endif;
+        // --------------------------------------------------------------------------
 
-			if ( ! empty( $_settings_encrypted ) ) :
+        $this->data['blogs'] = $this->blog_model->get_all_flat();
 
-				if ( ! $this->app_setting_model->set( $_settings_encrypted, 'app', NULL, TRUE ) ) :
+        if (empty($this->data['blogs'])) {
 
-					$_error		= $this->app_setting_model->last_error();
-					$_rollback	= TRUE;
+            if ($this->user_model->is_superuser()) {
 
-				endif;
+                $this->session->set_flashdata('message', '<strong>You don\'t have a blog!</strong> Create a new blog in order to configure blog settings.');
+                redirect('admin/settings/blog/create');
 
-			endif;
+            } else {
 
-			if ( $_rollback ) :
+                show_404();
+            }
+        }
 
-				$this->db->trans_rollback();
-				$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving authentication settings. ' . $_error;
+        if (count($this->data['blogs']) == 1) {
 
-			else :
+            reset($this->data['blogs']);
+            $this->data['selected_blog'] = key($this->data['blogs']);
 
-				$this->db->trans_commit();
-				$this->data['success'] = '<strong>Success!</strong> Authentication settings were saved.';
+        } elseif ($this->input->get('blog_id')) {
 
-			endif;
+            if (!empty($this->data['blogs'][$this->input->get('blog_id')])) {
 
-		else :
+                $this->data['selected_blog'] = $this->input->get('blog_id');
+            }
 
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving authentication settings. ' . $_error;
+            if (empty($this->data['selected_blog'])) {
 
-		endif;
-	}
+                $this->data['error'] = '<strong>Sorry,</strong> there is no blog by that ID.';
+            }
+        }
 
+        // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+        //  Process POST
+        if ($this->input->post()) {
 
+            $method = $this->input->post('update');
 
-	protected function _site_update_maintenance()
-	{
-		//	Prepare the whitelist
-		$_whitelist_raw	= $this->input->post( 'maintenance_mode_whitelist' );
-		$_whitelist_raw	= str_replace( "\n\r", "\n", $_whitelist_raw );
-		$_whitelist_raw	= explode( "\n", $_whitelist_raw );
-		$_whitelist		= array();
+            if (method_exists($this, '_blog_update_' . $method)) {
 
-		foreach ( $_whitelist_raw AS $line ) :
+                $this->{'_blog_update_' . $method}();
 
-			$_whitelist = array_merge( explode( ',', $line ), $_whitelist );
+            } else {
 
-		endforeach;
+                $this->data['error'] = '<strong>Sorry,</strong> I can\'t determine what type of update you are trying to perform.';
+            }
+        }
 
-		$_whitelist = array_unique( $_whitelist );
-		$_whitelist = array_filter( $_whitelist );
-		$_whitelist = array_map( 'trim', $_whitelist );
-		$_whitelist = array_values( $_whitelist );
+        // --------------------------------------------------------------------------
 
-		//	Prepare update
-		$_settings									= array();
-		$_settings['maintenance_mode_enabled']		= (bool) $this->input->post( 'maintenance_mode_enabled' );
-		$_settings['maintenance_mode_whitelist']	= $_whitelist;
+        //  Get data
+        $this->data['skins'] = $this->blog_skin_model->get_available();
 
-		// --------------------------------------------------------------------------
+        if (!empty($this->data['selected_blog'])) {
 
-		//	Save
-		if ( $this->app_setting_model->set( $_settings, 'app' ) ) :
+            $this->data['settings'] = app_setting(null, 'blog-' . $this->data['selected_blog'], true);
+        }
 
-			$this->data['success'] = '<strong>Success!</strong> Maintenance settings have been saved.';
+        // --------------------------------------------------------------------------
 
-		else :
+        //  Load assets
+        $this->asset->load('nails.admin.blog.settings.min.js', true);
+        $this->asset->inline('<script>_nails_settings = new NAILS_Admin_Blog_Settings();</script>');
 
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving maintenance settings.';
+        // --------------------------------------------------------------------------
 
-		endif;
-	}
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/settings/blog', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
+    // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+    /**
+     * Set Blog settings
+     * @return void
+     */
+    protected function _blog_index()
+    {
+        if (!$this->user_model->is_superuser()) {
 
+            unauthorised();
+        }
 
-	/**
-	 * Configure the blog
-	 *
-	 * @access public
-	 * @param none
-	 * @return void
-	 **/
-	public function blog()
-	{
-		if ( ! module_is_enabled( 'blog' ) ) :
+        // --------------------------------------------------------------------------
 
-			show_404();
+        $this->data['page']->title = 'Manage Blogs';
 
-		endif;
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Get data
+        $this->data['blogs'] = $this->blog_model->get_all();
 
-		//	Load models
-		$this->load->model( 'blog/blog_model' );
-		$this->load->model( 'blog/blog_skin_model' );
+        if (empty($this->data['blogs'])) {
 
-		// --------------------------------------------------------------------------
+            if ($this->user_model->is_superuser()) {
 
-		//	Catch blog adding/editing
-		switch ( $this->uri->segment( 4 ) ) :
+                $this->session->set_flashdata('message', '<strong>You don\'t have a blog!</strong> Create a new blog in order to configure blog settings.');
+                redirect('admin/settings/blog/create');
 
-			case 'index' :
+            } else {
 
-				$this->_blog_index();
-				return;
+                show_404();
+            }
+        }
 
-			break;
+        // --------------------------------------------------------------------------
 
-			case 'create' :
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/settings/blog/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-				$this->_blog_create();
-				return;
+    // --------------------------------------------------------------------------
 
-			break;
+    /**
+     * Create a new blog
+     * @return void
+     */
+    protected function _blog_create()
+    {
+        if (!$this->user_model->is_superuser()) {
 
-			case 'edit' :
+            unauthorised();
+        }
 
-				$this->_blog_edit();
-				return;
+        // --------------------------------------------------------------------------
 
-			break;
+        $this->data['page']->title = 'Manage Blogs &rsaquo; Create';
 
-			case 'delete' :
+        // --------------------------------------------------------------------------
 
-				$this->_blog_delete();
-				return;
+        //  Handle POST
+        if ($this->input->post()) {
 
-			break;
+            $this->load->library('form_validation');
+            $this->form_validation->set_rules('label', '', 'xss_clean|required');
+            $this->form_validation->set_message('required', lang('fv_required'));
 
-		endswitch;
+            if ($this->form_validation->run()) {
 
-		// --------------------------------------------------------------------------
+                $data        = new stdClass();
+                $data->label = $this->input->post('label');
 
-		//	Set method info
-		$this->data['page']->title = lang( 'settings_blog_title' );
+                $id = $this->blog_model->create($data);
 
-		// --------------------------------------------------------------------------
+                if ($id) {
 
-		$this->data['blogs'] = $this->blog_model->get_all_flat();
+                    $this->session->set_flashdata('success', '<strong>Success!</strong> Blog was created successfully, now please confirm blog settings.');
+                    redirect('admin/settings/blog?blog_id=' . $id);
 
-		if ( empty( $this->data['blogs'] ) ) :
+                } else {
 
-			if ( $this->user_model->is_superuser() ) :
+                    $this->data['error'] = '<strong>Sorry,</strong> failed to create blog. ' . $this->blog_model->last_error();
+                }
 
-				$this->session->set_flashdata( 'message', '<strong>You don\'t have a blog!</strong> Create a new blog in order to configure blog settings.' );
-				redirect( 'admin/settings/blog/create' );
+            } else {
 
-			else :
+                $this->data['error'] = lang('fv_there_were_errors');
+            }
+        }
 
-				show_404();
+        // --------------------------------------------------------------------------
 
-			endif;
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/settings/blog/edit', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		endif;
+    // --------------------------------------------------------------------------
 
-		if ( count( $this->data['blogs'] ) == 1 ) :
+    /**
+     * Edit an existing blog
+     * @return void
+     */
+    protected function _blog_edit()
+    {
+        if (!$this->user_model->is_superuser()) {
 
-			reset( $this->data['blogs'] );
-			$this->data['selected_blog'] = key( $this->data['blogs'] );
+            unauthorised();
+        }
 
-		elseif ( $this->input->get( 'blog_id' ) ) :
+        // --------------------------------------------------------------------------
 
-			if ( ! empty( $this->data['blogs'][$this->input->get( 'blog_id' )] ) ) :
+        $this->data['blog'] = $this->blog_model->get_by_id($this->uri->segment(5));
 
-				$this->data['selected_blog'] = $this->input->get( 'blog_id' );
+        if (empty($this->data['blog'])) {
 
-			endif;
+            $this->session->set_flashdata('error', '<strong>Sorry,</strong> you specified an invalid Blog ID.');
+            redirect('admin/settings/blog/index');
+        }
 
-			if ( empty( $this->data['selected_blog'] ) ) :
+        // --------------------------------------------------------------------------
 
-				$this->data['error'] = '<strong>Sorry,</strong> there is no blog by that ID.';
+        $this->data['page']->title = 'Manage Blogs &rsaquo; Edit "' . $this->data['blog']->label . '"';
 
-			endif;
+        // --------------------------------------------------------------------------
 
-		endif;
+        //  Handle POST
+        if ($this->input->post()) {
 
-		// --------------------------------------------------------------------------
+            $this->load->library('form_validation');
+            $this->form_validation->set_rules('label', '', 'xss_clean|required');
+            $this->form_validation->set_message('required', lang('fv_required'));
 
-		//	Process POST
-		if ( $this->input->post() ) :
+            if ($this->form_validation->run()) {
 
-			$_method = $this->input->post( 'update' );
+                $data        = new stdClass();
+                $data->label = $this->input->post('label');
 
-			if ( method_exists( $this, '_blog_update_' . $_method ) ) :
+                if ($this->blog_model->update($this->uri->Segment(5), $data)) {
 
-				$this->{'_blog_update_' . $_method}();
+                    $this->session->set_flashdata('success', '<strong>Success!</strong> Blog was updated successfully.');
+                    redirect('admin/settings/blog/index');
 
-			else :
+                } else {
 
-				$this->data['error'] = '<strong>Sorry,</strong> I can\'t determine what type of update you are trying to perform.';
+                    $this->data['error']  = '<strong>Sorry,</strong> failed to create blog. ';
+                    $this->data['error'] .= $this->blog_model->last_error();
+                }
 
-			endif;
+            } else {
 
-		endif;
+                $this->data['error'] = lang('fv_there_were_errors');
+            }
+        }
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Get data
-		$this->data['skins'] = $this->blog_skin_model->get_available();
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/settings/blog/edit', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		if ( ! empty( $this->data['selected_blog'] ) ) :
+    // --------------------------------------------------------------------------
 
-			$this->data['settings'] = app_setting( NULL, 'blog-' . $this->data['selected_blog'], TRUE );
+    /**
+     * Delete an existing blog
+     * @return void
+     */
+    protected function _blog_delete()
+    {
+        if (!$this->user_model->is_superuser()) {
 
-		endif;
+            unauthorised();
+        }
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Load assets
-		$this->asset->load( 'nails.admin.blog.settings.min.js', TRUE );
-		$this->asset->inline( '<script>_nails_settings = new NAILS_Admin_Blog_Settings();</script>' );
+        $blog = $this->blog_model->get_by_id($this->uri->segment(5));
 
-		// --------------------------------------------------------------------------
+        if (empty($blog)) {
 
-		$this->load->view( 'structure/header',		$this->data );
-		$this->load->view( 'admin/settings/blog',	$this->data );
-		$this->load->view( 'structure/footer',		$this->data );
-	}
+            $this->session->set_flashdata('error', '<strong>Sorry,</strong> you specified an invalid Blog ID.');
+            redirect('admin/settings/blog/index');
+        }
 
+        // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+        if ($this->blog_model->delete($blog->id)) {
 
+            $this->session->set_flashdata('success', '<strong>Success!</strong> blog was deleted successfully.');
 
-	protected function _blog_index()
-	{
-		if ( ! $this->user_model->is_superuser() ) :
+        } else {
 
-			unauthorised();
+            $this->session->set_flashdata('error', '<strong>Sorry,</strong> failed to delete blog. ' . $this->blog_model->last_error());
+        }
 
-		endif;
+        redirect('admin/settings/blog/index');
+    }
 
-		// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-		$this->data['page']->title = 'Manage Blogs';
+    /**
+     * Set Blog settings
+     * @return void
+     */
+    protected function _blog_update_settings()
+    {
+        //  Prepare update
+        $settings                       = array();
+        $settings['name']               = $this->input->post('name');
+        $settings['url']                = $this->input->post('url');
+        $settings['use_excerpts']       = (bool) $this->input->post('use_excerpts');
+        $settings['gallery_enabled']    = (bool) $this->input->post('gallery_enabled');
+        $settings['categories_enabled'] = (bool) $this->input->post('categories_enabled');
+        $settings['tags_enabled']       = (bool) $this->input->post('tags_enabled');
+        $settings['rss_enabled']        = (bool) $this->input->post('rss_enabled');
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Get data
-		$this->data['blogs'] = $this->blog_model->get_all();
+        //  Sanitize blog url
+        $settings['url'] .= substr($settings['url'], -1) != '/' ? '/' : '';
 
-		if ( empty( $this->data['blogs'] ) ) :
+        // --------------------------------------------------------------------------
 
-			if ( $this->user_model->is_superuser() ) :
+        //  Save
+        if ($this->app_setting_model->set($settings, 'blog-' . $this->input->get('blog_id'))) {
 
-				$this->session->set_flashdata( 'message', '<strong>You don\'t have a blog!</strong> Create a new blog in order to configure blog settings.' );
-				redirect( 'admin/settings/blog/create' );
+            $this->data['success'] = '<strong>Success!</strong> Blog settings have been saved.';
 
-			else :
+            $this->load->model('system/routes_model');
 
-				show_404();
+            if (!$this->routes_model->update('shop')) {
 
-			endif;
+                $this->data['warning']  = '<strong>Warning:</strong> while the blog settings were updated, the routes ';
+                $this->data['warning'] .= 'file could not be updated. The blog may not behave as expected,';
+            }
 
-		endif;
+        } else {
 
-		// --------------------------------------------------------------------------
+            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
+        }
+    }
 
-		//	Load views
-		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/settings/blog/index',	$this->data );
-		$this->load->view( 'structure/footer',			$this->data );
-	}
+    // --------------------------------------------------------------------------
 
+    /**
+     * Set Blog Skin settings
+     * @return void
+     */
+    protected function _blog_update_skin()
+    {
+        //  Prepare update
+        $settings         = array();
+        $settings['skin'] = $this->input->post('skin');
 
-	// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
+        if ($this->app_setting_model->set($settings, 'blog-' . $this->input->get('blog_id'))) {
 
-	protected function _blog_create()
-	{
-		if ( ! $this->user_model->is_superuser() ) :
+            $this->data['success'] = '<strong>Success!</strong> Skin settings have been saved.';
 
-			unauthorised();
+        } else {
 
-		endif;
+            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
+        }
+    }
 
-		// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-		$this->data['page']->title = 'Manage Blogs &rsaquo; Create';
+    /**
+     * Set Blog Commenting settings
+     * @return void
+     */
+    protected function _blog_update_commenting()
+    {
+        //  Prepare update
+        $settings                              = array();
+        $settings['comments_enabled']          = $this->input->post('comments_enabled');
+        $settings['comments_engine']           = $this->input->post('comments_engine');
+        $settings['comments_disqus_shortname'] = $this->input->post('comments_disqus_shortname');
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Handle POST
-		if ( $this->input->post() ) :
+        //  Save
+        if ($this->app_setting_model->set($settings, 'blog-' . $this->input->get('blog_id'))) {
 
-			$this->load->library( 'form_validation' );
-			$this->form_validation->set_rules( 'label', '', 'xss_clean|required' );
-			$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
+            $this->data['success'] = '<strong>Success!</strong> Blog commenting settings have been saved.';
 
-			if ( $this->form_validation->run() ) :
+        } else {
 
-				$_data			= new stdClass();
-				$_data->label	= $this->input->post( 'label' );
+            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving commenting settings.';
+        }
+    }
 
-				$_id = $this->blog_model->create( $_data );
+    // --------------------------------------------------------------------------
 
-				if ( $_id ) :
+    /**
+     * Set Blog Social settings
+     * @return void
+     */
+    protected function _blog_update_social()
+    {
+        //  Prepare update
+        $settings                              = array();
+        $settings['social_facebook_enabled']   = (bool) $this->input->post('social_facebook_enabled');
+        $settings['social_twitter_enabled']    = (bool) $this->input->post('social_twitter_enabled');
+        $settings['social_twitter_via']        = $this->input->post('social_twitter_via');
+        $settings['social_googleplus_enabled'] = (bool) $this->input->post('social_googleplus_enabled');
+        $settings['social_pinterest_enabled']  = (bool) $this->input->post('social_pinterest_enabled');
+        $settings['social_skin']               = $this->input->post('social_skin');
+        $settings['social_layout']             = $this->input->post('social_layout');
+        $settings['social_layout_single_text'] = $this->input->post('social_layout_single_text');
+        $settings['social_counters']           = (bool) $this->input->post('social_counters');
 
-					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Blog was created successfully, now please confirm blog settings.' );
-					redirect( 'admin/settings/blog?blog_id=' . $_id );
+        //  If any of the above are enabled, then social is enabled.
+        $settings['social_enabled'] = $settings['social_facebook_enabled'] || $settings['social_twitter_enabled'] || $settings['social_googleplus_enabled'] || $settings['social_pinterest_enabled'];
 
-				else :
+        // --------------------------------------------------------------------------
 
-					$this->data['error'] = '<strong>Sorry,</strong> failed to create blog. ' . $this->blog_model->last_error();
+        //  Save
+        if ($this->app_setting_model->set($settings, 'blog-' . $this->input->get('blog_id'))) {
 
-				endif;
+            $this->data['success'] = '<strong>Success!</strong> Blog social settings have been saved.';
 
-			else :
+        } else {
 
-				$this->data['error'] = lang( 'fv_there_were_errors' );
+            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving social settings.';
+        }
+    }
 
-			endif;
+    // --------------------------------------------------------------------------
 
-		endif;
+    /**
+     * Set Blog Sidebar settings
+     * @return void
+     */
+    protected function _blog_update_sidebar()
+    {
+        //  Prepare update
+        $settings                          = array();
+        $settings['sidebar_latest_posts']  = (bool) $this->input->post('sidebar_latest_posts');
+        $settings['sidebar_categories']    = (bool) $this->input->post('sidebar_categories');
+        $settings['sidebar_tags']          = (bool) $this->input->post('sidebar_tags');
+        $settings['sidebar_popular_posts'] = (bool) $this->input->post('sidebar_popular_posts');
 
-		// --------------------------------------------------------------------------
+        //  @TODO: Associations
 
-		//	Load views
-		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/settings/blog/edit',	$this->data );
-		$this->load->view( 'structure/footer',			$this->data );
-	}
+        // --------------------------------------------------------------------------
 
+        //  Save
+        if ($this->app_setting_model->set($settings, 'blog-' . $this->input->get('blog_id'))) {
 
-	// --------------------------------------------------------------------------
+            $this->data['success'] = '<strong>Success!</strong> Blog sidebar settings have been saved.';
 
+        } else {
 
-	protected function _blog_edit()
-	{
-		if ( ! $this->user_model->is_superuser() ) :
+            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving sidebar settings.';
+        }
+    }
 
-			unauthorised();
+    // --------------------------------------------------------------------------
 
-		endif;
+    /**
+     * Manage Email settings
+     * @return void
+     */
+    public function email()
+    {
+        //  Set method info
+        $this->data['page']->title = lang('settings_email_title');
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		$this->data['blog'] = $this->blog_model->get_by_id( $this->uri->segment( 5 ) );
+        //  Process POST
+        if ($this->input->post()) {
 
-		if ( empty( $this->data['blog'] ) ) :
+            $method = $this->input->post('update');
+            if (method_exists($this, '_email_update_' . $method)) {
 
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you specified an invalid Blog ID.' );
-			redirect( 'admin/settings/blog/index' );
+                $this->{'_email_update_' . $method}();
 
-		endif;
+            } else {
 
-		// --------------------------------------------------------------------------
+                $this->data['error'] = '<strong>Sorry,</strong> I can\'t determine what type of update you are trying to perform.';
+            }
+        }
 
-		$this->data['page']->title = 'Manage Blogs &rsaquo; Edit "' . $this->data['blog']->label . '"';
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Get data
+        $this->data['settings'] = app_setting(null, 'email', true);
 
-		//	Handle POST
-		if ( $this->input->post() ) :
+        // --------------------------------------------------------------------------
 
-			$this->load->library( 'form_validation' );
-			$this->form_validation->set_rules( 'label', '', 'xss_clean|required' );
-			$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
+        //  Assets
+        $this->asset->load('nails.admin.email.settings.min.js', true);
+        $this->asset->inline('<script>_nails_settings = new NAILS_Admin_Email_Settings();</script>');
 
-			if ( $this->form_validation->run() ) :
+        // --------------------------------------------------------------------------
 
-				$_data			= new stdClass();
-				$_data->label	= $this->input->post( 'label' );
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/settings/email', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-				if ( $this->blog_model->update( $this->uri->Segment( 5 ), $_data ) ) :
+    // --------------------------------------------------------------------------
 
-					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Blog was updated successfully.' );
-					redirect( 'admin/settings/blog/index' );
+    /**
+     * Set Email settings
+     * @return void
+     */
+    protected function _email_update_general()
+    {
+        //  Prepare update
+        $settings               = array();
+        $settings['from_name']  = $this->input->post('from_name');
+        $settings['from_email'] = $this->input->post('from_email');
 
-				else :
+        // --------------------------------------------------------------------------
 
-					$this->data['error'] = '<strong>Sorry,</strong> failed to create blog. ' . $this->blog_model->last_error();
+        if ($this->app_setting_model->set($settings, 'email')) {
 
-				endif;
+            $this->data['success'] = '<strong>Success!</strong> General email settings have been saved.';
 
-			else :
+        } else {
 
-				$this->data['error'] = lang( 'fv_there_were_errors' );
+            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
+        }
+    }
 
-			endif;
+    // --------------------------------------------------------------------------
 
-		endif;
+    /**
+     * Manage Shop settings
+     * @return void
+     */
+    public function shop()
+    {
+        if (!module_is_enabled('shop')) {
 
-		// --------------------------------------------------------------------------
+            show_404();
+        }
 
-		//	Load views
-		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/settings/blog/edit',	$this->data );
-		$this->load->view( 'structure/footer',			$this->data );
-	}
+        // --------------------------------------------------------------------------
 
+        //  Set method info
+        $this->data['page']->title = lang('settings_shop_title');
 
-	// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
+        //  Load models
+        $this->load->model('shop/shop_model');
+        $this->load->model('shop/shop_currency_model');
+        $this->load->model('shop/shop_shipping_driver_model');
+        $this->load->model('shop/shop_payment_gateway_model');
+        $this->load->model('shop/shop_tax_rate_model');
+        $this->load->model('shop/shop_skin_front_model');
+        $this->load->model('shop/shop_skin_checkout_model');
+        $this->load->model('system/country_model');
 
-	protected function _blog_delete()
-	{
-		if ( ! $this->user_model->is_superuser() ) :
+        // --------------------------------------------------------------------------
 
-			unauthorised();
+        //  Process POST
+        if ($this->input->post()) {
 
-		endif;
+            $method =  $this->input->post('update');
 
-		// --------------------------------------------------------------------------
+            if (method_exists($this, '_shop_update_' . $method)) {
 
-		$_blog = $this->blog_model->get_by_id( $this->uri->segment( 5 ) );
+                $this->{'_shop_update_' . $method}();
 
-		if ( empty( $_blog ) ) :
+            } else {
 
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> you specified an invalid Blog ID.' );
-			redirect( 'admin/settings/blog/index' );
+                $this->data['error'] = '<strong>Sorry,</strong> I can\'t determine what type of update you are trying to perform.';
+            }
+        }
 
-		endif;
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Get data
+        $this->data['settings']         = app_setting(null, 'shop', true);
+        $this->data['payment_gateways'] = $this->shop_payment_gateway_model->get_available();
+        $this->data['shipping_drivers'] = $this->shop_shipping_driver_model->getAvailable();
+        $this->data['currencies']       = $this->shop_currency_model->get_all();
+        $this->data['tax_rates']        = $this->shop_tax_rate_model->get_all();
+        $this->data['tax_rates_flat']   = $this->shop_tax_rate_model->get_all_flat();
+        $this->data['countries_flat']   = $this->country_model->get_all_flat();
+        $this->data['continents_flat']  = $this->country_model->get_all_continents_flat();
+        array_unshift($this->data['tax_rates_flat'], 'No Tax');
 
-		if ( $this->blog_model->delete( $_blog->id ) ) :
+        //  "Front of house" skins
+        $this->data['skins_front']         = $this->shop_skin_front_model->get_available();
+        $this->data['skin_front_selected'] = app_setting('skin_front', 'shop') ? app_setting('skin_front', 'shop') : 'shop-skin-front-classic';
+        $this->data['skin_front_current']  = $this->shop_skin_front_model->get($this->data['skin_front_selected']);
 
-			$this->session->set_flashdata( 'success', '<strong>Success!</strong> blog was deleted successfully.' );
+        //  "Checkout" skins
+        $this->data['skins_checkout']         = $this->shop_skin_checkout_model->get_available();
+        $this->data['skin_checkout_selected'] = app_setting('skin_checkout', 'shop') ? app_setting('skin_checkout', 'shop') : 'shop-skin-checkout-classic';
+        $this->data['skin_checkout_current']  = $this->shop_skin_checkout_model->get($this->data['skin_checkout_selected']);
 
-		else :
+        // --------------------------------------------------------------------------
 
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> failed to delete blog. ' . $this->blog_model->last_error() );
+        //  Load assets
+        $this->asset->load('nails.admin.shop.settings.min.js', true);
+        $this->asset->load('mustache.js/mustache.js', 'BOWER');
+        $this->asset->inline('<script>_nails_settings = new NAILS_Admin_Shop_Settings();</script>');
 
-		endif;
+        // --------------------------------------------------------------------------
 
-		redirect( 'admin/settings/blog/index' );
-	}
+        //  Load views
+        $this->load->view('structure/header',       $this->data);
+        $this->load->view('admin/settings/shop',    $this->data);
+        $this->load->view('structure/footer',       $this->data);
+    }
 
+    // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+    /**
+     * Set Shop settings
+     * @return void
+     */
+    protected function _shop_update_settings()
+    {
+        //  Prepare update
+        $settings                                          = array();
+        $settings['name']                                  = $this->input->post('name');
+        $settings['url']                                   = $this->input->post('url');
+        $settings['price_exclude_tax']                     = $this->input->post('price_exclude_tax');
+        $settings['enable_external_products']              = (bool) $this->input->post('enable_external_products');
+        $settings['invoice_company']                       = $this->input->post('invoice_company');
+        $settings['invoice_company']                       = $this->input->post('invoice_company');
+        $settings['invoice_address']                       = $this->input->post('invoice_address');
+        $settings['invoice_vat_no']                        = $this->input->post('invoice_vat_no');
+        $settings['invoice_company_no']                    = $this->input->post('invoice_company_no');
+        $settings['invoice_footer']                        = $this->input->post('invoice_footer');
+        $settings['warehouse_collection_enabled']          = (bool) $this->input->post('warehouse_collection_enabled');
+        $settings['warehouse_addr_addressee']              = $this->input->post('warehouse_addr_addressee');
+        $settings['warehouse_addr_line1']                  = $this->input->post('warehouse_addr_line1');
+        $settings['warehouse_addr_line2']                  = $this->input->post('warehouse_addr_line2');
+        $settings['warehouse_addr_town']                   = $this->input->post('warehouse_addr_town');
+        $settings['warehouse_addr_postcode']               = $this->input->post('warehouse_addr_postcode');
+        $settings['warehouse_addr_state']                  = $this->input->post('warehouse_addr_state');
+        $settings['warehouse_addr_country']                = $this->input->post('warehouse_addr_country');
+        $settings['warehouse_collection_delivery_enquiry'] = (bool) $this->input->post('warehouse_collection_delivery_enquiry');
+        $settings['page_brand_listing']                    = $this->input->post('page_brand_listing');
+        $settings['page_category_listing']                 = $this->input->post('page_category_listing');
+        $settings['page_collection_listing']               = $this->input->post('page_collection_listing');
+        $settings['page_range_listing']                    = $this->input->post('page_range_listing');
+        $settings['page_sale_listing']                     = $this->input->post('page_sale_listing');
+        $settings['page_tag_listing']                      = $this->input->post('page_tag_listing');
 
+        // --------------------------------------------------------------------------
 
-	protected function _blog_update_settings()
-	{
-		//	Prepare update
-		$_settings							= array();
-		$_settings['name']					= $this->input->post( 'name' );
-		$_settings['url']					= $this->input->post( 'url' );
-		$_settings['use_excerpts']			= (bool) $this->input->post( 'use_excerpts' );
-		$_settings['gallery_enabled']		= (bool) $this->input->post( 'gallery_enabled' );
-		$_settings['categories_enabled']	= (bool) $this->input->post( 'categories_enabled' );
-		$_settings['tags_enabled']			= (bool) $this->input->post( 'tags_enabled' );
-		$_settings['rss_enabled']			= (bool) $this->input->post( 'rss_enabled' );
+        //  Sanitize shop url
+        $settings['url'] .= substr($settings['url'], -1) != '/' ? '/' : '';
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Sanitize blog url
-		$_settings['url'] .= substr( $_settings['url'], -1 ) != '/' ? '/' : '';
+        if ($this->app_setting_model->set($settings, 'shop')) {
 
-		// --------------------------------------------------------------------------
+            $this->data['success'] = '<strong>Success!</strong> Store settings have been saved.';
 
-		//	Save
-		if ( $this->app_setting_model->set( $_settings, 'blog-' . $this->input->get( 'blog_id' ) ) ) :
+            // --------------------------------------------------------------------------
 
-			$this->data['success'] = '<strong>Success!</strong> Blog settings have been saved.';
+            //  Rewrite routes
+            $this->load->model('system/routes_model');
+            if (!$this->routes_model->update('shop')) {
 
-			$this->load->model( 'system/routes_model' );
-			if ( ! $this->routes_model->update( 'shop' ) ) :
+                $this->data['warning'] = '<strong>Warning:</strong> while the shop settings were updated, the routes file could not be updated. The shop may not behave as expected,';
+            }
 
-				$this->data['warning'] = '<strong>Warning:</strong> while the blog settings were updated, the routes file could not be updated. The blog may not behave as expected,';
+        } else {
 
-			endif;
+            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
+        }
+    }
 
-		else :
+    // --------------------------------------------------------------------------
 
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
+    /**
+     * Set Shop Browse settings
+     * @return void
+     */
+    protected function _shop_update_browse()
+    {
+        //  Prepare update
+        $settings                             = array();
+        $settings['expand_variants']          = (bool) $this->input->post('expand_variants');
+        $settings['default_product_per_page'] = $this->input->post('default_product_per_page');
+        $settings['default_product_per_page'] = is_numeric($settings['default_product_per_page']) ? (int) $settings['default_product_per_page'] : $settings['default_product_per_page'];
+        $settings['default_product_sort']     = $this->input->post('default_product_sort');
 
-		endif;
-	}
+        // --------------------------------------------------------------------------
 
+        if ($this->app_setting_model->set($settings, 'shop')) {
 
-	// --------------------------------------------------------------------------
+            $this->data['success'] = '<strong>Success!</strong> Browsing settings have been saved.';
 
+        } else {
 
-	protected function _blog_update_skin()
-	{
-		//	Prepare update
-		$_settings			= array();
-		$_settings['skin']	= $this->input->post( 'skin' );
+            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
+        }
+    }
 
-		// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-		if ( $this->app_setting_model->set( $_settings, 'blog-' . $this->input->get( 'blog_id' ) ) ) :
+    /**
+     * Set Shop skin settings
+     * @return void
+     */
+    protected function _shop_update_skin()
+    {
+        //  Prepare update
+        $settings                  = array();
+        $settings['skin_front']    = $this->input->post('skin_front');
+        $settings['skin_checkout'] = $this->input->post('skin_checkout');
 
-			$this->data['success'] = '<strong>Success!</strong> Skin settings have been saved.';
+        // --------------------------------------------------------------------------
 
-		else :
+        if ($this->app_setting_model->set($settings, 'shop')) {
 
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
+            $this->data['success'] = '<strong>Success!</strong> Skin settings have been saved.';
 
-		endif;
-	}
+        } else {
 
+            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
+        }
+    }
 
-	// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
+    /**
+     * Set Shop skin config
+     * @return void
+     */
+    protected function _shop_update_skin_config()
+    {
+        //  Prepare update
+        $configs = (array) $this->input->post('skin_config');
+        $configs = array_filter($configs);
+        $success = true;
 
-	protected function _blog_update_commenting()
-	{
-		//	Prepare update
-		$_settings								= array();
-		$_settings['comments_enabled']			= $this->input->post( 'comments_enabled' );
-		$_settings['comments_engine']			= $this->input->post( 'comments_engine' );
-		$_settings['comments_disqus_shortname']	= $this->input->post( 'comments_disqus_shortname' );
+        foreach ($configs as $slug => $configs) {
 
-		// --------------------------------------------------------------------------
+            //  Clear out the grouping; booleans not specified should be assumed false
+            $this->app_setting_model->deleteGroup('shop-' . $slug);
 
-		//	Save
-		if ( $this->app_setting_model->set( $_settings, 'blog-' . $this->input->get( 'blog_id' ) ) ) :
+            //  New settings
+            $settings = array();
+            foreach ($configs as $key => $value) {
 
-			$this->data['success'] = '<strong>Success!</strong> Blog commenting settings have been saved.';
+                $settings[$key] = $value;
+            }
 
-		else :
+            if ($settings) {
 
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving commenting settings.';
+                if (!$this->app_setting_model->set($settings, 'shop-' . $slug)) {
 
-		endif;
-	}
+                    $success = false;
+                    break;
+                }
+            }
+        }
 
+        // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+        if ($success) {
 
+            $this->data['success'] = '<strong>Success!</strong> Skin settings have been saved.';
 
-	protected function _blog_update_social()
-	{
-		//	Prepare update
-		$_settings								= array();
-		$_settings['social_facebook_enabled']	= (bool) $this->input->post( 'social_facebook_enabled' );
-		$_settings['social_twitter_enabled']	= (bool) $this->input->post( 'social_twitter_enabled' );
-		$_settings['social_twitter_via']		= $this->input->post( 'social_twitter_via' );
-		$_settings['social_googleplus_enabled']	= (bool) $this->input->post( 'social_googleplus_enabled' );
-		$_settings['social_pinterest_enabled']	= (bool) $this->input->post( 'social_pinterest_enabled' );
-		$_settings['social_skin']				= $this->input->post( 'social_skin' );
-		$_settings['social_layout']				= $this->input->post( 'social_layout' );
-		$_settings['social_layout_single_text']	= $this->input->post( 'social_layout_single_text' );
-		$_settings['social_counters']			= (bool) $this->input->post( 'social_counters' );
+        } else {
 
-		//	If any of the above are enabled, then social is enabled.
-		$_settings['social_enabled'] = $_settings['social_facebook_enabled'] || $_settings['social_twitter_enabled'] || $_settings['social_googleplus_enabled'] || $_settings['social_pinterest_enabled'];
+            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
 
-		// --------------------------------------------------------------------------
+        }
+    }
 
-		//	Save
-		if ( $this->app_setting_model->set( $_settings, 'blog-' . $this->input->get( 'blog_id' ) ) ) :
+    // --------------------------------------------------------------------------
 
-			$this->data['success'] = '<strong>Success!</strong> Blog social settings have been saved.';
+    /**
+     * Set Shop Payment Gateway settings
+     * @return [type] [description]
+     */
+    protected function _shop_update_payment_gateway()
+    {
+        //  Prepare update
+        $settings                             = array();
+        $settings['enabled_payment_gateways'] = array_filter((array) $this->input->post('enabled_payment_gateways'));
 
-		else :
+        // --------------------------------------------------------------------------
 
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving social settings.';
+        if ($this->app_setting_model->set($settings, 'shop')) {
 
-		endif;
-	}
+            $this->data['success'] = '<strong>Success!</strong> Payment Gateway settings have been saved.';
 
+        } else {
 
-	// --------------------------------------------------------------------------
+            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
+        }
+    }
 
+    // --------------------------------------------------------------------------
 
-	protected function _blog_update_sidebar()
-	{
-		//	Prepare update
-		$_settings								= array();
-		$_settings['sidebar_latest_posts']		= (bool) $this->input->post( 'sidebar_latest_posts' );
-		$_settings['sidebar_categories']		= (bool) $this->input->post( 'sidebar_categories' );
-		$_settings['sidebar_tags']				= (bool) $this->input->post( 'sidebar_tags' );
-		$_settings['sidebar_popular_posts']		= (bool) $this->input->post( 'sidebar_popular_posts' );
+    /**
+     * Set Shop Currency settings
+     * @return void
+     */
+    protected function _shop_update_currencies()
+    {
+        //  Prepare update
+        $settings                          = array();
+        $settings['base_currency']         = $this->input->post('base_currency');
+        $settings['additional_currencies'] = $this->input->post('additional_currencies');
 
-		//	TODO: Associations
+        $settings_encrypted                             = array();
+        $settings_encrypted['openexchangerates_app_id'] = $this->input->post('openexchangerates_app_id');
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Save
-		if ( $this->app_setting_model->set( $_settings, 'blog-' . $this->input->get( 'blog_id' ) ) ) :
+        $this->db->trans_begin();
+        $rollback = false;
 
-			$this->data['success'] = '<strong>Success!</strong> Blog sidebar settings have been saved.';
+        if (!$this->app_setting_model->set($settings, 'shop')) {
 
-		else :
+            $error      = $this->app_setting_model->last_error();
+            $rollback   = true;
+        }
 
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving sidebar settings.';
+        if (!$this->app_setting_model->set($settings_encrypted, 'shop', null, true)) {
 
-		endif;
-	}
+            $error      = $this->app_setting_model->last_error();
+            $rollback   = true;
+        }
 
+        if ($rollback) {
 
-	// --------------------------------------------------------------------------
+            $this->db->trans_rollback();
+            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving currency settings. ' . $error;
 
+        } else {
 
-	/**
-	 * Configure the blog
-	 *
-	 * @access public
-	 * @param none
-	 * @return void
-	 **/
-	public function email()
-	{
-		//	Set method info
-		$this->data['page']->title = lang('settings_email_title');
+            $this->db->trans_commit();
+            $this->data['success'] = '<strong>Success!</strong> Currency settings were saved.';
 
-		// --------------------------------------------------------------------------
+            // --------------------------------------------------------------------------
 
-		//	Process POST
-		if ($this->input->post()) {
+            /**
+             * If there are multiple currencies and an Open Exchange Rates App ID provided
+             * then attempt a sync
+             */
 
-			$method = $this->input->post('update');
-			if (method_exists($this, '_email_update_' . $method)) {
+            if (!empty($settings['additional_currencies']) && !empty($settings_encrypted['openexchangerates_app_id'])) {
 
-				$this->{'_email_update_' . $method}();
+                $this->load->model('shop/shop_currency_model');
 
-			} else {
+                if (!$this->shop_currency_model->sync()) {
 
-				$this->data['error'] = '<strong>Sorry,</strong> I can\'t determine what type of update you are trying to perform.';
-			}
-		}
+                    $this->data['message'] = '<strong>Warning:</strong> an attempted sync with Open Exchange Rates service failed with the following reason: ' . $this->shop_currency_model->last_error();
 
-		// --------------------------------------------------------------------------
+                } else {
 
-		//	Get data
-		$this->data['settings'] = app_setting(null, 'email', true);
+                    $this->data['notice'] = '<strong>Currency Sync Complete.</strong><br />The system successfully synced with the Open Exchange Rates service.';
+                }
+            }
+        }
+    }
 
-		// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-		//	Assets
-		$this->asset->load('nails.admin.email.settings.min.js', true);
-		$this->asset->inline('<script>_nails_settings = new NAILS_Admin_Email_Settings();</script>');
+    /**
+     * Set Shop shipping settings
+     * @return void
+     */
+    protected function _shop_update_shipping()
+    {
+        //  Prepare update
+        $settings                            = array();
+        $settings['enabled_shipping_driver'] = $this->input->post('enabled_shipping_driver');
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		$this->load->view('structure/header', $this->data);
-		$this->load->view('admin/settings/email', $this->data);
-		$this->load->view('structure/footer', $this->data);
-	}
+        if ($this->app_setting_model->set($settings, 'shop')) {
 
+            $this->data['success'] = '<strong>Success!</strong> Shipping settings have been saved.';
 
-	// --------------------------------------------------------------------------
+        } else {
 
+            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
+        }
+    }
 
-	protected function _email_update_general()
-	{
-		//	Prepare update
-		$settings					= array();
-		$settings['from_name']		= $this->input->post('from_name');
-		$settings['from_email']	= $this->input->post('from_email');
+    // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+    /**
+     * Set Payment Gateway settings
+     * @return void
+     */
+    public function shop_pg()
+    {
+        //  Check if valid gateway
+        $this->load->model('shop/shop_payment_gateway_model');
 
-		if ($this->app_setting_model->set($settings, 'email')) {
+        $gateway    = $this->uri->segment(4) ? strtolower($this->uri->segment(4)) : '';
+        $available = $this->shop_payment_gateway_model->is_available($gateway);
 
-			$this->data['success'] = '<strong>Success!</strong> General email settings have been saved.';
+        if ($available) {
 
-		} else {
+            $params = $this->shop_payment_gateway_model->get_default_params($gateway);
 
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
-		}
-	}
+            $this->data['params']       = $params;
+            $this->data['gateway_name'] = ucwords(str_replace('_', ' ', $gateway));
+            $this->data['gateway_slug'] = $this->shop_payment_gateway_model->get_correct_casing($gateway);
 
+            //  Handle POST
+            if ($this->input->post()) {
 
-	// --------------------------------------------------------------------------
+                $this->load->library('form_validation');
 
+                foreach ($params as $key => $value) {
 
-	/**
-	 * Configure the shop
-	 *
-	 * @access public
-	 * @param none
-	 * @return void
-	 **/
-	public function shop()
-	{
-		if ( ! module_is_enabled( 'shop' ) ) :
+                    if ($key == 'testMode') {
 
-			show_404();
+                        $this->form_validation->set_rules('omnipay_' . $this->data['gateway_slug'] . '_' . $key, '', 'xss_clean');
 
-		endif;
+                    } else {
 
-		// --------------------------------------------------------------------------
+                        $this->form_validation->set_rules('omnipay_' . $this->data['gateway_slug'] . '_' . $key, '', 'xss_clean|required');
+                    }
+                }
 
-		//	Set method info
-		$this->data['page']->title = lang( 'settings_shop_title' );
+                //  Additional params
+                switch ($gateway) {
 
-		// --------------------------------------------------------------------------
+                    case 'paypal_express':
 
-		//	Load models
-		$this->load->model( 'shop/shop_model' );
-		$this->load->model( 'shop/shop_currency_model' );
-		$this->load->model( 'shop/shop_shipping_driver_model' );
-		$this->load->model( 'shop/shop_payment_gateway_model' );
-		$this->load->model( 'shop/shop_tax_rate_model' );
-		$this->load->model( 'shop/shop_skin_front_model' );
-		$this->load->model( 'shop/shop_skin_checkout_model' );
-		$this->load->model( 'system/country_model' );
+                        $this->form_validation->set_rules('omnipay_' . $this->data['gateway_slug'] . '_brandName', '', 'xss_clean');
+                        $this->form_validation->set_rules('omnipay_' . $this->data['gateway_slug'] . '_headerImageUrl', '', 'xss_clean');
+                        $this->form_validation->set_rules('omnipay_' . $this->data['gateway_slug'] . '_logoImageUrl', '', 'xss_clean');
+                        $this->form_validation->set_rules('omnipay_' . $this->data['gateway_slug'] . '_borderColor', '', 'xss_clean');
+                        break;
+                }
 
-		// --------------------------------------------------------------------------
+                $this->form_validation->set_message('required', lang('fv_required'));
 
-		//	Process POST
-		if ( $this->input->post() ) :
+                if ($this->form_validation->run()) {
 
-			$_method =  $this->input->post( 'update' );
+                    $settings           = array();
+                    $settings_encrypted = array();
 
-			if ( method_exists( $this, '_shop_update_' . $_method ) ) :
+                    //  Customisation params
+                    $settings['omnipay_' . $this->data['gateway_slug'] . '_customise_label'] = $this->input->post('omnipay_' . $this->data['gateway_slug'] . '_customise_label');
+                    $settings['omnipay_' . $this->data['gateway_slug'] . '_customise_img']   = $this->input->post('omnipay_' . $this->data['gateway_slug'] . '_customise_img');
 
-				$this->{'_shop_update_' . $_method}();
+                    //  Gateway params
+                    foreach ($params as $key => $value) {
 
-			else :
+                        $settings_encrypted['omnipay_' . $this->data['gateway_slug'] . '_' . $key] = $this->input->post('omnipay_' . $this->data['gateway_slug'] . '_' . $key);
+                    }
 
-				$this->data['error'] = '<strong>Sorry,</strong> I can\'t determine what type of update you are trying to perform.';
+                    //  Additional params
+                    switch ($gateway) {
 
-			endif;
+                        case 'stripe':
 
-		endif;
+                            $settings_encrypted['omnipay_' . $this->data['gateway_slug'] . '_publishableKey'] = $this->input->post('omnipay_' . $this->data['gateway_slug'] . '_publishableKey');
+                            break;
+                    }
 
-		// --------------------------------------------------------------------------
+                    $this->db->trans_begin();
 
-		//	Get data
-		$this->data['settings']					= app_setting( NULL, 'shop', TRUE );
-		$this->data['payment_gateways']			= $this->shop_payment_gateway_model->get_available();
-		$this->data['shipping_drivers']			= $this->shop_shipping_driver_model->getAvailable();
-		$this->data['currencies']				= $this->shop_currency_model->get_all( );
-		$this->data['tax_rates']				= $this->shop_tax_rate_model->get_all();
-		$this->data['tax_rates_flat']			= $this->shop_tax_rate_model->get_all_flat();
-		$this->data['countries_flat']			= $this->country_model->get_all_flat();
-		$this->data['continents_flat']			= $this->country_model->get_all_continents_flat();
-		array_unshift( $this->data['tax_rates_flat'], 'No Tax');
+                    $result           = $this->app_setting_model->set($settings, 'shop', null, false);
+                    $result_encrypted = $this->app_setting_model->set($settings_encrypted, 'shop', null, true);
 
-		//	"Front of house" skins
-		$this->data['skins_front']				= $this->shop_skin_front_model->get_available();
-		$this->data['skin_front_selected']		= app_setting( 'skin_front', 'shop' ) ? app_setting( 'skin_front', 'shop' ) : 'shop-skin-front-classic';
-		$this->data['skin_front_current']		= $this->shop_skin_front_model->get( $this->data['skin_front_selected'] );
+                    if ($this->db->trans_status() !== false && $result && $result_encrypted) {
 
-		//	"Checkout" skins
-		$this->data['skins_checkout']			= $this->shop_skin_checkout_model->get_available();
-		$this->data['skin_checkout_selected']	= app_setting( 'skin_checkout', 'shop' ) ? app_setting( 'skin_checkout', 'shop' ) : 'shop-skin-checkout-classic';
-		$this->data['skin_checkout_current']	= $this->shop_skin_checkout_model->get( $this->data['skin_checkout_selected'] );
+                        $this->db->trans_commit();
+                        $this->data['success'] = '<strong>Success!</strong> ' . $this->data['gateway_name'] . ' Payment Gateway settings have been saved.';
 
-		// --------------------------------------------------------------------------
+                    } else {
 
-		//	Load assets
-		$this->asset->load( 'nails.admin.shop.settings.min.js',	TRUE );
-		$this->asset->load( 'mustache.js/mustache.js',				'BOWER' );
-		$this->asset->inline( '<script>_nails_settings = new NAILS_Admin_Shop_Settings();</script>' );
+                        $this->db->trans_rollback();
+                        $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving the ' . $this->data['gateway_name'] . ' Payment Gateway settings.';
+                    }
 
-		// --------------------------------------------------------------------------
+                } else {
 
-		//	Load views
-		$this->load->view( 'structure/header',		$this->data );
-		$this->load->view( 'admin/settings/shop',	$this->data );
-		$this->load->view( 'structure/footer',		$this->data );
-	}
+                    $this->data['error'] = lang('fv_there_were_errors');
+                }
+            }
 
+            //  Handle modal viewing
+            if ($this->input->get('is_fancybox')) {
 
-	// --------------------------------------------------------------------------
+                $this->data['header_override'] = 'structure/header/nails-admin-blank';
+                $this->data['footer_override'] = 'structure/footer/nails-admin-blank';
+            }
 
+            //  Render the interface
+            $this->data['page']->title = 'Shop Payment Gateway Configuration &rsaquo; ' . $this->data['gateway_name'];
 
-	protected function _shop_update_settings()
-	{
-		//	Prepare update
-		$_settings											= array();
-		$_settings['name']									= $this->input->post( 'name' );
-		$_settings['url']									= $this->input->post( 'url' );
-		$_settings['price_exclude_tax']						= $this->input->post( 'price_exclude_tax' );
-		$_settings['enable_external_products']				= (bool) $this->input->post( 'enable_external_products' );
-		$_settings['invoice_company']						= $this->input->post( 'invoice_company' );
-		$_settings['invoice_company']						= $this->input->post( 'invoice_company' );
-		$_settings['invoice_address']						= $this->input->post( 'invoice_address' );
-		$_settings['invoice_vat_no']						= $this->input->post( 'invoice_vat_no' );
-		$_settings['invoice_company_no']					= $this->input->post( 'invoice_company_no' );
-		$_settings['invoice_footer']						= $this->input->post( 'invoice_footer' );
-		$_settings['warehouse_collection_enabled']			= (bool) $this->input->post( 'warehouse_collection_enabled' );
-		$_settings['warehouse_addr_addressee']				= $this->input->post( 'warehouse_addr_addressee' );
-		$_settings['warehouse_addr_line1']					= $this->input->post( 'warehouse_addr_line1' );
-		$_settings['warehouse_addr_line2']					= $this->input->post( 'warehouse_addr_line2' );
-		$_settings['warehouse_addr_town']					= $this->input->post( 'warehouse_addr_town' );
-		$_settings['warehouse_addr_postcode']				= $this->input->post( 'warehouse_addr_postcode' );
-		$_settings['warehouse_addr_state']					= $this->input->post( 'warehouse_addr_state' );
-		$_settings['warehouse_addr_country']				= $this->input->post( 'warehouse_addr_country' );
-		$_settings['warehouse_collection_delivery_enquiry']	= (bool) $this->input->post( 'warehouse_collection_delivery_enquiry' );
-		$_settings['page_brand_listing']					= $this->input->post( 'page_brand_listing' );
-		$_settings['page_category_listing']					= $this->input->post( 'page_category_listing' );
-		$_settings['page_collection_listing']				= $this->input->post( 'page_collection_listing' );
-		$_settings['page_range_listing']					= $this->input->post( 'page_range_listing' );
-		$_settings['page_sale_listing']						= $this->input->post( 'page_sale_listing' );
-		$_settings['page_tag_listing']						= $this->input->post( 'page_tag_listing' );
+            if (method_exists($this, '_shop_pg_' . $gateway)) {
 
-		// --------------------------------------------------------------------------
+                //  Specific configuration form available
+                $this->{'_shop_pg_' . $gateway}();
 
-		//	Sanitize shop url
-		$_settings['url'] .= substr( $_settings['url'], -1 ) != '/' ? '/' : '';
+            } else {
 
-		// --------------------------------------------------------------------------
+                //  Show the generic gateway configuration form
+                $this->_shop_pg_generic($gateway);
+            }
 
-		if ( $this->app_setting_model->set( $_settings, 'shop' ) ) :
+        } else {
 
-			$this->data['success'] = '<strong>Success!</strong> Store settings have been saved.';
+            //  Bad gateway name
+            show_404();
+        }
+    }
 
-			// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-			//	Rewrite routes
-			$this->load->model( 'system/routes_model' );
-			if ( ! $this->routes_model->update( 'shop' ) ) :
+    /**
+     * Renders a generic Payment Gateway configuration interface
+     * @return void
+     */
+    protected function _shop_pg_generic()
+    {
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/settings/shop_pg/generic', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-				$this->data['warning'] = '<strong>Warning:</strong> while the shop settings were updated, the routes file could not be updated. The shop may not behave as expected,';
+    // --------------------------------------------------------------------------
 
-			endif;
+    /**
+     * Renders an interface specific for WorldPay
+     * @return void
+     */
+    protected function _shop_pg_worldpay()
+    {
+        $this->asset->load('nails.admin.shop.settings.paymentgateway.worldpay.min.js', 'NAILS');
+        $this->asset->inline('<script>_worldpay_config = new NAILS_Admin_Shop_Settings_PaymentGateway_WorldPay();</script>');
 
-		else :
+        // --------------------------------------------------------------------------
 
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/settings/shop_pg/worldpay', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		endif;
-	}
+    // --------------------------------------------------------------------------
 
+    /**
+     * Renders an interface specific for Stripe
+     * @return void
+     */
+    protected function _shop_pg_stripe()
+    {
+        //  Additional params
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/settings/shop_pg/stripe', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-	// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
+    /**
+     * Renders an interface specific for PayPal_Express
+     * @return void
+     */
+    protected function _shop_pg_paypal_express()
+    {
+        //  Additional params
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/settings/shop_pg/paypal_express', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-	protected function _shop_update_browse()
-	{
-		//	Prepare update
-		$_settings								= array();
-		$_settings['expand_variants']			= (bool) $this->input->post( 'expand_variants' );
-		$_settings['default_product_per_page']	= $this->input->post( 'default_product_per_page' );
-		$_settings['default_product_per_page']	= is_numeric( $_settings['default_product_per_page'] ) ? (int) $_settings['default_product_per_page'] : $_settings['default_product_per_page'];
-		$_settings['default_product_sort']		= $this->input->post( 'default_product_sort' );
+    // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+    /**
+     * Set Shipping Driver settings
+     * @return void
+     */
+    public function shop_sd()
+    {
+        $this->load->model('shop/shop_shipping_driver_model');
 
-		if ( $this->app_setting_model->set( $_settings, 'shop' ) ) :
+        $body = $this->shop_shipping_driver_model->configure($this->input->get('driver'));
 
-			$this->data['success'] = '<strong>Success!</strong> Browsing settings have been saved.';
+        if (empty($body)) {
 
-		else :
+            show_404();
+        }
 
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
+        // --------------------------------------------------------------------------
 
-		endif;
-	}
+        $this->data['page']->title = 'Shop Shipping Driver Configuration &rsaquo; ';
 
+        // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+        if ($this->input->get('is_fancybox')) {
 
+            $this->data['header_override'] = 'structure/header/nails-admin-blank';
+            $this->data['footer_override'] = 'structure/footer/nails-admin-blank';
 
-	protected function _shop_update_skin()
-	{
-		//	Prepare update
-		$_settings					= array();
-		$_settings['skin_front']	= $this->input->post( 'skin_front' );
-		$_settings['skin_checkout']	= $this->input->post( 'skin_checkout' );
+        }
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		if ( $this->app_setting_model->set( $_settings, 'shop' ) ) :
-
-			$this->data['success'] = '<strong>Success!</strong> Skin settings have been saved.';
-
-		else :
-
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
-
-		endif;
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _shop_update_skin_config()
-	{
-		//	Prepare update
-		$_configs	= (array) $this->input->post( 'skin_config' );
-		$_configs	= array_filter( $_configs );
-		$_success	= TRUE;
-
-		foreach( $_configs AS $slug => $configs ) :
-
-			//	Clear out the grouping; booleans not specified should be assumed FALSE
-			$this->app_setting_model->deleteGroup( 'shop-' . $slug );
-
-			//	New settings
-			$_settings = array();
-			foreach( $configs AS $key => $value ) :
-
-				$_settings[$key] = $value;
-
-			endforeach;
-
-			if ( $_settings ) :
-
-				if ( ! $this->app_setting_model->set( $_settings, 'shop-' . $slug ) ) :
-
-					$_success = FALSE;
-					break;
-
-				endif;
-
-			endif;
-
-		endforeach;
-
-		// --------------------------------------------------------------------------
-
-		if ( $_success ) :
-
-			$this->data['success'] = '<strong>Success!</strong> Skin settings have been saved.';
-
-		else :
-
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
-
-		endif;
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _shop_update_payment_gateway()
-	{
-		//	Prepare update
-		$_settings								= array();
-		$_settings['enabled_payment_gateways']	= array_filter( (array) $this->input->post( 'enabled_payment_gateways' ) );
-
-		// --------------------------------------------------------------------------
-
-		if ( $this->app_setting_model->set( $_settings, 'shop' ) ) :
-
-			$this->data['success'] = '<strong>Success!</strong> Payment Gateway settings have been saved.';
-
-		else :
-
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
-
-		endif;
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _shop_update_currencies()
-	{
-		//	Prepare update
-		$_settings							= array();
-		$_settings['base_currency']			= $this->input->post( 'base_currency' );
-		$_settings['additional_currencies']	= $this->input->post( 'additional_currencies' );
-
-		$_settings_encrypted								= array();
-		$_settings_encrypted['openexchangerates_app_id']	= $this->input->post( 'openexchangerates_app_id' );
-
-		// --------------------------------------------------------------------------
-
-		$this->db->trans_begin();
-		$_rollback = FALSE;
-
-		if ( ! $this->app_setting_model->set( $_settings, 'shop' ) ) :
-
-			$_error		= $this->app_setting_model->last_error();
-			$_rollback	= TRUE;
-
-		endif;
-
-		if ( ! $this->app_setting_model->set( $_settings_encrypted, 'shop', NULL, TRUE ) ) :
-
-			$_error		= $this->app_setting_model->last_error();
-			$_rollback	= TRUE;
-
-		endif;
-
-		if ( $_rollback ) :
-
-			$this->db->trans_rollback();
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving currency settings. ' . $_error;
-
-		else :
-
-			$this->db->trans_commit();
-			$this->data['success'] = '<strong>Success!</strong> Currency settings were saved.';
-
-			// --------------------------------------------------------------------------
-
-			//	If there are multiple currencies and an Open Exchange Rates App ID provided
-			//	then attempt a sync
-
-			if ( ! empty( $_settings['additional_currencies'] ) && ! empty( $_settings_encrypted['openexchangerates_app_id'] ) ) :
-
-				$this->load->model( 'shop/shop_currency_model' );
-
-				if ( ! $this->shop_currency_model->sync() ) :
-
-					$this->data['message'] = '<strong>Warning:</strong> an attempted sync with Open Exchange Rates service failed with the following reason: ' . $this->shop_currency_model->last_error();
-
-				else :
-
-					$this->data['notice'] = '<strong>Currency Sync Complete.</strong><br />The system successfully synced with the Open Exchange Rates service.';
-
-				endif;
-
-			endif;
-
-		endif;
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _shop_update_shipping()
-	{
-		//	Prepare update
-		$_settings								= array();
-		$_settings['enabled_shipping_driver']	= $this->input->post( 'enabled_shipping_driver' );
-
-		// --------------------------------------------------------------------------
-
-		if ( $this->app_setting_model->set( $_settings, 'shop' ) ) :
-
-			$this->data['success'] = '<strong>Success!</strong> Shipping settings have been saved.';
-
-		else :
-
-			$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
-
-		endif;
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	/**
-	 * Configure the Payment Gateways
-	 * @return void
-	 */
-	public function shop_pg()
-	{
-		//	Check if valid gateway
-		$this->load->model( 'shop/shop_payment_gateway_model' );
-
-		$_gateway	= $this->uri->segment( 4 ) ? strtolower( $this->uri->segment( 4 ) ) : '';
-		$_available = $this->shop_payment_gateway_model->is_available( $_gateway );
-
-		if ( $_available ) :
-
-			$_params = $this->shop_payment_gateway_model->get_default_params( $_gateway );
-
-			$this->data['params']		= $_params;
-			$this->data['gateway_name']	= ucwords( str_replace( '_', ' ', $_gateway ) );
-			$this->data['gateway_slug']	= $this->shop_payment_gateway_model->get_correct_casing( $_gateway );
-
-			//	Handle POST
-			if ( $this->input->post() ) :
-
-				$this->load->library( 'form_validation' );
-
-				foreach ( $_params AS $key => $value ) :
-
-					if ( $key == 'testMode' ) :
-
-						$this->form_validation->set_rules( 'omnipay_' . $this->data['gateway_slug'] . '_' . $key, '', 'xss_clean' );
-
-					else :
-
-						$this->form_validation->set_rules( 'omnipay_' . $this->data['gateway_slug'] . '_' . $key, '', 'xss_clean|required' );
-
-					endif;
-
-				endforeach;
-
-				//	Additional params
-				switch( $_gateway ) :
-
-					case 'paypal_express' :
-
-						$this->form_validation->set_rules( 'omnipay_' . $this->data['gateway_slug'] . '_brandName',			'', 'xss_clean' );
-						$this->form_validation->set_rules( 'omnipay_' . $this->data['gateway_slug'] . '_headerImageUrl',	'', 'xss_clean' );
-						$this->form_validation->set_rules( 'omnipay_' . $this->data['gateway_slug'] . '_logoImageUrl',		'', 'xss_clean' );
-						$this->form_validation->set_rules( 'omnipay_' . $this->data['gateway_slug'] . '_borderColor',		'', 'xss_clean' );
-
-					break;
-
-				endswitch;
-
-				$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
-
-				if ( $this->form_validation->run() ) :
-
-					$_settings				= array();
-					$_settings_encrypted	= array();
-
-					//	Customisation params
-					$_settings['omnipay_' . $this->data['gateway_slug'] . '_customise_label']	= $this->input->post( 'omnipay_' . $this->data['gateway_slug'] . '_customise_label' );
-					$_settings['omnipay_' . $this->data['gateway_slug'] . '_customise_img']		= $this->input->post( 'omnipay_' . $this->data['gateway_slug'] . '_customise_img' );
-
-					//	Gateway params
-					foreach ( $_params AS $key => $value ) :
-
-						$_settings_encrypted['omnipay_' . $this->data['gateway_slug'] . '_' . $key] = $this->input->post( 'omnipay_' . $this->data['gateway_slug'] . '_' . $key );
-
-					endforeach;
-
-					//	Additional params
-					switch( $_gateway ) :
-
-						case 'stripe' :
-
-							$_settings_encrypted['omnipay_' . $this->data['gateway_slug'] . '_publishableKey'] = $this->input->post( 'omnipay_' . $this->data['gateway_slug'] . '_publishableKey' );
-
-						break;
-
-					endswitch;
-
-					$this->db->trans_begin();
-
-					$_result			= $this->app_setting_model->set( $_settings, 'shop', NULL, FALSE );
-					$_result_encrypted	= $this->app_setting_model->set( $_settings_encrypted, 'shop', NULL, TRUE );
-
-					if ( $this->db->trans_status() !== FALSE && $_result && $_result_encrypted ) :
-
-						$this->db->trans_commit();
-						$this->data['success'] = '<strong>Success!</strong> ' . $this->data['gateway_name'] . ' Payment Gateway settings have been saved.';
-
-
-					else :
-
-						$this->db->trans_rollback();
-						$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving the ' . $this->data['gateway_name'] . ' Payment Gateway settings.';
-
-					endif;
-
-				else :
-
-					$this->data['error'] = lang( 'fv_there_were_errors' );
-
-				endif;
-
-			endif;
-
-			//	Handle modal viewing
-			if ( $this->input->get( 'is_fancybox' ) ) :
-
-				$this->data['header_override'] = 'structure/header/nails-admin-blank';
-				$this->data['footer_override'] = 'structure/footer/nails-admin-blank';
-
-			endif;
-
-			//	Render the interface
-			$this->data['page']->title = 'Shop Payment Gateway Configuration &rsaquo; ' . $this->data['gateway_name'];
-
-			if ( method_exists( $this, '_shop_pg_' . $_gateway ) ) :
-
-				//	Specific configuration form available
-				$this->{'_shop_pg_' . $_gateway}();
-
-			else :
-
-				//	Show the generic gateway configuration form
-				$this->_shop_pg_generic( $_gateway );
-
-			endif;
-
-		else :
-
-			//	Bad gateway name
-			show_404();
-
-		endif;
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	/**
-	 * Renders a generic Payment Gateway configuration interface
-	 * @return void
-	 */
-	protected function _shop_pg_generic()
-	{
-		$this->load->view( 'structure/header',					$this->data );
-		$this->load->view( 'admin/settings/shop_pg/generic',	$this->data );
-		$this->load->view( 'structure/footer',					$this->data );
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	/**
-	 * Renders an interface specific for WorldPay
-	 * @return void
-	 */
-	protected function _shop_pg_worldpay()
-	{
-		$this->asset->load( 'nails.admin.shop.settings.paymentgateway.worldpay.min.js', 'NAILS' );
-		$this->asset->inline( '<script>_worldpay_config = new NAILS_Admin_Shop_Settings_PaymentGateway_WorldPay();</script>' );
-
-		// --------------------------------------------------------------------------
-
-		$this->load->view( 'structure/header',					$this->data );
-		$this->load->view( 'admin/settings/shop_pg/worldpay',	$this->data );
-		$this->load->view( 'structure/footer',					$this->data );
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	/**
-	 * Renders an interface specific for Stripe
-	 * @return void
-	 */
-	protected function _shop_pg_stripe()
-	{
-		//	Additional params
-		$this->load->view( 'structure/header',				$this->data );
-		$this->load->view( 'admin/settings/shop_pg/stripe',	$this->data );
-		$this->load->view( 'structure/footer',				$this->data );
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	/**
-	 * Renders an interface specific for PayPal_Express
-	 * @return void
-	 */
-	protected function _shop_pg_paypal_express()
-	{
-		//	Additional params
-		$this->load->view( 'structure/header',						$this->data );
-		$this->load->view( 'admin/settings/shop_pg/paypal_express',	$this->data );
-		$this->load->view( 'structure/footer',						$this->data );
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	public function shop_sd()
-	{
-		$this->load->model( 'shop/shop_shipping_driver_model' );
-
-		$_body = $this->shop_shipping_driver_model->configure( $this->input->get( 'driver' ) );
-
-		if ( empty( $_body ) ) :
-
-			show_404();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		$this->data['page']->title = 'Shop Shipping Driver Configuration &rsaquo; ';
-
-		// --------------------------------------------------------------------------
-
-		if ( $this->input->get( 'is_fancybox' ) ) :
-
-			$this->data['header_override'] = 'structure/header/nails-admin-blank';
-			$this->data['footer_override'] = 'structure/footer/nails-admin-blank';
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/settings/shop_sd',	array( 'body' => $_body ) );
-		$this->load->view( 'structure/footer',			$this->data );
-	}
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/settings/shop_sd', array('body' => $body));
+        $this->load->view('structure/footer', $this->data);
+    }
 }
 
-
 // --------------------------------------------------------------------------
-
 
 /**
  * OVERLOADING NAILS' ADMIN MODULES
@@ -1698,14 +1611,12 @@ class NAILS_Settings extends NAILS_Admin_Controller
  *
  **/
 
-if ( ! defined( 'NAILS_ALLOW_EXTENSION_SETTINGS' ) ) :
+if (!defined('NAILS_ALLOW_EXTENSION_SETTINGS')) {
 
-	class Settings extends NAILS_Settings
-	{
-	}
-
-endif;
-
-
-/* End of file settings.php */
-/* Location: ./modules/admin/controllers/settings.php */
+    /**
+     * Proxy class for NAILS_Settings
+     */
+    class Settings extends NAILS_Settings
+    {
+    }
+}

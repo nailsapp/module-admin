@@ -1,21 +1,24 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
 
 /**
-* Name:			Notification Langfile
-*
-* Description:  Generic language file for Nails. Admin Notifications
-*
-*/
+ * English language strings for Admin Notification
+ *
+ * @package     Nails
+ * @subpackage  module-admin
+ * @category    Language
+ * @author      Nails Dev Team
+ * @link
+ */
 
-	//	Generic for module
-	$lang['notification_module_name']		= 'Notifications';
+//	Generic for module
+$lang['notification_module_name']		= 'Notifications';
 
-	// --------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 
-	//	Nav
-	$lang['notification_nav_index']			= 'Manage Notifications';
+//	Nav
+$lang['notification_nav_index']			= 'Manage Notifications';
 
-	// --------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 
-	//	Index
-	$lang['notification_index_title']			= 'Manage Notifications';
+//	Index
+$lang['notification_index_title']			= 'Manage Notifications';

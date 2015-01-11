@@ -1,31 +1,26 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
 
 /**
- * Name:		Admin Help Model
+ * Admin changelog model
  *
- * Description:	This model contains logic for the admin help pages.
- *
+ * @package     Nails
+ * @subpackage  module-admin
+ * @category    Model
+ * @author      Nails Dev Team
+ * @link
  */
-
-/**
- * OVERLOADING NAILS' MODELS
- *
- * Note the name of this class; done like this to allow apps to extend this class.
- * Read full explanation at the bottom of this file.
- *
- **/
-
 class NAILS_Admin_help_model extends NAILS_Model
 {
-	public function __construct()
-	{
-		$this->_table = NAILS_DB_PREFIX . 'admin_help_video';
-	}
+    /**
+     * Constructs the model
+     */
+    public function __construct()
+    {
+        $this->_table = NAILS_DB_PREFIX . 'admin_help_video';
+    }
 }
 
-
 // --------------------------------------------------------------------------
-
 
 /**
  * OVERLOADING NAILS' MODELS
@@ -51,13 +46,9 @@ class NAILS_Admin_help_model extends NAILS_Model
  *
  **/
 
-if ( ! defined( 'NAILS_ALLOW_EXTENSION_ADMIN_HELP_MODEL' ) ) :
+if ( ! defined( 'NAILS_ALLOW_EXTENSION_ADMIN_HELP_MODEL' ) ) {
 
-	class Admin_help_model extends NAILS_Admin_help_model
-	{
-	}
-
-endif;
-
-/* End of file admin_help_model.php */
-/* Location: ./application/models/admin_help_model.php */
+    class Admin_help_model extends NAILS_Admin_help_model
+    {
+    }
+}

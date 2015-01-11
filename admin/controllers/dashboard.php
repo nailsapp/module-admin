@@ -1,146 +1,127 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
 
-/**
- * Name:		Admin: Dashboard
- * Description:	Admin dashboard
- *
- **/
-
-//	Include Admin_Controller; executes common admin functionality.
+//  Include NAILS_Admin_Controller; executes common admin functionality.
 require_once '_admin.php';
 
 /**
- * OVERLOADING NAILS' ADMIN MODULES
+ * The admin area's dashbaord
  *
- * Note the name of this class; done like this to allow apps to extend this class.
- * Read full explanation at the bottom of this file.
- *
- **/
-
+ * @package     Nails
+ * @subpackage  module-admin
+ * @category    Controller
+ * @author      Nails Dev Team
+ * @link
+ */
 class NAILS_Dashboard extends NAILS_Admin_Controller
 {
+    /**
+     * Announces this controllers details
+     * @return stdClass
+     */
+    public static function announce()
+    {
+        $d = new stdClass();
 
-	/**
-	 * Announces this module's details to those in the know.
-	 *
-	 * @access	static
-	 * @param	none
-	 * @return	void
-	 **/
-	static function announce()
-	{
-		$d = new stdClass();
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Load the laguage file
+        get_instance()->lang->load('admin_dashboard');
 
-		//	Load the laguage file
-		get_instance()->lang->load( 'admin_dashboard' );
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Configurations
+        $d->name = lang('dashboard_module_name');
+        $d->icon = 'fa-home';
 
-		//	Configurations
-		$d->name = lang( 'dashboard_module_name' );
-		$d->icon = 'fa-home';
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Navigation options
+        $d->funcs          = array();
+        $d->funcs['index'] = lang('dashboard_nav_index');
 
-		//	Navigation options
-		$d->funcs			= array();
-		$d->funcs['index']	= lang( 'dashboard_nav_index' );
+        //  Only show the help option if there are videos available
+        get_instance()->load->model('admin_help_model');
 
-		//	Only show the help option if there are videos available
-		get_instance()->load->model( 'admin_help_model' );
+        if (get_instance()->admin_help_model->count_all()) {
 
-		if ( get_instance()->admin_help_model->count_all() ) :
+            $d->funcs['help'] = lang('dashboard_nav_help');
+        }
 
-			$d->funcs['help'] = lang( 'dashboard_nav_help' );
+        // --------------------------------------------------------------------------
 
-		endif;
+        return $d;
+    }
 
-		// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-		return $d;
-	}
+    /**
+     * The admin homepage/dashbaord
+     * @return void
+     */
+    public function index()
+    {
+        //  Page Data
+        $this->data['page']->title = lang('dashboard_welcome_title');
 
+        // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+        /**
+         * Fetch recent admin changelog events
+         * @TODO: widgitize this and use the API
+         */
 
+        $this->data['changelog'] = $this->admin_changelog_model->get_recent();
 
-	/**
-	 * Administration homepage / dashboard
-	 *
-	 * @access	public
-	 * @param	none
-	 * @return	void
-	 **/
-	public function index()
-	{
-		//	Page Data
-		$this->data['page']->title	= lang( 'dashboard_welcome_title' );
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Choose a hello phrase
+        $this->load->helper('array');
 
-		//	Fetch recent admin changelog events
-		//	TODO: widgitize this and use the API
+        $phrases   = array();
+        $phrases[] = 'Be awesome.';
+        $phrases[] = active_user('first_name') ? 'Today is gonna be a good day, ' . active_user('first_name') . '.' : 'Today is gonna be a good day.';
+        $phrases[] = 'You look nice!';
+        $phrases[] = 'What are we doing today?';
+        $phrases[] = active_user('first_name') ? 'Hey, ' . active_user('first_name') . '!' : 'Hey!';
 
-		$this->data['changelog'] = $this->admin_changelog_model->get_recent();
+        $this->data['phrase'] = random_element($phrases);
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Choose a hello phrase
-		$this->load->helper( 'array' );
+        //  Assets
+        $this->asset->load('nails.admin.dashboard.min.js', true);
 
-		$_phrases	= array();
-		$_phrases[]	= 'Be awesome.';
-		$_phrases[]	= active_user( 'first_name' ) ? 'Today is gonna be a good day, ' . active_user( 'first_name' ) . '.' : 'Today is gonna be a good day.';
-		$_phrases[]	= 'You look nice!';
-		$_phrases[]	= 'What are we doing today?';
-		$_phrases[]	= active_user( 'first_name' ) ? 'Hey, ' . active_user( 'first_name' ) . '!' : 'Hey!';
+        // --------------------------------------------------------------------------
 
-		$this->data['phrase'] = random_element( $_phrases );
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/dashboard/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-		//	Assets
-		$this->asset->load( 'nails.admin.dashboard.min.js', TRUE );
+    /**
+     * The help section for admin
+     * @return void
+     */
+    public function help()
+    {
+        //  Page Title
+        $this->data['page']->title = lang('dashboard_help_title');
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Load views
-		$this->load->view( 'structure/header',	$this->data );
-		$this->load->view( 'admin/dashboard/index', $this->data );
-		$this->load->view( 'structure/footer', $this->data );
-	}
+        //  Get data
+        $this->data['videos'] = $this->admin_help_model->get_all();
 
+        // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
-
-
-	/**
-	 * Administration help
-	 *
-	 * @access	public
-	 * @param	none
-	 * @return	void
-	 **/
-	public function help()
-	{
-		//	Page Title
-		$this->data['page']->title = lang( 'dashboard_help_title' );
-
-		// --------------------------------------------------------------------------
-
-		//	Get data
-		$this->data['videos'] = $this->admin_help_model->get_all();
-
-		// --------------------------------------------------------------------------
-
-		//	Load views
-		$this->load->view( 'structure/header',				$this->data );
-		$this->load->view( 'admin/dashboard/help/overview',	$this->data );
-		$this->load->view( 'structure/footer',				$this->data );
-	}
-
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/dashboard/help/overview', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 }
 
 
@@ -171,14 +152,12 @@ class NAILS_Dashboard extends NAILS_Admin_Controller
  *
  **/
 
-if ( ! defined( 'NAILS_ALLOW_EXTENSION_DASHBOARD' ) ) :
+if (!defined('NAILS_ALLOW_EXTENSION_DASHBOARD')) {
 
-	class Dashboard extends NAILS_Dashboard
-	{
-	}
-
-endif;
-
-
-/* End of file dashboard.php */
-/* Location: ./modules/admin/controllers/dashboard.php */
+    /**
+     * Proxy class for NAILS_Dashboard
+     */
+    class Dashboard extends NAILS_Dashboard
+    {
+    }
+}

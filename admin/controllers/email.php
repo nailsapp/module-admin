@@ -1,203 +1,184 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
 
-/**
- * Name:		Admin: Email
- * Description:	Admin Email module
- *
- **/
-
-//	Include Admin_Controller; executes common admin functionality.
+//  Include NAILS_Admin_Controller; executes common admin functionality.
 require_once '_admin.php';
 
 /**
- * OVERLOADING NAILS' ADMIN MODULES
+ * Manage email sent by the system
  *
- * Note the name of this class; done like this to allow apps to extend this class.
- * Read full explanation at the bottom of this file.
- *
- **/
-
+ * @package     Nails
+ * @subpackage  module-admin
+ * @category    Controller
+ * @author      Nails Dev Team
+ * @link
+ */
 class NAILS_Email extends NAILS_Admin_Controller
 {
+    /**
+     * Announces this controllers details
+     * @return stdClass
+     */
+    public static function announce()
+    {
+        $d = new stdClass();
 
-	/**
-	 * Announces this module's details to those in the know.
-	 *
-	 * @access	static
-	 * @param	none
-	 * @return	void
-	 **/
-	static function announce()
-	{
-		$d = new stdClass();
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Load the laguage file
+        get_instance()->lang->load('admin_email');
 
-		//	Load the laguage file
-		get_instance()->lang->load( 'admin_email' );
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Configurations
+        $d->name = lang('email_module_name');
+        $d->icon = 'fa-paper-plane-o';
 
-		//	Configurations
-		$d->name = lang( 'email_module_name' );
-		$d->icon = 'fa-paper-plane-o';
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Navigation options
+        $d->funcs = array();
 
-		//	Navigation options
-		$d->funcs = array();
+        if (user_has_permission('admin.email:0.can_browse_archive')) {
 
-		if ( user_has_permission( 'admin.email:0.can_browse_archive' ) ) :
+            $d->funcs['index'] = lang('email_nav_index');
+        }
 
-			$d->funcs['index'] = lang( 'email_nav_index' );
+        if (user_has_permission('admin.email:0.can_manage_campaigns')) {
 
-		endif;
+            $d->funcs['campaign'] = lang('email_nav_campaign');
+        }
 
-		if ( user_has_permission( 'admin.email:0.can_manage_campaigns' ) ) :
+        // --------------------------------------------------------------------------
 
-			$d->funcs['campaign'] = lang( 'email_nav_campaign' );
+        return $d;
+    }
 
-		endif;
+    // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+    /**
+     * Returns an array of extra permissions for this controller
+     * @param  string $classIndex The class_index value, used when multiple admin instances are available
+     * @return array
+     */
+    public static function permissions($classIndex = null)
+    {
+        $permissions = parent::permissions($classIndex);
 
-		return $d;
-	}
+        // --------------------------------------------------------------------------
 
+        $permissions['can_browse_archive']   = 'Can browse email archive';
+        $permissions['can_resend']           = 'Can resend email';
+        $permissions['can_compose']          = 'Can compose email';
+        $permissions['can_manage_campaigns'] = 'Can manage campaigns';
+        $permissions['can_create_campaign']  = 'Can create draft campaigns';
+        $permissions['can_send_campaign']    = 'Can send campaigns';
+        $permissions['can_delete_campaign']  = 'Can delete campaigns';
 
-	// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
+        return $permissions;
+    }
 
-	static function permissions( $class_index = NULL )
-	{
-		$_permissions = parent::permissions( $class_index );
+    // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+    /**
+     * Browse the email archive
+     * @return void
+     */
+    public function index()
+    {
+        if (!user_has_permission('admin.email:0.can_browse_archive')) {
 
-		$_permissions['can_browse_archive']		= 'Can browse email archive';
-		$_permissions['can_resend']				= 'Can resend email';
-		$_permissions['can_compose']			= 'Can compose email';
-		$_permissions['can_manage_campaigns']	= 'Can manage campaigns';
-		$_permissions['can_create_campaign']	= 'Can create draft campaigns';
-		$_permissions['can_send_campaign']		= 'Can send campaigns';
-		$_permissions['can_delete_campaign']	= 'Can delete campaigns';
+            unauthorised();
+        }
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		return $_permissions;
-	}
+        //  Page Title
+        $this->data['page']->title = lang('email_index_title');
 
+        // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+        //  Fetch emails from the archive
+        $offset  = $this->input->get('offset');
+        $perPage = $this->input->get('per_page') ? $this->input->get('per_page') : 25;
 
+        $this->data['emails']       = new stdClass();
+        $this->data['emails']->data = $this->emailer->get_all(null, 'DESC', $offset, $perPage);
 
-	/**
-	 * Email archive browser
-	 *
-	 * @access	public
-	 * @param	none
-	 * @return	void
-	 **/
-	public function index()
-	{
-		if (!user_has_permission('admin.email:0.can_browse_archive')) {
+        //  Work out pagination
+        $this->data['emails']->pagination                = new stdClass();
+        $this->data['emails']->pagination->total_results = $this->emailer->count_all();
 
-			unauthorised();
-		}
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/email/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		//	Page Title
-		$this->data['page']->title = lang('email_index_title');
+    // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+    /**
+     * Resent an email
+     * @return void
+     */
+    public function resend()
+    {
+        if (!user_has_permission('admin.email:0.can_resend')) {
 
-		//	Fetch emails from the archive
-		$offset  = $this->input->get('offset');
-		$perPage = $this->input->get('per_page') ? $this->input->get('per_page') : 25;
+            unauthorised();
+        }
 
-		$this->data['emails']		= new stdClass();
-		$this->data['emails']->data	= $this->emailer->get_all(null, 'DESC', $offset, $perPage);
+        // --------------------------------------------------------------------------
 
-		//	Work out pagination
-		$this->data['emails']->pagination					= new stdClass();
-		$this->data['emails']->pagination->total_results	= $this->emailer->count_all();
+        $emailId = $this->uri->segment(4);
+        $return  = $this->input->get('return') ? $this->input->get('return') : 'admin/email/index';
 
-		// --------------------------------------------------------------------------
+        if ($this->emailer->resend($emailId)) {
 
-		//	Load views
-		$this->load->view('structure/header', $this->data);
-		$this->load->view('admin/email/index', $this->data);
-		$this->load->view('structure/footer', $this->data);
-	}
+            $status  = 'success';
+            $message = 'Message was resent successfully.';
 
+        } else {
 
-	// --------------------------------------------------------------------------
+            $status  = 'error';
+            $message = 'Message failed to resend.';
+        }
 
+        $this->session->Set_flashdata($status, $message);
+        redirect($return);
+    }
 
-	public function resend()
-	{
-		if (!user_has_permission('admin.email:0.can_resend')) {
+    // --------------------------------------------------------------------------
 
-			unauthorised();
-		}
+    /**
+     * Manage email campaigns
+     * @return void
+     */
+    public function campaign()
+    {
+        if (!user_has_permission('admin.email:0.can_manage_campaigns')) {
 
-		// --------------------------------------------------------------------------
+            unauthorised();
+        }
 
-		$emailId = $this->uri->segment(4);
-		$return  = $this->input->get('return') ? $this->input->get('return') : 'admin/email/index';
+        // --------------------------------------------------------------------------
 
-		if ($this->emailer->resend($emailId)) {
+        //  Page Title
+        $this->data['page']->title = lang('email_campaign_title');
 
-			$status  = 'success';
-			$message = 'Message was resent successfully.';
+        // --------------------------------------------------------------------------
 
-		} else {
-
-			$status  = 'error';
-			$message = 'Message failed to resend.';
-		}
-
-		$this->session->Set_flashdata($status, $message);
-		redirect($return);
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	/**
-	 * Manage email campaigns
-	 *
-	 * @access	public
-	 * @param	none
-	 * @return	void
-	 **/
-	public function campaign()
-	{
-		if ( ! user_has_permission( 'admin.email:0.can_manage_campaigns' ) ) :
-
-			unauthorised();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		//	Page Title
-		$this->data['page']->title = lang( 'email_campaign_title' );
-
-		// --------------------------------------------------------------------------
-
-		//	Load views
-		$this->load->view( 'structure/header',				$this->data );
-		$this->load->view( 'admin/email/campaign/index',	$this->data );
-		$this->load->view( 'structure/footer',				$this->data );
-	}
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/email/campaign/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 }
 
-
 // --------------------------------------------------------------------------
-
 
 /**
  * OVERLOADING NAILS' ADMIN MODULES
@@ -223,14 +204,12 @@ class NAILS_Email extends NAILS_Admin_Controller
  *
  **/
 
-if ( ! defined( 'NAILS_ALLOW_EXTENSION_DASHBOARD' ) ) :
+if (!defined('NAILS_ALLOW_EXTENSION_DASHBOARD')) {
 
-	class Email extends NAILS_Email
-	{
-	}
-
-endif;
-
-
-/* End of file email.php */
-/* Location: ./modules/admin/controllers/email.php */
+    /**
+     * Proxy class for NAILS_Email
+     */
+    class Email extends NAILS_Email
+    {
+    }
+}

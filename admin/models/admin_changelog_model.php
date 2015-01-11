@@ -1,270 +1,280 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
 
 /**
- * Name:		Admin Changelog Model
+ * Admin changelog model
  *
- * Description:	This model contains logic for manipulating the admin change log
- *
+ * @package     Nails
+ * @subpackage  module-admin
+ * @category    Model
+ * @author      Nails Dev Team
+ * @link
  */
-
-/**
- * OVERLOADING NAILS' MODELS
- *
- * Note the name of this class; done like this to allow apps to extend this class.
- * Read full explanation at the bottom of this file.
- *
- **/
-
 class NAILS_Admin_changelog_model extends NAILS_Model
 {
-	protected $_changes;
-	protected $_batch_save;
+    protected $changes;
+    protected $batchSave;
 
-	// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-	public function __construct()
-	{
-		parent::__construct();
+    /**
+     * Constructs the model
+     */
+    public function __construct()
+    {
+        parent::__construct();
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Define data structure
-		$this->_table			= NAILS_DB_PREFIX . 'admin_changelog';
-		$this->_table_prefix	= 'acl';
+        //  Define data structure
+        $this->_table        = NAILS_DB_PREFIX . 'admin_changelog';
+        $this->_table_prefix = 'acl';
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Set defaults
-		$this->_changes		= array();
-		$this->_batch_save	= TRUE;
+        //  Set defaults
+        $this->changes    = array();
+        $this->batchSave = true;
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Add a hook for after the controller is done so we can process the changes
-		//	and save to the DB.
+        /**
+         * Add a hook for after the controller is done so we can process the changes
+         * and save to the DB.
+         */
 
-		$_hook				= array();
-		$_hook['classref']	= &$this;
-		$_hook['method']	= 'save';
-		$_hook['params']	= '';
+        $hook             = array();
+        $hook['classref'] = &$this;
+        $hook['method']   = 'save';
+        $hook['params']   = '';
 
-		if ( $GLOBALS['EXT']->add_hook( 'post_system', $_hook ) == FALSE ) :
+        if ($GLOBALS['EXT']->add_hook('post_system', $hook) == false) {
 
-			$this->_batch_save = FALSE;
-			log_message( 'error', 'Admin_changelog_model could not set the post_controller hook to save items in batches.' );
+            $this->batchSave = false;
+            log_message('error', 'Admin_changelog_model could not set the post_controller hook to save items in batches.');
+        }
+    }
 
-		endif;
-	}
+    // --------------------------------------------------------------------------
 
+    /**
+     * Adds a new changelog item
+     * @param string  $verb     The verb, e.g "created"
+     * @param string  $article
+     * @param string  $item
+     * @param string  $itemId   The item's ID (e.g the blog post's ID)
+     * @param string  $title    The title of the item (e.g the blog post's title)
+     * @param string  $url      The url to the item (e.g the blog post's URL)
+     * @param string  $field
+     * @param mixed   $oldValue The old value
+     * @param mixed   $newValue The new value
+     * @param boolean $strict   whether or not to compare $oldValue and $newValue strictly
+     */
+    public function add($verb, $article, $item, $itemId, $title, $url = NULL, $field = NULL, $oldValue = NULL, $newValue = NULL, $strict = true)
+    {
+        /**
+         * if the old_value and the new_value are the same then why are you logging
+         * a change!? Lazy [read: efficient] dev.
+         */
 
-	// --------------------------------------------------------------------------
+        if (!is_null($field)) {
 
+            if (!is_string($newValue)) {
 
-	public function add( $verb, $article, $item, $item_id, $title, $url = NULL, $field = NULL, $old_value = NULL, $new_value = NULL, $strict_comparison = TRUE )
-	{
-		//	if the old_value and the new_value are the same then why are you
-		//	logging a change!? Lazy [read: efficient] dev.
+                $newValue = print_r($newValue, true);
+            }
 
-		if ( NULL !== $field) :
+            if (!is_string($oldValue)) {
 
-			if ( ! is_string( $new_value) ) :
+                $oldValue = print_r($oldValue, true);
+            }
 
-				$new_value = print_r( $new_value, TRUE );
+            $newValue = trim($newValue);
+            $oldValue = trim($oldValue);
 
-			endif;
+            if ($strict) {
 
-			if ( ! is_string( $old_value) ) :
+                if ($newValue === $oldValue) {
 
-				$old_value = print_r( $old_value, TRUE );
+                    return false;
+                }
 
-			endif;
+            } else {
 
-			$new_value = trim( $new_value );
-			$old_value = trim( $old_value );
+                if ($newValue == $oldValue) {
 
-			if ( $strict_comparison ) :
+                    return false;
+                }
+            }
+        }
 
-				if ( $new_value === $old_value ) :
+        // --------------------------------------------------------------------------
 
-					return FALSE;
-
-				endif;
-
-			else :
-
-				if ( $new_value == $old_value ) :
-
-					return FALSE;
-
-				endif;
-
-			endif;
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		//	Define the key for this change; keys should be common across identical items
-		//	so we can group changes of the same item together.
-
-		$_key = md5( active_user( 'id' ) . '|' . $verb . '|' . $article . '|' . $item . '|' . $item_id . '|' . $title . '|' . $url );
-
-		if ( empty( $this->_changes[$_key] ) ) :
-
-			$this->_changes[$_key]				= array();
-			$this->_changes[$_key]['user_id']	= active_user( 'id' ) ? active_user( 'id' ) : NULL;
-			$this->_changes[$_key]['verb']		= $verb;
-			$this->_changes[$_key]['article']	= $article;
-			$this->_changes[$_key]['item']		= $item;
-			$this->_changes[$_key]['item_id']	= $item_id;
-			$this->_changes[$_key]['title']	= $title;
-			$this->_changes[$_key]['url']		= $url;
-			$this->_changes[$_key]['changes']	= array();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		//	Generate a subkey, so that multiple calls to the same field
-		//	overwrite each other
-
-		if ( $field ) :
-
-			$_subkey = md5( $field );
-
-			$this->_changes[$_key]['changes'][$_subkey]			= new stdClass();
-			$this->_changes[$_key]['changes'][$_subkey]->field		= $field;
-			$this->_changes[$_key]['changes'][$_subkey]->old_value	= $old_value;
-			$this->_changes[$_key]['changes'][$_subkey]->new_value	= $new_value;
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		//	If we're not saving  in batches then save now
-		if ( ! $this->_batch_save ) :
-
-			$this->save();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		return TRUE;
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	public function save()
-	{
-		//	Process all the items and save to the DB, then clean up
-		if ( $this->_changes ) :
-
-			$this->_changes = array_values( $this->_changes );
-
-			for ( $i = 0; $i < count( $this->_changes ); $i++ ) :
-
-				$this->_changes[$i]['changes']		= array_values( $this->_changes[$i]['changes'] );
-				$this->_changes[$i]['changes'] 		= serialize( $this->_changes[$i]['changes'] );
-				$this->_changes[$i]['created']		= date( 'Y-m-d H:i:s' );
-				$this->_changes[$i]['created_by']	= active_user( 'id' );
-				$this->_changes[$i]['modified']		= date( 'Y-m-d H:i:s' );
-				$this->_changes[$i]['modified_by']	= active_user( 'id' );
-
-			endfor;
-
-			$this->db->insert_batch( $this->_table, $this->_changes );
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		$this->clear();
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	public function clear()
-	{
-		$this->_changes = array();
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	public function get_recent( $limit = 100 )
-	{
-		$this->db->limit( $limit );
-		return $this->get_all();
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _getcount_common( $data = NULL, $_caller = NULL )
-	{
-		parent::_getcount_common( $data );
-
-		// --------------------------------------------------------------------------
-
-		//	Set the select
-		if ( $_caller !== 'COUNT_ALL' ) :
-
-			$this->db->select( $this->_table_prefix . '.*, u.first_name, u.last_name, u.gender, u.profile_img, ue.email' );
-
-		endif;
-
-		//	Join user tables
-		$this->db->join( NAILS_DB_PREFIX . 'user u', 'u.id = ' . $this->_table_prefix . '.user_id', 'LEFT' );
-		$this->db->join( NAILS_DB_PREFIX . 'user_email ue', 'ue.user_id = ' . $this->_table_prefix . '.user_id AND ue.is_primary = 1', 'LEFT' );
-
-		//	Set the order
-		$this->db->order_by( $this->_table_prefix . '.created', 'DESC' );
-		$this->db->order_by( $this->_table_prefix . '.id', 'DESC');
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _format_object( &$obj )
-	{
-		parent::_format_object( $obj );
-
-		if ( ! empty( $obj->item_id ) ) :
-
-			$obj->item_id = (int) $obj->item_id;
-
-		endif;
-
-		$obj->changes = @unserialize( $obj->changes );
-
-		$obj->user				= new stdClass();
-		$obj->user->id			= $obj->user_id;
-		$obj->user->first_name	= $obj->first_name;
-		$obj->user->last_name	= $obj->last_name;
-		$obj->user->gender		= $obj->gender;
-		$obj->user->profile_img	= $obj->profile_img;
-		$obj->user->email		= $obj->email;
-
-		unset( $obj->user_id );
-		unset( $obj->first_name );
-		unset( $obj->last_name );
-		unset( $obj->gender );
-		unset( $obj->profile_img );
-		unset( $obj->email );
-	}
+        /**
+         * Define the key for this change; keys should be common across identical
+         * items so we can group changes of the same item together.
+         */
+
+        $key = md5(active_user('id') . '|' . $verb . '|' . $article . '|' . $item . '|' . $itemId . '|' . $title . '|' . $url);
+
+        if (empty($this->changes[$key])) {
+
+            $this->changes[$key]            = array();
+            $this->changes[$key]['user_id'] = active_user('id') ? active_user('id') : NULL;
+            $this->changes[$key]['verb']    = $verb;
+            $this->changes[$key]['article'] = $article;
+            $this->changes[$key]['item']    = $item;
+            $this->changes[$key]['item_id'] = $itemId;
+            $this->changes[$key]['title']   = $title;
+            $this->changes[$key]['url']     = $url;
+            $this->changes[$key]['changes'] = array();
+        }
+
+        // --------------------------------------------------------------------------
+
+        /**
+         * Generate a subkey, so that multiple calls to the same field overwrite
+         * each other
+         */
+
+        if ($field) {
+
+            $subkey = md5($field);
+
+            $this->changes[$key]['changes'][$subkey]            = new stdClass();
+            $this->changes[$key]['changes'][$subkey]->field     = $field;
+            $this->changes[$key]['changes'][$subkey]->old_value = $oldValue;
+            $this->changes[$key]['changes'][$subkey]->new_value = $newValue;
+        }
+
+        // --------------------------------------------------------------------------
+
+        //  If we're not saving  in batches then save now
+        if (!$this->batchSave) {
+
+            $this->save();
+        }
+
+        return true;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Save the changelog items
+     * @return void
+     */
+    public function save()
+    {
+        //  Process all the items and save to the DB, then clean up
+        if ($this->changes) {
+
+            $this->changes = array_values($this->changes);
+
+            for ($i = 0; $i < count($this->changes); $i++) {
+
+                $this->changes[$i]['changes']     = array_values($this->changes[$i]['changes']);
+                $this->changes[$i]['changes']     = serialize($this->changes[$i]['changes']);
+                $this->changes[$i]['created']     = date('Y-m-d H:i:s');
+                $this->changes[$i]['created_by']  = active_user('id');
+                $this->changes[$i]['modified']    = date('Y-m-d H:i:s');
+                $this->changes[$i]['modified_by'] = active_user('id');
+            }
+
+            $this->db->insert_batch($this->_table, $this->changes);
+        }
+
+        $this->clear();
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Clear all recorded changes
+     * @return void
+     */
+    public function clear()
+    {
+        $this->changes = array();
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Get recent changes
+     * @param  integer $limit The number of changes to return
+     * @return array
+     */
+    public function get_recent($limit = 100)
+    {
+        $this->db->limit($limit);
+        return $this->get_all();
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Applies common conditionals
+     * @param string $data    Data passed from the calling method
+     * @param string $_caller The name of the calling method
+     * @return void
+     **/
+    protected function _getcount_common($data = NULL, $caller = NULL)
+    {
+        parent::_getcount_common($data);
+
+        // --------------------------------------------------------------------------
+
+        //  Set the select
+        if ($caller !== 'COUNT_ALL') {
+
+            $this->db->select($this->_table_prefix . '.*, u.first_name, u.last_name, u.gender, u.profile_img, ue.email');
+        }
+
+        //  Join user tables
+        $this->db->join(NAILS_DB_PREFIX . 'user u', 'u.id = ' . $this->_table_prefix . '.user_id', 'LEFT');
+        $this->db->join(NAILS_DB_PREFIX . 'user_email ue', 'ue.user_id = ' . $this->_table_prefix . '.user_id AND ue.is_primary = 1', 'LEFT');
+
+        //  Set the order
+        $this->db->order_by($this->_table_prefix . '.created', 'DESC');
+        $this->db->order_by($this->_table_prefix . '.id', 'DESC');
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Format a changelog object
+     * @param  stdClass &$obj The object to format
+     * @return void
+     */
+    protected function _format_object(&$obj)
+    {
+        parent::_format_object($obj);
+
+        if (!empty($obj->item_id)) {
+
+            $obj->item_id = (int) $obj->item_id;
+        }
+
+        $obj->changes = @unserialize($obj->changes);
+
+        $obj->user              = new stdClass();
+        $obj->user->id          = $obj->user_id;
+        $obj->user->first_name  = $obj->first_name;
+        $obj->user->last_name   = $obj->last_name;
+        $obj->user->gender      = $obj->gender;
+        $obj->user->profile_img = $obj->profile_img;
+        $obj->user->email       = $obj->email;
+
+        unset($obj->user_id);
+        unset($obj->first_name);
+        unset($obj->last_name);
+        unset($obj->gender);
+        unset($obj->profile_img);
+        unset($obj->email);
+    }
 }
 
-
 // --------------------------------------------------------------------------
-
 
 /**
  * OVERLOADING NAILS' MODELS
@@ -290,13 +300,9 @@ class NAILS_Admin_changelog_model extends NAILS_Model
  *
  **/
 
-if ( ! defined( 'NAILS_ALLOW_EXTENSION_ADMIN_CHANGELOG_MODEL' ) ) :
+if (!defined('NAILS_ALLOW_EXTENSION_ADMIN_CHANGELOG_MODEL')) {
 
-	class Admin_changelog_model extends NAILS_Admin_changelog_model
-	{
-	}
-
-endif;
-
-/* End of file admin_help_model.php */
-/* Location: ./application/models/admin_help_model.php */
+    class Admin_changelog_model extends NAILS_Admin_changelog_model
+    {
+    }
+}

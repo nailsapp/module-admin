@@ -1,1261 +1,1217 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
 
-/**
-* Name:			Admin: Blog
-* Description:	Blog Manager
-*
-*/
-
-//	Include Admin_Controller; executes common admin functionality.
+//  Include NAILS_Admin_Controller; executes common admin functionality.
 require_once '_admin.php';
 
 /**
- * OVERLOADING NAILS' ADMIN MODULES
+ * Manage the blog
  *
- * Note the name of this class; done like this to allow apps to extend this class.
- * Read full explanation at the bottom of this file.
- *
- **/
-
+ * @package     Nails
+ * @subpackage  module-admin
+ * @category    Controller
+ * @author      Nails Dev Team
+ * @link
+ */
 class NAILS_Blog extends NAILS_Admin_Controller
 {
+    protected $blogId;
 
-	/**
-	 * Announces this module's details to those in the know.
-	 *
-	 * @access static
-	 * @param none
-	 * @return void
-	 **/
-	static function announce()
-	{
-		if (!module_is_enabled('blog')) {
+    // --------------------------------------------------------------------------
 
-			return false;
-		}
+    /**
+     * Announces this controllers details
+     * @return stdClass
+     */
+    public static function announce()
+    {
+        if (!module_is_enabled('blog')) {
 
-		// --------------------------------------------------------------------------
+            return false;
+        }
 
-		//	Fetch the blogs, each blog should have it's own admin section
-		$_ci =& get_instance();
-		$_ci->load->model('blog/blog_model');
-		$blogs = $_ci->blog_model->get_all();
+        // --------------------------------------------------------------------------
 
-		$_out = array();
+        //  Fetch the blogs, each blog should have it's own admin section
+        $ci =& get_instance();
+        $ci->load->model('blog/blog_model');
+        $blogs = $ci->blog_model->get_all();
 
-		if (!empty($blogs)) {
+        $out = array();
 
-			foreach ($blogs AS $blog) {
+        if (!empty($blogs)) {
 
-				$d = new stdClass();
+            foreach ($blogs as $blog) {
 
-				// --------------------------------------------------------------------------
+                $d = new stdClass();
 
-				//	Configurations
-				$d->name = count($blogs) > 1 ? 'Blog: ' . $blog->label : 'Blog';
-				$d->icon = 'fa-pencil-square-o';
+                // --------------------------------------------------------------------------
 
-				// --------------------------------------------------------------------------
+                //  Configurations
+                $d->name = count($blogs) > 1 ? 'Blog: ' . $blog->label : 'Blog';
+                $d->icon = 'fa-pencil-square-o';
 
-				//	Navigation options
-				$d->funcs							= array();
-				$d->funcs[$blog->id . '/index']		= 'Manage Posts';
+                // --------------------------------------------------------------------------
 
-				$hasPermission	= user_has_permission('admin.blog:' . $blog->id . '.category_manage');
-				$enabled		= app_setting('categories_enabled', 'blog-' . $blog->id);
+                //  Navigation options
+                $d->funcs                           = array();
+                $d->funcs[$blog->id . '/index']     = 'Manage Posts';
 
-				if ($hasPermission && $enabled) {
+                $hasPermission = user_has_permission('admin.blog:' . $blog->id . '.category_manage');
+                $enabled       = app_setting('categories_enabled', 'blog-' . $blog->id);
 
-					$d->funcs[$blog->id . '/manage/category'] = 'Manage Categories';
-				}
+                if ($hasPermission && $enabled) {
 
-				$hasPermission	= user_has_permission('admin.blog:' . $blog->id . '.tag_manage');
-				$enabled		= app_setting('tags_enabled', 'blog-' . $blog->id);
+                    $d->funcs[$blog->id . '/manage/category'] = 'Manage Categories';
+                }
 
-				if ($hasPermission && $enabled) {
+                $hasPermission = user_has_permission('admin.blog:' . $blog->id . '.tag_manage');
+                $enabled       = app_setting('tags_enabled', 'blog-' . $blog->id);
 
-					$d->funcs[$blog->id . '/manage/tag'] = 'Manage Tags';
-				}
+                if ($hasPermission && $enabled) {
 
-				// --------------------------------------------------------------------------
+                    $d->funcs[$blog->id . '/manage/tag'] = 'Manage Tags';
+                }
 
-				$_out[$blog->id] = $d;
-			}
+                // --------------------------------------------------------------------------
 
-		} else {
+                $out[$blog->id] = $d;
+            }
 
-			$d							= new stdClass();
-			$d->name					= 'Blog';
-			$d->icon					= 'fa-pencil-square-o';
-			$d->funcs					= array();
-			$d->funcs['create_blog']	= 'Create New Blog';
+        } else {
 
-			$_out = $d;
-		}
+            $d                       = new stdClass();
+            $d->name                 = 'Blog';
+            $d->icon                 = 'fa-pencil-square-o';
+            $d->funcs                = array();
+            $d->funcs['create_blog'] = 'Create New Blog';
 
-		// --------------------------------------------------------------------------
+            $out = $d;
+        }
 
-		return $_out;
-	}
+        // --------------------------------------------------------------------------
 
+        return $out;
+    }
 
-	// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
+    /**
+     * Returns an array of extra permissions for this controller
+     * @param  string $classIndex The class_index value, used when multiple admin instances are available
+     * @return array
+     */
+    public static function permissions($classIndex = null)
+    {
+        $permissions = parent::permissions($classIndex);
 
-	static function permissions( $class_index = NULL )
-	{
-		$_permissions = parent::permissions( $class_index );
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Posts
+        $permissions['post_create']  = 'Can create posts';
+        $permissions['post_edit']    = 'Can edit posts';
+        $permissions['post_delete']  = 'Can delete posts';
+        $permissions['post_restore'] = 'Can restore posts';
 
-		//	Posts
-		$_permissions['post_create']		= 'Can create posts';
-		$_permissions['post_edit']			= 'Can edit posts';
-		$_permissions['post_delete']		= 'Can delete posts';
-		$_permissions['post_restore']		= 'Can restore posts';
+        //  Categories
+        $permissions['category_manage'] = 'Can manage categories';
+        $permissions['category_create'] = 'Can create categories';
+        $permissions['category_edit']   = 'Can edit categories';
+        $permissions['category_delete'] = 'Can delete categories';
 
-		//	Categories
-		$_permissions['category_manage']	= 'Can manage categories';
-		$_permissions['category_create']	= 'Can create categories';
-		$_permissions['category_edit']		= 'Can edit categories';
-		$_permissions['category_delete']	= 'Can delete categories';
+        //  Tags
+        $permissions['tag_manage'] = 'Can manage tags';
+        $permissions['tag_create'] = 'Can create tags';
+        $permissions['tag_edit']   = 'Can edit tags';
+        $permissions['tag_delete'] = 'Can delete tags';
 
-		//	Tags
-		$_permissions['tag_manage']			= 'Can manage tags';
-		$_permissions['tag_create']			= 'Can create tags';
-		$_permissions['tag_edit']			= 'Can edit tags';
-		$_permissions['tag_delete']			= 'Can delete tags';
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        return $permissions;
+    }
 
-		return $_permissions;
-	}
+    // --------------------------------------------------------------------------
 
+    /**
+     * Constructs the controller
+     */
+    public function __construct()
+    {
+        parent::__construct();
 
-	// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
+        $this->load->model('blog/blog_model');
+        $this->load->model('blog/blog_post_model');
+        $this->load->model('blog/blog_category_model');
+        $this->load->model('blog/blog_tag_model');
 
-	/**
-	 * Constructor
-	 *
-	 * @access public
-	 * @param none
-	 * @return void
-	 **/
-	public function __construct()
-	{
-		parent::__construct();
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        $this->data['blogs'] = $this->blog_model->get_all();
+    }
 
-		$this->load->model( 'blog/blog_model' );
-		$this->load->model( 'blog/blog_post_model' );
-		$this->load->model( 'blog/blog_category_model' );
-		$this->load->model( 'blog/blog_tag_model' );
+    // --------------------------------------------------------------------------
+
+    /**
+     * Browse posts
+     * @return void
+     */
+    public function index()
+    {
+        //  Set method info
+        $this->data['page']->title = 'Manage Posts';
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		$this->data['blogs'] = $this->blog_model->get_all();
-	}
+        //  Define the $data variable, this'll be passed to the get_all() and count_all() methods
+        $data = array('where' => array(), 'sort' => array());
 
+        // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+        //  Restricting to appropriate blog
+        $data['where'][] = array('column' => 'blog_id', 'value' => $this->blogId);
 
+        // --------------------------------------------------------------------------
 
-	/**
-	 * Post overview
-	 *
-	 * @access public
-	 * @param none
-	 * @return void
-	 **/
-	public function index()
-	{
-		//	Set method info
-		$this->data['page']->title = 'Manage Posts';
+        //  Set useful vars
+        $page       = $this->input->get('page')     ? $this->input->get('page')     : 0;
+        $per_page   = $this->input->get('per_page') ? $this->input->get('per_page') : 50;
+        $sort_on    = $this->input->get('sort_on')  ? $this->input->get('sort_on')  : 'bp.published';
+        $sort_order = $this->input->get('order')    ? $this->input->get('order')    : 'desc';
+        $search     = $this->input->get('search')   ? $this->input->get('search')   : '';
 
-		// --------------------------------------------------------------------------
+        //  Set sort variables for view and for $data
+        $this->data['sort_on']      = $data['sort']['column']  = $sort_on;
+        $this->data['sort_order']   = $data['sort']['order']   = $sort_order;
+        $this->data['search']       = $data['search']          = $search;
 
-		//	Define the $_data variable, this'll be passed to the get_all() and count_all() methods
-		$_data = array( 'where' => array(), 'sort' => array() );
+        //  Define and populate the pagination object
+        $this->data['pagination']             = new stdClass();
+        $this->data['pagination']->page       = $page;
+        $this->data['pagination']->per_page   = $per_page;
+        $this->data['pagination']->total_rows = $this->blog_post_model->count_all($data);
 
-		// --------------------------------------------------------------------------
+        //  Fetch all the items for this page
+        $this->data['posts'] = $this->blog_post_model->get_all($page, $per_page, $data);
 
-		//	Restricting to appropriate blog
-		$_data['where'][]	= array( 'column' => 'blog_id', 'value' => $this->_blog_id );
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/blog/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		//	Set useful vars
-		$_page			= $this->input->get( 'page' )		? $this->input->get( 'page' )		: 0;
-		$_per_page		= $this->input->get( 'per_page' )	? $this->input->get( 'per_page' )	: 50;
-		$_sort_on		= $this->input->get( 'sort_on' )	? $this->input->get( 'sort_on' )	: 'bp.published';
-		$_sort_order	= $this->input->get( 'order' )		? $this->input->get( 'order' )		: 'desc';
-		$_search		= $this->input->get( 'search' )		? $this->input->get( 'search' )		: '';
+    // --------------------------------------------------------------------------
 
-		//	Set sort variables for view and for $_data
-		$this->data['sort_on']		= $_data['sort']['column']	= $_sort_on;
-		$this->data['sort_order']	= $_data['sort']['order']	= $_sort_order;
-		$this->data['search']		= $_data['search']			= $_search;
+    /**
+     * Create a blog post
+     * @return void
+     **/
+    public function create()
+    {
+        if (!user_has_permission('admin.blog:' . $this->blogId . '.post_create')) {
 
-		//	Define and populate the pagination object
-		$this->data['pagination']				= new stdClass();
-		$this->data['pagination']->page			= $_page;
-		$this->data['pagination']->per_page		= $_per_page;
-		$this->data['pagination']->total_rows	= $this->blog_post_model->count_all( $_data );
+            unauthorised();
+        }
 
-		//	Fetch all the items for this page
-		$this->data['posts'] = $this->blog_post_model->get_all( $_page, $_per_page, $_data );
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Set method info
+        $this->data['page']->title = 'Create New Post';
 
-		$this->load->view( 'structure/header',	$this->data );
-		$this->load->view( 'admin/blog/index',	$this->data );
-		$this->load->view( 'structure/footer',	$this->data );
-	}
+        // --------------------------------------------------------------------------
 
+        //  Process POST
+        if ($this->input->post()) {
 
-	// --------------------------------------------------------------------------
+            $this->load->library('form_validation');
 
+            $this->form_validation->set_rules('is_published',    '', 'xss_clean');
+            $this->form_validation->set_rules('published',       '', 'xss_clean');
+            $this->form_validation->set_rules('title',           '', 'xss_clean|required');
+            $this->form_validation->set_rules('excerpt',         '', 'xss_clean');
+            $this->form_validation->set_rules('image_id',        '', 'xss_clean');
+            $this->form_validation->set_rules('body',            '', 'required');
+            $this->form_validation->set_rules('seo_description', '', 'xss_clean');
+            $this->form_validation->set_rules('seo_keywords',    '', 'xss_clean');
 
-	/**
-	 * Create a new post
-	 *
-	 * @access public
-	 * @param none
-	 * @return void
-	 **/
-	public function create()
-	{
-		if ( ! user_has_permission( 'admin.blog:' . $this->_blog_id . '.post_create' ) ) :
+            $this->form_validation->set_message('required', lang('fv_required'));
 
-			unauthorised();
+            if ($this->form_validation->run()) {
 
-		endif;
+                //  Prepare data
+                $data                    = array();
+                $data['blog_id']         = $this->blogId;
+                $data['title']           = $this->input->post('title');
+                $data['excerpt']         = $this->input->post('excerpt');
+                $data['image_id']        = $this->input->post('image_id');
+                $data['body']            = $this->input->post('body');
+                $data['seo_description'] = $this->input->post('seo_description');
+                $data['seo_keywords']    = $this->input->post('seo_keywords');
+                $data['is_published']    = (bool) $this->input->post('is_published');
+                $data['published']       = $this->input->post('published');
+                $data['associations']    = $this->input->post('associations');
+                $data['gallery']         = $this->input->post('gallery');
 
-		// --------------------------------------------------------------------------
+                if (app_setting('categories_enabled', 'blog-' . $this->blogId)) {
 
-		//	Set method info
-		$this->data['page']->title = 'Create New Post';
+                    $data['categories'] = $this->input->post('categories');
+                }
 
-		// --------------------------------------------------------------------------
+                if (app_setting('tags_enabled', 'blog-' . $this->blogId)) {
 
-		//	Process POST
-		if ( $this->input->post() ) :
+                    $data['tags'] = $this->input->post('tags');
+                }
 
-			$this->load->library( 'form_validation' );
+                $post_id = $this->blog_post_model->create($data);
 
-			$this->form_validation->set_rules( 'is_published',		'',	'xss_clean' );
-			$this->form_validation->set_rules( 'published',			'',	'xss_clean' );
-			$this->form_validation->set_rules( 'title',				'',	'xss_clean|required' );
-			$this->form_validation->set_rules( 'excerpt',			'',	'xss_clean' );
-			$this->form_validation->set_rules( 'image_id',			'',	'xss_clean' );
-			$this->form_validation->set_rules( 'body',				'',	'required' );
-			$this->form_validation->set_rules( 'seo_description',	'',	'xss_clean' );
-			$this->form_validation->set_rules( 'seo_keywords',		'',	'xss_clean' );
+                if ($post_id) {
 
-			$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
+                    //  Update admin changelog
+                    $this->admin_changelog_model->add('created', 'a', 'blog post', $post_id, $data['title'], 'admin/blog/edit/' . $post_id);
 
-			if ( $this->form_validation->run() ) :
+                    // --------------------------------------------------------------------------
 
-				//	Prepare data
-				$_data						= array();
-				$_data['blog_id']			= $this->_blog_id;
-				$_data['title']				= $this->input->post( 'title' );
-				$_data['excerpt']			= $this->input->post( 'excerpt' );
-				$_data['image_id']			= $this->input->post( 'image_id' );
-				$_data['body']				= $this->input->post( 'body' );
-				$_data['seo_description']	= $this->input->post( 'seo_description' );
-				$_data['seo_keywords']		= $this->input->post( 'seo_keywords' );
-				$_data['is_published']		= (bool) $this->input->post( 'is_published' );
-				$_data['published']			= $this->input->post( 'published' );
-				$_data['associations']		= $this->input->post( 'associations' );
-				$_data['gallery']			= $this->input->post( 'gallery' );
+                    //  Set flashdata and redirect
+                    $this->session->set_flashdata('success', '<strong>Success!</strong> Post was created.');
+                    redirect('admin/blog/' . $this->blogId);
 
-				if ( app_setting( 'categories_enabled', 'blog-' . $this->_blog_id ) ) :
+                } else {
 
-					$_data['categories'] = $this->input->post( 'categories' );
+                    $this->data['error'] = lang('fv_there_were_errors');
+                }
 
-				endif;
+            } else {
 
-				if ( app_setting( 'tags_enabled', 'blog-' . $this->_blog_id ) ) :
+                $this->data['error'] = lang('fv_there_were_errors');
+            }
+        }
 
-					$_data['tags'] = $this->input->post( 'tags' );
+        // --------------------------------------------------------------------------
 
-				endif;
+        //  Load Categories and Tags
+        if (app_setting('categories_enabled', 'blog-' . $this->blogId)) {
 
-				$_post_id = $this->blog_post_model->create( $_data );
+            $data            = array();
+            $data['where']   = array();
+            $data['where'][] = array('column' => 'blog_id', 'value' => $this->blogId);
 
-				if ( $_post_id ) :
+            $this->data['categories'] = $this->blog_category_model->get_all(null, null, $data);
+        }
 
-					//	Update admin changelog
-					$this->admin_changelog_model->add( 'created', 'a', 'blog post', $_post_id, $_data['title'], 'admin/blog/edit/' . $_post_id );
+        if (app_setting('tags_enabled', 'blog-' . $this->blogId)) {
 
-					// --------------------------------------------------------------------------
+            $data            = array();
+            $data['where']   = array();
+            $data['where'][] = array('column' => 'blog_id', 'value' => $this->blogId);
 
-					//	Set flashdata and redirect
-					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Post was created.' );
-					redirect( 'admin/blog/' . $this->_blog_id );
+            $this->data['tags'] = $this->blog_tag_model->get_all(null, null, $data);
+        }
 
-				else :
+        // --------------------------------------------------------------------------
 
-					$this->data['error'] = lang( 'fv_there_were_errors' );
+        //  Load associations
+        $this->data['associations'] = $this->blog_model->get_associations();
 
-				endif;
+        // --------------------------------------------------------------------------
 
-			else :
+        //  Load assets
+        $this->asset->library('uploadify');
+        $this->asset->load('mustache.js/mustache.js', 'BOWER');
+        $this->asset->load('nails.admin.blog.create_edit.js', true);
 
-				$this->data['error'] = lang( 'fv_there_were_errors' );
+        // --------------------------------------------------------------------------
 
-			endif;
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/blog/edit', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		endif;
+    // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+    /**
+     * Edit a blog post
+     * @return void
+     **/
+    public function edit()
+    {
+        if (!user_has_permission('admin.blog:' . $this->blogId . '.post_edit')) {
 
-		//	Load Categories and Tags
-		if ( app_setting( 'categories_enabled', 'blog-' . $this->_blog_id ) ) :
+            unauthorised();
+        }
 
-			$_data					= array();
-			$_data['where']			= array();
-			$_data['where'][]		= array( 'column' => 'blog_id', 'value' => $this->_blog_id );
+        // --------------------------------------------------------------------------
 
-			$this->data['categories'] = $this->blog_category_model->get_all( NULL, NULL, $_data );
+        //  Fetch and check post
+        $post_id = $this->uri->segment(5);
 
-		endif;
+        $this->data['post'] = $this->blog_post_model->get_by_id($post_id);
 
-		if ( app_setting( 'tags_enabled', 'blog-' . $this->_blog_id ) ) :
+        if (!$this->data['post']) {
 
-			$_data					= array();
-			$_data['where']			= array();
-			$_data['where'][]		= array( 'column' => 'blog_id', 'value' => $this->_blog_id );
+            $this->session->set_flashdata('error', '<strong>Sorry,</strong> I could\'t find a post by that ID.');
+            redirect('admin/blog/' . $this->blogId);
+        }
 
-			$this->data['tags'] = $this->blog_tag_model->get_all( NULL, NULL, $_data );
+        // --------------------------------------------------------------------------
 
-		endif;
+        //  Set method info
+        $this->data['page']->title = 'Edit Post &rsaquo; ' . $this->data['post']->title;
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Load associations
-		$this->data['associations'] = $this->blog_model->get_associations();
+        //  Process POST
+        if ($this->input->post()) {
 
-		// --------------------------------------------------------------------------
+            $this->load->library('form_validation');
 
-		//	Load assets
-		$this->asset->library('uploadify');
-		$this->asset->load('mustache.js/mustache.js', 'BOWER');
-		$this->asset->load('nails.admin.blog.create_edit.js', true);
+            $this->form_validation->set_rules('is_published', '', 'xss_clean');
+            $this->form_validation->set_rules('published', '', 'xss_clean');
+            $this->form_validation->set_rules('title', '', 'xss_clean|required');
+            $this->form_validation->set_rules('excerpt', '', 'xss_clean');
+            $this->form_validation->set_rules('image_id', '', 'xss_clean');
+            $this->form_validation->set_rules('body', '', 'required');
+            $this->form_validation->set_rules('seo_description', '', 'xss_clean');
+            $this->form_validation->set_rules('seo_keywords', '', 'xss_clean');
 
-		// --------------------------------------------------------------------------
+            $this->form_validation->set_message('required', lang('fv_required'));
 
-		$this->load->view( 'structure/header',	$this->data );
-		$this->load->view( 'admin/blog/edit',	$this->data );
-		$this->load->view( 'structure/footer',	$this->data );
-	}
+            if ($this->form_validation->run()) {
 
+                //  Prepare data
+                $data                    = array();
+                $data['title']           = $this->input->post('title');
+                $data['excerpt']         = $this->input->post('excerpt');
+                $data['image_id']        = $this->input->post('image_id');
+                $data['body']            = $this->input->post('body');
+                $data['seo_description'] = $this->input->post('seo_description');
+                $data['seo_keywords']    = $this->input->post('seo_keywords');
+                $data['is_published']    = (bool) $this->input->post('is_published');
+                $data['published']       = $this->input->post('published');
+                $data['associations']    = $this->input->post('associations');
+                $data['gallery']         = $this->input->post('gallery');
 
-	// --------------------------------------------------------------------------
+                if (app_setting('categories_enabled', 'blog-' . $this->blogId)) {
 
+                    $data['categories'] = $this->input->post('categories');
+                }
 
-	/**
-	 * Edit an existing post
-	 *
-	 * @access public
-	 * @param none
-	 * @return void
-	 **/
-	public function edit()
-	{
-		if ( ! user_has_permission( 'admin.blog:' . $this->_blog_id . '.post_edit' ) ) :
+                if (app_setting('tags_enabled', 'blog-' . $this->blogId)) {
 
-			unauthorised();
+                    $data['tags'] = $this->input->post('tags');
+                }
 
-		endif;
+                if ($this->blog_post_model->update($post_id, $data)) {
 
-		// --------------------------------------------------------------------------
+                    //  Update admin change log
+                    foreach ($data as $field => $value) {
 
-		//	Fetch and check post
-		$_post_id = $this->uri->segment( 5 );
+                        if (isset($this->data['post']->$field)) {
 
-		$this->data['post'] = $this->blog_post_model->get_by_id( $_post_id );
+                            switch($field) {
 
-		if ( ! $this->data['post'] ) :
+                                case 'associations':
 
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> I could\'t find a post by that ID.' );
-			redirect( 'admin/blog/' . $this->_blog_id );
+                                    //  @TODO: changelog associations
+                                    break;
 
-		endif;
+                                case 'categories':
 
-		// --------------------------------------------------------------------------
+                                    $old_categories = array();
+                                    $new_categories = array();
 
-		//	Set method info
-		$this->data['page']->title = 'Edit Post &rsaquo; ' . $this->data['post']->title;
+                                    foreach ($this->data['post']->$field as $v) {
 
-		// --------------------------------------------------------------------------
+                                        $old_categories[] = $v->label;
+                                    }
 
-		//	Process POST
-		if ( $this->input->post() ) :
+                                    if (is_array($value)) {
 
-			$this->load->library( 'form_validation' );
+                                        foreach ($value as $v) {
 
-			$this->form_validation->set_rules( 'is_published',		'',	'xss_clean' );
-			$this->form_validation->set_rules( 'published',			'',	'xss_clean' );
-			$this->form_validation->set_rules( 'title',				'',	'xss_clean|required' );
-			$this->form_validation->set_rules( 'excerpt',			'',	'xss_clean' );
-			$this->form_validation->set_rules( 'image_id',			'',	'xss_clean' );
-			$this->form_validation->set_rules( 'body',				'',	'required' );
-			$this->form_validation->set_rules( 'seo_description',	'',	'xss_clean' );
-			$this->form_validation->set_rules( 'seo_keywords',		'',	'xss_clean' );
+                                            $temp = $this->blog_category_model->get_by_id($v);
 
-			$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
+                                            if ($temp) {
 
-			if ( $this->form_validation->run() ) :
+                                                $new_categories[] = $temp->label;
+                                            }
+                                        }
+                                    }
 
-				//	Prepare data
-				$_data						= array();
-				$_data['title']				= $this->input->post( 'title' );
-				$_data['excerpt']			= $this->input->post( 'excerpt' );
-				$_data['image_id']			= $this->input->post( 'image_id' );
-				$_data['body']				= $this->input->post( 'body' );
-				$_data['seo_description']	= $this->input->post( 'seo_description' );
-				$_data['seo_keywords']		= $this->input->post( 'seo_keywords' );
-				$_data['is_published']		= (bool) $this->input->post( 'is_published' );
-				$_data['published']			= $this->input->post( 'published' );
-				$_data['associations']		= $this->input->post( 'associations' );
-				$_data['gallery']			= $this->input->post( 'gallery' );
+                                    asort($old_categories);
+                                    asort($new_categories);
 
-				if ( app_setting( 'categories_enabled', 'blog-' . $this->_blog_id ) ) :
+                                    $old_categories = implode(',', $old_categories);
+                                    $new_categories = implode(',', $new_categories);
 
-					$_data['categories'] = $this->input->post( 'categories' );
+                                    $this->admin_changelog_model->add('updated', 'a', 'blog post', $post_id,  $data['title'], 'admin/accounts/edit/' . $post_id, $field, $old_categories, $new_categories, false);
+                                    break;
 
-				endif;
+                                case 'tags':
 
-				if ( app_setting( 'tags_enabled', 'blog-' . $this->_blog_id ) ) :
+                                    $old_tags = array();
+                                    $new_tags = array();
 
-					$_data['tags'] = $this->input->post( 'tags' );
+                                    foreach ($this->data['post']->$field as $v) {
 
-				endif;
+                                        $old_tags[] = $v->label;
+                                    }
 
-				if ( $this->blog_post_model->update( $_post_id, $_data ) ) :
+                                    if (is_array($value)) {
 
-					//	Update admin change log
-					foreach ( $_data AS $field => $value ) :
+                                        foreach ($value as $v) {
 
-						if ( isset( $this->data['post']->$field ) ) :
+                                            $temp = $this->blog_tag_model->get_by_id($v);
 
-							switch( $field ) :
+                                            if ($temp) {
 
-								case 'associations' :
+                                                $new_tags[] = $temp->label;
+                                            }
+                                        }
+                                    }
 
-									//	TODO: changelog associations
+                                    asort($old_tags);
+                                    asort($new_tags);
 
-								break;
+                                    $old_tags = implode(',', $old_tags);
+                                    $new_tags = implode(',', $new_tags);
 
-								case 'categories' :
+                                    $this->admin_changelog_model->add('updated', 'a', 'blog post', $post_id,  $data['title'], 'admin/accounts/edit/' . $post_id, $field, $old_tags, $new_tags, false);
+                                    break;
 
-									$_old_categories = array();
-									$_new_categories = array();
+                                default :
 
-									foreach( $this->data['post']->$field AS $v ) :
+                                    $this->admin_changelog_model->add('updated', 'a', 'blog post', $post_id,  $data['title'], 'admin/accounts/edit/' . $post_id, $field, $this->data['post']->$field, $value, false);
+                                    break;
+                            }
+                        }
+                    }
 
-										$_old_categories[] = $v->label;
+                    // --------------------------------------------------------------------------
 
-									endforeach;
+                    $this->session->set_flashdata('success', '<strong>Success!</strong> Post was updated.');
+                    redirect('admin/blog/' . $this->blogId);
 
-									if ( is_array( $value ) ) :
+                } else {
 
-										foreach( $value AS $v ) :
+                    $this->data['error'] = lang('fv_there_were_errors');
+                }
 
-											$_temp = $this->blog_category_model->get_by_id( $v );
+            } else {
 
-											if ( $_temp ) :
+                $this->data['error'] = lang('fv_there_were_errors');
+            }
+        }
 
-												$_new_categories[] = $_temp->label;
+        // --------------------------------------------------------------------------
 
-											endif;
+        //  Load Categories and Tags
+        if (app_setting('categories_enabled', 'blog-' . $this->blogId)) {
 
-										endforeach;
+            $data            = array();
+            $data['where']   = array();
+            $data['where'][] = array('column' => 'blog_id', 'value' => $this->blogId);
 
-									endif;
+            $this->data['categories'] = $this->blog_category_model->get_all(null, null, $data);
+        }
 
-									asort( $_old_categories );
-									asort( $_new_categories );
+        if (app_setting('tags_enabled', 'blog-' . $this->blogId)) {
 
-									$_old_categories = implode( ',', $_old_categories );
-									$_new_categories = implode( ',', $_new_categories );
+            $data            = array();
+            $data['where']   = array();
+            $data['where'][] = array('column' => 'blog_id', 'value' => $this->blogId);
 
-									$this->admin_changelog_model->add( 'updated', 'a', 'blog post', $_post_id,  $_data['title'], 'admin/accounts/edit/' . $_post_id, $field, $_old_categories, $_new_categories, FALSE );
+            $this->data['tags'] = $this->blog_tag_model->get_all(null, null, $data);
+        }
 
-								break;
+        // --------------------------------------------------------------------------
 
-								case 'tags' :
+        //  Load associations
+        $this->data['associations'] = $this->blog_model->get_associations($this->data['post']->id);
 
-									$_old_tags = array();
-									$_new_tags = array();
+        // --------------------------------------------------------------------------
 
-									foreach( $this->data['post']->$field AS $v ) :
+        //  Load assets
+        $this->asset->library('uploadify');
+        $this->asset->load('mustache.js/mustache.js', 'BOWER');
+        $this->asset->load('nails.admin.blog.create_edit.js', true);
 
-										$_old_tags[] = $v->label;
+        // --------------------------------------------------------------------------
 
-									endforeach;
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/blog/edit', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-									if ( is_array( $value ) ) :
+    // --------------------------------------------------------------------------
 
-										foreach( $value AS $v ) :
+    /**
+     * Delete a blog post
+     * @return void
+     */
+    public function delete()
+    {
+        if (!user_has_permission('admin.blog:' . $this->blogId . '.post_delete')) {
 
-											$_temp = $this->blog_tag_model->get_by_id( $v );
+            unauthorised();
+        }
 
-											if ( $_temp ) :
+        // --------------------------------------------------------------------------
 
-												$_new_tags[] = $_temp->label;
+        //  Fetch and check post
+        $post_id = $this->uri->segment(5);
+        $post    = $this->blog_post_model->get_by_id($post_id);
 
-											endif;
+        if (!$post || $post->blog->id != $this->blogId) {
 
-										endforeach;
+            $this->session->set_flashdata('error', '<strong>Sorry,</strong> I could\'t find a post by that ID.');
+            redirect('admin/blog/' . $this->blogId);
+        }
 
-									endif;
+        // --------------------------------------------------------------------------
 
-									asort( $_old_tags );
-									asort( $_new_tags );
+        if ($this->blog_post_model->delete($post_id)) {
 
-									$_old_tags = implode( ',', $_old_tags );
-									$_new_tags = implode( ',', $_new_tags );
+            $flashdata  = '<strong>Success!</strong> Post was deleted successfully.';
+            $flashdata .=  user_has_permission('admin.blog:' . $this->blogId . '.post_restore') ? ' ' . anchor('admin/blog/' . $this->blogId . '/restore/' . $post_id, 'Undo?') : '';
 
-									$this->admin_changelog_model->add( 'updated', 'a', 'blog post', $_post_id,  $_data['title'], 'admin/accounts/edit/' . $_post_id, $field, $_old_tags, $_new_tags, FALSE );
+            $this->session->set_flashdata('success', $flashdata);
 
-								break;
+            //  Update admin changelog
+            $this->admin_changelog_model->add('deleted', 'a', 'blog post', $post_id, $post->title);
 
-								default :
+        } else {
 
-									$this->admin_changelog_model->add( 'updated', 'a', 'blog post', $_post_id,  $_data['title'], 'admin/accounts/edit/' . $_post_id, $field, $this->data['post']->$field, $value, FALSE );
+            $this->session->set_flashdata('error', '<strong>Sorry,</strong> I failed to delete that post.');
+        }
 
-								break;
+        redirect('admin/blog/' . $this->blogId);
+    }
 
-							endswitch;
+    // --------------------------------------------------------------------------
 
-						endif;
+    /**
+     * Restore a blog post
+     * @return void
+     */
+    public function restore()
+    {
+        if (!user_has_permission('admin.blog:' . $this->blogId . '.post_restore')) {
 
-					endforeach;
+            unauthorised();
+        }
 
-					// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Post was updated.' );
-					redirect( 'admin/blog/' . $this->_blog_id );
+        //  Fetch and check post
+        $post_id = $this->uri->segment(5);
 
-				else :
+        // --------------------------------------------------------------------------
 
-					$this->data['error'] = lang( 'fv_there_were_errors' );
+        if ($this->blog_post_model->restore($post_id)) {
 
-				endif;
+            $post = $this->blog_post_model->get_by_id($post_id);
 
-			else :
+            $this->session->set_flashdata('success', '<strong>Success!</strong> Post was restored successfully.');
 
-				$this->data['error'] = lang( 'fv_there_were_errors' );
+            //  Update admin changelog
+            $this->admin_changelog_model->add('restored', 'a', 'blog post', $post_id, $post->title, 'admin/blog/edit/' . $post_id);
 
-			endif;
+        } else {
 
-		endif;
+            $status   = 'error';
+            $message  = '<strong>Sorry,</strong> I failed to restore that post. ';
+            $message .= $this->blog_post_model->last_error();
+            $this->session->set_flashdata($status, $message);
+        }
 
-		// --------------------------------------------------------------------------
+        redirect('admin/blog/' . $this->blogId);
+    }
 
-		//	Load Categories and Tags
-		if ( app_setting( 'categories_enabled', 'blog-' . $this->_blog_id ) ) :
+    // --------------------------------------------------------------------------
 
-			$_data					= array();
-			$_data['where']			= array();
-			$_data['where'][]		= array( 'column' => 'blog_id', 'value' => $this->_blog_id );
+    /**
+     * Manage various aspects of the blog
+     * @return void
+     */
+    public function manage()
+    {
+        $method = $this->uri->segment(5) ? $this->uri->segment(5) : 'index';
+        $method = ucfirst(strtolower($method));
 
-			$this->data['categories'] = $this->blog_category_model->get_all( NULL, NULL, $_data );
+        if (method_exists($this, 'manage' . $method)) {
 
-		endif;
+            //  Is fancybox?
+            $this->data['is_fancybox'] = $this->input->get('is_fancybox') ? '?is_fancybox=1' : '';
 
-		if ( app_setting( 'tags_enabled', 'blog-' . $this->_blog_id ) ) :
+            //  Override the header and footer
+            if ($this->data['is_fancybox']) {
 
-			$_data					= array();
-			$_data['where']			= array();
-			$_data['where'][]		= array( 'column' => 'blog_id', 'value' => $this->_blog_id );
+                $this->data['header_override'] = 'structure/header/nails-admin-blank';
+                $this->data['footer_override'] = 'structure/footer/nails-admin-blank';
+            }
 
-			$this->data['tags'] = $this->blog_tag_model->get_all( NULL, NULL, $_data );
+            //  Start the page title
+            $this->data['page']->title = 'Manage &rsaquo; ';
 
-		endif;
+            //  Call method
+            $this->{'manage' . $method}();
 
-		// --------------------------------------------------------------------------
+        } else {
 
-		//	Load associations
-		$this->data['associations'] = $this->blog_model->get_associations( $this->data['post']->id );
+            show_404();
+        }
+    }
 
-		// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-		//	Load assets
-		$this->asset->library('uploadify');
-		$this->asset->load('mustache.js/mustache.js', 'BOWER');
-		$this->asset->load('nails.admin.blog.create_edit.js', true);
+    /**
+     * Manage blog categories
+     * @return void
+     */
+    protected function manageCategory()
+    {
+        if (!user_has_permission('admin.blog:' . $this->blogId . '.category_manage')) {
 
-		// --------------------------------------------------------------------------
+            unauthorised();
+        }
 
-		$this->load->view( 'structure/header',	$this->data );
-		$this->load->view( 'admin/blog/edit',	$this->data );
-		$this->load->view( 'structure/footer',	$this->data );
-	}
+        // --------------------------------------------------------------------------
 
+        //  Load model
+        $this->load->model('blog/blog_category_model');
 
-	// --------------------------------------------------------------------------
+        $method = $this->uri->segment(6) ? $this->uri->segment(6) : 'index';
+        $method = ucfirst(strtolower($method));
 
+        if (method_exists($this, 'manageCategory' . $method)) {
 
-	public function delete()
-	{
-		if ( ! user_has_permission( 'admin.blog:' . $this->_blog_id . '.post_delete' ) ) :
+            //  Extend the title
+            $this->data['page']->title .= 'Categories ';
 
-			unauthorised();
+            $this->{'manageCategory' . $method}();
 
-		endif;
+        } else {
 
-		// --------------------------------------------------------------------------
+            show_404();
+        }
+    }
 
-		//	Fetch and check post
-		$_post_id	= $this->uri->segment( 5 );
-		$_post		= $this->blog_post_model->get_by_id( $_post_id );
+    // --------------------------------------------------------------------------
 
-		if ( ! $_post || $_post->blog->id != $this->_blog_id ) :
+    /**
+     * Browse blog categories
+     * @return void
+     */
+    protected function manageCategoryIndex()
+    {
+        $data                  = array();
+        $data['include_count'] = true;
+        $data['where']         = array();
+        $data['where'][]       = array('column' => 'blog_id', 'value' => $this->blogId);
 
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> I could\'t find a post by that ID.' );
-			redirect( 'admin/blog/' . $this->_blog_id );
+        $this->data['categories'] = $this->blog_category_model->get_all(null, null, $data);
 
-		endif;
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/blog/manage/category/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		if ( $this->blog_post_model->delete( $_post_id ) ) :
 
-			$_flashdata  = '<strong>Success!</strong> Post was deleted successfully.';
-			$_flashdata .=  user_has_permission( 'admin.blog:' . $this->_blog_id . '.post_restore' ) ? ' ' . anchor( 'admin/blog/' . $this->_blog_id . '/restore/' . $_post_id, 'Undo?' ) : '';
+    // --------------------------------------------------------------------------
 
-			$this->session->set_flashdata( 'success', $_flashdata );
+    /**
+     * Create a new blog category
+     * @return void
+     */
+    protected function manageCategoryCreate()
+    {
+        if (!user_has_permission('admin.blog:' . $this->blogId . '.category_create')) {
 
-			//	Update admin changelog
-			$this->admin_changelog_model->add( 'deleted', 'a', 'blog post', $_post_id, $_post->title );
+            unauthorised();
+        }
 
-		else :
+        // --------------------------------------------------------------------------
 
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> I failed to delete that post.' );
+        if ($this->input->post()) {
 
-		endif;
+            $this->load->library('form_validation');
 
-		redirect( 'admin/blog/' . $this->_blog_id );
-	}
+            $this->form_validation->set_rules('label', '', 'xss_clean|required');
+            $this->form_validation->set_rules('description', '', 'xss_clean');
+            $this->form_validation->set_rules('seo_title', '', 'xss_clean|max_length[150]');
+            $this->form_validation->set_rules('seo_description', '', 'xss_clean|max_length[300]');
+            $this->form_validation->set_rules('seo_keywords', '', 'xss_clean|max_length[150]');
 
+            $this->form_validation->set_message('required', lang('fv_required'));
+            $this->form_validation->set_message('max_length', lang('fv_max_length'));
 
-	// --------------------------------------------------------------------------
+            if ($this->form_validation->run()) {
 
+                $data                  = new stdClass();
+                $data->blog_id         = $this->blogId;
+                $data->label           = $this->input->post('label');
+                $data->description     = $this->input->post('description');
+                $data->seo_title       = $this->input->post('seo_title');
+                $data->seo_description = $this->input->post('seo_description');
+                $data->seo_keywords    = $this->input->post('seo_keywords');
 
-	public function restore()
-	{
-		if ( ! user_has_permission( 'admin.blog:' . $this->_blog_id . '.post_restore' ) ) :
+                if ($this->blog_category_model->create($data)) {
 
-			unauthorised();
+                    $this->session->set_flashdata('success', '<strong>Success!</strong> Category created successfully.');
+                    redirect('admin/blog/' . $this->blogId . '/manage/category' . $this->data['is_fancybox']);
 
-		endif;
+                } else {
 
-		// --------------------------------------------------------------------------
+                    $this->data['error']  = '<strong>Sorry,</strong> there was a problem creating the Category. ';
+                    $this->data['error'] .= $this->blog_category_model->last_error();
+                }
 
-		//	Fetch and check post
-		$_post_id = $this->uri->segment( 5 );
+            } else {
 
-		// --------------------------------------------------------------------------
+                $this->data['error'] = lang('fv_there_were_errors');
+            }
+        }
 
-		if ( $this->blog_post_model->restore( $_post_id ) ) :
+        // --------------------------------------------------------------------------
 
-			$_post = $this->blog_post_model->get_by_id( $_post_id );
+        //  Page data
+        $this->data['page']->title .= '&rsaquo; Create';
 
-			$this->session->set_flashdata( 'success', '<strong>Success!</strong> Post was restored successfully. ' );
+        // --------------------------------------------------------------------------
 
-			//	Update admin changelog
-			$this->admin_changelog_model->add( 'restored', 'a', 'blog post', $_post_id, $_post->title, 'admin/blog/edit/' . $_post_id );
+        //  Fetch data
+        $this->data['categories'] = $this->blog_category_model->get_all();
 
-		else :
+        // --------------------------------------------------------------------------
 
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> I failed to restore that post.' );
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/blog/manage/category/edit', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		endif;
+    // --------------------------------------------------------------------------
 
-		redirect( 'admin/blog/' . $this->_blog_id );
-	}
+    /**
+     * Edit a blog category
+     * @return void
+     */
+    protected function manageCategoryEdit()
+    {
+        if (!user_has_permission('admin.blog:' . $this->blogId . '.category_edit')) {
 
+            unauthorised();
+        }
 
-	// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
+        $this->data['category'] = $this->blog_category_model->get_by_id($this->uri->segment(7));
 
-	public function manage()
-	{
-		$_method = $this->uri->segment( 5 ) ? $this->uri->segment( 5 ) : 'index';
+        if (empty($this->data['category'])) {
 
-		if ( method_exists( $this, '_manage_' . $_method ) ) :
+            show_404();
+        }
 
-			//	Is fancybox?
-			$this->data['is_fancybox']	= $this->input->get( 'is_fancybox' ) ? '?is_fancybox=1' : '';
+        // --------------------------------------------------------------------------
 
-			//	Override the header and footer
-			if ( $this->data['is_fancybox'] ) :
+        if ($this->input->post()) {
 
-				$this->data['header_override'] = 'structure/header/nails-admin-blank';
-				$this->data['footer_override'] = 'structure/footer/nails-admin-blank';
+            $this->load->library('form_validation');
 
-			endif;
+            $this->form_validation->set_rules('label', '', 'xss_clean|required');
+            $this->form_validation->set_rules('description', '', 'xss_clean');
+            $this->form_validation->set_rules('seo_title', '', 'xss_clean|max_length[150]');
+            $this->form_validation->set_rules('seo_description', '', 'xss_clean|max_length[300]');
+            $this->form_validation->set_rules('seo_keywords', '', 'xss_clean|max_length[150]');
 
-			//	Start the page title
-			$this->data['page']->title = 'Manage &rsaquo; ';
+            $this->form_validation->set_message('required', lang('fv_required'));
+            $this->form_validation->set_message('max_length', lang('fv_max_length'));
 
-			//	Call method
-			$this->{'_manage_' . $_method}();
+            if ($this->form_validation->run()) {
 
-		else :
+                $data                  = new stdClass();
+                $data->label           = $this->input->post('label');
+                $data->description     = $this->input->post('description');
+                $data->seo_title       = $this->input->post('seo_title');
+                $data->seo_description = $this->input->post('seo_description');
+                $data->seo_keywords    = $this->input->post('seo_keywords');
 
-			show_404();
+                if ($this->blog_category_model->update($this->data['category']->id, $data)) {
 
-		endif;
-	}
+                    $this->session->set_flashdata('success', '<strong>Success!</strong> Category saved successfully.');
+                    redirect('admin/blog/' . $this->blogId . '/manage/category' . $this->data['is_fancybox']);
 
+                } else {
 
-	// --------------------------------------------------------------------------
+                    $this->data['error']  = '<strong>Sorry,</strong> there was a problem saving the Category. ';
+                    $this->data['error'] .= $this->blog_category_model->last_error();
+                }
 
+            } else {
 
-	protected function _manage_category()
-	{
-		if ( ! user_has_permission( 'admin.blog:' . $this->_blog_id . '.category_manage' ) ) :
+                $this->data['error'] = lang('fv_there_were_errors');
+            }
+        }
 
-			unauthorised();
+        // --------------------------------------------------------------------------
 
-		endif;
+        //  Page data
+        $this->data['page']->title = 'Edit &rsaquo; ' . $this->data['category']->label;
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Load model
-		$this->load->model( 'blog/blog_category_model' );
+        //  Fetch data
+        $this->data['categories'] = $this->blog_category_model->get_all();
 
-		$_method = $this->uri->segment( 6 ) ? $this->uri->segment( 6 ) : 'index';
+        // --------------------------------------------------------------------------
 
-		if ( method_exists( $this, '_manage_category_' . $_method ) ) :
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/blog/manage/category/edit', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-			//	Extend the title
-			$this->data['page']->title .= 'Categories ';
+    // --------------------------------------------------------------------------
 
-			$this->{'_manage_category_' . $_method}();
+    /**
+     * Delete a blog category
+     * @return void
+     */
+    protected function manageCategoryDelete()
+    {
+        if (!user_has_permission('admin.blog:' . $this->blogId . '.category_delete')) {
 
-		else :
+            unauthorised();
+        }
 
-			show_404();
+        // --------------------------------------------------------------------------
 
-		endif;
-	}
+        $id = $this->uri->segment(7);
 
+        if ($this->blog_category_model->delete($id)) {
 
-	// --------------------------------------------------------------------------
+            $this->session->set_flashdata('success', '<strong>Success!</strong> Category was deleted successfully.');
 
+        } else {
 
-	protected function _manage_category_index()
-	{
-		$_data					= array();
-		$_data['include_count']	= TRUE;
-		$_data['where']			= array();
-		$_data['where'][]		= array( 'column' => 'blog_id', 'value' => $this->_blog_id );
+            $status   = 'error';
+            $message  = '<strong>Sorry,</strong> there was a problem deleting the Category. ';
+            $message .= $this->blog_category_model->last_error();
+            $this->session->set_flashdata($status, $message);
+        }
 
-		$this->data['categories'] = $this->blog_category_model->get_all( NULL, NULL, $_data );
+        redirect('admin/blog/' . $this->blogId . '/manage/category' . $this->data['is_fancybox']);
+    }
 
-		// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-		$this->load->view( 'structure/header',					$this->data );
-		$this->load->view( 'admin/blog/manage/category/index',	$this->data );
-		$this->load->view( 'structure/footer',					$this->data );
-	}
+    /**
+     * Manage blog tags
+     * @return void
+     */
+    protected function manageTag()
+    {
+        if (!user_has_permission('admin.blog:' . $this->blogId . '.tag_manage')) {
 
+            unauthorised();
+        }
 
-	// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
+        //  Load model
+        $this->load->model('blog/blog_tag_model');
 
-	protected function _manage_category_create()
-	{
-		if ( ! user_has_permission( 'admin.blog:' . $this->_blog_id . '.category_create' ) ) :
+        $method = $this->uri->segment(6) ? $this->uri->segment(6) : 'index';
+        $method = ucfirst(strtolower($method));
 
-			unauthorised();
+        if (method_exists($this, 'manageTag' . $method)) {
 
-		endif;
+            //  Extend the title
+            $this->data['page']->title .= 'Tags ';
 
-		// --------------------------------------------------------------------------
+            $this->{'manageTag' . $method}();
 
-		if ( $this->input->post() ) :
+        } else {
 
-			$this->load->library( 'form_validation' );
+            show_404();
+        }
+    }
 
-			$this->form_validation->set_rules( 'label',				'',	'xss_clean|required' );
-			$this->form_validation->set_rules( 'description',		'',	'xss_clean' );
-			$this->form_validation->set_rules( 'seo_title',			'',	'xss_clean|max_length[150]' );
-			$this->form_validation->set_rules( 'seo_description',	'',	'xss_clean|max_length[300]' );
-			$this->form_validation->set_rules( 'seo_keywords',		'',	'xss_clean|max_length[150]' );
+    // --------------------------------------------------------------------------
 
-			$this->form_validation->set_message( 'required',	lang( 'fv_required' ) );
-			$this->form_validation->set_message( 'max_length',	lang( 'fv_max_length' ) );
+    /**
+     * Browse blog tags
+     * @return void
+     */
+    protected function manageTagindex()
+    {
+        $data                  = array();
+        $data['include_count'] = true;
+        $data['where']         = array();
+        $data['where'][]       = array('column' => 'blog_id', 'value' => $this->blogId);
 
-			if ( $this->form_validation->run() ) :
+        $this->data['tags'] = $this->blog_tag_model->get_all(null, null, $data);
 
-				$_data					= new stdClass();
-				$_data->blog_id			= $this->_blog_id;
-				$_data->label			= $this->input->post( 'label' );
-				$_data->description		= $this->input->post( 'description' );
-				$_data->seo_title		= $this->input->post( 'seo_title' );
-				$_data->seo_description	= $this->input->post( 'seo_description' );
-				$_data->seo_keywords	= $this->input->post( 'seo_keywords' );
+        // --------------------------------------------------------------------------
 
-				if ( $this->blog_category_model->create( $_data ) ) :
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/blog/manage/tag/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Category created successfully.' );
-					redirect( 'admin/blog/' . $this->_blog_id . '/manage/category' . $this->data['is_fancybox'] );
+    // --------------------------------------------------------------------------
 
-				else :
+    /**
+     * Create a new blog tag
+     * @return void
+     */
+    protected function manageTagCreate()
+    {
+        if (!user_has_permission('admin.blog:' . $this->blogId . '.tag_create')) {
 
-					$this->data['error'] = '<strong>Sorry,</strong> there was a problem creating the Category. ' . $this->blog_category_model->last_error();
+            unauthorised();
+        }
 
-				endif;
+        // --------------------------------------------------------------------------
 
-			else :
+        if ($this->input->post()) {
 
-				$this->data['error'] = lang( 'fv_there_were_errors' );
+            $this->load->library('form_validation');
 
-			endif;
+            $this->form_validation->set_rules('label', '', 'xss_clean|required');
+            $this->form_validation->set_rules('description', '', 'xss_clean');
+            $this->form_validation->set_rules('seo_title', '', 'xss_clean|max_length[150]');
+            $this->form_validation->set_rules('seo_description', '', 'xss_clean|max_length[300]');
+            $this->form_validation->set_rules('seo_keywords', '', 'xss_clean|max_length[150]');
 
-		endif;
+            $this->form_validation->set_message('required', lang('fv_required'));
+            $this->form_validation->set_message('max_length',   lang('fv_max_length'));
 
-		// --------------------------------------------------------------------------
+            if ($this->form_validation->run()) {
 
-		//	Page data
-		$this->data['page']->title .= '&rsaquo; Create';
+                $data                  = new stdClass();
+                $data->blog_id         = $this->blogId;
+                $data->label           = $this->input->post('label');
+                $data->description     = $this->input->post('description');
+                $data->seo_title       = $this->input->post('seo_title');
+                $data->seo_description = $this->input->post('seo_description');
+                $data->seo_keywords    = $this->input->post('seo_keywords');
 
-		// --------------------------------------------------------------------------
+                if ($this->blog_tag_model->create($data)) {
 
-		//	Fetch data
-		$this->data['categories'] = $this->blog_category_model->get_all();
+                    $this->session->set_flashdata('success', '<strong>Success!</strong> Tag created successfully.');
+                    redirect('admin/blog/' . $this->blogId . '/manage/tag' . $this->data['is_fancybox']);
 
-		// --------------------------------------------------------------------------
+                } else {
 
-		//	Load views
-		$this->load->view( 'structure/header',					$this->data );
-		$this->load->view( 'admin/blog/manage/category/edit',	$this->data );
-		$this->load->view( 'structure/footer',					$this->data );
-	}
+                    $this->data['error']  = '<strong>Sorry,</strong> there was a problem creating the Tag. ';
+                    $this->data['error'] .= $this->blog_tag_model->last_error();
+                }
 
+            } else {
 
-	// --------------------------------------------------------------------------
+                $this->data['error'] = lang('fv_there_were_errors');
+            }
+        }
 
+        // --------------------------------------------------------------------------
 
-	protected function _manage_category_edit()
-	{
-		if ( ! user_has_permission( 'admin.blog:' . $this->_blog_id . '.category_edit' ) ) :
+        //  Page data
+        $this->data['page']->title .= '&rsaquo; Create';
 
-			unauthorised();
+        // --------------------------------------------------------------------------
 
-		endif;
+        //  Fetch data
+        $this->data['categories'] = $this->blog_tag_model->get_all();
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		$this->data['category'] = $this->blog_category_model->get_by_id( $this->uri->segment( 7 ) );
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/blog/manage/tag/edit', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		if ( empty( $this->data['category'] ) ) :
+    // --------------------------------------------------------------------------
 
-			show_404();
+    /**
+     * Edit a blog tag
+     * @return void
+     */
+    protected function manageTagEdit()
+    {
+        if (!user_has_permission('admin.blog:' . $this->blogId . '.tag_edit')) {
 
-		endif;
+            unauthorised();
+        }
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		if ( $this->input->post() ) :
+        $this->data['tag'] = $this->blog_tag_model->get_by_id($this->uri->segment(7));
 
-			$this->load->library( 'form_validation' );
+        if (empty($this->data['tag'])) {
 
-			$this->form_validation->set_rules( 'label',				'',	'xss_clean|required' );
-			$this->form_validation->set_rules( 'description',		'',	'xss_clean' );
-			$this->form_validation->set_rules( 'seo_title',			'',	'xss_clean|max_length[150]' );
-			$this->form_validation->set_rules( 'seo_description',	'',	'xss_clean|max_length[300]' );
-			$this->form_validation->set_rules( 'seo_keywords',		'',	'xss_clean|max_length[150]' );
+            show_404();
+        }
 
-			$this->form_validation->set_message( 'required',	lang( 'fv_required' ) );
-			$this->form_validation->set_message( 'max_length',	lang( 'fv_max_length' ) );
+        // --------------------------------------------------------------------------
 
-			if ( $this->form_validation->run() ) :
+        if ($this->input->post()) {
 
-				$_data					= new stdClass();
-				$_data->label			= $this->input->post( 'label' );
-				$_data->description		= $this->input->post( 'description' );
-				$_data->seo_title		= $this->input->post( 'seo_title' );
-				$_data->seo_description	= $this->input->post( 'seo_description' );
-				$_data->seo_keywords	= $this->input->post( 'seo_keywords' );
+            $this->load->library('form_validation');
 
-				if ( $this->blog_category_model->update( $this->data['category']->id, $_data ) ) :
+            $this->form_validation->set_rules('label', '', 'xss_clean|required');
+            $this->form_validation->set_rules('description', '', 'xss_clean');
+            $this->form_validation->set_rules('seo_title', '', 'xss_clean|max_length[150]');
+            $this->form_validation->set_rules('seo_description', '', 'xss_clean|max_length[300]');
+            $this->form_validation->set_rules('seo_keywords', '', 'xss_clean|max_length[150]');
 
-					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Category saved successfully.' );
-					redirect( 'admin/blog/' . $this->_blog_id . '/manage/category' . $this->data['is_fancybox'] );
+            $this->form_validation->set_message('required', lang('fv_required'));
+            $this->form_validation->set_message('max_length', lang('fv_max_length'));
 
-				else :
+            if ($this->form_validation->run()) {
 
-					$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving the Category. ' . $this->blog_category_model->last_error();
+                $data                  = new stdClass();
+                $data->label           = $this->input->post('label');
+                $data->description     = $this->input->post('description');
+                $data->seo_title       = $this->input->post('seo_title');
+                $data->seo_description = $this->input->post('seo_description');
+                $data->seo_keywords    = $this->input->post('seo_keywords');
 
-				endif;
+                if ($this->blog_tag_model->update($this->data['tag']->id, $data)) {
 
-			else :
+                    $this->session->set_flashdata('success', '<strong>Success!</strong> Tag saved successfully.');
+                    redirect('admin/blog/' . $this->blogId . '/manage/tag' . $this->data['is_fancybox']);
 
-				$this->data['error'] = lang( 'fv_there_were_errors' );
+                } else {
 
-			endif;
+                    $this->data['error']  = '<strong>Sorry,</strong> there was a problem saving the Tag. ';
+                    $this->data['error'] .= $this->blog_tag_model->last_error();
+                }
 
-		endif;
+            } else {
 
-		// --------------------------------------------------------------------------
+                $this->data['error'] = lang('fv_there_were_errors');
+            }
+        }
 
-		//	Page data
-		$this->data['page']->title = 'Edit &rsaquo; ' . $this->data['category']->label;
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Page data
+        $this->data['page']->title = 'Edit &rsaquo; ' . $this->data['tag']->label;
 
-		//	Fetch data
-		$this->data['categories'] = $this->blog_category_model->get_all();
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Fetch data
+        $this->data['tags'] = $this->blog_tag_model->get_all();
 
-		//	Load views
-		$this->load->view( 'structure/header',					$this->data );
-		$this->load->view( 'admin/blog/manage/category/edit',	$this->data );
-		$this->load->view( 'structure/footer',					$this->data );
-	}
+        // --------------------------------------------------------------------------
 
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/blog/manage/tag/edit', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-	// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
+    /**
+     * Delete a blog tag
+     * @return void
+     */
+    protected function manageTagDelete()
+    {
+        if (!user_has_permission('admin.blog:' . $this->blogId . '.tag_delete')) {
 
-	protected function _manage_category_delete()
-	{
-		if ( ! user_has_permission( 'admin.blog:' . $this->_blog_id . '.category_delete' ) ) :
+            unauthorised();
+        }
 
-			unauthorised();
+        // --------------------------------------------------------------------------
 
-		endif;
+        $id = $this->uri->segment(7);
 
-		// --------------------------------------------------------------------------
+        if ($this->blog_tag_model->delete($id)) {
 
-		$_id = $this->uri->segment( 7 );
+            $this->session->set_flashdata('success', '<strong>Success!</strong> Tag was deleted successfully.');
 
-		if ( $this->blog_category_model->delete( $_id ) ) :
+        } else {
 
-			$this->session->set_flashdata( 'success', '<strong>Success!</strong> Category was deleted successfully.' );
+            $status   = 'error';
+            $message  = '<strong>Sorry,</strong> there was a problem deleting the Tag. ';
+            $message .= $this->blog_tag_model->last_error();
+            $this->session->set_flashdata($status, $message);
+        }
 
-		else :
+        redirect('admin/blog/' . $this->blogId . '/manage/tag' . $this->data['is_fancybox']);
+    }
 
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> there was a problem deleting the Category. ' . $this->blog_category_model->last_error() );
+    // --------------------------------------------------------------------------
 
-		endif;
+    /**
+     * Checks whether any blogs exist, if not redirect suer to create a blog in
+     * settings. Otherwise, verify the blog ID and allow the call through
+     * @param  string $method The method called
+     * @return void
+     */
+    public function _remap($method)
+    {
+        //  Creating a new blog?
+        if ($method == 'create_blog') {
 
-		redirect( 'admin/blog/' . $this->_blog_id . '/manage/category' . $this->data['is_fancybox'] );
-	}
+            redirect('admin/settings/blog/create');
+        }
 
+        //  We got blogs?
+        if (empty($this->data['blogs'])) {
 
-	// --------------------------------------------------------------------------
+            if ($this->user_model->is_superuser()) {
 
+                $status  = 'message';
+                $message = '<strong>You don\'t have a blog!</strong> Create a new blog in order to manage posts.';
+                $this->session->set_flashdata($status, $message);
 
-	protected function _manage_tag()
-	{
-		if ( ! user_has_permission( 'admin.blog:' . $this->_blog_id . '.tag_manage' ) ) :
+                redirect('admin/settings/blog/create');
 
-			unauthorised();
+            } else {
 
-		endif;
+                show_404();
+            }
+        }
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Load model
-		$this->load->model( 'blog/blog_tag_model' );
+        $this->blogId = $this->uri->segment(3);
+        $this->data['blog_id'] = $this->blogId;
 
-		$_method = $this->uri->segment( 6 ) ? $this->uri->segment( 6 ) : 'index';
+        $found = false;
+        foreach ($this->data['blogs'] as $blog) {
 
-		if ( method_exists( $this, '_manage_tag_' . $_method ) ) :
+            if ($blog->id == $this->blogId) {
 
-			//	Extend the title
-			$this->data['page']->title .= 'Tags ';
+                $found = true;
+                break;
+            }
+        }
 
-			$this->{'_manage_tag_' . $_method}();
+        // --------------------------------------------------------------------------
 
-		else :
+        $method = $this->uri->segment(4) ? $this->uri->segment(4) : 'index';
 
-			show_404();
+        if ($found && method_exists($this, $method) && substr($method, 0, 1) != '_') {
 
-		endif;
-	}
+            $this->{$method}();
 
+        } else {
 
-	// --------------------------------------------------------------------------
-
-
-	protected function _manage_tag_index()
-	{
-		$_data					= array();
-		$_data['include_count']	= TRUE;
-		$_data['where']			= array();
-		$_data['where'][]		= array( 'column' => 'blog_id', 'value' => $this->_blog_id );
-
-		$this->data['tags'] = $this->blog_tag_model->get_all( NULL, NULL, $_data );
-
-		// --------------------------------------------------------------------------
-
-		$this->load->view( 'structure/header',				$this->data );
-		$this->load->view( 'admin/blog/manage/tag/index',	$this->data );
-		$this->load->view( 'structure/footer',				$this->data );
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _manage_tag_create()
-	{
-		if ( ! user_has_permission( 'admin.blog:' . $this->_blog_id . '.tag_create' ) ) :
-
-			unauthorised();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		if ( $this->input->post() ) :
-
-			$this->load->library( 'form_validation' );
-
-			$this->form_validation->set_rules( 'label',				'',	'xss_clean|required' );
-			$this->form_validation->set_rules( 'description',		'',	'xss_clean' );
-			$this->form_validation->set_rules( 'seo_title',			'',	'xss_clean|max_length[150]' );
-			$this->form_validation->set_rules( 'seo_description',	'',	'xss_clean|max_length[300]' );
-			$this->form_validation->set_rules( 'seo_keywords',		'',	'xss_clean|max_length[150]' );
-
-			$this->form_validation->set_message( 'required',	lang( 'fv_required' ) );
-			$this->form_validation->set_message( 'max_length',	lang( 'fv_max_length' ) );
-
-			if ( $this->form_validation->run() ) :
-
-				$_data					= new stdClass();
-				$_data->blog_id			= $this->_blog_id;
-				$_data->label			= $this->input->post( 'label' );
-				$_data->description		= $this->input->post( 'description' );
-				$_data->seo_title		= $this->input->post( 'seo_title' );
-				$_data->seo_description	= $this->input->post( 'seo_description' );
-				$_data->seo_keywords	= $this->input->post( 'seo_keywords' );
-
-				if ( $this->blog_tag_model->create( $_data ) ) :
-
-					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Tag created successfully.' );
-					redirect( 'admin/blog/' . $this->_blog_id . '/manage/tag' . $this->data['is_fancybox'] );
-
-				else :
-
-					$this->data['error'] = '<strong>Sorry,</strong> there was a problem creating the Tag. ' . $this->blog_tag_model->last_error();
-
-				endif;
-
-			else :
-
-				$this->data['error'] = lang( 'fv_there_were_errors' );
-
-			endif;
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		//	Page data
-		$this->data['page']->title .= '&rsaquo; Create';
-
-		// --------------------------------------------------------------------------
-
-		//	Fetch data
-		$this->data['categories'] = $this->blog_tag_model->get_all();
-
-		// --------------------------------------------------------------------------
-
-		//	Load views
-		$this->load->view( 'structure/header',				$this->data );
-		$this->load->view( 'admin/blog/manage/tag/edit',	$this->data );
-		$this->load->view( 'structure/footer',				$this->data );
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _manage_tag_edit()
-	{
-		if ( ! user_has_permission( 'admin.blog:' . $this->_blog_id . '.tag_edit' ) ) :
-
-			unauthorised();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		$this->data['tag'] = $this->blog_tag_model->get_by_id( $this->uri->segment( 7 ) );
-
-		if ( empty( $this->data['tag'] ) ) :
-
-			show_404();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		if ( $this->input->post() ) :
-
-			$this->load->library( 'form_validation' );
-
-			$this->form_validation->set_rules( 'label',				'',	'xss_clean|required' );
-			$this->form_validation->set_rules( 'description',		'',	'xss_clean' );
-			$this->form_validation->set_rules( 'seo_title',			'',	'xss_clean|max_length[150]' );
-			$this->form_validation->set_rules( 'seo_description',	'',	'xss_clean|max_length[300]' );
-			$this->form_validation->set_rules( 'seo_keywords',		'',	'xss_clean|max_length[150]' );
-
-			$this->form_validation->set_message( 'required',	lang( 'fv_required' ) );
-			$this->form_validation->set_message( 'max_length',	lang( 'fv_max_length' ) );
-
-			if ( $this->form_validation->run() ) :
-
-				$_data					= new stdClass();
-				$_data->label			= $this->input->post( 'label' );
-				$_data->description		= $this->input->post( 'description' );
-				$_data->seo_title		= $this->input->post( 'seo_title' );
-				$_data->seo_description	= $this->input->post( 'seo_description' );
-				$_data->seo_keywords	= $this->input->post( 'seo_keywords' );
-
-				if ( $this->blog_tag_model->update( $this->data['tag']->id, $_data ) ) :
-
-					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Tag saved successfully.' );
-					redirect( 'admin/blog/' . $this->_blog_id . '/manage/tag' . $this->data['is_fancybox'] );
-
-				else :
-
-					$this->data['error'] = '<strong>Sorry,</strong> there was a problem saving the Tag. ' . $this->blog_tag_model->last_error();
-
-				endif;
-
-			else :
-
-				$this->data['error'] = lang( 'fv_there_were_errors' );
-
-			endif;
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		//	Page data
-		$this->data['page']->title = 'Edit &rsaquo; ' . $this->data['tag']->label;
-
-		// --------------------------------------------------------------------------
-
-		//	Fetch data
-		$this->data['tags'] = $this->blog_tag_model->get_all();
-
-		// --------------------------------------------------------------------------
-
-		//	Load views
-		$this->load->view( 'structure/header',				$this->data );
-		$this->load->view( 'admin/blog/manage/tag/edit',	$this->data );
-		$this->load->view( 'structure/footer',				$this->data );
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _manage_tag_delete()
-	{
-		if ( ! user_has_permission( 'admin.blog:' . $this->_blog_id . '.tag_delete' ) ) :
-
-			unauthorised();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		$_id = $this->uri->segment( 7 );
-
-		if ( $this->blog_tag_model->delete( $_id ) ) :
-
-			$this->session->set_flashdata( 'success', '<strong>Success!</strong> Tag was deleted successfully.' );
-
-		else :
-
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> there was a problem deleting the Tag. ' . $this->blog_tag_model->last_error() );
-
-		endif;
-
-		redirect( 'admin/blog/' . $this->_blog_id . '/manage/tag' . $this->data['is_fancybox'] );
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	public function _remap($method)
-	{
-		//	creating a new blog?
-		if ($method == 'create_blog') {
-			redirect( 'admin/settings/blog/create' );
-		}
-
-		//	We got blogs?
-		if ( empty( $this->data['blogs'] ) ) :
-
-			if ( $this->user_model->is_superuser() ) :
-
-				$this->session->set_flashdata( 'message', '<strong>You don\'t have a blog!</strong> Create a new blog in order to manage posts.' );
-				redirect( 'admin/settings/blog/create' );
-
-			else :
-
-				show_404();
-
-			endif;
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		$this->_blog_id = $this->uri->segment( 3 );
-		$this->data['blog_id'] = $this->_blog_id;
-
-		$_found = FALSE;
-		foreach( $this->data['blogs'] AS $blog ) :
-
-			if ( $blog->id == $this->_blog_id ) :
-
-				$_found	= TRUE;
-				break;
-
-			endif;
-
-		endforeach;
-
-		// --------------------------------------------------------------------------
-
-		$_method = $this->uri->segment( 4 ) ? $this->uri->segment( 4 ) : 'index';
-
-		if ( $_found && method_exists( $this, $_method ) && substr( $_method, 0, 1 ) != '_' ) :
-
-			$this->{$_method}();
-
-		else :
-
-			show_404();
-
-		endif;
-	}
+            show_404();
+        }
+    }
 }
 
-
 // --------------------------------------------------------------------------
-
 
 /**
  * OVERLOADING NAILS' ADMIN MODULES
@@ -1281,14 +1237,12 @@ class NAILS_Blog extends NAILS_Admin_Controller
  *
  **/
 
-if ( ! defined( 'NAILS_ALLOW_EXTENSION_BLOG' ) ) :
+if (!defined('NAILS_ALLOW_EXTENSION_BLOG')) {
 
-	class Blog extends NAILS_Blog
-	{
-	}
-
-endif;
-
-
-/* End of file blog.php */
-/* Location: ./modules/admin/controllers/blog.php */
+    /**
+     * Proxy class for NAILS_Blog
+     */
+    class Blog extends NAILS_Blog
+    {
+    }
+}

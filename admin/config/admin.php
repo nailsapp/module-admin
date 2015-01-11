@@ -1,18 +1,16 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
 
-/*
-| -------------------------------------------------------------------------
-| Admin Variables
-| -------------------------------------------------------------------------
-|
-| Control aspects of admin at the app level with this config file.
-|
-| Full details of configurable options are available at
-| TODO: Link to docs
-|
-*/
+/**
+ * Admin config
+ *
+ * @package     Nails
+ * @subpackage  module-admin
+ * @category    Config
+ * @author      Nails Dev Team
+ * @link
+ */
 
-	$config = array();
+$config = array();
 
 /*
 	User Meta Editing

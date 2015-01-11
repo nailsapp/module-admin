@@ -1,1252 +1,1206 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
 
-/**
-* Name:			Admin: CMS
-* Description:	A basic CMS for applications
-*
-*/
-
-//	Include Admin_Controller; executes common admin functionality.
+//  Include NAILS_Admin_Controller; executes common admin functionality.
 require_once '_admin.php';
 
 /**
- * OVERLOADING NAILS' ADMIN MODULES
+ * Manage the CMS
  *
- * Note the name of this class; done like this to allow apps to extend this class.
- * Read full explanation at the bottom of this file.
- *
- **/
-
+ * @package     Nails
+ * @subpackage  module-admin
+ * @category    Controller
+ * @author      Nails Dev Team
+ * @link
+ */
 class NAILS_Cms extends NAILS_Admin_Controller
 {
+    /**
+     * Announces this controllers details
+     * @return stdClass
+     */
+    public static function announce()
+    {
+        if (!module_is_enabled('cms')) {
 
-	/**
-	 * Announces this module's details to those in the know.
-	 *
-	 * @access	static
-	 * @param none
-	 * @return	void
-	 **/
-	static function announce()
-	{
-		if ( ! module_is_enabled( 'cms' ) ) :
+            return false;
+        }
 
-			return FALSE;
+        // --------------------------------------------------------------------------
 
-		endif;
+        $d = new stdClass();
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		$d = new stdClass();
+        //  Configurations
+        $d->name = 'Content Management';
+        $d->icon = 'fa-file-text';
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Configurations
-		$d->name = 'Content Management';
-		$d->icon = 'fa-file-text';
+        //  Navigation options
+        $d->funcs = array();
 
-		// --------------------------------------------------------------------------
+        if (user_has_permission('admin.cms:0.can_manage_menu')) {
 
-		//	Navigation options
-		$d->funcs = array();
+            $d->funcs['menus'] = 'Manage Menus';
+        }
 
-		if ( user_has_permission( 'admin.cms:0.can_manage_menu' ) ) :
+        if (user_has_permission('admin.cms:0.can_manage_page')) {
 
-			$d->funcs['menus'] = 'Manage Menus';
+            $d->funcs['pages'] = 'Manage Pages';
+        }
 
-		endif;
+        if (user_has_permission('admin.cms:0.can_manage_block')) {
 
-		if ( user_has_permission( 'admin.cms:0.can_manage_page' ) ) :
+            $d->funcs['blocks'] = 'Manage Blocks';
+        }
 
-			$d->funcs['pages'] = 'Manage Pages';
+        if (user_has_permission('admin.cms:0.can_manage_slider')) {
 
-		endif;
+            $d->funcs['sliders'] = 'Manage Sliders';
+        }
 
-		if ( user_has_permission( 'admin.cms:0.can_manage_block' ) ) :
+        // --------------------------------------------------------------------------
 
-			$d->funcs['blocks'] = 'Manage Blocks';
+        return $d;
+    }
 
-		endif;
+    // --------------------------------------------------------------------------
 
-		if ( user_has_permission( 'admin.cms:0.can_manage_slider' ) ) :
+    /**
+     * Returns an array of notifications
+     * @param  string $classIndex The class_index value, used when multiple admin instances are available
+     * @return array
+     */
+    public static function notifications($classIndex = null)
+    {
+        $ci =& get_instance();
+        $notifications = array();
 
-			$d->funcs['sliders'] = 'Manage Sliders';
+        // --------------------------------------------------------------------------
 
-		endif;
+        $notifications['pages']          = array();
+        $notifications['pages']['title'] = 'Draft Pages';
+        $notifications['pages']['type']  = 'neutral';
 
-		// --------------------------------------------------------------------------
+        $ci->db->where('is_published', false);
+        $ci->db->where('is_deleted', false);
+        $notifications['pages']['value'] = $ci->db->count_all_results(NAILS_DB_PREFIX . 'cms_page');
 
-		return $d;
-	}
+        // --------------------------------------------------------------------------
 
+        return $notifications;
+    }
 
-	// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
+    /**
+     * Returns an array of extra permissions for this controller
+     * @param  string $classIndex The class_index value, used when multiple admin instances are available
+     * @return array
+     */
+    public static function permissions($classIndex = null)
+    {
+        $permissions = parent::permissions($classIndex);
 
-	/**
-	 * Returns an array of notifications for various methods
-	 *
-	 * @access	static
-	 * @param	none
-	 * @return	array
-	 **/
-	static function notifications()
-	{
-		$_ci =& get_instance();
-		$_notifications = array();
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Menus
+        $permissions['can_manage_menu']  = 'Can manage menus';
+        $permissions['can_create_menu']  = 'Can create a new menu';
+        $permissions['can_edit_menu']    = 'Can edit an existing menu';
+        $permissions['can_delete_menu']  = 'Can delete an existing menu';
+        $permissions['can_restore_menu'] = 'Can restore a deleted menu';
 
-		$_notifications['pages']			= array();
-		$_notifications['pages']['title']	= 'Draft Pages';
-		$_notifications['pages']['type']	= 'neutral';
-		$_notifications['pages']['value']	= $_ci->db->where( 'is_published', FALSE )->where( 'is_deleted', FALSE )->count_all_results( NAILS_DB_PREFIX . 'cms_page' );
+        //  Pages
+        $permissions['can_manage_page']  = 'Can manage pages';
+        $permissions['can_create_page']  = 'Can create a new page';
+        $permissions['can_edit_page']    = 'Can edit an existing page';
+        $permissions['can_delete_page']  = 'Can delete an existing page';
+        $permissions['can_restore_page'] = 'Can restore a deleted page';
+        $permissions['can_destroy_page'] = 'Can permenantly delete a page';
 
-		// --------------------------------------------------------------------------
+        //  Blocks
+        $permissions['can_manage_block']  = 'Can manage blocks';
+        $permissions['can_create_block']  = 'Can create a new block';
+        $permissions['can_edit_block']    = 'Can edit an existing block';
+        $permissions['can_delete_block']  = 'Can delete an existing block';
+        $permissions['can_restore_block'] = 'Can restore a deleted block';
 
-		return $_notifications;
-	}
+        //  Sliders
+        $permissions['can_manage_slider']  = 'Can manage sliders';
+        $permissions['can_create_slider']  = 'Can create a new slider';
+        $permissions['can_edit_slider']    = 'Can edit an existing slider';
+        $permissions['can_delete_slider']  = 'Can delete an existing slider';
+        $permissions['can_restore_slider'] = 'Can restore a deleted slider';
 
+        // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+        return $permissions;
+    }
 
+    // --------------------------------------------------------------------------
 
-	/**
-	 * Returns an array of extra permissions which can be specified
-	 *
-	 * @access	static
-	 * @param	none
-	 * @return	array
-	 **/
-	static function permissions( $class_index = NULL )
-	{
-		$_permissions = parent::permissions( $class_index );
+    /**
+     * Constructs the controller
+     */
+    public function __construct()
+    {
+        parent::__construct();
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Menus
-		$_permissions['can_manage_menu']	= 'Can manage menus';
-		$_permissions['can_create_menu']	= 'Can create a new menu';
-		$_permissions['can_edit_menu']		= 'Can edit an existing menu';
-		$_permissions['can_delete_menu']	= 'Can delete an existing menu';
-		$_permissions['can_restore_menu']	= 'Can restore a deleted menu';
+        //  Load helpers
+        $this->load->helper('cms');
+    }
 
-		//	Pages
-		$_permissions['can_manage_page']	= 'Can manage pages';
-		$_permissions['can_create_page']	= 'Can create a new page';
-		$_permissions['can_edit_page']		= 'Can edit an existing page';
-		$_permissions['can_delete_page']	= 'Can delete an existing page';
-		$_permissions['can_restore_page']	= 'Can restore a deleted page';
-		$_permissions['can_destroy_page']	= 'Can permenantly delete a page';
+    // --------------------------------------------------------------------------
 
-		//	Blocks
-		$_permissions['can_manage_block']	= 'Can manage blocks';
-		$_permissions['can_create_block']	= 'Can create a new block';
-		$_permissions['can_edit_block']		= 'Can edit an existing block';
-		$_permissions['can_delete_block']	= 'Can delete an existing block';
-		$_permissions['can_restore_block']	= 'Can restore a deleted block';
+    /**
+     * Manage CMS Pages
+     * @return void
+     */
+    public function pages()
+    {
+        if (!user_has_permission('admin.cms:0.can_manage_page')) {
 
-		//	Sliders
-		$_permissions['can_manage_slider']	= 'Can manage sliders';
-		$_permissions['can_create_slider']	= 'Can create a new slider';
-		$_permissions['can_edit_slider']	= 'Can edit an existing slider';
-		$_permissions['can_delete_slider']	= 'Can delete an existing slider';
-		$_permissions['can_restore_slider']	= 'Can restore a deleted slider';
+            unauthorised();
+        }
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		return $_permissions;
-	}
+        //  Load common blocks items
+        $this->load->model('cms/cms_page_model');
+        $this->load->model('system/routes_model');
 
+        // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+        $method = $this->uri->segment(4) ? $this->uri->segment(4) : 'index';
+        $method = ucfirst(strtolower($method));
 
+        if (method_exists($this, 'pages' . $method)) {
 
-	public function __construct()
-	{
-		parent::__construct();
+            if (!$this->routes_model->can_write_routes()) {
 
-		// --------------------------------------------------------------------------
+                $this->data['message'] = '<strong>Hey!</strong> There\'s a problem with the routing system. ';
+                $this->data['message'] .= $this->routes_model->cant_write_reason;
+            }
 
-		//	Load helpers
-		$this->load->helper( 'cms' );
-	}
+            // --------------------------------------------------------------------------
 
+            $this->{'pages' . $method}();
 
-	// --------------------------------------------------------------------------
+        } else {
 
-	/* ! PAGES */
+            show_404();
+        }
+    }
 
-	// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
+    /**
+     * Browse CMS Pages
+     * @return void
+     */
+    protected function pagesIndex()
+    {
+        //  Page Title
+        $this->data['page']->title = 'Manage Pages';
 
-	/**
-	 * Route requests for 'block' editing
-	 *
-	 * @access public
-	 * @param none
-	 * @return	void
-	 **/
-	public function pages()
-	{
-		if ( ! user_has_permission( 'admin.cms:0.can_manage_page' ) ) :
+        // --------------------------------------------------------------------------
 
-			unauthorised();
+        //  Fetch all the pages in the DB
+        $this->data['pages'] = $this->cms_page_model->get_all();
 
-		endif;
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Assets
+        $this->asset->load('mustache.js/mustache.js', 'BOWER');
+        $this->asset->load('nails.admin.cms.pages.min.js', true);
 
-		//	Load common blocks items
-		$this->load->model( 'cms/cms_page_model' );
-		$this->load->model( 'system/routes_model' );
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/cms/pages/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		$_method = $this->uri->segment( 4 ) ? $this->uri->segment( 4 ) : 'index';
+    // --------------------------------------------------------------------------
 
-		if ( method_exists( $this, '_pages_' . $_method ) ) :
+    /**
+     * Create a new CMS Page
+     * @return void
+     */
+    public function pagesCreate()
+    {
+        if (!user_has_permission('admin.cms:0.can_create_page')) {
 
+            unauthorised();
+        }
 
-			if ( ! $this->routes_model->can_write_routes() ) :
+        // --------------------------------------------------------------------------
 
-				$this->data['message'] = '<strong>Hey!</strong> There\'s a problem with the routing system. ' . $this->routes_model->cant_write_reason;
+        //  Get data
+        $this->data['pages_nested_flat'] = $this->cms_page_model->get_all_nested_flat(' &rsaquo; ', false);
 
-			endif;
+        //  Set method info
+        $this->data['page']->title  = 'Create New Page';
 
-			// --------------------------------------------------------------------------
+        //  Get available templates & widgets
+        $this->data['templates'] = $this->cms_page_model->get_available_templates('EDITOR');
+        $this->data['widgets']  = $this->cms_page_model->get_available_widgets('EDITOR');
 
-			$this->{'_pages_' . $_method}();
+        // --------------------------------------------------------------------------
 
-		else :
+        //  Assets
+        $this->asset->library('jqueryui');
+        $this->asset->load('mustache.js/mustache.js', 'BOWER');
+        $this->asset->load('nails.admin.cms.pages.create_edit.js', true);
 
-			show_404();
+        // --------------------------------------------------------------------------
 
-		endif;
-	}
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/cms/pages/edit', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
+    // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+    /**
+     * Edit a CMS Page
+     * @return void
+     */
+    protected function pagesEdit()
+    {
+        if (!user_has_permission('admin.cms:0.can_edit_page')) {
 
+            unauthorised();
+        }
 
-	/**
-	 * Manage pages of content
-	 *
-	 * @access public
-	 * @param none
-	 * @return	void
-	 **/
-	protected function _pages_index()
-	{
-		//	Page Title
-		$this->data['page']->title = 'Manage Pages';
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        $this->data['cmspage'] = $this->cms_page_model->get_by_id($this->uri->segment(5), true);
 
-		//	Fetch all the pages in the DB
-		$this->data['pages'] = $this->cms_page_model->get_all();
+        if (!$this->data['cmspage']) {
 
-		// --------------------------------------------------------------------------
+            $this->session->set_flashdata('error', '<strong>Sorry,</strong> no page found by that ID');
+            redirect('admin/cms/pages');
+        }
 
-		//	Assets
-		$this->asset->load( 'mustache.js/mustache.js',			'BOWER' );
-		$this->asset->load( 'nails.admin.cms.pages.min.js',	TRUE );
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Get data
+        $this->data['pages_nested_flat'] = $this->cms_page_model->get_all_nested_flat(' &rsaquo; ', false);
 
-		$this->load->view( 'structure/header',		$this->data );
-		$this->load->view( 'admin/cms/pages/index',	$this->data );
-		$this->load->view( 'structure/footer',		$this->data );
-	}
+        //  Set method info
+        $this->data['page']->title = 'Edit Page "' . $this->data['cmspage']->draft->title . '"';
 
+        //  Get available templates & widgets
+        $this->data['templates'] = $this->cms_page_model->get_available_templates('EDITOR');
+        $this->data['widgets']   = $this->cms_page_model->get_available_widgets('EDITOR');
 
-	// --------------------------------------------------------------------------
+        //  Get children of this page
+        $this->data['page_children'] = $this->cms_page_model->get_ids_of_children($this->data['cmspage']->id);
 
+        // --------------------------------------------------------------------------
 
-	public function _pages_create()
-	{
-		if ( ! user_has_permission( 'admin.cms:0.can_create_page' ) ) :
+        //  Assets
+        $this->asset->library('jqueryui');
+        $this->asset->load('mustache.js/mustache.js', 'BOWER');
+        $this->asset->load('nails.admin.cms.pages.create_edit.min.js', true);
 
-			unauthorised();
+        // --------------------------------------------------------------------------
 
-		endif;
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/cms/pages/edit', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-		//	Get data
-		$this->data['pages_nested_flat'] = $this->cms_page_model->get_all_nested_flat( ' &rsaquo; ', FALSE );
+    /**
+     * Publish a CMS Page
+     * @return void
+     */
+    protected function pagesPublish()
+    {
+        if (!user_has_permission('admin.cms:0.can_edit_page')) {
 
-		//	Set method info
-		$this->data['page']->title	= 'Create New Page';
+            unauthorised();
+        }
 
-		//	Get available templates & widgets
-		$this->data['templates']	= $this->cms_page_model->get_available_templates( 'EDITOR' );
-		$this->data['widgets']		= $this->cms_page_model->get_available_widgets( 'EDITOR' );
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        $id   = $this->uri->segment(5);
+        $page = $this->cms_page_model->get_by_id($id);
 
-		//	Assets
-		$this->asset->library( 'jqueryui' );
-		$this->asset->load( 'mustache.js/mustache.js',					'BOWER' );
-		$this->asset->load( 'nails.admin.cms.pages.create_edit.js',	TRUE );
+        if ($page && !$page->is_deleted) {
 
-		// --------------------------------------------------------------------------
+            if ($this->cms_page_model->publish($id)) {
 
-		$this->load->view( 'structure/header',		$this->data );
-		$this->load->view( 'admin/cms/pages/edit',	$this->data );
-		$this->load->view( 'structure/footer',		$this->data );
-	}
+                $this->session->set_flashdata('success', '<strong>Success!</strong> Page was published successfully.');
 
+            } else {
 
-	// --------------------------------------------------------------------------
+                $this->session->set_flashdata('error', '<strong>Sorry,</strong> Could not publish page. ' . $this->cms_page_model->last_error());
+            }
 
+        } else {
 
-	/**
-	 * Edit a page
-	 *
-	 * @access public
-	 * @param none
-	 * @return	void
-	 **/
-	protected function _pages_edit()
-	{
-		if ( ! user_has_permission( 'admin.cms:0.can_edit_page' ) ) :
+            $this->session->set_flashdata('error', '<strong>Sorry,</strong> invalid page ID.');
+        }
 
-			unauthorised();
+        redirect('admin/cms/pages');
+    }
 
-		endif;
+    // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+    /**
+     * Delete a CMS Page
+     * @return void
+     */
+    protected function pagesDelete()
+    {
+        if (!user_has_permission('admin.cms:0.can_delete_page')) {
 
-		$this->data['cmspage'] = $this->cms_page_model->get_by_id( $this->uri->segment( 5 ), TRUE );
+            unauthorised();
+        }
 
-		if ( ! $this->data['cmspage'] ) :
+        // --------------------------------------------------------------------------
 
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> no page found by that ID' );
-			redirect( 'admin/cms/pages' );
+        $id   = $this->uri->segment(5);
+        $page = $this->cms_page_model->get_by_id($id);
 
-		endif;
+        if ($page && !$page->is_deleted) {
 
-		// --------------------------------------------------------------------------
+            if ($this->cms_page_model->delete($id)) {
 
-		//	Get data
-		$this->data['pages_nested_flat'] = $this->cms_page_model->get_all_nested_flat( ' &rsaquo; ', FALSE );
+                $this->session->set_flashdata('success', '<strong>Success!</strong> Page was deleted successfully.');
 
-		//	Set method info
-		$this->data['page']->title	= 'Edit Page "' . $this->data['cmspage']->draft->title . '"';
+            } else {
 
-		//	Get available templates & widgets
-		$this->data['templates']	= $this->cms_page_model->get_available_templates( 'EDITOR' );
-		$this->data['widgets']		= $this->cms_page_model->get_available_widgets( 'EDITOR' );
+                $this->session->set_flashdata('error', '<strong>Sorry,</strong> Could not delete page. ' . $this->cms_page_model->last_error());
+            }
 
-		//	Get children of this page
-		$this->data['page_children'] = $this->cms_page_model->get_ids_of_children( $this->data['cmspage']->id );
+        } else {
 
-		// --------------------------------------------------------------------------
+            $this->session->set_flashdata('error', '<strong>Sorry,</strong> invalid page ID.');
+        }
 
-		//	Assets
-		$this->asset->library( 'jqueryui' );
-		$this->asset->load( 'mustache.js/mustache.js',					'BOWER' );
-		$this->asset->load( 'nails.admin.cms.pages.create_edit.min.js',	TRUE );
+        redirect('admin/cms/pages');
+    }
 
-		// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-		$this->load->view( 'structure/header',		$this->data );
-		$this->load->view( 'admin/cms/pages/edit',	$this->data );
-		$this->load->view( 'structure/footer',		$this->data );
-	}
+    /**
+     * Restore a CMS Page
+     * @return void
+     */
+    protected function pagesRestore()
+    {
+        if (!user_has_permission('admin.cms:0.can_restore_page')) {
 
+            unauthorised();
+        }
 
-	// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
+        $id   = $this->uri->segment(5);
+        $page = $this->cms_page_model->get_by_id($id);
 
-	protected function _pages_publish()
-	{
-		if ( ! user_has_permission( 'admin.cms:0.can_edit_page' ) ) :
+        if ($page && $page->is_deleted) {
 
-			unauthorised();
+            if ($this->cms_page_model->restore($id)) {
 
-		endif;
+                $this->session->set_flashdata('success', '<strong>Success!</strong> Page was restored successfully. ');
 
-		// --------------------------------------------------------------------------
+            } else {
 
-		$_id	= $this->uri->segment( 5 );
-		$_page	= $this->cms_page_model->get_by_id( $_id );
+                $this->session->set_flashdata('error', '<strong>Sorry,</strong> Could not restore page. ' . $this->cms_page_model->last_error());
+            }
 
-		if ( $_page && ! $_page->is_deleted ) :
+        } else {
 
-			if ( $this->cms_page_model->publish( $_id ) ) :
+            $this->session->set_flashdata('error', '<strong>Sorry,</strong> invalid page ID.');
+        }
 
-				$this->session->set_flashdata( 'success', '<strong>Success!</strong> Page was published successfully.' );
+        redirect('admin/cms/pages');
+    }
 
-			else :
+    // --------------------------------------------------------------------------
 
-				$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> Could not publish page. ' . $this->cms_page_model->last_error() );
+    /**
+     * Destroy a CMS Page
+     * @return void
+     */
+    protected function pagesDestroy()
+    {
+        if (!user_has_permission('admin.cms:0.can_destroy_page')) {
 
-			endif;
+            unauthorised();
+        }
 
-		else :
+        // --------------------------------------------------------------------------
 
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> invalid page ID.' );
+        $id   = $this->uri->segment(5);
+        $page = $this->cms_page_model->get_by_id($id);
 
-		endif;
+        if ($page) {
 
-		redirect( 'admin/cms/pages' );
-	}
+            if ($this->cms_page_model->destroy($id)) {
 
+                $this->session->set_flashdata('success', '<strong>Success!</strong> Page was destroyed successfully. ');
 
-	// --------------------------------------------------------------------------
+            } else {
 
+                $this->session->set_flashdata('error', '<strong>Sorry,</strong> Could not destroy page. ' . $this->cms_page_model->last_error());
+            }
 
-	protected function _pages_delete()
-	{
-		if ( ! user_has_permission( 'admin.cms:0.can_delete_page' ) ) :
+        } else {
 
-			unauthorised();
+            $this->session->set_flashdata('error', '<strong>Sorry,</strong> invalid page ID.');
+        }
 
-		endif;
+        redirect('admin/cms/pages');
+    }
 
-		// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-		$_id	= $this->uri->segment( 5 );
-		$_page	= $this->cms_page_model->get_by_id( $_id );
+    /**
+     * Form Validation Callback: Validates a Page's slug
+     * @param  srtring $str The slug to validate
+     * @return boolean
+     */
+    public function _callback_slug($str)
+    {
+        $str = trim($str);
 
-		if ( $_page && ! $_page->is_deleted ) :
+        //  Check is valid
+        if (preg_match('/[^a-zA-Z0-9\-_\/\.]+/', $str)) {
 
-			if ( $this->cms_page_model->delete( $_id ) ) :
+            $this->form_validation->set_message('_callback_slug', 'Contains invalid characters (A-Z, 0-9, -, _ and / only).');
+            return false;
+        }
 
-				$this->session->set_flashdata( 'success', '<strong>Success!</strong> Page was deleted successfully.' );
+        // --------------------------------------------------------------------------
 
-			else :
+        //  Prepare the slug
+        $str = explode('/', trim($str));
+        foreach ($str as &$value) {
 
-				$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> Could not delete page. ' . $this->cms_page_model->last_error() );
+            $value = url_title($value, 'dash', true);
 
-			endif;
+        }
+        $str = implode('/', $str);
 
-		else :
+        // --------------------------------------------------------------------------
 
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> invalid page ID.' );
+        $this->db->where('id !=', $this->uri->segment(5));
+        $this->db->where('slug', $str);
 
-		endif;
+        if ($this->db->count_all_results(NAILS_DB_PREFIX . 'cms_page')) {
 
-		redirect( 'admin/cms/pages' );
-	}
+            $this->form_validation->set_message('_callback_slug', 'Slug must be unique.');
+            return false;
+        }
 
+        // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+        return true;
+    }
 
+    // --------------------------------------------------------------------------
 
-	protected function _pages_restore()
-	{
-		if ( ! user_has_permission( 'admin.cms:0.can_restore_page' ) ) :
+    /**
+     * Manage CMS Blocks
+     * @return void
+     */
+    public function blocks()
+    {
+        if (!user_has_permission('admin.cms:0.can_manage_block')) {
 
-			unauthorised();
+            unauthorised();
+        }
 
-		endif;
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Load common blocks items
+        $this->load->model('cms/cms_block_model');
+        $this->asset->load('mustache.js/mustache.js', 'BOWER');
+        $this->asset->load('nails.admin.cms.blocks.min.js', true);
 
-		$_id	= $this->uri->segment( 5 );
-		$_page	= $this->cms_page_model->get_by_id( $_id );
+        // --------------------------------------------------------------------------
 
-		if ( $_page && $_page->is_deleted ) :
+        //  Define block types; block types allow for proper validation
+        $this->data['block_types']              = array();
+        $this->data['block_types']['plaintext'] = 'Plain Text';
+        $this->data['block_types']['richtext']  = 'Rich Text';
 
-			if ( $this->cms_page_model->restore( $_id ) ) :
+        // @TODO: Support these other types of block
+        //$this->data['block_types']['image']     = 'Image (*.jpg, *.png, *.gif)';
+        //$this->data['block_types']['file']      = 'File (*.*)';
+        //$this->data['block_types']['number']    = 'Number';
+        //$this->data['block_types']['url']       = 'URL';
 
-				$this->session->set_flashdata( 'success', '<strong>Success!</strong> Page was restored successfully. ' );
+        // --------------------------------------------------------------------------
 
-			else :
+        $method = $this->uri->segment(4) ? $this->uri->segment(4) : 'index';
+        $method = ucfirst(strtolower($method));
 
-				$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> Could not restore page. ' . $this->cms_page_model->last_error() );
+        if (method_exists($this, 'blocks' . $method)) {
 
-			endif;
+            $this->{'blocks' . $method}();
 
-		else :
+        } else {
 
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> invalid page ID.' );
+            show_404();
+        }
+    }
 
-		endif;
+    // --------------------------------------------------------------------------
 
-		redirect( 'admin/cms/pages' );
-	}
+    /**
+     * Browse CMS Blocks
+     * @return void
+     */
+    protected function blocksIndex()
+    {
+        //  Set method info
+        $this->data['page']->title = 'Manage Blocks';
 
+        // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+        $this->data['blocks']    = $this->cms_block_model->get_all();
+        $this->data['languages'] = $this->language_model->get_all_enabled_flat();
 
+        // --------------------------------------------------------------------------
 
-	protected function _pages_destroy()
-	{
-		if ( ! user_has_permission( 'admin.cms:0.can_destroy_page' ) ) :
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/cms/blocks/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-			unauthorised();
+    // --------------------------------------------------------------------------
 
-		endif;
+    /**
+     * Edit a CMS Block
+     * @return [type] [description]
+     */
+    protected function blocksEdit()
+    {
+        if (!user_has_permission('admin.cms:0.can_edit_block')) {
 
-		// --------------------------------------------------------------------------
+            unauthorised();
+        }
 
-		$_id	= $this->uri->segment( 5 );
-		$_page	= $this->cms_page_model->get_by_id( $_id );
+        // --------------------------------------------------------------------------
 
-		if ( $_page ) :
+        $this->data['block'] = $this->cms_block_model->get_by_id($this->uri->segment(5), true);
 
-			if ( $this->cms_page_model->destroy( $_id ) ) :
+        if (!$this->data['block']) {
 
-				$this->session->set_flashdata( 'success', '<strong>Success!</strong> Page was destroyed successfully. ' );
+            $this->session->set_flashdata('error', '<strong>Sorry,</strong> no block found by that ID');
+        }
 
-			else :
+        // --------------------------------------------------------------------------
 
-				$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> Could not destroy page. ' . $this->cms_page_model->last_error() );
+        if ($this->input->post()) {
 
-			endif;
+            //  Loop through and update translations, keep track of translations which have been updated
+            $updated = array();
 
-		else :
+            if ($this->input->post('translation')) {
 
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> invalid page ID.' );
+                foreach ($this->input->post('translation') as $translation) {
 
-		endif;
+                    $this->cms_block_model->update_translation($this->data['block']->id, $translation['language'], $translation['value']);
+                    $updated[] = $translation['language'];
+                }
+            }
 
-		redirect( 'admin/cms/pages' );
-	}
+            //  Delete translations that weren't updated (they have been removed)
+            if ($updated) {
 
+                $this->db->where('block_id', $this->data['block']->id);
+                $this->db->where_not_in('language', $updated);
+                $this->db->delete(NAILS_DB_PREFIX . 'cms_block_translation');
+            }
 
-	// --------------------------------------------------------------------------
+            //  Loop through and add new translations
+            if ($this->input->post('new_translation')) {
 
+                foreach ($this->input->post('new_translation') as $translation) {
 
-	public function _callback_slug( $str )
-	{
-		$str = trim( $str );
+                    $this->cms_block_model->create_translation($this->data['block']->id, $translation['language'], $translation['value']);
+                }
+            }
 
-		//	Check is valid
-		if ( preg_match( '/[^a-zA-Z0-9\-_\/\.]+/', $str ) ) :
+            // --------------------------------------------------------------------------
 
-			$this->form_validation->set_message( '_callback_slug', 'Contains invalid characters (A-Z, 0-9, -, _ and / only).' );
-			return FALSE;
+            //  Send the user on their merry way
+            $this->session->set_flashdata('success', '<strong>Success!</strong> The block was updated successfully!');
+            redirect('admin/cms/blocks');
+        }
 
-		endif;
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Set method info
+        $this->data['page']->title = 'Edit Block "' . $this->data['block']->title . '"';
 
-		//	Prepare the slug
-		$str = explode( '/', trim( $str ) );
-		foreach ( $str AS &$value ) :
+        // --------------------------------------------------------------------------
 
-			$value = url_title( $value, 'dash', TRUE );
+        //  Fetch data
+        $this->data['languages']    = $this->language_model->get_all_enabled_flat();
+        $this->data['default_code'] = $this->language_model->get_default_code();
 
-		endforeach;
-		$str = implode( '/', $str );
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/cms/blocks/edit', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		$this->db->where( 'id !=', $this->uri->segment( 5 ) );
-		$this->db->where( 'slug', $str );
+    // --------------------------------------------------------------------------
 
-		if ( $this->db->count_all_results( NAILS_DB_PREFIX . 'cms_page' ) ) :
+    /**
+     * Create a new CMS Block
+     * @return void
+     */
+    protected function blocksCreate()
+    {
+        if (!user_has_permission('admin.cms:0.can_create_block')) {
 
-			$this->form_validation->set_message( '_callback_slug', 'Slug must be unique.' );
-			return FALSE;
+            unauthorised();
+        }
 
-		endif;
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        if ($this->input->post()) {
 
-		return TRUE;
-	}
+            //  Form Validation
+            $this->load->library('form_validation');
 
+            $this->form_validation->set_rules('slug', '', 'xss_clean|required|callback__callback_block_slug');
+            $this->form_validation->set_rules('title', '', 'xss_clean|required');
+            $this->form_validation->set_rules('description', '', 'xss_clean');
+            $this->form_validation->set_rules('located', '', 'xss_clean');
+            $this->form_validation->set_rules('type', '', 'xss_clean|required|callback__callback_block_type');
+            $this->form_validation->set_rules('value', '', 'xss_clean');
 
-	// --------------------------------------------------------------------------
+            $this->form_validation->set_message('required', lang('fv_required'));
 
-	/* ! BLOCKS */
+            if ($this->form_validation->run($this)) {
 
-	// --------------------------------------------------------------------------
+                $type  = $this->input->post('type');
+                $slug  = $this->input->post('slug');
+                $title = $this->input->post('title');
+                $desc  = $this->input->post('description');
+                $loc   = $this->input->post('located');
+                $val   = $this->input->post('value');
 
+                if ($this->cms_block_model->create_block($type, $slug, $title, $desc, $loc, $val)) {
 
-	/**
-	 * Route requests for 'block' editing
-	 *
-	 * @access public
-	 * @param none
-	 * @return	void
-	 **/
-	public function blocks()
-	{
-		if ( ! user_has_permission( 'admin.cms:0.can_manage_block' ) ) :
+                    $this->session->set_flashdata('success', '<strong>Success!</strong> Block created successfully.');
+                    redirect('admin/cms/blocks');
 
-			unauthorised();
+                } else {
 
-		endif;
+                    $this->data['error'] = '<strong>Sorry,</strong> there was a problem creating the new block.';
+                }
 
-		// --------------------------------------------------------------------------
+            } else {
 
-		//	Load common blocks items
-		$this->load->model( 'cms/cms_block_model' );
-		$this->asset->load( 'mustache.js/mustache.js',				'BOWER' );
-		$this->asset->load( 'nails.admin.cms.blocks.min.js',	TRUE );
+                $this->data['error'] = lang('fv_there_were_errors');
+            }
+        }
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Define block types; block types allow for proper validation
-		$this->data['block_types']				= array();
-		$this->data['block_types']['plaintext']	= 'Plain Text';
-		$this->data['block_types']['richtext']	= 'Rich Text';
-		//$this->data['block_types']['image']		= 'Image (*.jpg, *.png, *.gif)';
-		//$this->data['block_types']['file']		= 'File (*.*)';
-		//$this->data['block_types']['number']	= 'Number';
-		//$this->data['block_types']['url']		= 'URL';
+        $this->data['languages'] = $this->language_model->get_all_enabled_flat();
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		$_method = $this->uri->segment( 4 ) ? $this->uri->segment( 4 ) : 'index';
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/cms/blocks/create', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		if ( method_exists( $this, '_blocks_' . $_method ) ) :
+    // --------------------------------------------------------------------------
 
-			$this->{'_blocks_' . $_method}();
+    /**
+     * Form Validation Callback: Validates a block's slug
+     * @param  string $slug The slug to validate
+     * @return boolean
+     */
+    public function _callback_block_slug($slug)
+    {
+        $slug = trim($slug);
 
-		else :
+        //  Check slug's characters are ok
+        if (!preg_match('/[^a-zA-Z0-9\-\_]/', $slug)) {
 
-			show_404();
+            $block = $this->cms_block_model->get_by_slug($slug);
 
-		endif;
-	}
+            if (!$block) {
 
+                //  OK!
+                return true;
 
-	// --------------------------------------------------------------------------
+            } else {
 
+                $this->form_validation->set_message('_callback_block_slug', 'Must be unique');
+                return false;
+            }
 
-	protected function _blocks_index()
-	{
-		//	Set method info
-		$this->data['page']->title		= 'Manage Blocks';
+        } else {
 
-		// --------------------------------------------------------------------------
+            $this->form_validation->set_message('_callback_block_slug', 'Invalid characters');
+            return false;
+        }
+    }
 
-		$this->data['blocks']		= $this->cms_block_model->get_all();
-		$this->data['languages']	= $this->language_model->get_all_enabled_flat();
+    // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+    /**
+     * Form Validation Callback: Validates a block's type
+     * @param  string $type The type to validate
+     * @return boolean
+     */
+    public function _callback_block_type($type)
+    {
+        $type = trim($type);
 
-		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/cms/blocks/index',	$this->data );
-		$this->load->view( 'structure/footer',			$this->data );
-	}
+        if ($type) {
 
+            if (isset($this->data['block_types'][$type])) {
 
-	// --------------------------------------------------------------------------
+                return true;
 
+            } else {
 
-	protected function _blocks_edit()
-	{
-		if ( ! user_has_permission( 'admin.cms:0.can_edit_block' ) ) :
+                $this->form_validation->set_message('_callback_block_type', 'Block type not supported.');
+                return false;
+            }
 
-			unauthorised();
+        } else {
 
-		endif;
+            $this->form_validation->set_message('_callback_block_type', lang('fv_required'));
+            return false;
+        }
+    }
 
-		// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-		$this->data['block'] = $this->cms_block_model->get_by_id( $this->uri->segment( 5 ), TRUE );
+    /**
+     * Manage CMS Sliders
+     * @return void
+     */
+    public function sliders()
+    {
+        if (!user_has_permission('admin.cms:0.can_manage_slider')) {
 
-		if ( ! $this->data['block'] ) :
+            unauthorised();
+        }
 
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> no block found by that ID' );
+        // --------------------------------------------------------------------------
 
-		endif;
+        //  Load common slider items
+        $this->load->model('cms/cms_slider_model');
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		if ( $this->input->post() ) :
+        $method = $this->uri->segment(4) ? $this->uri->segment(4) : 'index';
+        $method = ucfirst(strtolower($method));
 
-			//	Loop through and update translations, keep track of translations which have been updated
-			$_updated = array();
+        if (method_exists($this, 'sliders' . $method)) {
 
-			if ( $this->input->post( 'translation' ) ) :
+            $this->{'sliders' . $method}();
 
-				foreach ( $this->input->post( 'translation' ) AS $translation ) :
+        } else {
 
-					$this->cms_block_model->update_translation( $this->data['block']->id, $translation['language'], $translation['value'] );
-					$_updated[] = $translation['language'];
+            show_404();
+        }
+    }
 
-				endforeach;
+    // --------------------------------------------------------------------------
 
-			endif;
+    /**
+     * Browse CMS Sliders
+     * @return void
+     */
+    protected function slidersIndex()
+    {
+        $this->data['page']->title = 'Manage Sliders';
 
-			//	Delete translations that weren't updated (they have been removed)
-			if ( $_updated ) :
+        // --------------------------------------------------------------------------
 
-				$this->db->where( 'block_id', $this->data['block']->id );
-				$this->db->where_not_in( 'language', $_updated );
-				$this->db->delete( NAILS_DB_PREFIX . 'cms_block_translation' );
+        //  Fetch all the menus in the DB
+        $this->data['sliders'] = $this->cms_slider_model->get_all();
 
-			endif;
+        // --------------------------------------------------------------------------
 
-			//	Loop through and add new translations
-			if ( $this->input->post( 'new_translation' ) ) :
+        //  Assets
+        $this->asset->load('nails.admin.cms.sliders.min.js', true);
 
-				foreach ( $this->input->post( 'new_translation' ) AS $translation ) :
+        // --------------------------------------------------------------------------
 
-					$this->cms_block_model->create_translation( $this->data['block']->id, $translation['language'], $translation['value'] );
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/cms/sliders/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-				endforeach;
+    // --------------------------------------------------------------------------
 
-			endif;
+    /**
+     * Create a new CMS Slider
+     * @return void
+     */
+    protected function slidesCreate()
+    {
+        if (!user_has_permission('admin.cms:0.can_create_slider')) {
 
-			// --------------------------------------------------------------------------
+            unauthorised();
+        }
 
-			//	Send the user on their merry way
-			$this->session->set_flashdata( 'success', '<strong>Success!</strong> The block was updated successfully!' );
-			redirect( 'admin/cms/blocks' );
+        // --------------------------------------------------------------------------
 
-		endif;
+        $this->data['page']->title = 'Create Slider';
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Set method info
-		$this->data['page']->title	= 'Edit Block "' . $this->data['block']->title . '"';
+        //  Assets
+        $this->asset->load('nails.admin.cms.sliders.create_edit.min.js', true);
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Fetch data
-		$this->data['languages']	= $this->language_model->get_all_enabled_flat();
-		$this->data['default_code']	= $this->language_model->get_default_code();
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/cms/sliders/edit', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-		$this->load->view( 'structure/header',		$this->data );
-		$this->load->view( 'admin/cms/blocks/edit',	$this->data );
-		$this->load->view( 'structure/footer',		$this->data );
-	}
+    /**
+     * Edit a CMS Slider
+     * @return void
+     */
+    protected function slidersEdit()
+    {
+        if (!user_has_permission('admin.cms:0.can_edit_slider')) {
 
+            unauthorised();
+        }
 
-	// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
+        $this->data['slider'] = $this->cms_slider_model->get_by_id($this->uri->segment(5), true);
 
-	protected function _blocks_create()
-	{
-		if ( ! user_has_permission( 'admin.cms:0.can_create_block' ) ) :
+        if (!$this->data['slider']) {
 
-			unauthorised();
+            $this->session->set_flashdata('error', '<strong>Sorry,</strong> invalid slider ID.');
+            redirect('admin/cms/menus');
+        }
 
-		endif;
+        $this->data['page']->title = 'Edit Slider "' . $this->data['slider']->label . '"';
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		if ( $this->input->post() ) :
+        //  Assets
+        $this->asset->load('nails.admin.cms.sliders.create_edit.min.js', true);
 
-			//	Form Validation
-			$this->load->library( 'form_validation' );
+        // --------------------------------------------------------------------------
 
-			$this->form_validation->set_rules( 'slug',			'Slug',			'xss_clean|required|callback__fvcallback_block_slug' );
-			$this->form_validation->set_rules( 'title',			'Title',		'xss_clean|required' );
-			$this->form_validation->set_rules( 'description',	'Description',	'xss_clean' );
-			$this->form_validation->set_rules( 'located',		'Located',		'xss_clean' );
-			$this->form_validation->set_rules( 'type',			'Block Type',	'xss_clean|required|callback__fvcallback_block_type' );
-			$this->form_validation->set_rules( 'value',			'Value',		'xss_clean' );
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/cms/sliders/edit', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-			$this->form_validation->set_message( 'required',			lang( 'fv_required' ) );
-			$this->form_validation->set_message( 'string_to_boolean',	lang( 'fv_required' ) );
+    // --------------------------------------------------------------------------
 
-			if ( $this->form_validation->run( $this ) ) :
+    /**
+     * Delete a CMS Slider
+     * @return void
+     */
+    protected function slidersDelete()
+    {
+        if (!user_has_permission('admin.cms:0.can_delete_slider')) {
 
-				$_type	= $this->input->post( 'type' );
-				$_slug	= $this->input->post( 'slug' );
-				$_title	= $this->input->post( 'title' );
-				$_desc	= $this->input->post( 'description' );
-				$_loc	= $this->input->post( 'located' );
-				$_val	= $this->input->post( 'value' );
+            unauthorised();
+        }
 
-				if ( $this->cms_block_model->create_block( $_type, $_slug, $_title, $_desc, $_loc, $_val ) ) :
+        // --------------------------------------------------------------------------
 
-					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Block created successfully.' );
-					redirect( 'admin/cms/blocks' );
+        $this->session->set_flashdata('error', '<strong>Sorry,</strong> slider deletion is a TODO just now.');
+        redirect('admin/cms/sliders');
+    }
 
-				else :
+    // --------------------------------------------------------------------------
 
-					$this->data['error'] = '<strong>Sorry,</strong> there was a problem creating the new block.';
+    /**
+     * Manage CMS Menus
+     * @return void
+     */
+    public function menus()
+    {
+        if (!user_has_permission('admin.cms:0.can_manage_menu')) {
 
-				endif;
+            unauthorised();
+        }
 
-			else :
+        // --------------------------------------------------------------------------
 
-				$this->data['error'] = lang( 'fv_there_were_errors' );
+        //  Load common menu items
+        $this->load->model('cms/cms_menu_model');
 
-			endif;
+        // --------------------------------------------------------------------------
 
-		endif;
+        $method = $this->uri->segment(4) ? $this->uri->segment(4) : 'index';
+        $method = ucfirst(strtolower($method));
 
-		// --------------------------------------------------------------------------
+        if (method_exists($this, 'menus' . $method)) {
 
-		$this->data['languages'] = $this->language_model->get_all_enabled_flat();
+            $this->{'menus' . $method}();
 
-		// --------------------------------------------------------------------------
+        } else {
 
-		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/cms/blocks/create',	$this->data );
-		$this->load->view( 'structure/footer',			$this->data );
-	}
+            show_404();
+        }
+    }
 
+    // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+    /**
+     * Browse CMS Menus
+     * @return void
+     */
+    protected function menusIndex()
+    {
+        $this->data['page']->title = 'Manage Menus';
 
+        // --------------------------------------------------------------------------
 
-	public function _fvcallback_block_slug( $slug )
-	{
-		$slug = trim( $slug );
+        //  Fetch all the menus in the DB
+        $this->data['menus'] = $this->cms_menu_model->get_all();
 
-		//	Check slug's characters are ok
-		if ( ! preg_match( '/[^a-zA-Z0-9\-\_]/', $slug ) ) :
+        // --------------------------------------------------------------------------
 
-			$_block = $this->cms_block_model->get_by_slug( $slug );
+        //  Assets
+        $this->asset->load('nails.admin.cms.menus.min.js', true);
 
-			if ( ! $_block ) :
+        // --------------------------------------------------------------------------
 
-				//	OK!
-				return TRUE;
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/cms/menus/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-			else :
+    // --------------------------------------------------------------------------
 
-				$this->form_validation->set_message( '_fvcallback_block_slug', 'Must be unique' );
-				return FALSE;
+    /**
+     * Create a new CMS Menu
+     * @return void
+     */
+    protected function menusCreate()
+    {
+        if (!user_has_permission('admin.cms:0.can_create_menu')) {
 
-			endif;
+            unauthorised();
+        }
 
-		else :
+        // --------------------------------------------------------------------------
 
-			$this->form_validation->set_message( '_fvcallback_block_slug', 'Invalid characters' );
-			return FALSE;
+        $this->data['page']->title = 'Create Menu';
 
-		endif;
-	}
+        // --------------------------------------------------------------------------
 
+        $post = $this->input->post();
 
-	// --------------------------------------------------------------------------
+        if (isset($post['menu_item'])) {
 
+            //  Validate
+            $errors = false;
+            $this->load->library('form_validation');
+            $this->form_validation->set_rules('label', '', 'xss_clean|required');
+            $this->form_validation->set_rules('description', '', 'xss_clean|required');
 
-	public function _fvcallback_block_type( $type )
-	{
-		$type = trim( $type );
+            $this->form_validation->set_message('required', lang('fv_required'));
 
-		if ( $type ) :
+            foreach ($post['menu_item'] as $item) {
 
-			if ( isset( $this->data['block_types'][$type] ) ) :
+                if (empty($item['label']) || empty($item['url'])) {
 
-				return TRUE;
+                    $errors = 'All menu items are required to have a label and a URL.';
+                    break;
+                }
+            }
 
-			else :
+            //  Execute
+            if ($this->form_validation->run() && !$errors) {
 
-				$this->form_validation->set_message( '_fvcallback_block_type', 'Block type not supported.' );
-				return FALSE;
+                if ($this->cms_menu_model->create($post)) {
 
-			endif;
+                    $status = 'success';
+                    $msg    = '<strong>Success!</strong> Menu was created successfully.';
+                    $this->session->set_flashdata($status, $msg);
 
-		else :
+                    redirect('admin/cms/menus');
 
-			$this->form_validation->set_message( '_fvcallback_block_type', lang( 'fv_required' ) );
-			return FALSE;
+                } else {
 
-		endif;
-	}
+                    $this->data['error']  = '<strong>Sorry,</strong> there were errors. ';
+                    $this->data['error'] .= $this->cms_menu_model->last_error();
+                }
 
+            } else {
 
-	// --------------------------------------------------------------------------
+                $this->data['error'] = '<strong>Sorry,</strong> there were errors. ' . $errors;
+            }
+        }
 
+        // --------------------------------------------------------------------------
 
-	public function sliders()
-	{
-		if ( ! user_has_permission( 'admin.cms:0.can_manage_slider' ) ) :
+        //  Assets
+        $this->asset->library('jqueryui');
+        $this->asset->load('nails.admin.cms.menus.create_edit.min.js', true);
+        $this->asset->load('nestedSortable/jquery.ui.nestedSortable.js', 'BOWER');
+        $this->asset->load('mustache.js/mustache.js', 'BOWER');
 
-			unauthorised();
+        // --------------------------------------------------------------------------
 
-		endif;
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/cms/menus/edit', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-		//	Load common slider items
-		$this->load->model( 'cms/cms_slider_model' );
+    /**
+     * Edit a CMS Menu
+     * @return void
+     */
+    protected function menusEdit()
+    {
+        if (!user_has_permission('admin.cms:0.can_edit_menu')) {
 
-		// --------------------------------------------------------------------------
+            unauthorised();
+        }
 
-		$_method = $this->uri->segment( 4 ) ? $this->uri->segment( 4 ) : 'index';
+        // --------------------------------------------------------------------------
 
-		if ( method_exists( $this, '_sliders_' . $_method ) ) :
+        $this->data['menu'] = $this->cms_menu_model->get_by_id($this->uri->segment(5), true, false);
 
-			$this->{'_sliders_' . $_method}();
+        if (!$this->data['menu']) {
 
-		else :
+            $this->session->set_flashdata('error', '<strong>Sorry,</strong> invalid menu ID.');
+            redirect('admin/cms/menus');
+        }
 
-			show_404();
+        $this->data['page']->title = 'Edit Menu "' . $this->data['menu']->label . '"';
 
-		endif;
-	}
+        $post = $this->input->post();
 
+        if (isset($post['menu_item'])) {
 
-	// --------------------------------------------------------------------------
+            //  Validate
+            $errors = false;
+            $this->load->library('form_validation');
+            $this->form_validation->set_rules('label', '', 'xss_clean|required');
+            $this->form_validation->set_rules('description', '', 'xss_clean|required');
 
+            $this->form_validation->set_message('required', lang('fv_required'));
 
-	protected function _sliders_index()
-	{
-		$this->data['page']->title = 'Manage Sliders';
+            foreach ($post['menu_item'] as $item) {
 
-		// --------------------------------------------------------------------------
+                if (empty($item['label']) || empty($item['url'])) {
 
-		//	Fetch all the menus in the DB
-		$this->data['sliders'] = $this->cms_slider_model->get_all();
+                    $errors = 'All menu items are required to have a label and a URL.';
+                    break;
+                }
+            }
 
-		// --------------------------------------------------------------------------
+            //  Execute
+            if ($this->form_validation->run() && !$errors) {
 
-		//	Assets
-		$this->asset->load( 'nails.admin.cms.sliders.min.js', TRUE );
+                if ($this->cms_menu_model->update($this->data['menu']->id, $post)) {
 
-		// --------------------------------------------------------------------------
+                    $status = 'success';
+                    $msg    = '<strong>Success!</strong> Menu was updated successfully.';
+                    $this->session->set_flashdata($status, $msg);
 
-		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/cms/sliders/index',	$this->data );
-		$this->load->view( 'structure/footer',			$this->data );
-	}
+                    redirect('admin/cms/menus');
 
+                } else {
 
-	// --------------------------------------------------------------------------
+                    $this->data['error']  = '<strong>Sorry,</strong> there were errors. ';
+                    $this->data['error'] .= $this->cms_menu_model->last_error();
+                }
 
+            } else {
 
-	protected function _sliders_create()
-	{
-		if ( ! user_has_permission( 'admin.cms:0.can_create_slider' ) ) :
+                $this->data['error'] = '<strong>Sorry,</strong> there were errors. ' . $errors;
+            }
+        }
 
-			unauthorised();
+        // --------------------------------------------------------------------------
 
-		endif;
+        //  Assets
+        $this->asset->library('jqueryui');
+        $this->asset->load('nails.admin.cms.menus.create_edit.min.js', true);
+        $this->asset->load('nestedSortable/jquery.ui.nestedSortable.js', 'BOWER');
+        $this->asset->load('mustache.js/mustache.js', 'BOWER');
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		$this->data['page']->title = 'Create Slider';
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/cms/menus/edit', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-		//	Assets
-		$this->asset->load( 'nails.admin.cms.sliders.create_edit.min.js', TRUE );
+    /**
+     * Delete a CMS Menu
+     * @return void
+     */
+    protected function menusDelete()
+    {
+        if (!user_has_permission('admin.cms:0.can_delete_menu')) {
 
-		// --------------------------------------------------------------------------
+            unauthorised();
+        }
 
-		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/cms/sliders/edit',	$this->data );
-		$this->load->view( 'structure/footer',			$this->data );
-	}
+        // --------------------------------------------------------------------------
 
+        $menu = $this->cms_menu_model->get_by_id($this->uri->segment(5));
 
-	// --------------------------------------------------------------------------
+        if (!$menu) {
 
+            $this->session->set_flashdata('error', '<strong>Sorry,</strong> invalid menu ID.');
+            redirect('admin/cms/menus');
+        }
 
-	protected function _sliders_edit()
-	{
-		if ( ! user_has_permission( 'admin.cms:0.can_edit_slider' ) ) :
+        // --------------------------------------------------------------------------
 
-			unauthorised();
+        if ($this->cms_menu_model->delete($menu->id)) {
 
-		endif;
+            $status = 'success';
+            $msg    = '<strong>Sorry,</strong> failed to delete menu. ';
+            $msg   .= $this->cms_menu_model->last_error();
+            $this->session->set_flashdata($status, $msg);
 
-		// --------------------------------------------------------------------------
+        } else {
 
-		$this->data['slider'] = $this->cms_slider_model->get_by_id( $this->uri->segment( 5 ), TRUE );
+            $status = 'error';
+            $msg    = '<strong>Sorry,</strong> failed to delete menu. ';
+            $msg   .= $this->cms_menu_model->last_error();
+            $this->session->set_flashdata($status, $msg);
+        }
 
-		if ( ! $this->data['slider'] ) :
-
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> invalid slider ID.' );
-			redirect( 'admin/cms/menus' );
-
-		endif;
-
-		$this->data['page']->title = 'Edit Slider "' . $this->data['slider']->label . '"';
-
-		// --------------------------------------------------------------------------
-
-		//	Assets
-		$this->asset->load( 'nails.admin.cms.sliders.create_edit.min.js', TRUE );
-
-		// --------------------------------------------------------------------------
-
-		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/cms/sliders/edit',	$this->data );
-		$this->load->view( 'structure/footer',			$this->data );
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _sliders_delete()
-	{
-		if ( ! user_has_permission( 'admin.cms:0.can_delete_slider' ) ) :
-
-			unauthorised();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> slider deletion is a TODO just now.' );
-		redirect( 'admin/cms/sliders' );
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	public function menus()
-	{
-		if ( ! user_has_permission( 'admin.cms:0.can_manage_menu' ) ) :
-
-			unauthorised();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		//	Load common menu items
-		$this->load->model( 'cms/cms_menu_model' );
-
-		// --------------------------------------------------------------------------
-
-		$_method = $this->uri->segment( 4 ) ? $this->uri->segment( 4 ) : 'index';
-
-		if ( method_exists( $this, '_menus_' . $_method ) ) :
-
-			$this->{'_menus_' . $_method}();
-
-		else :
-
-			show_404();
-
-		endif;
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _menus_index()
-	{
-		$this->data['page']->title = 'Manage Menus';
-
-		// --------------------------------------------------------------------------
-
-		//	Fetch all the menus in the DB
-		$this->data['menus'] = $this->cms_menu_model->get_all();
-
-		// --------------------------------------------------------------------------
-
-		//	Assets
-		$this->asset->load( 'nails.admin.cms.menus.min.js', TRUE );
-
-		// --------------------------------------------------------------------------
-
-		$this->load->view( 'structure/header',		$this->data );
-		$this->load->view( 'admin/cms/menus/index',	$this->data );
-		$this->load->view( 'structure/footer',		$this->data );
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _menus_create()
-	{
-		if ( ! user_has_permission( 'admin.cms:0.can_create_menu' ) ) :
-
-			unauthorised();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		$this->data['page']->title = 'Create Menu';
-
-		// --------------------------------------------------------------------------
-
-		$_post = $this->input->post();
-
-		if ( isset( $_post['menu_item'] ) ) :
-
-			//	Validate
-			$_errors = FALSE;
-			$this->load->library( 'form_validation' );
-			$this->form_validation->set_rules( 'label',			'', 'xss_clean|required' );
-			$this->form_validation->set_rules( 'description',	'', 'xss_clean|required' );
-
-			$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
-
-			foreach( $_post['menu_item'] AS $item ) :
-
-				if ( empty( $item['label'] ) || empty( $item['url']) ) :
-
-					$_errors = 'All menu items are required to have a label and a URL.';
-					break;
-
-				endif;
-
-			endforeach;
-
-			//	Execute
-			if ( $this->form_validation->run() && ! $_errors ) :
-
-				if ( $this->cms_menu_model->create( $_post ) ) :
-
-					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Menu was created successfully.' );
-					redirect( 'admin/cms/menus' );
-
-				else :
-
-					$this->data['error'] = '<strong>Sorry,</strong> there were errors. ' . $this->cms_menu_model->last_error();
-
-				endif;
-
-			else :
-
-				$this->data['error'] = '<strong>Sorry,</strong> there were errors. ' . $_errors;
-
-			endif;
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		//	Assets
-		$this->asset->library( 'jqueryui' );
-		$this->asset->load( 'nails.admin.cms.menus.create_edit.min.js',		TRUE );
-		$this->asset->load( 'nestedSortable/jquery.ui.nestedSortable.js',	'BOWER' );
-		$this->asset->load( 'mustache.js/mustache.js',							'BOWER' );
-
-		// --------------------------------------------------------------------------
-
-		$this->load->view( 'structure/header',		$this->data );
-		$this->load->view( 'admin/cms/menus/edit',	$this->data );
-		$this->load->view( 'structure/footer',		$this->data );
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _menus_edit()
-	{
-		if ( ! user_has_permission( 'admin.cms:0.can_edit_menu' ) ) :
-
-			unauthorised();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		$this->data['menu'] = $this->cms_menu_model->get_by_id( $this->uri->segment( 5 ), TRUE, FALSE );
-
-		if ( ! $this->data['menu'] ) :
-
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> invalid menu ID.' );
-			redirect( 'admin/cms/menus' );
-
-		endif;
-
-		$this->data['page']->title = 'Edit Menu "' . $this->data['menu']->label . '"';
-
-		$_post = $this->input->post();
-
-		if ( isset( $_post['menu_item'] ) ) :
-
-			//	Validate
-			$_errors = FALSE;
-			$this->load->library( 'form_validation' );
-			$this->form_validation->set_rules( 'label',			'', 'xss_clean|required' );
-			$this->form_validation->set_rules( 'description',	'', 'xss_clean|required' );
-
-			$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
-
-			foreach( $_post['menu_item'] AS $item ) :
-
-				if ( empty( $item['label'] ) || empty( $item['url']) ) :
-
-					$_errors = 'All menu items are required to have a label and a URL.';
-					break;
-
-				endif;
-
-			endforeach;
-
-			//	Execute
-			if ( $this->form_validation->run() && ! $_errors ) :
-
-				if ( $this->cms_menu_model->update( $this->data['menu']->id, $_post ) ) :
-
-					$this->session->set_flashdata( 'success', '<strong>Success!</strong> Menu was updated successfully.' );
-					redirect( 'admin/cms/menus' );
-
-				else :
-
-					$this->data['error'] = '<strong>Sorry,</strong> there were errors. ' . $this->cms_menu_model->last_error();
-
-				endif;
-
-			else :
-
-				$this->data['error'] = '<strong>Sorry,</strong> there were errors. ' . $_errors;
-
-			endif;
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		//	Assets
-		$this->asset->library( 'jqueryui' );
-		$this->asset->load( 'nails.admin.cms.menus.create_edit.min.js',		TRUE );
-		$this->asset->load( 'nestedSortable/jquery.ui.nestedSortable.js',	'BOWER' );
-		$this->asset->load( 'mustache.js/mustache.js',							'BOWER' );
-
-		// --------------------------------------------------------------------------
-
-		$this->load->view( 'structure/header',		$this->data );
-		$this->load->view( 'admin/cms/menus/edit',	$this->data );
-		$this->load->view( 'structure/footer',		$this->data );
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _menus_delete()
-	{
-		if ( ! user_has_permission( 'admin.cms:0.can_delete_menu' ) ) :
-
-			unauthorised();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		$_menu = $this->cms_menu_model->get_by_id( $this->uri->segment( 5 ) );
-
-		if ( ! $_menu ) :
-
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> invalid menu ID.' );
-			redirect( 'admin/cms/menus' );
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		if ( $this->cms_menu_model->delete( $_menu->id ) ) :
-
-			$this->session->set_flashdata( 'success', '<strong>Success!</strong> Menu was deleted successfully.' );
-
-		else :
-
-			$this->session->set_flashdata( 'error', '<strong>Sorry,</strong> failed to delete menu. ' . $this->cms_menu_model->last_error() );
-
-		endif;
-
-		redirect( 'admin/cms/menus' );
-	}
+        redirect('admin/cms/menus');
+    }
 }
 
-
 // --------------------------------------------------------------------------
-
 
 /**
  * OVERLOADING NAILS' ADMIN MODULES
@@ -1272,14 +1226,12 @@ class NAILS_Cms extends NAILS_Admin_Controller
  *
  **/
 
-if ( ! defined( 'NAILS_ALLOW_EXTENSION_CMS' ) ) :
+if (!defined('NAILS_ALLOW_EXTENSION_CMS')) {
 
-	class Cms extends NAILS_Cms
-	{
-	}
-
-endif;
-
-
-/* End of file cms.php */
-/* Location: ./modules/admin/controllers/cms.php */
+    /**
+     * Proxy class for NAILS_Cms
+     */
+    class Cms extends NAILS_Cms
+    {
+    }
+}

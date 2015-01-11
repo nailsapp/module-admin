@@ -1,365 +1,325 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
 
-/**
-* Name:			Admin: Log
-* Description:	Log manager
-*
-*/
-
-//	Include Admin_Controller; executes common admin functionality.
+//  Include NAILS_Admin_Controller; executes common admin functionality.
 require_once '_admin.php';
 
 /**
- * OVERLOADING NAILS' ADMIN MODULES
+ * Browse the site logs
  *
- * Note the name of this class; done like this to allow apps to extend this class.
- * Read full explanation at the bottom of this file.
- *
- **/
-
+ * @package     Nails
+ * @subpackage  module-admin
+ * @category    Controller
+ * @author      Nails Dev Team
+ * @link
+ */
 class NAILS_Logs extends NAILS_Admin_Controller
 {
+    /**
+     * Announces this controllers details
+     * @return stdClass
+     */
+    public static function announce()
+    {
+        $d = new stdClass();
 
-	/**
-	 * Announces this module's details to those in the know.
-	 *
-	 * @access static
-	 * @param none
-	 * @return void
-	 **/
-	static function announce()
-	{
-		$d = new stdClass();
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Configurations
+        $d->name = 'Logs';
+        $d->icon = 'fa-archive';
 
-		//	Configurations
-		$d->name = 'Logs';
-		$d->icon = 'fa-archive';
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Navigation options
+        if (user_has_permission('admin.logs:0.can_browse_site_logs')) {
 
-		//	Navigation options
-		if ( user_has_permission( 'admin.logs:0.can_browse_site_logs' ) ) :
+            $d->funcs['site'] = 'Browse Site Logs';
+        }
 
-			$d->funcs['site'] = 'Browse Site Logs';
+        if (user_has_permission('admin.logs:0.can_browse_event_logs')) {
 
-		endif;
+            $d->funcs['event'] = 'Browse Event Logs';
+        }
 
-		if ( user_has_permission( 'admin.logs:0.can_browse_event_logs' ) ) :
+        if (user_has_permission('admin.logs:0.can_browse_admin_logs')) {
 
-			$d->funcs['event'] = 'Browse Event Logs';
+            $d->funcs['changelog'] = 'Browse Admin Logs';
+        }
 
-		endif;
+        // --------------------------------------------------------------------------
 
-		if ( user_has_permission( 'admin.logs:0.can_browse_admin_logs' ) ) :
+        return $d;
+    }
 
-			$d->funcs['changelog']= 'Browse Admin Logs';
+    // --------------------------------------------------------------------------
 
-		endif;
+    /**
+     * Returns an array of extra permissions for this controller
+     * @param  string $classIndex The class_index value, used when multiple admin instances are available
+     * @return array
+     */
+    public static function permissions($classIndex = null)
+    {
+        $permissions = parent::permissions($classIndex);
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		return $d;
-	}
+        $permissions['can_browse_site_logs']  = 'Can browse site logs';
+        $permissions['can_browse_event_logs'] = 'Can browse event logs';
+        $permissions['can_browse_admin_logs'] = 'Can browse admin logs';
 
+        // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+        return $permissions;
+    }
 
+    // --------------------------------------------------------------------------
 
-	static function permissions( $class_index = NULL )
-	{
-		$_permissions = parent::permissions( $class_index );
+    /**
+     * Browse site log files
+     * @return void
+     */
+    public function site()
+    {
+        if (!user_has_permission('admin.logs:0.can_browse_site_logs')) {
 
-		// --------------------------------------------------------------------------
+            unauthorised();
+        }
 
-		$_permissions['can_browse_site_logs']	= 'Can browse site logs';
-		$_permissions['can_browse_event_logs']	= 'Can browse event logs';
-		$_permissions['can_browse_admin_logs']	= 'Can browse admin logs';
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        $this->data['page']->title = 'Browse Logs';
 
-		return $_permissions;
-	}
+        // --------------------------------------------------------------------------
 
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/logs/site/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-	// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
+    /**
+     * Browse Site Events
+     * @return void
+     */
+    public function event()
+    {
+        if (!user_has_permission('admin.logs:0.can_browse_event_logs')) {
 
-	/**
-	 * Log File browser
-	 *
-	 * @access public
-	 * @param none
-	 * @return void
-	 **/
-	public function site()
-	{
-		if ( ! user_has_permission( 'admin.logs:0.can_browse_site_logs' ) ) :
+            unauthorised();
+        }
 
-			unauthorised();
+        // --------------------------------------------------------------------------
 
-		endif;
+        //  Set method info
+        $this->data['page']->title = 'Browse Events';
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		$this->data['page']->title = 'Browse Logs';
+        //  Load event library
+        $this->load->library('event');
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		$this->load->view( 'structure/header',		$this->data );
-		$this->load->view( 'admin/logs/site/index',	$this->data );
-		$this->load->view( 'structure/footer',		$this->data );
-	}
+        /**
+         * Define limit and order
+         * A little messy but it's because the Event library doesn't follow the
+         * same standard as the models - it should. @TODO.
+         */
 
+        $per_page = $this->input->get('per_page') ? $this->input->get('per_page') : 50;
+        $page     = (int) $this->input->get('page');
+        $page--;
+        $page     = $page < 0 ? 0 : $page;
+        $offset   = $page * $per_page;
+        $limit    = array($per_page, $offset);
+        $order    = array(
+                        $this->input->get('sort') ? $this->input->get('sort') : 'e.created',
+                        $this->input->get('order') ? $this->input->get('order') : 'DESC'
+                    );
 
-	// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
+        //  Define the data user & type restriction and the date range
+        $where = array();
 
-	/**
-	 * Event Browser
-	 *
-	 * @access public
-	 * @param none
-	 * @return void
-	 **/
-	public function event()
-	{
-		if ( ! user_has_permission( 'admin.logs:0.can_browse_event_logs' ) ) :
+        if ($this->input->get('date_from')) {
 
-			unauthorised();
+            $where[] = '(e.created >= \'' . $this->input->get('date_from') . '\')';
+        }
 
-		endif;
+        if ($this->input->get('date_to')) {
 
-		// --------------------------------------------------------------------------
+            $where[] = '(e.created <=\'' . $this->input->get('date_to') . '\')';
+        }
 
-		//	Set method info
-		$this->data['page']->title = 'Browse Events';
+        if ($this->input->get('user_id')) {
 
-		// --------------------------------------------------------------------------
+            $where[] = 'e.created_by IN (' . implode(',', $this->input->get('user_id')) . ')';
+        }
 
-		//	Load event library
-		$this->load->library( 'event' );
+        if ($this->input->get('event_type')) {
 
-		// --------------------------------------------------------------------------
+            $where[] = 'e.type IN ("' . implode('","', $this->input->get('event_type')) . '")';
+        }
 
-		/**
-		 * Define limit and order
-		 * A little messy but it's because the Event library doesn't follow the
-		 * same standard as the models - it should. TODO.
-		 */
+        $where = implode(' AND ', $where);
 
-		$_per_page	= $this->input->get( 'per_page' ) ? $this->input->get( 'per_page' ) : 50;
-		$_page		= (int) $this->input->get( 'page' );
-		$_page--;
-		$_page		= $_page < 0 ? 0 : $_page;
+        // --------------------------------------------------------------------------
 
-		$_offset	= $_page * $_per_page;
+        //  Are we downloading? Or viewing?
+        if ($this->input->get('dl')) {
 
-		$_limit		= array( $_per_page, $_offset );
+            //  Fetch events
+            $this->data['events'] = new stdClass();
+            $this->data['events'] = $this->event->get_all($order, null, $where);
 
-		$_order		= array(
-						$this->input->get( 'sort' ) ? $this->input->get( 'sort' ) : 'e.created',
-						$this->input->get( 'order' ) ? $this->input->get( 'order' ) : 'DESC'
-					);
+            // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+            //  Send header
+            $this->output->set_content_type('application/octet-stream');
+            $this->output->set_header('Pragma: public');
+            $this->output->set_header('Expires: 0');
+            $this->output->set_header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            $this->output->set_header('Cache-Control: private', false);
+            $this->output->set_header('Content-Disposition: attachment; filename=stats-export-' . date('Y-m-d_h-i-s') . '.csv;');
+            $this->output->set_header('Content-Transfer-Encoding: binary');
 
-		//	Define the data user & type restriction and the date range
-		$_where = array();
+            // --------------------------------------------------------------------------
 
-		if ( $this->input->get( 'date_from' ) ) :
+            //  Render view
+            $this->load->view('admin/logs/event/csv', $this->data);
 
-			$_where[] = '(e.created >= \'' . $this->input->get( 'date_from' ) . '\')';
+        } else {
 
-		endif;
+            //  Viewing, make sure we paginate
+            //  =======================================
+            $this->data['pagination']             = new stdClass();
+            $this->data['pagination']->page       = $this->input->get('page')     ? $this->input->get('page')     : 0;
+            $this->data['pagination']->per_page   = $this->input->get('per_page') ? $this->input->get('per_page') : 50;
+            $this->data['pagination']->total_rows = $this->event->count_all($where);
 
-		if ( $this->input->get( 'date_to' ) ) :
+            //  Fetch all the items for this page
+            $this->data['events'] = $this->event->get_all($order, $limit, $where);
 
-			$_where[] = '(e.created <=\'' . $this->input->get( 'date_to' ) . '\')';
+            // --------------------------------------------------------------------------
 
-		endif;
+            //  Fetch users
+            $this->data['users'] = $this->user_model->get_all_minimal();
+            $this->data['types'] = $this->event->get_types_flat();
 
-		if ( $this->input->get( 'user_id' ) ) :
+            // --------------------------------------------------------------------------
 
-			$_where[] = 'e.created_by IN (' . implode( ',', $this->input->get( 'user_id' ) ) . ')';
+            //  Load views
+            $this->load->view('structure/header', $this->data);
+            $this->load->view('admin/logs/event/index', $this->data);
+            $this->load->view('structure/footer', $this->data);
+        }
+    }
 
-		endif;
+    // --------------------------------------------------------------------------
 
-		if ( $this->input->get( 'event_type' ) ) :
+    /**
+     * Browse Admin Changelog
+     * @return void
+     */
+    public function changelog()
+    {
+        if (!user_has_permission('admin.logs:0.can_browse_admin_logs')) {
 
-			$_where[] = 'e.type IN ("' . implode( '","', $this->input->get( 'event_type' ) ) . '")';
+            unauthorised();
+        }
 
-		endif;
+        // --------------------------------------------------------------------------
 
-		$_where = implode( ' AND ', $_where );
+        //  Set method info
+        $this->data['page']->title = 'Browse Admin Changelog';
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Are we downloading? Or viewing?
-		if ( $this->input->get( 'dl' ) ) :
+        //  Define the $data variable, this'll be passed to the get_all() and count_all() methods
+        $data = array('where' => array());
 
-			//	Fetch events
-			$this->data['events'] = new stdClass();
-			$this->data['events'] = $this->event->get_all($_order, NULL, $_where);
+        // --------------------------------------------------------------------------
 
-			// --------------------------------------------------------------------------
+        if ($this->input->get('date_from')) {
 
-			//	Send header
-			$this->output->set_content_type( 'application/octet-stream' );
-			$this->output->set_header( 'Pragma: public' );
-			$this->output->set_header( 'Expires: 0' );
-			$this->output->set_header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
-			$this->output->set_header( 'Cache-Control: private', FALSE );
-			$this->output->set_header( 'Content-Disposition: attachment; filename=stats-export-' . date( 'Y-m-d_h-i-s' ) . '.csv;' );
-			$this->output->set_header( 'Content-Transfer-Encoding: binary' );
+            $data['where'][] = array(
+                'column' => 'acl.created >=',
+                'value'  => $this->input->get('date_from')
+            );
+        }
 
-			// --------------------------------------------------------------------------
+        if ($this->input->get('date_to')) {
 
-			//	Render view
-			$this->load->view( 'admin/logs/event/csv',	$this->data );
+            $data['where'][] = array(
+                'column' => 'acl.created <=',
+                'value'  => $this->input->get('date_to')
+            );
+        }
 
-		else :
+        // --------------------------------------------------------------------------
 
-			//	Viewing, make sure we paginate
-			//	=======================================
-			$this->data['pagination']				= new stdClass();
-			$this->data['pagination']->page			= $this->input->get( 'page' )		? $this->input->get( 'page' )		: 0;
-			$this->data['pagination']->per_page		= $this->input->get( 'per_page' )	? $this->input->get( 'per_page' )	: 50;
-			$this->data['pagination']->total_rows	= $this->event->count_all($_where);
+        //  Are we downloading? Or viewing?
+        if ($this->input->get('dl')) {
 
-			//	Fetch all the items for this page
-			$this->data['events'] = $this->event->get_all( $_order, $_limit, $_where );
+            //  Downloading, fetch the complete dataset
+            //  =======================================
 
-			// --------------------------------------------------------------------------
+            //  Fetch events
+            $this->data['items'] = new stdClass();
+            $this->data['items'] = $this->admin_changelog_model->get_all(null, null, $data);
 
-			//	Fetch users
-			$this->data['users'] = $this->user_model->get_all_minimal();
-			$this->data['types'] = $this->event->get_types_flat();
+            // --------------------------------------------------------------------------
 
-			// --------------------------------------------------------------------------
+            //  Send header
+            $this->output->set_content_type('application/octet-stream');
+            $this->output->set_header('Pragma: public');
+            $this->output->set_header('Expires: 0');
+            $this->output->set_header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            $this->output->set_header('Cache-Control: private', false);
+            $this->output->set_header('Content-Disposition: attachment; filename=admin-changelog-export-' . date('Y-m-d_h-i-s') . '.csv;');
+            $this->output->set_header('Content-Transfer-Encoding: binary');
 
-			//	Load views
-			$this->load->view( 'structure/header',			$this->data );
-			$this->load->view( 'admin/logs/event/index',	$this->data );
-			$this->load->view( 'structure/footer',			$this->data );
+            // --------------------------------------------------------------------------
 
-		endif;
-	}
+            //  Render view
+            $this->load->view('admin/logs/changelog/csv', $this->data);
 
+        } else {
 
-	// --------------------------------------------------------------------------
+            //  Viewing, make sure we paginate
+            //  =======================================
 
+            //  Define and populate the pagination object
+            $page     = $this->input->get('page')     ? $this->input->get('page')     : 0;
+            $per_page = $this->input->get('per_page') ? $this->input->get('per_page') : 50;
 
-	/**
-	 * Admin Change Log Browser
-	 *
-	 * @access public
-	 * @param none
-	 * @return void
-	 **/
-	public function changelog()
-	{
-		if ( ! user_has_permission( 'admin.logs:0.can_browse_admin_logs' ) ) :
+            $this->data['pagination']             = new stdClass();
+            $this->data['pagination']->page       = $page;
+            $this->data['pagination']->per_page   = $per_page;
+            $this->data['pagination']->total_rows = $this->admin_changelog_model->count_all($data);
 
-			unauthorised();
+            //  Fetch all the items for this page
+            $this->data['items'] = $this->admin_changelog_model->get_all($page, $per_page, $data);
 
-		endif;
+            // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+            //  Fetch users
+            $this->data['users'] = $this->user_model->get_all_minimal();
 
-		//	Set method info
-		$this->data['page']->title = 'Browse Admin Changelog';
+            // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
-
-		//	Define the $_data variable, this'll be passed to the get_all() and count_all() methods
-		$_data = array( 'where' => array() );
-
-		// --------------------------------------------------------------------------
-
-		if ( $this->input->get( 'date_from' ) ) :
-
-			$_data['where'][] = array(
-				'column'	=> 'acl.created >=',
-				'value'		=> $this->input->get( 'date_from' )
-			);
-
-		endif;
-
-		if ( $this->input->get( 'date_to' ) ) :
-
-			$_data['where'][] = array(
-				'column'	=> 'acl.created <=',
-				'value'		=> $this->input->get( 'date_to' )
-			);
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		//	Are we downloading? Or viewing?
-		if ( $this->input->get( 'dl' ) ) :
-
-			//	Downloading, fetch the complete dataset
-			//	=======================================
-
-			//	Fetch events
-			$this->data['items'] = new stdClass();
-			$this->data['items'] = $this->admin_changelog_model->get_all( NULL, NULL, $_data );
-
-			// --------------------------------------------------------------------------
-
-			//	Send header
-			$this->output->set_content_type( 'application/octet-stream' );
-			$this->output->set_header( 'Pragma: public' );
-			$this->output->set_header( 'Expires: 0' );
-			$this->output->set_header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
-			$this->output->set_header( 'Cache-Control: private', FALSE );
-			$this->output->set_header( 'Content-Disposition: attachment; filename=admin-changelog-export-' . date( 'Y-m-d_h-i-s' ) . '.csv;' );
-			$this->output->set_header( 'Content-Transfer-Encoding: binary' );
-
-			// --------------------------------------------------------------------------
-
-			//	Render view
-			$this->load->view( 'admin/logs/changelog/csv',	$this->data );
-
-		else :
-
-			//	Viewing, make sure we paginate
-			//	=======================================
-
-			//	Define and populate the pagination object
-			$_page		= $this->input->get( 'page' )		? $this->input->get( 'page' )		: 0;
-			$_per_page	= $this->input->get( 'per_page' )	? $this->input->get( 'per_page' )	: 50;
-
-			$this->data['pagination']				= new stdClass();
-			$this->data['pagination']->page			= $_page;
-			$this->data['pagination']->per_page		= $_per_page;
-			$this->data['pagination']->total_rows	= $this->admin_changelog_model->count_all( $_data );
-
-			//	Fetch all the items for this page
-			$this->data['items'] = $this->admin_changelog_model->get_all( $_page, $_per_page, $_data );
-
-			// --------------------------------------------------------------------------
-
-			//	Fetch users
-			$this->data['users'] = $this->user_model->get_all_minimal();
-
-			// --------------------------------------------------------------------------
-
-			//	Load views
-			$this->load->view( 'structure/header',				$this->data );
-			$this->load->view( 'admin/logs/changelog/index',	$this->data );
-			$this->load->view( 'structure/footer',				$this->data );
-
-		endif;
-	}
+            //  Load views
+            $this->load->view('structure/header', $this->data);
+            $this->load->view('admin/logs/changelog/index', $this->data);
+            $this->load->view('structure/footer', $this->data);
+        }
+    }
 }
 
-
 // --------------------------------------------------------------------------
-
 
 /**
  * OVERLOADING NAILS' ADMIN MODULES
@@ -385,13 +345,12 @@ class NAILS_Logs extends NAILS_Admin_Controller
  *
  **/
 
-if ( ! defined( 'NAILS_ALLOW_EXTENSION_LOGS' ) ) :
+if (!defined('NAILS_ALLOW_EXTENSION_LOGS')) {
 
-	class Logs extends NAILS_Logs
-	{
-	}
-
-endif;
-
-/* End of file logs.php */
-/* Location: ./modules/admin/controllers/logs.php */
+    /**
+     * Proxy class for NAILS_Logs
+     */
+    class Logs extends NAILS_Logs
+    {
+    }
+}

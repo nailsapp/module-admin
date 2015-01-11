@@ -1,1596 +1,1533 @@
 <?php
 
-/**
- * Name:		Admin: Accounts
- * Description:	Browse and edit user accounts
- *
- **/
-
-
-//	Include Admin_Controller; executes common admin functionality.
+//  Include NAILS_Admin_Controller; executes common admin functionality.
 require_once '_admin.php';
 
 /**
- * OVERLOADING NAILS' ADMIN MODULES
+ * Manage user accounts
  *
- * Note the name of this class; done like this to allow apps to extend this class.
- * Read full explanation at the bottom of this file.
- *
- **/
-
+ * @package     Nails
+ * @subpackage  module-admin
+ * @category    Controller
+ * @author      Nails Dev Team
+ * @link
+ */
 class NAILS_Accounts extends NAILS_Admin_Controller
 {
+    protected $accounts_group;
+    protected $accounts_where;
+    protected $accounts_columns;
+    protected $accounts_actions;
+    protected $accounts_sortfields;
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Announces this controllers details
+     * @return stdClass
+     */
+    public static function announce()
+    {
+        $d = new stdClass();
+
+        // --------------------------------------------------------------------------
+
+        //  Load the laguage file
+        get_instance()->lang->load('admin_accounts');
 
-	protected $accounts_group;
-	protected $accounts_where;
-	protected $accounts_columns;
-	protected $accounts_actions;
-	protected $accounts_sortfields;
+        // --------------------------------------------------------------------------
+
+        //  Configurations
+        $d->name = lang('accounts_module_name');
+        $d->icon = 'fa-users';
+
+        // --------------------------------------------------------------------------
 
+        //  Navigation options
+        $d->funcs          = array();
+        $d->funcs['index'] = lang('accounts_nav_index');
+
+        if (user_has_permission('admin.accounts:0.can_manage_groups')) {
+
+            $d->funcs['groups'] = 'Manage User Groups';
+        }
+
+        if (user_has_permission('admin.accounts:0.can_merge_users')) {
+
+            $d->funcs['merge']  = 'Merge Users';
+        }
+
+        // --------------------------------------------------------------------------
+
+        return $d;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns an array of notifications
+     * @param  string $classIndex The class_index value, used when multiple admin instances are available
+     * @return array
+     */
+    public static function notifications($classIndex = null)
+    {
+        $ci =& get_instance();
+        $notifications = array();
+
+        // --------------------------------------------------------------------------
+
+        $notifications['index']            = array();
+        $notifications['index']['type']    = 'split';
+        $notifications['index']['options'] = array();
+
+        $ci->db->where('is_suspended', true);
+        $notifications['index']['options'][] = array(
+            'title' => 'Suspended',
+            'type' => 'alert',
+            'value' => $ci->db->count_all_results(NAILS_DB_PREFIX . 'user')
+        );
+
+        $ci->db->where('is_suspended', false);
+        $notifications['index']['options'][] = array(
+            'title' => 'Active',
+            'type' => 'info',
+            'value' => $ci->db->count_all_results(NAILS_DB_PREFIX . 'user')
+        );
+
+        // --------------------------------------------------------------------------
+
+        return $notifications;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns an array of extra permissions for this controller
+     * @param  string $classIndex The class_index value, used when multiple admin instances are available
+     * @return array
+     */
+    public static function permissions($classIndex = null)
+    {
+        $permissions = parent::permissions($classIndex);
+
+        // --------------------------------------------------------------------------
+
+        //  Define some basic extra permissions
+        $permissions['can_create_user']       = 'Can create users';
+        $permissions['can_suspend_user']      = 'Can suspend/unsuspend users';
+        $permissions['can_login_as']          = 'Can log in as another user';
+        $permissions['can_edit_others']       = 'Can edit other users';
+        $permissions['can_change_user_group'] = 'Can change a user\'s group';
+        $permissions['can_delete_others']     = 'Can delete other users';
+        $permissions['can_merge_users']       = 'Can merge users';
+        $permissions['can_manage_groups']     = 'Can manage user groups';
+        $permissions['can_create_group']      = 'Can create user groups';
+        $permissions['can_edit_group']        = 'Can edit user groups';
+        $permissions['can_delete_group']      = 'Can delete user groups';
+        $permissions['can_set_default_group'] = 'Can set the default user groups';
+
+        // --------------------------------------------------------------------------
+
+        return $permissions;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Constructs the controller
+     */
+    public function __construct()
+    {
+        parent::__construct();
 
-	// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
+        //  Defaults defaults
+        $this->accounts_group      = false;
+        $this->accounts_where      = array();
+        $this->accounts_columns    = array();
+        $this->accounts_actions    = array();
+        $this->accounts_sortfields = array();
 
-	/**
-	 * Announces this module's details to anyone who asks.
-	 *
-	 * @access	static
-	 * @param	none
-	 * @return	mixed
-	 **/
-	static function announce()
-	{
-		$d = new stdClass();
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        $this->accounts_sortfields[] = array('label' => lang('accounts_sort_id'), 'col' => 'u.id');
+        $this->accounts_sortfields[] = array('label' => lang('accounts_sort_group_id'), 'col' => 'u.group_id');
+        $this->accounts_sortfields[] = array('label' => lang('accounts_sort_first'), 'col' => 'u.first_name');
+        $this->accounts_sortfields[] = array('label' => lang('accounts_sort_last'), 'col' => 'u.last_name');
+        $this->accounts_sortfields[] = array('label' => lang('accounts_sort_email'), 'col' => 'ue.email');
+    }
 
-		//	Load the laguage file
-		get_instance()->lang->load('admin_accounts');
+    // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+    /**
+     * Browse user accounts
+     * @return void
+     */
+    public function index()
+    {
+        //  Searching, sorting, ordering and paginating.
+        $hash = 'search_' . md5(uri_string()) . '_';
 
-		//	Configurations
-		$d->name = lang('accounts_module_name');
-		$d->icon = 'fa-users';
+        if ($this->input->get('reset')) {
 
-		// --------------------------------------------------------------------------
+            $this->session->unset_userdata($hash . 'per_page');
+            $this->session->unset_userdata($hash . 'sort');
+            $this->session->unset_userdata($hash . 'order');
+        }
 
-		//	Navigation options
-		$d->funcs			= array();
-		$d->funcs['index']	= lang('accounts_nav_index');
+        $default_per_page = $this->session->userdata($hash . 'per_page') ? $this->session->userdata($hash . 'per_page') : 50;
+        $default_sort     = $this->session->userdata($hash . 'sort') ?   $this->session->userdata($hash . 'sort') : 'u.id';
+        $default_order    = $this->session->userdata($hash . 'order') ?  $this->session->userdata($hash . 'order') : 'ASC';
 
-		if (user_has_permission('admin.accounts:0.can_manage_groups')) {
+        //  Define vars
+        $searchTerm = $this->input->get('search');
 
-			$d->funcs['groups']	= 'Manage User Groups';
-		}
+        $limit = array(
+                    $this->input->get('per_page') ? $this->input->get('per_page') : $default_per_page,
+                    $this->input->get('offset') ? $this->input->get('offset') : 0
+                );
 
-		if (user_has_permission('admin.accounts:0.can_merge_users')) {
+        $order = array(
+                    $this->input->get('sort') ? $this->input->get('sort') : $default_sort,
+                    $this->input->get('order') ? $this->input->get('order') : $default_order
+                );
 
-			$d->funcs['merge']	= 'Merge Users';
-		}
+        $this->accounts_group = !empty($this->accounts_group) ? $this->accounts_group : $this->input->get('filter');
 
-		// --------------------------------------------------------------------------
+        //  Set sorting and ordering info in session data so it's remembered for when user returns
+        $this->session->set_userdata($hash . 'per_page', $limit[0]);
+        $this->session->set_userdata($hash . 'sort', $order[0]);
+        $this->session->set_userdata($hash . 'order', $order[1]);
 
-		return $d;
-	}
+        //  Set values for the page
+        $this->data['search']           = new stdClass();
+        $this->data['search']->per_page = $limit[0];
+        $this->data['search']->sort     = $order[0];
+        $this->data['search']->order    = $order[1];
 
+        // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+        //  Is a group set?
+        if ($this->accounts_group) {
 
+            $this->accounts_where['u.group_id'] = $this->accounts_group;
+        }
 
-	/**
-	 * Returns an array of notifications for various methods
-	 *
-	 * @access	static
-	 * @param	none
-	 * @return	array
-	 **/
-	static function notifications()
-	{
-		$_ci =& get_instance();
-		$_notifications = array();
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Get the accounts
+        $this->data['users']       = new stdClass();
+        $this->data['users']->data = $this->user_model->get_all(false, $order, $limit, $this->accounts_where, $searchTerm);
 
-		$_notifications['index']			= array();
-		$_notifications['index']['type']	= 'split';
-		$_notifications['index']['options']	= array();
+        //  Work out pagination
+        $this->data['users']->pagination                = new stdClass();
+        $this->data['users']->pagination->total_results = $this->user_model->count_all($this->accounts_where, $searchTerm);
 
-		$_ci->db->where('is_suspended', TRUE);
-		$_notifications['index']['options'][] = array('title' => 'Suspended', 'type' => 'alert', 'value' => $_ci->db->count_all_results(NAILS_DB_PREFIX . 'user'));
+        // --------------------------------------------------------------------------
 
-		$_ci->db->where('is_suspended', FALSE);
-		$_notifications['index']['options'][] = array('title' => 'Active', 'type' => 'info', 'value' => $_ci->db->count_all_results(NAILS_DB_PREFIX . 'user'));
+        //  Override the title (used when loading this method from one of the other methods)
+        $this->data['page']->title = !empty($this->data['page']->title) ? $this->data['page']->title : lang('accounts_index_title');
 
-		// --------------------------------------------------------------------------
+        if ($searchTerm) {
 
-		return $_notifications;
-	}
+            $this->data['page']->title  .= ' (' . lang('accounts_index_search_results', array($searchTerm, number_format($this->data['users']->pagination->total_results))) . ')';
 
+        } else {
 
-	// --------------------------------------------------------------------------
+            $this->data['page']->title  .= ' (' . number_format($this->data['users']->pagination->total_results) . ')';
+        }
 
+        // --------------------------------------------------------------------------
 
-	/**
-	 * Returns an array of extra permissions which can be specified
-	 *
-	 * @access	static
-	 * @param	none
-	 * @return	array
-	 **/
-	static function permissions($class_index = NULL)
-	{
-		$_permissions = parent::permissions($class_index);
-
-		// --------------------------------------------------------------------------
-
-		//	Define some basic extra permissions
-		$_permissions['can_create_user']		= 'Can create users';
-		$_permissions['can_suspend_user']		= 'Can suspend/unsuspend users';
-		$_permissions['can_login_as']			= 'Can log in as another user';
-		$_permissions['can_edit_others']		= 'Can edit other users';
-		$_permissions['can_change_user_group']	= 'Can change a user\'s group';
-		$_permissions['can_delete_others']		= 'Can delete other users';
-		$_permissions['can_merge_users']		= 'Can merge users';
-		$_permissions['can_manage_groups']		= 'Can manage user groups';
-		$_permissions['can_create_group']		= 'Can create user groups';
-		$_permissions['can_edit_group']			= 'Can edit user groups';
-		$_permissions['can_delete_group']		= 'Can delete user groups';
-		$_permissions['can_set_default_group']	= 'Can set the default user groups';
-
-		// --------------------------------------------------------------------------
+        //  Pass any columns and actions to the view
+        $this->data['columns']    = $this->accounts_columns;
+        $this->data['actions']    = $this->accounts_actions;
+        $this->data['sortfields'] = $this->accounts_sortfields;
 
-		return $_permissions;
-	}
+        // --------------------------------------------------------------------------
 
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/accounts/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-	// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
 
-	/**
-	 * Constructor
-	 *
-	 * @access	public
-	 * @param	none
-	 * @return	void
-	 **/
-	public function __construct()
-	{
-		parent::__construct();
+    /**
+     * Create a new user account
+     * @return void
+     */
+    public function create()
+    {
+        if (!user_has_permission('admin.accounts:0.can_create_user')) {
 
-		// --------------------------------------------------------------------------
+            unauthorised();
+        }
 
-		//	Defaults defaults
-		$this->accounts_group		= FALSE;
-		$this->accounts_where		= array();
-		$this->accounts_columns		= array();
-		$this->accounts_actions		= array();
-		$this->accounts_sortfields	= array();
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Page Title
+        $this->data['page']->title = lang('accounts_create_title');
 
-		$this->accounts_sortfields[] = array('label' => lang('accounts_sort_id'),		'col' => 'u.id');
-		$this->accounts_sortfields[] = array('label' => lang('accounts_sort_group_id'),	'col' => 'u.group_id');
-		$this->accounts_sortfields[] = array('label' => lang('accounts_sort_first'),		'col' => 'u.first_name');
-		$this->accounts_sortfields[] = array('label' => lang('accounts_sort_last'),		'col' => 'u.last_name');
-		$this->accounts_sortfields[] = array('label' => lang('accounts_sort_email'),		'col' => 'ue.email');
-	}
+        // --------------------------------------------------------------------------
 
+        //  Attempt to create the new user account
+        if ($this->input->post()) {
 
-	// --------------------------------------------------------------------------
+            $this->load->library('form_validation');
 
+            //  Set rules
+            $this->form_validation->set_rules('group_id', '', 'xss_clean|required|is_natural_no_zero');
+            $this->form_validation->set_rules('password', '', 'xss_clean');
+            $this->form_validation->set_rules('send_activation', '', 'xss_clean');
+            $this->form_validation->set_rules('temp_pw', '', 'xss_clean');
+            $this->form_validation->set_rules('first_name', '', 'xss_clean|required');
+            $this->form_validation->set_rules('last_name', '', 'xss_clean|required');
 
-	/**
-	 * Accounts homepage / dashboard
-	 *
-	 * @access	public
-	 * @param	none
-	 * @return	void
-	 **/
-	public function index()
-	{
-		//	Searching, sorting, ordering and paginating.
-		$_hash = 'search_' . md5(uri_string()) . '_';
+            $emailRules   = array();
+            $emailRules[] = 'xss_clean';
+            $emailRules[] = 'required';
+            $emailRules[] = 'valid_email';
+            $emailRules[] = 'is_unique[' . NAILS_DB_PREFIX . 'user_email.email]';
 
-		if ($this->input->get('reset')) :
+            if (APP_NATIVE_LOGIN_USING == 'EMAIL') {
 
-			$this->session->unset_userdata($_hash . 'per_page');
-			$this->session->unset_userdata($_hash . 'sort');
-			$this->session->unset_userdata($_hash . 'order');
+                $this->form_validation->set_rules('email', '', implode('|', $emailRules));
 
-		endif;
+                if ($this->input->post('username')) {
 
-		$_default_per_page	= $this->session->userdata($_hash . 'per_page') ? $this->session->userdata($_hash . 'per_page') : 50;
-		$_default_sort		= $this->session->userdata($_hash . 'sort') ? 	$this->session->userdata($_hash . 'sort') : 'u.id';
-		$_default_order		= $this->session->userdata($_hash . 'order') ? 	$this->session->userdata($_hash . 'order') : 'ASC';
+                    $this->form_validation->set_rules('username', '', implode('|', 'xss_clean'));
+                }
 
-		//	Define vars
-		$searchTerm = $this->input->get('search');
+            } elseif (APP_NATIVE_LOGIN_USING == 'USERNAME') {
 
-		$_limit		= array(
-						$this->input->get('per_page') ? $this->input->get('per_page') : $_default_per_page,
-						$this->input->get('offset') ? $this->input->get('offset') : 0
-					);
-		$_order		= array(
-						$this->input->get('sort') ? $this->input->get('sort') : $_default_sort,
-						$this->input->get('order') ? $this->input->get('order') : $_default_order
-					);
+                $this->form_validation->set_rules('username', '', implode('|', 'xss_clean|required'));
 
-		$this->accounts_group = ! empty($this->accounts_group) ? $this->accounts_group : $this->input->get('filter');
+                if ($this->input->post('email')) {
 
-		//	Set sorting and ordering info in session data so it's remembered for when user returns
-		$this->session->set_userdata($_hash . 'per_page', $_limit[0]);
-		$this->session->set_userdata($_hash . 'sort', $_order[0]);
-		$this->session->set_userdata($_hash . 'order', $_order[1]);
+                    $this->form_validation->set_rules('email', '', implode('|', $emailRules));
+                }
 
-		//	Set values for the page
-		$this->data['search']			= new stdClass();
-		$this->data['search']->per_page	= $_limit[0];
-		$this->data['search']->sort		= $_order[0];
-		$this->data['search']->order	= $_order[1];
+            } else {
 
-		// --------------------------------------------------------------------------
+                $this->form_validation->set_rules('email', '', implode('|', $emailRules));
+                $this->form_validation->set_rules('username', '', 'xss_clean|required');
+            }
 
-		//	Is a group set?
-		if ($this->accounts_group) :
+            //  Set messages
+            $this->form_validation->set_message('required', lang('fv_required'));
+            $this->form_validation->set_message('min_length', lang('fv_min_length'));
+            $this->form_validation->set_message('alpha_dash_period', lang('fv_alpha_dash_period'));
+            $this->form_validation->set_message('is_natural_no_zero', lang('fv_required'));
+            $this->form_validation->set_message('valid_email', lang('fv_valid_email'));
+            $this->form_validation->set_message('is_unique', lang('fv_email_already_registered'));
 
-			$this->accounts_where['u.group_id'] = $this->accounts_group;
+            //  Execute
+            if ($this->form_validation->run()) {
 
-		endif;
+                //  Success
+                $data             = array();
+                $data['group_id'] = (int) $this->input->post('group_id');
+                $data['password'] = trim($this->input->post('password'));
 
-		// --------------------------------------------------------------------------
+                if (!$data['password']) {
 
-		//	Get the accounts
-		$this->data['users']		= new stdClass();
-		$this->data['users']->data	= $this->user_model->get_all(FALSE, $_order, $_limit, $this->accounts_where, $searchTerm);
+                    //  Password isn't set, generate one
+                    $data['password'] = $this->user_password_model->generate();
+                }
 
-		//	Work out pagination
-		$this->data['users']->pagination				= new stdClass();
-		$this->data['users']->pagination->total_results	= $this->user_model->count_all($this->accounts_where, $searchTerm);
+                if ($this->input->post('email')) {
 
-		// --------------------------------------------------------------------------
+                    $data['email'] = $this->input->post('email');
+                }
 
-		//	Override the title (used when loading this method from one of the other methods)
-		$this->data['page']->title	 = (! empty($this->data['page']->title)) ? $this->data['page']->title : lang('accounts_index_title');
+                if ($this->input->post('username')) {
 
-		if ($searchTerm) :
+                    $data['username'] = $this->input->post('username');
+                }
 
-			$this->data['page']->title	.= ' (' . lang('accounts_index_search_results', array($searchTerm, number_format($this->data['users']->pagination->total_results))) . ')';
+                $data['first_name']     = $this->input->post('first_name');
+                $data['last_name']      = $this->input->post('last_name');
+                $data['temp_pw']        = stringToBoolean($this->input->post('temp_pw'));
+                $data['inform_user_pw'] = true;
 
-		else :
+                $new_user = $this->user_model->create($data, stringToBoolean($this->input->post('send_activation')));
 
-			$this->data['page']->title	.= ' (' . number_format($this->data['users']->pagination->total_results) . ')';
+                if ($new_user) {
 
-		endif;
+                    /**
+                     * Any errors happen? While the user can be created successfully other problems
+                     * might happen along the way
+                     */
 
-		// --------------------------------------------------------------------------
+                    if ($this->user_model->get_errors()) {
 
-		//	Pass any columns and actions to the view
-		$this->data['columns']		= $this->accounts_columns;
-		$this->data['actions']		= $this->accounts_actions;
-		$this->data['sortfields']	= $this->accounts_sortfields;
+                        $message  = '<strong>Please Note,</strong> while the user was created successfully, the ';
+                        $message .= 'following issues were encountered:';
+                        $message .= '<ul><li>' . implode('</li><li>', $this->user_model->get_errors()) . '</li></ul>';
 
-		// --------------------------------------------------------------------------
+                        $this->session->set_flashdata('message', $message);
+                    }
 
-		//	Load views
-		$this->load->view('structure/header',		$this->data);
-		$this->load->view('admin/accounts/index',	$this->data);
-		$this->load->view('structure/footer',		$this->data);
-	}
+                    // --------------------------------------------------------------------------
 
+                    //  Add item to admin changelog
+                    $name = '#' . number_format($new_user->id);
 
-	// --------------------------------------------------------------------------
+                    if ($new_user->first_name) {
 
+                        $name .= ' ' . $new_user->first_name;
+                    }
 
-	public function create()
-	{
-		if (! user_has_permission('admin.accounts:0.can_create_user')) :
+                    if ($new_user->last_name) {
 
-			unauthorised();
+                        $name .= ' ' . $new_user->last_name;
+                    }
 
-		endif;
+                    $this->admin_changelog_model->add('created', 'a', 'user', $new_user->id, $name, 'admin/accounts/edit/' . $new_user->id);
 
-		// --------------------------------------------------------------------------
+                    // --------------------------------------------------------------------------
 
-		//	Page Title
-		$this->data['page']->title = lang('accounts_create_title');
+                    $status   = 'success';
+                    $message  = '<strong>Success!</strong> A user account was created for <strong>';
+                    $message .= $new_user->first_name . '</strong>, update their details now.';
+                    $this->session->set_flashdata($status, $message);
 
-		// --------------------------------------------------------------------------
+                    redirect('admin/accounts/edit/' . $new_user->id);
 
-		//	Attempt to create the new user account
-		if ($this->input->post()) :
+                } else {
 
-			$this->load->library('form_validation');
+                    $this->data['error']  = '<strong>Sorry,</strong> there was an error when creating the user ';
+                    $this->data['error'] .= 'account:<br />&rsaquo; ';
+                    $this->data['error'] .= implode('<br />&rsaquo; ', $this->user_model->get_errors());
+                }
 
-			//	Set rules
-			$this->form_validation->set_rules('group_id',			'',	'xss_clean|required|is_natural_no_zero');
-			$this->form_validation->set_rules('password',			'',	'xss_clean');
-			$this->form_validation->set_rules('send_activation',	'',	'xss_clean');
-			$this->form_validation->set_rules('temp_pw',			'',	'xss_clean');
-			$this->form_validation->set_rules('first_name',			'',	'xss_clean|required');
-			$this->form_validation->set_rules('last_name',			'',	'xss_clean|required');
+            } else {
 
-			$emailRules   = array();
-			$emailRules[] = 'xss_clean';
-			$emailRules[] = 'required';
-			$emailRules[] = 'valid_email';
-			$emailRules[] = 'is_unique[' . NAILS_DB_PREFIX . 'user_email.email]';
+                $this->data['error']  = '<strong>Sorry,</strong> there was an error when creating the user account. ';
+                $this->data['error'] .= $this->user_model->last_error();
+            }
+        }
 
-			if (APP_NATIVE_LOGIN_USING == 'EMAIL') {
+        // --------------------------------------------------------------------------
 
-				$this->form_validation->set_rules('email', '', implode('|', $emailRules));
+        //  Get the groups
+        $this->data['groups'] = $this->user_group_model->get_all();
 
-				if ($this->input->post('username')) {
+        // --------------------------------------------------------------------------
 
-					$this->form_validation->set_rules('username', '', implode('|', 'xss_clean'));
-				}
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/accounts/create/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-			} elseif (APP_NATIVE_LOGIN_USING == 'USERNAME') {
+    // --------------------------------------------------------------------------
 
-				$this->form_validation->set_rules('username', '', implode('|', 'xss_clean|required'));
+    /**
+     * Edit a user account
+     * @return void
+     */
+    public function edit()
+    {
+        if ($this->uri->segment(4) != active_user('id') && !user_has_permission('admin.accounts:0.can_edit_others')) {
 
-				if ($this->input->post('email')) {
+            unauthorised();
+        }
 
-					$this->form_validation->set_rules('email', '', implode('|', $emailRules));
-				}
+        // --------------------------------------------------------------------------
 
-			} else {
+        /**
+         * Get the user's data; loaded early because it's required for the user_meta_cols
+         * (we need to know the group of the user so we can pull up the correct cols/rules)
+         */
 
-				$this->form_validation->set_rules('email',		'',	implode('|', $emailRules));
-				$this->form_validation->set_rules('username',	'',	'xss_clean|required');
-			}
+        $user = $this->user_model->get_by_id($this->uri->segment(4));
 
-			//	Set messages
-			$this->form_validation->set_message('required',				lang('fv_required'));
-			$this->form_validation->set_message('min_length',			lang('fv_min_length'));
-			$this->form_validation->set_message('alpha_dash_period',	lang('fv_alpha_dash_period'));
-			$this->form_validation->set_message('is_natural_no_zero',	lang('fv_required'));
-			$this->form_validation->set_message('valid_email',			lang('fv_valid_email'));
-			$this->form_validation->set_message('is_unique',			lang('fv_email_already_registered'));
+        if (!$user) {
 
-			//	Execute
-			if ($this->form_validation->run()) :
+            $this->session->set_flashdata('error', lang('accounts_edit_error_unknown_id'));
+            redirect($this->input->get('return_to'));
+        }
 
-				//	Success
-				$_data				= array();
-				$_data['group_id']	= (int) $this->input->post('group_id');
-				$_data['password']	= trim($this->input->post('password'));
+        //  Non-superusers editing superusers is not cool
+        if (!$this->user_model->is_superuser() && user_has_permission('superuser', $user)) {
 
-				if (! $_data['password']) :
+            $this->session->set_flashdata('error', lang('accounts_edit_error_noteditable'));
+            $return_to = $this->input->get('return_to') ? $this->input->get('return_to') : 'admin/dashboard';
+            redirect($return_to);
+        }
 
-					//	Password isn't set, generate one
-					$_data['password'] = $this->user_password_model->generate();
+        //  Is this user editing someone other than themselves? If so, do they have permission?
+        if (active_user('id') != $user->id && !user_has_permission('admin.accounts:0.can_edit_others')) {
 
-				endif;
+            $this->session->set_flashdata('error', lang('accounts_edit_error_noteditable'));
+            $return_to = $this->input->get('return_to') ? $this->input->get('return_to') : 'admin/dashboard';
+            redirect($return_to);
+        }
 
-				if ($this->input->post('email')) :
+        // --------------------------------------------------------------------------
 
-					$_data['email'] = $this->input->post('email');
+        //  Load helpers
+        $this->load->helper('date');
 
-				endif;
+        // --------------------------------------------------------------------------
 
-				if ($this->input->post('username')) :
+        /**
+         * Load the user_meta_cols; loaded here because it's needed for both the view
+         * and the form validation
+         */
 
-					$_data['username'] = $this->input->post('username');
+        $user_meta_cols = $this->config->item('user_meta_cols');
+        $group_id       = $this->input->post('group_id') ? $this->input->post('group_id') : $user->group_id;
 
-				endif;
+        if (isset($user_meta_cols[$group_id])) {
 
-				$_data['first_name']		= $this->input->post('first_name');
-				$_data['last_name']			= $this->input->post('last_name');
-				$_data['temp_pw']			= string_to_boolean($this->input->post('temp_pw'));
-				$_data['inform_user_pw']	= TRUE;
+            $this->data['user_meta_cols'] = $user_meta_cols[$user->group_id];
 
-				$_new_user = $this->user_model->create($_data, string_to_boolean($this->input->post('send_activation')));
+        } else {
 
-				if ($_new_user) :
+            $this->data['user_meta_cols'] = null;
+        }
 
-					//	Any errors happen? While the user can be created successfully other problems might happen along the way
-					if ($this->user_model->get_errors()) :
+        //  Set fields to ignore by default
+        $this->data['ignored_fields']   = array();
+        $this->data['ignored_fields'][] = 'id';
+        $this->data['ignored_fields'][] = 'user_id';
 
-						$_message  = '<strong>Please Note,</strong> while the user was created successfully, the following issues were encountered:';
-						$_message .= '<ul><li>' . implode('</li><li>', $this->user_model->get_errors()) . '</li></ul>';
+        /**
+         * If no cols were found, DESCRIBE the user_meta table - where possible you
+         * should manually set columns, including datatypes
+         */
 
-						$this->session->set_flashdata('message', $_message);
+        if (is_null($this->data['user_meta_cols'])) {
 
-					endif;
+            $describe = $this->db->query('DESCRIBE `' . NAILS_DB_PREFIX . 'user_meta`')->result();
+            $this->data['user_meta_cols'] = array();
 
-					// --------------------------------------------------------------------------
+            foreach ($describe as $col) {
 
-					//	Add item to admin changelog
-					$_name = '#' . number_format($_new_user->id);
+                //  Always ignore some fields
+                if (array_search($col->Field, $this->data['ignored_fields']) !== false) {
 
-					if ($_new_user->first_name) :
+                    continue;
+                }
 
-						$_name .= ' ' . $_new_user->first_name;
+                // --------------------------------------------------------------------------
 
-					endif;
+                //  Attempt to detect datatype
+                $datatype  = 'string';
+                $type      = 'text';
 
-					if ($_new_user->last_name) :
+                switch(strtolower($col->Type)) {
 
-						$_name .= ' ' . $_new_user->last_name;
+                    case 'text':
 
-					endif;
+                        $type = 'textarea';
+                        break;
 
-					$this->admin_changelog_model->add('created', 'a', 'user', $_new_user->id,  $_name, 'admin/accounts/edit/' . $_new_user->id);
+                    case 'date':
 
-					// --------------------------------------------------------------------------
+                        $datatype = 'date';
+                        break;
 
-					$this->session->set_flashdata('success', '<strong>Success!</strong> A user account was created for <strong>' . $_new_user->first_name . '</strong>, update their details now.');
-					redirect('admin/accounts/edit/' . $_new_user->id);
+                    case 'tinyint(1) unsigned':
 
-				else :
+                        $datatype = 'bool';
+                        break;
+                }
 
-					$this->data['error'] = '<strong>Sorry,</strong> there was an error when creating the user account:<br />&rsaquo; ' . implode('<br />&rsaquo; ', $this->user_model->get_errors());
+                // --------------------------------------------------------------------------
 
-				endif;
+                $this->data['user_meta_cols'][$col->Field] = array(
+                    'datatype'      => $datatype,
+                    'type'          => $type,
+                    'label'         => ucwords(str_replace('_', ' ', $col->Field))
+                );
+            }
+        }
 
-			else :
+        // --------------------------------------------------------------------------
 
-				$this->data['error'] = '<strong>Sorry,</strong> there was an error when creating the user account. ' . $this->user_model->last_error();
+        //  Validate if we're saving, otherwise get the data and display the edit form
+        if ($this->input->post()) {
 
-			endif;
+            //  Load validation library
+            $this->load->library('form_validation');
 
-		endif;
+            // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+            //  Define user table rules
+            $this->form_validation->set_rules('username', '', 'xss-clean');
+            $this->form_validation->set_rules('first_name', '', 'xss_clean|trim|required');
+            $this->form_validation->set_rules('last_name', '', 'xss_clean|trim|required');
+            $this->form_validation->set_rules('gender', '', 'xss_clean|required');
+            $this->form_validation->set_rules('dob', '', 'xss_clean|valid_date');
+            $this->form_validation->set_rules('timezone', '', 'xss_clean|required');
+            $this->form_validation->set_rules('datetime_format_date', '', 'xss_clean|required');
+            $this->form_validation->set_rules('datetime_format_time', '', 'xss_clean|required');
+            $this->form_validation->set_rules('password', '', 'xss_clean');
+            $this->form_validation->set_rules('temp_pw', '', 'xss_clean');
+            $this->form_validation->set_rules('reset_security_questions', '', 'xss_clean');
 
-		//	Get the groups
-		$this->data['groups'] = $this->user_group_model->get_all();
+            // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+            //  Define user_meta table rules
+            foreach ($this->data['user_meta_cols'] as $col => $value) {
 
-		//	Load views
-		$this->load->view('structure/header',				$this->data);
-		$this->load->view('admin/accounts/create/index',	$this->data);
-		$this->load->view('structure/footer',				$this->data);
-	}
+                $datatype = isset($value['datatype']) ? $value['datatype'] : 'string';
+                $label    = isset($value['label'])    ? $value['label'] : ucwords(str_replace('_', ' ', $col));
 
+                //  Some data types require different handling
+                switch ($datatype) {
 
-	// --------------------------------------------------------------------------
+                    case 'date':
 
+                        //  Dates must validate
+                        if (isset($value['validation'])) {
 
-	/**
-	 * Edit an existing user account
-	 *
-	 * @access	public
-	 * @param	none
-	 * @return	void
-	 **/
-	public function edit()
-	{
-		if ($this->uri->segment(4) != active_user('id') && ! user_has_permission('admin.accounts:0.can_edit_others')) :
+                            $this->form_validation->set_rules($col, $label, 'xss_clean|' . $value['validation'] . '|valid_date[' . $col . ']');
 
-			unauthorised();
+                        } else {
 
-		endif;
+                            $this->form_validation->set_rules($col, $label, 'xss_clean|valid_date[' . $col . ']');
+                        }
+                        break;
 
-		// --------------------------------------------------------------------------
+                    // --------------------------------------------------------------------------
 
-		/**
-		 * Get the user's data; loaded early because it's required for the user_meta_cols
-		 * (we need to know the group of the user so we can pull up the correct cols/rules)
-		 */
+                    case 'file':
+                    case 'upload':
+                    case 'string':
+                    default:
 
-		$_user = $this->user_model->get_by_id($this->uri->segment(4));
+                        if (isset($value['validation'])) {
 
-		if (! $_user) :
+                            $this->form_validation->set_rules($col, $label, 'xss_clean|' . $value['validation']);
 
-			$this->session->set_flashdata('error', lang('accounts_edit_error_unknown_id'));
-			redirect($this->input->get('return_to'));
+                        } else {
 
-		endif;
+                            $this->form_validation->set_rules($col, $label, 'xss_clean');
 
-		//	Non-superusers editing superusers is not cool
-		if (! $this->user_model->is_superuser() && user_has_permission('superuser', $_user)) :
+                        }
+                        break;
 
-			$this->session->set_flashdata('error', lang('accounts_edit_error_noteditable'));
-			$_return_to = $this->input->get('return_to') ? $this->input->get('return_to') : 'admin/dashboard';
-			redirect($_return_to);
+                }
 
-		endif;
+            }
 
-		//	Is this user editing someone other than themselves? If so, do they have permission?
-		if (active_user('id') != $_user->id && ! user_has_permission('admin.accounts:0.can_edit_others')) :
+            // --------------------------------------------------------------------------
 
-			$this->session->set_flashdata('error', lang('accounts_edit_error_noteditable'));
-			$_return_to = $this->input->get('return_to') ? $this->input->get('return_to') : 'admin/dashboard';
-			redirect($_return_to);
+            //  Set messages
+            $this->form_validation->set_message('required', lang('fv_required'));
+            $this->form_validation->set_message('min_length', lang('fv_min_length'));
+            $this->form_validation->set_message('alpha_dash_period', lang('fv_alpha_dash_period'));
+            $this->form_validation->set_message('is_natural_no_zero', lang('fv_required'));
+            $this->form_validation->set_message('valid_date', lang('fv_valid_date'));
+            $this->form_validation->set_message('valid_datetime', lang('fv_valid_datetime'));
 
-		endif;
+            // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+            //  Data is valid; ALL GOOD :]
+            if ($this->form_validation->run($this)) {
 
-		//	Load helpers
-		$this->load->helper('date');
+                //  Define the data var
+                $data = array();
 
-		// --------------------------------------------------------------------------
+                // --------------------------------------------------------------------------
 
-		//	Load the user_meta_cols; loaded here because it's needed for both the view
-		//	and the form validation
+                //  If we have a profile image, attempt to upload it
+                if (isset($FILES['profile_img']) && $FILES['profile_img']['error'] != UPLOAD_ERR_NO_FILE) {
 
-		$_user_meta_cols	= $this->config->item('user_meta_cols');
-		$_group_id			= $this->input->post('group_id') ? $this->input->post('group_id') : $_user->group_id;
+                    $object = $this->cdn->object_replace($user->profile_img, 'profile-images', 'profile_img');
 
-		if (isset($_user_meta_cols[$_group_id])) :
+                    if ($object) {
 
-			$this->data['user_meta_cols'] = $_user_meta_cols[$_user->group_id];
+                        $data['profile_img'] = $object->id;
 
-		else :
+                    } else {
 
-			$this->data['user_meta_cols'] = NULL;
+                        $this->data['upload_error'] = $this->cdn->get_errors();
+                        $this->data['error']        = lang('accounts_edit_error_profile_img');
+                    }
+                }
 
-		endif;
+                // --------------------------------------------------------------------------
 
-		//	Set fields to ignore by default
-		$this->data['ignored_fields'] = array();
-		$this->data['ignored_fields'][] = 'id';
-		$this->data['ignored_fields'][] = 'user_id';
+                if (!isset($this->data['upload_error'])) {
 
-		//	If no cols were found, DESCRIBE the user_meta table - where possible
-		//	you should manually set columns, including datatypes
+                    //  Set basic data
+                    $data['temp_pw']                  = stringToBoolean($this->input->post('temp_pw'));
+                    $data['reset_security_questions'] = stringToBoolean($this->input->post('reset_security_questions'));
+                    $data['first_name']               = $this->input->post('first_name');
+                    $data['last_name']                = $this->input->post('last_name');
+                    $data['username']                 = $this->input->post('username');
+                    $data['gender']                   = $this->input->post('gender');
+                    $data['dob']                      = $this->input->post('dob');
+                    $data['dob']                      = !empty($data['dob']) ? $data['dob'] : null;
+                    $data['timezone']                 = $this->input->post('timezone');
+                    $data['datetime_format_date']     = $this->input->post('datetime_format_date');
+                    $data['datetime_format_time']     = $this->input->post('datetime_format_time');
 
-		if (NULL === $this->data['user_meta_cols']) :
+                    if ($this->input->post('password')) {
 
-			$_describe = $this->db->query('DESCRIBE `' . NAILS_DB_PREFIX . 'user_meta`')->result();
-			$this->data['user_meta_cols'] = array();
+                        $data['password']  = $this->input->post('password');
+                    }
 
-			foreach ($_describe AS $col) :
+                    //  Set meta data
+                    foreach ($this->data['user_meta_cols'] as $col => $value) {
 
-				//	Always ignore some fields
-				if (array_search($col->Field, $this->data['ignored_fields']) !== FALSE)
-					continue;
+                        switch ($value['datatype']) {
 
-				// --------------------------------------------------------------------------
+                            case 'bool':
+                            case 'boolean':
 
-				//	Attempt to detect datatype
-				$_datatype	= 'string';
-				$_type		= 'text';
+                                //  Convert all to boolean from string
+                                $data[$col] = stringToBoolean($this->input->post($col));
+                                break;
 
-				switch(strtolower($col->Type)) :
+                            default:
 
-					case 'text' :					$_type = 'textarea';	break;
-					case 'date' :					$_datatype = 'date';	break;
-					case 'tinyint(1) unsigned' :	$_datatype = 'bool';	break;
+                                $data[$col] = $this->input->post($col);
+                                break;
+                        }
+                    }
 
-				endswitch;
+                    // --------------------------------------------------------------------------
 
-				// --------------------------------------------------------------------------
+                    //  Update account
+                    if ($this->user_model->update($this->input->post('id'), $data)) {
 
-				$this->data['user_meta_cols'][$col->Field] = array(
-					'datatype'		=> $_datatype,
-					'type'			=> $_type,
-					'label'			=> ucwords(str_replace('_', ' ', $col->Field))
-				);
+                        $name = $this->input->post('first_name') . ' ' . $this->input->post('last_name');
+                        $this->data['success'] = lang('accounts_edit_ok', array(title_case($name)));
 
-			endforeach;
+                        // --------------------------------------------------------------------------
 
-		endif;
+                        //  Set Admin changelogs
+                        $name = '#' . number_format($this->input->post('id'));
 
-		// --------------------------------------------------------------------------
+                        if ($data['first_name']) {
 
-		//	Validate if we're saving, otherwise get the data and display the edit form
-		if ($this->input->post()) :
+                            $name .= ' ' . $data['first_name'];
+                        }
 
-			//	Load validation library
-			$this->load->library('form_validation');
+                        if ($data['last_name']) {
 
-			// --------------------------------------------------------------------------
+                            $name .= ' ' . $data['last_name'];
+                        }
 
-			//	Define user table rules
-			$this->form_validation->set_rules('username',					'',	'xss-clean');
-			$this->form_validation->set_rules('first_name',					'',	'xss_clean|trim|required');
-			$this->form_validation->set_rules('last_name',					'',	'xss_clean|trim|required');
-			$this->form_validation->set_rules('gender',						'',	'xss_clean|required');
-			$this->form_validation->set_rules('dob',						'',	'xss_clean|valid_date');
-			$this->form_validation->set_rules('timezone',					'',	'xss_clean|required');
-			$this->form_validation->set_rules('datetime_format_date',		'',	'xss_clean|required');
-			$this->form_validation->set_rules('datetime_format_time',		'',	'xss_clean|required');
-			$this->form_validation->set_rules('password',					'',	'xss_clean');
-			$this->form_validation->set_rules('temp_pw',					'',	'xss_clean');
-			$this->form_validation->set_rules('reset_security_questions',	'',	'xss_clean');
+                        foreach ($data as $field => $value) {
 
-			// --------------------------------------------------------------------------
+                            if (isset($user->$field)) {
 
-			//	Define user_meta table rules
-			foreach ($this->data['user_meta_cols'] AS $col => $value) :
+                                $this->admin_changelog_model->add('updated', 'a', 'user', $this->input->post('id'), $name, 'admin/accounts/edit/' . $this->input->post('id'), $field, $user->$field, $value, false);
+                            }
+                        }
 
-				$_datatype	= isset($value['datatype'])	? $value['datatype'] : 'string';
-				$_label		= isset($value['label'])		? $value['label'] : ucwords(str_replace('_', ' ', $col));
+                        // --------------------------------------------------------------------------
 
-				//	Some data types require different handling
-				switch ($_datatype) :
+                        //  refresh the user object
+                        $user = $this->user_model->get_by_id($this->input->post('id'));
 
-					case 'date' :
+                    //  The account failed to update, feedback to user
+                    } else {
 
-						//	Dates must validate
-						if (isset($value['validation'])) :
+                        $this->data['error'] = lang('accounts_edit_fail', implode(', ', $this->user_model->get_errors()));
+                    }
+                }
 
-							$this->form_validation->set_rules($col, $_label, 'xss_clean|' . $value['validation'] . '|valid_date[' . $col . ']');
+            //  Update failed for another reason
+            } else {
 
-						else :
+                $this->data['error'] = lang('fv_there_were_errors');
+            }
 
-							$this->form_validation->set_rules($col, $_label, 'xss_clean|valid_date[' . $col . ']');
+        }
+        //  End POST() check
 
-						endif;
+        // --------------------------------------------------------------------------
 
-					break;
+        //  Get the user's meta data
+        if ($this->data['user_meta_cols']) {
 
-					// --------------------------------------------------------------------------
+            $this->db->select(implode(',', array_keys($this->data['user_meta_cols'])));
+            $this->db->where('user_id', $user->id);
+            $user_meta = $this->db->get(NAILS_DB_PREFIX . 'user_meta')->row();
 
-					case 'file' :
-					case 'upload' :
-					case 'string' :
-					default :
+        } else {
 
-						if (isset($value['validation'])) :
+            $user_meta = array();
+        }
 
-							$this->form_validation->set_rules($col, $_label, 'xss_clean|' . $value['validation']);
+        // --------------------------------------------------------------------------
 
-						else :
+        //  Get the user's email addresses
+        $this->data['user_emails'] = $this->user_model->get_emails_for_user($user->id);
 
-							$this->form_validation->set_rules($col, $_label, 'xss_clean');
+        // --------------------------------------------------------------------------
 
-						endif;
+        $this->data['user_edit'] = $user;
+        $this->data['user_meta'] = $user_meta;
 
-					break;
+        //  Page Title
+        $this->data['page']->title = lang('accounts_edit_title', title_case($user->first_name . ' ' . $user->last_name));
 
-				endswitch;
+        //  Get the groups, timezones and languages
+        $this->data['groups']       = $this->user_group_model->get_all();
+        $this->data['timezones']    = $this->datetime_model->get_all_timezone();
+        $this->data['date_formats'] = $this->datetime_model->get_all_date_format();
+        $this->data['time_formats'] = $this->datetime_model->get_all_time_format();
+        $this->data['languages']    = $this->language_model->get_all_enabled_flat();
 
-			endforeach;
+        //  Fetch any user uploads
+        if (module_is_enabled('cdn')) {
 
-			// --------------------------------------------------------------------------
+            $this->data['user_uploads'] = $this->cdn->get_objects_for_user($user->id);
+        }
 
-			//	Set messages
-			$this->form_validation->set_message('required',				lang('fv_required'));
-			$this->form_validation->set_message('min_length',			lang('fv_min_length'));
-			$this->form_validation->set_message('alpha_dash_period',	lang('fv_alpha_dash_period'));
-			$this->form_validation->set_message('is_natural_no_zero',	lang('fv_required'));
-			$this->form_validation->set_message('valid_date',			lang('fv_valid_date'));
-			$this->form_validation->set_message('valid_datetime',		lang('fv_valid_datetime'));
+        // --------------------------------------------------------------------------
 
-			// --------------------------------------------------------------------------
+        if (active_user('id') == $user->id) {
 
-			//	Data is valid; ALL GOOD :]
-			if ($this->form_validation->run($this)) :
+            switch (strtolower(active_user('gender'))) {
 
-				//	Define the data var
-				$_data = array();
+                case 'male':
 
-				// --------------------------------------------------------------------------
+                    $this->data['notice'] = lang('accounts_edit_editing_self_m');
+                    break;
 
-				//	If we have a profile image, attempt to upload it
-				if (isset($_FILES['profile_img']) && $_FILES['profile_img']['error'] != 4) :
+                case 'female':
 
-					$_object = $this->cdn->object_replace($_user->profile_img, 'profile-images', 'profile_img');
+                    $this->data['notice'] = lang('accounts_edit_editing_self_f');
+                    break;
 
-					if ($_object) :
+                default:
 
-						$_data['profile_img'] = $_object->id;
+                    $this->data['notice'] = lang('accounts_edit_editing_self_u');
+                    break;
+            }
+        }
 
-					else :
+        // --------------------------------------------------------------------------
 
-						$this->data['upload_error']	= $this->cdn->get_errors();
-						$this->data['error']		= lang('accounts_edit_error_profile_img');
+        //  Assets
+        $this->asset->load('nails.admin.accounts.edit.min.js', true);
+        $this->asset->inline('_nailsAdminAccountsEdit = new NAILS_Admin_Accounts_Edit();', 'JS');
 
-					endif;
+        // --------------------------------------------------------------------------
 
-				endif;
+        //  Load views
+        if ($this->input->get('inline') || $this->input->get('is_fancybox')) {
 
-				// --------------------------------------------------------------------------
+            $this->data['header_override'] = 'structure/header/nails-admin-blank';
+            $this->data['footer_override'] = 'structure/footer/nails-admin-blank';
+        }
 
-				if (! isset($this->data['upload_error'])) :
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/accounts/edit/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-					//	Set basic data
-					$_data['temp_pw']					= string_to_boolean($this->input->post('temp_pw'));
-					$_data['reset_security_questions']	= string_to_boolean($this->input->post('reset_security_questions'));
-					$_data['first_name']				= $this->input->post('first_name');
-					$_data['last_name']					= $this->input->post('last_name');
-					$_data['username']					= $this->input->post('username');
-					$_data['gender']					= $this->input->post('gender');
-					$_data['dob']						= $this->input->post('dob');
-					$_data['dob']						= ! empty($_data['dob']) ? $_data['dob'] : NULL;
-					$_data['timezone']					= $this->input->post('timezone');
-					$_data['datetime_format_date']		= $this->input->post('datetime_format_date');
-					$_data['datetime_format_time']		= $this->input->post('datetime_format_time');
+    // --------------------------------------------------------------------------
 
-					if ($this->input->post('password')) :
+    /**
+     * Change a user's group
+     * @return void
+     */
+    public function change_group()
+    {
+        if (!user_has_permission('admin.accounts:0.can_change_user_group')) {
 
-						$_data['password']	= $this->input->post('password');
+            show_404();
+        }
 
-					endif;
+        // --------------------------------------------------------------------------
 
-					//	Set meta data
-					foreach ($this->data['user_meta_cols'] AS $col => $value) :
+        $userIds             = explode(',', $this->input->get('users'));
+        $this->data['users'] = $this->user_model->get_by_ids($userIds);
 
-						switch ($value['datatype']) :
+        if (!$this->data['users']) {
 
-							case 'bool' :
-							case 'boolean' :
+            show_404();
+        }
 
-								//	Convert all to boolean from string
-								$_data[$col] = string_to_boolean($this->input->post($col));
+        foreach ($this->data['users'] as $user) {
 
-							break;
+            if ($this->user_model->is_superuser($user->id) && !$this->user_model->is_superuser()) {
 
-							// --------------------------------------------------------------------------
+                show_404();
+            }
+        }
 
-							default :
+        // --------------------------------------------------------------------------
 
-								$_data[$col] = $this->input->post($col);
+        $this->data['userGroups'] = $this->user_group_model->get_all_flat();
 
-							break;
+        // --------------------------------------------------------------------------
 
-						endswitch;
+        if ($this->input->post()) {
 
-					endforeach;
+            if ($this->user_group_model->changeUserGroup($userIds, $this->input->post('newGroupId'))) {
 
-					// --------------------------------------------------------------------------
+                $this->session->set_flashdata('success', '<strong>Success!</strong> User group was updated successfully.');
+                redirect('admin/accounts/index');
 
-					//	Update account
-					if ($this->user_model->update($this->input->post('id'), $_data)) :
+            } else {
 
-						$_name = $this->input->post( 'first_name') . ' ' . $this->input->post('last_name');
-						$this->data['success'] = lang('accounts_edit_ok', array(title_case($_name)));
+                $this->data['error'] = '<strong>Sorry,</strong> failed to update user group. ' . $this->user_group_model->last_error();
+            }
+        }
 
-						// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-						//	Set Admin changelogs
-						$_name = '#' . number_format($this->input->post('id'));
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/accounts/change_group/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-						if ($_data['first_name']) :
+    // --------------------------------------------------------------------------
 
-							$_name .= ' ' . $_data['first_name'];
+    /**
+     * Suspend a user
+     * @return void
+     */
+    public function suspend()
+    {
+        if (!user_has_permission('admin.accounts:0.can_suspend_user')) {
 
-						endif;
+            unauthorised();
+        }
 
-						if ($_data['last_name']) :
+        // --------------------------------------------------------------------------
 
-							$_name .= ' ' . $_data['last_name'];
+        //  Get the user's details
+        $uid       = $this->uri->segment(4);
+        $user      = $this->user_model->get_by_id($uid);
+        $old_value = $user->is_suspended;
 
-						endif;
+        // --------------------------------------------------------------------------
 
-						foreach ($_data AS $field => $value) :
+        //  Non-superusers editing superusers is not cool
+        if (!$this->user_model->is_superuser() && user_has_permission('superuser', $user)) {
 
-							if (isset($_user->$field)) :
+            $this->session->set_flashdata('error', lang('accounts_edit_error_noteditable'));
+            redirect($this->input->get('return_to'));
+        }
 
-								$this->admin_changelog_model->add('updated', 'a', 'user', $this->input->post('id'),  $_name, 'admin/accounts/edit/' . $this->input->post('id'), $field, $_user->$field, $value, FALSE);
+        // --------------------------------------------------------------------------
 
-							endif;
+        //  Suspend user
+        $this->user_model->suspend($uid);
 
-						endforeach;
+        // --------------------------------------------------------------------------
 
-						// --------------------------------------------------------------------------
+        //  Get the user's details, again
+        $user      = $this->user_model->get_by_id($uid);
+        $new_value = $user->is_suspended;
 
-						//	refresh the user object
-						$_user = $this->user_model->get_by_id($this->input->post('id'));
 
-					//	The account failed to update, feedback to user
-					else:
+        // --------------------------------------------------------------------------
 
-						$this->data['error'] = lang('accounts_edit_fail', implode(', ', $this->user_model->get_errors()));
+        //  Define messages
+        if (!$user->is_suspended) {
 
-					endif;
+            $this->session->set_flashdata('error', lang('accounts_suspend_error', title_case($user->first_name . ' ' . $user->last_name)));
 
-				endif;
+        } else {
 
-			//	Update failed for another reason
-			else:
+            $this->session->set_flashdata('success', lang('accounts_suspend_success', title_case($user->first_name . ' ' . $user->last_name)));
+        }
 
-				$this->data['error'] = lang('fv_there_were_errors');
+        // --------------------------------------------------------------------------
 
-			endif;
+        //  Update admin changelog
+        $this->admin_changelog_model->add('suspended', 'a', 'user', $uid, '#' . number_format($uid) . ' ' . $user->first_name . ' ' . $user->last_name, 'admin/accounts/edit/' . $uid, 'is_suspended', $old_value, $new_value, false);
 
-		endif;
-		//	End POST() check
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        redirect($this->input->get('return_to'));
+    }
 
-		//	Get the user's meta data
-		if ($this->data['user_meta_cols']) :
+    // --------------------------------------------------------------------------
 
-			$this->db->select(implode(',', array_keys($this->data['user_meta_cols'])));
-			$this->db->where('user_id', $_user->id);
-			$_user_meta = $this->db->get(NAILS_DB_PREFIX . 'user_meta')->row();
+    /**
+     * Unsuspend a user
+     * @return void
+     */
+    public function unsuspend()
+    {
+        if (!user_has_permission('admin.accounts:0.can_suspend_user')) {
 
-		else :
+            unauthorised();
+        }
 
-			$_user_meta = array();
+        // --------------------------------------------------------------------------
 
-		endif;
+        //  Get the user's details
+        $uid       = $this->uri->segment(4);
+        $user      = $this->user_model->get_by_id($uid);
+        $old_value = $user->is_suspended;
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Get the user's email addresses
-		$this->data['user_emails'] = $this->user_model->get_emails_for_user($_user->id);
+        //  Non-superusers editing superusers is not cool
+        if (!$this->user_model->is_superuser() && user_has_permission('superuser', $user)) {
 
-		// --------------------------------------------------------------------------
+            $this->session->set_flashdata('error', lang('accounts_edit_error_noteditable'));
+            redirect($this->input->get('return_to'));
+        }
 
-		$this->data['user_edit']	= $_user;
-		$this->data['user_meta']	= $_user_meta;
+        // --------------------------------------------------------------------------
 
-		//	Page Title
-		$this->data['page']->title = lang('accounts_edit_title', title_case($_user->first_name . ' ' . $_user->last_name));
+        //  Unsuspend user
+        $this->user_model->unsuspend($uid);
 
-		//	Get the groups, timezones and languages
-		$this->data['groups']		= $this->user_group_model->get_all();
-		$this->data['timezones']	= $this->datetime_model->get_all_timezone();
-		$this->data['date_formats']	= $this->datetime_model->get_all_date_format();
-		$this->data['time_formats']	= $this->datetime_model->get_all_time_format();
-		$this->data['languages']	= $this->language_model->get_all_enabled_flat();
+        // --------------------------------------------------------------------------
 
-		//	Fetch any user uploads
-		if (module_is_enabled('cdn')) :
+        //  Get the user's details, again
+        $user      = $this->user_model->get_by_id($uid);
+        $new_value = $user->is_suspended;
 
-			$this->data['user_uploads'] = $this->cdn->get_objects_for_user($_user->id);
+        // --------------------------------------------------------------------------
 
-		endif;
+        //  Define messages
+        if ($user->is_suspended) {
 
-		// --------------------------------------------------------------------------
+            $this->session->set_flashdata('error', lang('accounts_unsuspend_error', title_case($user->first_name . ' ' . $user->last_name)));
 
-		if (active_user('id') == $_user->id) :
+        } else {
 
-			switch (active_user('gender')) :
+            $this->session->set_flashdata('success', lang('accounts_unsuspend_success', title_case($user->first_name . ' ' . $user->last_name)));
 
-				case 'male' :
+        }
 
-					$this->data['notice'] = lang('accounts_edit_editing_self_m');
+        // --------------------------------------------------------------------------
 
-				break;
+        //  Update admin changelog
+        $this->admin_changelog_model->add('unsuspended', 'a', 'user', $uid, '#' . number_format($uid) . ' ' . $user->first_name . ' ' . $user->last_name, 'admin/accounts/edit/' . $uid, 'is_suspended', $old_value, $new_value, false);
 
-				case 'female' :
+        // --------------------------------------------------------------------------
 
-					$this->data['notice'] = lang('accounts_edit_editing_self_f');
+        redirect($this->input->get('return_to'));
+    }
 
-				break;
+    // --------------------------------------------------------------------------
 
-				default :
+    /**
+     * Delete a user
+     * @return void
+     */
+    public function delete()
+    {
+        if (!user_has_permission('admin.accounts:0.can_delete_others')) {
 
-					$this->data['notice'] = lang('accounts_edit_editing_self_u');
+            unauthorised();
+        }
 
-				break;
+        // --------------------------------------------------------------------------
 
-			endswitch;
+        //  Get the user's details
+        $uid  = $this->uri->segment(4);
+        $user = $this->user_model->get_by_id($uid);
 
-		endif;
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Non-superusers editing superusers is not cool
+        if (!$this->user_model->is_superuser() && user_has_permission('superuser', $user)) {
 
-		//	Assets
-		$this->asset->load('nails.admin.accounts.edit.min.js', true);
-		$this->asset->inline('_nailsAdminAccountsEdit = new NAILS_Admin_Accounts_Edit();', 'JS');
+            $this->session->set_flashdata('error', lang('accounts_edit_error_noteditable'));
+            redirect($this->input->get('return_to'));
+        }
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Load views
-		if ($this->input->get('inline') || $this->input->get('is_fancybox')) :
+        //  Delete user
+        $user = $this->user_model->get_by_id($uid);
 
-			$this->data['header_override'] = 'structure/header/nails-admin-blank';
-			$this->data['footer_override'] = 'structure/footer/nails-admin-blank';
+        if (!$user) {
 
-		endif;
+            $this->session->set_flashdata('error', lang('accounts_edit_error_unknown_id'));
+            redirect($this->input->get('return_to'));
+        }
 
-		$this->load->view('structure/header',			$this->data);
-		$this->load->view('admin/accounts/edit/index',	$this->data);
-		$this->load->view('structure/footer',			$this->data);
-	}
+        if ($user->id == active_user('id')) {
 
+            $this->session->set_flashdata('error', lang('accounts_delete_error_selfie'));
+            redirect($this->input->get('return_to'));
+        }
 
-	// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
+        //  Define messages
+        if ($this->user_model->destroy($uid)) {
 
-	public function change_group()
-	{
-		if (!user_has_permission('admin.accounts:0.can_change_user_group')) {
+            $this->session->set_flashdata('success', lang('accounts_delete_success', title_case($user->first_name . ' ' . $user->last_name)));
 
-			show_404();
-		}
+            //  Update admin changelog
+            $this->admin_changelog_model->add('deleted', 'a', 'user', $uid, '#' . number_format($uid) . ' ' . $user->first_name . ' ' . $user->last_name);
 
-		// --------------------------------------------------------------------------
+        } else {
 
-		$userIds             = explode(',', $this->input->get('users'));
-		$this->data['users'] = $this->user_model->get_by_ids($userIds);
+            $this->session->set_flashdata('error', lang('accounts_delete_error', title_case($user->first_name . ' ' . $user->last_name)));
+        }
 
-		if (!$this->data['users']) {
+        // --------------------------------------------------------------------------
 
-			show_404();
-		}
+        redirect($this->input->get('return_to'));
+    }
 
-		foreach($this->data['users'] AS $user) {
+    // --------------------------------------------------------------------------
 
-			if ($this->user_model->is_superuser($user->id) && !$this->user_model->is_superuser()) {
+    /**
+     * Delete a user's profile image
+     * @return void
+     */
+    public function delete_profile_img()
+    {
+        if ($this->uri->segment(4) != active_user('id') && !user_has_permission('admin.accounts:0.can_edit_others')) {
 
-				show_404();
-			}
-		}
+            unauthorised();
+        }
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		$this->data['userGroups'] = $this->user_group_model->get_all_flat();
+        $uid       = $this->uri->segment(4);
+        $user      = $this->user_model->get_by_id($uid);
+        $return_to = $this->input->get('return_to') ? $this->input->get('return_to') : 'admin/accounts/edit/' . $uid;
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		if ($this->input->post())
-		{
-			if ($this->user_group_model->changeUserGroup($userIds, $this->input->post('newGroupId'))) {
+        if (!$user) {
 
-				$this->session->set_flashdata('success', '<strong>Success!</strong> User group was updated successfully.');
-				redirect('admin/accounts/index');
+            $this->session->set_flashdata('error', lang('accounts_delete_img_error_noid'));
+            redirect('admin/accounts');
 
-			} else {
+        } else {
 
-				$this->data['error'] = '<strong>Sorry,</strong> failed to update user group. ' . $this->user_group_model->last_error();
-			}
-		}
+            //  Non-superusers editing superusers is not cool
+            if (!$this->user_model->is_superuser() && user_has_permission('superuser', $user)) {
 
-		// --------------------------------------------------------------------------
+                $this->session->set_flashdata('error', lang('accounts_edit_error_noteditable'));
+                redirect($return_to);
+            }
 
-		//	Load views
-		$this->load->view('structure/header', $this->data);
-		$this->load->view('admin/accounts/change_group/index', $this->data);
-		$this->load->view('structure/footer', $this->data);
-	}
+            // --------------------------------------------------------------------------
 
+            if ($user->profile_img) {
 
-	// --------------------------------------------------------------------------
+                if ($this->cdn->object_delete($user->profile_img, 'profile-images')) {
 
+                    //  Update the user
+                    $data = array();
+                    $data['profile_img'] = null;
 
-	/**
-	 * Suspend a user
-	 *
-	 * @access	public
-	 * @param	none
-	 * @return	void
-	 **/
-	public function suspend()
-	{
-		if (! user_has_permission('admin.accounts:0.can_suspend_user')) :
+                    $this->user_model->update($uid, $data);
 
-			unauthorised();
+                    // --------------------------------------------------------------------------
 
-		endif;
+                    $this->session->set_flashdata('success', lang('accounts_delete_img_success'));
 
-		// --------------------------------------------------------------------------
+                } else {
 
-		//	Get the user's details
-		$_uid		= $this->uri->segment(4);
-		$_user		= $this->user_model->get_by_id($_uid);
-		$_old_value = $_user->is_suspended;
+                    $this->session->set_flashdata('error', lang('accounts_delete_img_error', implode('", "', $this->cdn->get_errors())));
+                }
 
-		// --------------------------------------------------------------------------
+            } else {
 
-		//	Non-superusers editing superusers is not cool
-		if (! $this->user_model->is_superuser() && user_has_permission('superuser', $_user)) :
+                $this->session->set_flashdata('notice', lang('accounts_delete_img_error_noimg'));
+            }
 
-			$this->session->set_flashdata('error', lang('accounts_edit_error_noteditable'));
-			redirect($this->input->get('return_to'));
+            // --------------------------------------------------------------------------
 
-		endif;
+            redirect($return_to);
+        }
+    }
 
-		// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-		//	Suspend user
-		$this->user_model->suspend($_uid);
+    /**
+     * Manage a user's email address
+     * @return void
+     */
+    public function email()
+    {
+        $action = $this->input->post('action');
+        $email  = $this->input->post('email');
+        $id     = $this->input->post('id');
 
-		// --------------------------------------------------------------------------
+        switch ($action) {
 
-		//	Get the user's details, again
-		$_user		= $this->user_model->get_by_id($_uid);
-		$_new_value	= $_user->is_suspended;
+            case 'add':
 
+                $isPrimary  = (bool) $this->input->post('isPrimary');
+                $isVerified = (bool) $this->input->post('isVerified');
 
-		// --------------------------------------------------------------------------
+                if ($this->user_model->email_add($email, $id, $isPrimary, $isVerified)) {
 
-		//	Define messages
-		if (! $_user->is_suspended) :
+                    $status  = 'success';
+                    $message = '<strong>Success!</strong> "' . $email . '" was added successfully. ';
 
-			$this->session->set_flashdata('error', lang('accounts_suspend_error', title_case($_user->first_name . ' ' . $_user->last_name)));
+                } else {
 
-		else :
+                    $status   = 'error';
+                    $message  = '<strong>Sorry,</strong> failed to add email "' . $email . '". ';
+                    $message .= $this->user_model->last_error();
+                }
+                break;
 
-			$this->session->set_flashdata('success', lang('accounts_suspend_success', title_case($_user->first_name . ' ' . $_user->last_name)));
+            case 'delete':
 
-		endif;
+                if ($this->user_model->email_delete($email, $id)) {
 
-		// --------------------------------------------------------------------------
+                    $status  = 'success';
+                    $message = '<strong>Success!</strong> "' . $email . '" was deleted successfully. ';
 
-		//	Update admin changelog
-		$this->admin_changelog_model->add('suspended', 'a', 'user', $_uid,  '#' . number_format($_uid) . ' ' . $_user->first_name . ' ' . $_user->last_name, 'admin/accounts/edit/' . $_uid, 'is_suspended', $_old_value, $_new_value, FALSE);
+                } else {
 
-		// --------------------------------------------------------------------------
+                    $status   = 'error';
+                    $message  = '<strong>Sorry,</strong> failed to delete email "' . $email . '". ';
+                    $message .= $this->user_model->last_error();
+                }
+                break;
 
-		redirect($this->input->get('return_to'));
-	}
+            case 'makePrimary':
 
+                if ($this->user_model->email_make_primary($email, $id)) {
 
-	// --------------------------------------------------------------------------
+                    $status  = 'success';
+                    $message = '<strong>Success!</strong> "' . $email . '" was set as the primary email.';
 
+                } else {
 
-	/**
-	 * Unsuspends a user
-	 *
-	 * @access	public
-	 * @param	none
-	 * @return	void
-	 **/
-	public function unsuspend()
-	{
-		if (! user_has_permission('admin.accounts:0.can_suspend_user')) :
+                    $status   = 'error';
+                    $message  = '<strong>Sorry,</strong> failed to mark "' . $email . '" as the primary address. ';
+                    $message .= $this->user_model->last_error();
+                }
+                break;
 
-			unauthorised();
+            case 'verify':
 
-		endif;
+                //  Get the code for this email
+                $userEmails = $this->user_model->get_emails_for_user($id);
+                $code       = '';
 
-		// --------------------------------------------------------------------------
+                foreach ($userEmails as $userEmail) {
 
-		//	Get the user's details
-		$_uid		= $this->uri->segment(4);
-		$_user		= $this->user_model->get_by_id($_uid);
-		$_old_value	= $_user->is_suspended;
+                    if ($userEmail->email == $email) {
 
-		// --------------------------------------------------------------------------
+                        $code = $userEmail->code;
+                    }
+                }
 
-		//	Non-superusers editing superusers is not cool
-		if (! $this->user_model->is_superuser() && user_has_permission('superuser', $_user)) :
+                if (!empty($code) && $this->user_model->email_verify($id, $code)) {
 
-			$this->session->set_flashdata('error', lang('accounts_edit_error_noteditable'));
-			redirect($this->input->get('return_to'));
+                    $status  = 'success';
+                    $message = '<strong>Success!</strong> "' . $email . '" was verified successfully.';
 
-		endif;
+                } elseif (empty($code)) {
 
-		// --------------------------------------------------------------------------
+                    $status   = 'error';
+                    $message  = '<strong>Sorry,</strong> failed to mark "' . $email . '" as verified. ';
+                    $message .= 'Could not determine email\'s security code.';
 
-		//	Unsuspend user
-		$this->user_model->unsuspend($_uid);
+                } else {
 
-		// --------------------------------------------------------------------------
+                    $status   = 'error';
+                    $message  = '<strong>Sorry,</strong> failed to mark "' . $email . '" as verified. ';
+                    $message .= $this->user_model->last_error();
+                }
+                break;
 
-		//	Get the user's details, again
-		$_user		= $this->user_model->get_by_id($_uid);
-		$_new_value	= $_user->is_suspended;
+            default:
 
-		// --------------------------------------------------------------------------
+                $status  = 'error';
+                $message = 'Unknown action: "' . $action . '"';
+                break;
+        }
 
-		//	Define messages
-		if ($_user->is_suspended) :
+        $this->session->set_flashdata($status, $message);
+        redirect($this->input->post('return'));
+    }
 
-			$this->session->set_flashdata('error', lang('accounts_unsuspend_error', title_case($_user->first_name . ' ' . $_user->last_name)));
+    // --------------------------------------------------------------------------
 
-		else :
+    /**
+     * Manage user groups
+     * @return void
+     */
+    public function groups()
+    {
+        if (!user_has_permission('admin.accounts:0.can_manage_groups')) {
 
-			$this->session->set_flashdata('success', lang('accounts_unsuspend_success', title_case($_user->first_name . ' ' . $_user->last_name)));
+            unauthorised();
+        }
 
-		endif;
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        $method = $this->uri->segment(4) ? $this->uri->segment(4) : 'index';
+        $method = ucfirst(strtolower($method));
 
-		//	Update admin changelog
-		$this->admin_changelog_model->add('unsuspended', 'a', 'user', $_uid,  '#' . number_format($_uid) . ' ' . $_user->first_name . ' ' . $_user->last_name, 'admin/accounts/edit/' . $_uid, 'is_suspended', $_old_value, $_new_value, FALSE);
+        if (method_exists($this, 'groups' . $method)) {
 
-		// --------------------------------------------------------------------------
+            $this->{'groups' . ucfirst($method)}();
 
-		redirect($this->input->get('return_to'));
-	}
+        } else {
 
+            show_404();
+        }
+    }
 
-	// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
+    /**
+     * Browse user groups
+     * @return void
+     */
+    protected function groupsIndex()
+    {
+        $this->data['page']->title = 'Manage User Groups';
 
-	/**
-	 * Deletes a user
-	 *
-	 * @access	public
-	 * @param	none
-	 * @return	void
-	 **/
-	public function delete()
-	{
-		if (! user_has_permission('admin.accounts:0.can_delete_others')) :
+        // --------------------------------------------------------------------------
 
-			unauthorised();
+        $this->data['groups'] = $this->user_group_model->get_all();
 
-		endif;
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/accounts/groups/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		//	Get the user's details
-		$_uid	= $this->uri->segment(4);
-		$_user	= $this->user_model->get_by_id($_uid);
+    // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+    /**
+     * Create a user group
+     * @return void
+     */
+    protected function groupsCreate()
+    {
+        if (!user_has_permission('admin.accounts:0.can_create_group')) {
 
-		//	Non-superusers editing superusers is not cool
-		if (! $this->user_model->is_superuser() && user_has_permission('superuser', $_user)) :
+            show_404();
+        }
 
-			$this->session->set_flashdata('error', lang('accounts_edit_error_noteditable'));
-			redirect($this->input->get('return_to'));
+        // --------------------------------------------------------------------------
 
-		endif;
+        $this->session->set_flashdata('message', '<strong>Coming soon!</strong> The ability to dynamically create groups is on the roadmap.');
+        redirect('admin/accounts/groups');
+    }
 
-		// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-		//	Delete user
-		$_user = $this->user_model->get_by_id($_uid);
+    /**
+     * Edit a user group
+     * @return void
+     */
+    protected function groupsEdit()
+    {
+        if (!user_has_permission('admin.accounts:0.can_edit_group')) {
 
-		if (! $_user) :
+            show_404();
+        }
 
-			$this->session->set_flashdata('error', lang('accounts_edit_error_unknown_id'));
-			redirect($this->input->get('return_to'));
+        // --------------------------------------------------------------------------
 
-		endif;
+        $gid = $this->uri->segment(5, null);
 
-		if ($_user->id == active_user('id')) :
+        $this->data['group'] = $this->user_group_model->get_by_id($gid);
 
-			$this->session->set_flashdata('error', lang('accounts_delete_error_selfie'));
-			redirect($this->input->get('return_to'));
+        if (!$this->data['group']) {
 
-		endif;
+            $this->session->set_flashdata('error', 'Group does not exist.');
+            redirect('admin/accounts/groups');
+        }
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Define messages
-		if ($this->user_model->destroy($_uid)) :
+        if ($this->input->post()) {
 
-			$this->session->set_flashdata('success', lang('accounts_delete_success', title_case($_user->first_name . ' ' . $_user->last_name)));
+            //  Load library
+            $this->load->library('form_validation');
 
-			//	Update admin changelog
-			$this->admin_changelog_model->add('deleted', 'a', 'user', $_uid,  '#' . number_format($_uid) . ' ' . $_user->first_name . ' ' . $_user->last_name);
+            //  Define rules
+            $this->form_validation->set_rules('slug', '', 'xss_clean|unique_if_diff[' . NAILS_DB_PREFIX . 'user_group.slug.' . $this->data['group']->slug . ']');
+            $this->form_validation->set_rules('label', '', 'xss_clean|required');
+            $this->form_validation->set_rules('description', '', 'xss_clean|required');
+            $this->form_validation->set_rules('default_homepage', '', 'xss_clean|required');
+            $this->form_validation->set_rules('registration_redirect', '', 'xss_clean');
+            $this->form_validation->set_rules('acl[]', '', 'xss_clean');
+            $this->form_validation->set_rules('acl[superuser]', '', 'xss_clean');
+            $this->form_validation->set_rules('acl[admin]', '', 'xss_clean');
+            $this->form_validation->set_rules('acl[admin][]', '', 'xss_clean');
 
-		else :
+            //  Set messages
+            $this->form_validation->set_message('required', lang('fv_required'));
+            $this->form_validation->set_message('required', lang('fv_unique_if_diff'));
 
-			$this->session->set_flashdata('error', lang('accounts_delete_error', title_case($_user->first_name . ' ' . $_user->last_name)));
+            if ($this->form_validation->run()) {
 
-		endif;
+                $data                          = array();
+                $data['slug']                  = $this->input->post('slug');
+                $data['label']                 = $this->input->post('label');
+                $data['description']           = $this->input->post('description');
+                $data['default_homepage']      = $this->input->post('default_homepage');
+                $data['registration_redirect'] = $this->input->post('registration_redirect');
 
-		// --------------------------------------------------------------------------
+                //  Parse ACL's
+                $acl         = $this->input->post('acl');
+                $data['acl'] = serialize($acl);
 
-		redirect($this->input->get('return_to'));
-	}
+                if ($this->user_group_model->update($gid, $data)) {
 
+                    $this->session->set_flashdata('success', '<strong>Huzzah!</strong> Group updated successfully!');
+                    redirect('admin/accounts/groups');
 
-	// --------------------------------------------------------------------------
+                } else {
 
+                    $this->data['error'] = '<strong>Sorry,</strong> I was unable to update the group. ' . $this->user_group_model->last_error();
+                }
 
-	public function delete_profile_img()
-	{
-		if ($this->uri->segment(4) != active_user('id') && ! user_has_permission('admin.accounts:0.can_edit_others')) :
+            } else {
 
-			unauthorised();
+                $this->data['error'] = lang('fv_there_were_errors');
+            }
+        }
 
-		endif;
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Page title
+        $this->data['page']->title = lang('accounts_groups_edit_title', $this->data['group']->label);
 
-		$_uid		= $this->uri->segment(4);
-		$_user		= $this->user_model->get_by_id($_uid);
-		$_return_to	= $this->input->get('return_to') ? $this->input->get('return_to') : 'admin/accounts/edit/' . $_uid;
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/accounts/groups/edit', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		if (! $_user) :
+    // --------------------------------------------------------------------------
 
-			$this->session->set_flashdata('error', lang('accounts_delete_img_error_noid'));
-			redirect('admin/accounts');
+    /**
+     * Delete a user group
+     * @return void
+     */
+    protected function groupsDelete()
+    {
+        if (!user_has_permission('admin.accounts:0.can_delete_group')) {
 
-		else :
+            show_404();
+        }
 
-			//	Non-superusers editing superusers is not cool
-			if (! $this->user_model->is_superuser() && user_has_permission('superuser', $_user)) :
+        // --------------------------------------------------------------------------
 
-				$this->session->set_flashdata('error', lang('accounts_edit_error_noteditable'));
-				redirect($_return_to);
+        $this->session->set_flashdata('message', '<strong>Coming soon!</strong> The ability to delete groups is on the roadmap.');
+        redirect('admin/accounts/groups');
+    }
 
-			endif;
+    // --------------------------------------------------------------------------
 
-			// --------------------------------------------------------------------------
+    /**
+     * Set the default user group
+     * @return void
+     */
+    protected function _groups_set_default()
+    {
+        if (!user_has_permission('admin.accounts:0.can_set_default_group')) {
 
-			if ($_user->profile_img) :
+            show_404();
+        }
 
-				if ($this->cdn->object_delete($_user->profile_img, 'profile-images')) :
+        // --------------------------------------------------------------------------
 
-					//	Update the user
-					$_data = array();
-					$_data['profile_img'] = NULL;
+        if ($this->user_group_model->setAsDefault($this->uri->segment(5))) {
 
-					$this->user_model->update($_uid, $_data);
+            $this->session->set_flashdata('success', '<strong>Success!</strong> Group set as default successfully.');
 
-					// --------------------------------------------------------------------------
+        } else {
 
-					$this->session->set_flashdata('success', lang('accounts_delete_img_success'));
+            $this->session->set_flashdata('error', '<strong>Sorry,</strong> I could not set that group as the default user group. ' . $this->user_group_model->last_error());
+        }
 
-				else :
+        redirect('admin/accounts/groups');
+    }
 
-					$this->session->set_flashdata('error', lang('accounts_delete_img_error', implode('", "', $this->cdn->get_errors())));
+    // --------------------------------------------------------------------------
 
-				endif;
+    /**
+     * Merge users
+     * @return void
+     */
+    public function merge()
+    {
+        if (!user_has_permission('admin.accounts:0.can_merge_users')) {
 
-			else :
+            show_404();
+        }
 
-				$this->session->set_flashdata('notice', lang('accounts_delete_img_error_noimg'));
+        // --------------------------------------------------------------------------
 
-			endif;
+        $this->data['page']->title = 'Merge Users';
 
-			// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-			redirect($_return_to);
+        if ($this->input->post()) {
 
-		endif;
-	}
+            $userId   = $this->input->post('userId');
+            $mergeIds = explode(',', $this->input->post('mergeIds'));
+            $preview  = !$this->input->post('doMerge') ? true : false;
 
+            if (!in_array(active_user('id'), $mergeIds)) {
 
-	// --------------------------------------------------------------------------
+                $mergeResult = $this->user_model->merge($userId, $mergeIds, $preview);
 
+                if ($mergeResult) {
 
-	public function email()
-	{
-		$action	= $this->input->post('action');
-		$email	= $this->input->post('email');
-		$id		= $this->input->post('id');
+                    if ($preview) {
 
-		switch($action) {
+                        $this->data['mergeResult'] = $mergeResult;
 
-			case 'add' :
+                        $this->load->view('structure/header', $this->data);
+                        $this->load->view('admin/accounts/merge/preview', $this->data);
+                        $this->load->view('structure/footer', $this->data);
+                        return;
 
-				$isPrimary  = (bool) $this->input->post('isPrimary');
-				$isVerified = (bool) $this->input->post('isVerified');
+                    } else {
 
-				if ($this->user_model->email_add($email, $id, $isPrimary, $isVerified)) {
+                        $this->session->set_flashdata('success', '<strong>Success!</strong> Users were merged successfully.');
+                        redirect('admin/accounts/merge');
+                    }
 
-					$status  = 'success';
-					$message = '<strong>Success!</strong> "' . $email . '" was added successfully. ';
+                } else {
 
-				} else {
+                    $this->data['error'] = 'Failed to merge users. ' . $this->user_model->last_error();
+                }
 
-					$status   = 'error';
-					$message  = '<strong>Sorry,</strong> failed to add email "' . $email . '". ';
-					$message .= $this->user_model->last_error();
-				}
-				break;
+            } else {
 
-			case 'delete' :
+                $this->data['error'] = '<strong>Sorry,</strong> you cannot list yourself as a user to merge.';
+            }
+        }
 
-				if ($this->user_model->email_delete($email, $id)) {
+        // --------------------------------------------------------------------------
 
-					$status  = 'success';
-					$message = '<strong>Success!</strong> "' . $email . '" was deleted successfully. ';
+        $this->asset->load('nails.admin.accounts.merge.min.js', 'NAILS');
+        $this->asset->inline('var _accountsMerge = new NAILS_Admin_Accounts_Merge()', 'JS');
 
-				} else {
+        // --------------------------------------------------------------------------
 
-					$status   = 'error';
-					$message  = '<strong>Sorry,</strong> failed to delete email "' . $email . '". ';
-					$message .= $this->user_model->last_error();
-				}
-				break;
-
-			case 'makePrimary' :
-
-				if ($this->user_model->email_make_primary($email, $id)) {
-
-					$status  = 'success';
-					$message = '<strong>Success!</strong> "' . $email . '" was set as the primary email.';
-
-				} else {
-
-					$status   = 'error';
-					$message  = '<strong>Sorry,</strong> failed to mark "' . $email . '" as the primary address. ';
-					$message .= $this->user_model->last_error();
-				}
-				break;
-
-			case 'verify' :
-
-				//	Get the code for this email
-				$userEmails = $this->user_model->get_emails_for_user($id);
-				$code		= '';
-
-				foreach($userEmails AS $userEmail) {
-					if ($userEmail->email == $email) {
-						$code = $userEmail->code;
-					}
-				}
-
-				if (!empty($code) && $this->user_model->email_verify($id, $code)) {
-
-					$status  = 'success';
-					$message = '<strong>Success!</strong> "' . $email . '" was verified successfully.';
-
-				} elseif (empty($code)) {
-
-					$status   = 'error';
-					$message  = '<strong>Sorry,</strong> failed to mark "' . $email . '" as verified. ';
-					$message .= 'Could not determine email\'s security code.';
-
-				} else {
-
-					$status   = 'error';
-					$message  = '<strong>Sorry,</strong> failed to mark "' . $email . '" as verified. ';
-					$message .= $this->user_model->last_error();
-				}
-				break;
-
-			default:
-
-				$status  = 'error';
-				$message = 'Unknown action: "' . $action . '"';
-				break;
-		}
-
-		$this->session->set_flashdata($status, $message);
-		redirect($this->input->post('return'));
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	public function groups()
-	{
-		if (! user_has_permission('admin.accounts:0.can_manage_groups')) :
-
-			unauthorised();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		$_method = $this->uri->segment(4) ? $this->uri->segment(4) : 'index';
-
-		if (method_exists($this, '_groups_' . $_method)) :
-
-			$this->{'_groups_' . $_method}();
-
-		else :
-
-			show_404();
-
-		endif;
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _groups_index()
-	{
-		$this->data['page']->title = 'Manage User Groups';
-
-		// --------------------------------------------------------------------------
-
-
-		$this->data['groups'] = $this->user_group_model->get_all();
-
-		// --------------------------------------------------------------------------
-
-		$this->load->view('structure/header',				$this->data);
-		$this->load->view('admin/accounts/groups/index',	$this->data);
-		$this->load->view('structure/footer',				$this->data);
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _groups_create()
-	{
-		if (! user_has_permission('admin.accounts:0.can_create_group')) :
-
-			show_404();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		$this->session->set_flashdata('message', '<strong>Coming soon!</strong> The ability to dynamically create groups is on the roadmap.');
-		redirect('admin/accounts/groups');
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _groups_edit()
-	{
-		if (! user_has_permission('admin.accounts:0.can_edit_group')) :
-
-			show_404();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		$_gid = $this->uri->segment(5, NULL);
-
-		$this->data['group'] = $this->user_group_model->get_by_id($_gid);
-
-		if (! $this->data['group']) :
-
-			$this->session->set_flashdata('error', 'Group does not exist.');
-			redirect('admin/accounts/groups');
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		if ($this->input->post()) :
-
-			//	Load library
-			$this->load->library('form_validation');
-
-			//	Define rules
-			$this->form_validation->set_rules('slug',					'', 'xss_clean|unique_if_diff[' . NAILS_DB_PREFIX . 'user_group.slug.' . $this->data['group']->slug . ']');
-			$this->form_validation->set_rules('label',					'', 'xss_clean|required');
-			$this->form_validation->set_rules('description',			'', 'xss_clean|required');
-			$this->form_validation->set_rules('default_homepage',		'', 'xss_clean|required');
-			$this->form_validation->set_rules('registration_redirect',	'', 'xss_clean');
-			$this->form_validation->set_rules('acl[]',					'', 'xss_clean');
-			$this->form_validation->set_rules('acl[superuser]',		'', 'xss_clean');
-			$this->form_validation->set_rules('acl[admin]',			'', 'xss_clean');
-			$this->form_validation->set_rules('acl[admin][]',			'', 'xss_clean');
-
-			//	Set messages
-			$this->form_validation->set_message('required', lang('fv_required'));
-			$this->form_validation->set_message('required', lang('fv_unique_if_diff'));
-
-			if ($this->form_validation->run()) :
-
-				$_data							= array();
-				$_data['slug']					= $this->input->post('slug');
-				$_data['label']					= $this->input->post('label');
-				$_data['description']			= $this->input->post('description');
-				$_data['default_homepage']		= $this->input->post('default_homepage');
-				$_data['registration_redirect']	= $this->input->post('registration_redirect');
-
-				//	Parse ACL's
-				$_acl			= $this->input->post('acl');
-				$_data['acl']	= serialize($_acl);
-
-				if ($this->user_group_model->update($_gid, $_data)) :
-
-					$this->session->set_flashdata('success', '<strong>Huzzah!</strong> Group updated successfully!');
-					redirect('admin/accounts/groups');
-
-				else :
-
-					$this->data['error'] = '<strong>Sorry,</strong> I was unable to update the group. ' . $this->user_group_model->last_error();
-
-				endif;
-
-			else :
-
-				$this->data['error'] = lang('fv_there_were_errors');
-
-			endif;
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		//	Page title
-		$this->data['page']->title = lang('accounts_groups_edit_title', $this->data['group']->label);
-
-		// --------------------------------------------------------------------------
-
-		//	Load views
-		$this->load->view('structure/header', $this->data);
-		$this->load->view('admin/accounts/groups/edit', $this->data);
-		$this->load->view('structure/footer', $this->data);
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _groups_delete()
-	{
-		if (! user_has_permission('admin.accounts:0.can_delete_group')) :
-
-			show_404();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		$this->session->set_flashdata('message', '<strong>Coming soon!</strong> The ability to delete groups is on the roadmap.');
-		redirect('admin/accounts/groups');
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _groups_set_default()
-	{
-		if (! user_has_permission('admin.accounts:0.can_set_default_group')) :
-
-			show_404();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		if ($this->user_group_model->setAsDefault($this->uri->segment(5))) :
-
-			$this->session->set_flashdata('success', '<strong>Success!</strong> Group set as default successfully.');
-
-		else :
-
-			$this->session->set_flashdata('error', '<strong>Sorry,</strong> I could not set that group as the default user group. ' . $this->user_group_model->last_error());
-
-		endif;
-		redirect('admin/accounts/groups');
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	public function merge()
-	{
-		if (!user_has_permission('admin.accounts:0.can_merge_users')) {
-
-			show_404();
-		}
-
-		// --------------------------------------------------------------------------
-
-		$this->data['page']->title = 'Merge Users';
-
-		// --------------------------------------------------------------------------
-
-		if ($this->input->post()) {
-
-			$userId   = $this->input->post('userId');
-			$mergeIds = explode(',', $this->input->post('mergeIds'));
-			$preview  = ! $this->input->post('doMerge') ? true : false;
-
-			if (!in_array(active_user('id'), $mergeIds)) {
-
-				$mergeResult = $this->user_model->merge($userId, $mergeIds, $preview);
-
-				if ($mergeResult) {
-
-					if ($preview) {
-
-						$this->data['mergeResult'] = $mergeResult;
-
-						$this->load->view('structure/header', $this->data);
-						$this->load->view('admin/accounts/merge/preview', $this->data);
-						$this->load->view('structure/footer', $this->data);
-						return;
-
-					} else {
-
-						$this->session->set_flashdata('success', '<strong>Success!</strong> Users were merged successfully.');
-						redirect('admin/accounts/merge');
-					}
-
-				} else {
-
-					$this->data['error'] = 'Failed to merge users. ' . $this->user_model->last_error();
-				}
-
-			} else {
-
-				$this->data['error'] = '<strong>Sorry,</strong> you cannot list yourself as a user to merge.';
-			}
-		}
-
-		// --------------------------------------------------------------------------
-
-		$this->asset->load('nails.admin.accounts.merge.min.js', 'NAILS');
-		$this->asset->inline('var _accountsMerge = new NAILS_Admin_Accounts_Merge()', 'JS');
-
-		// --------------------------------------------------------------------------
-
-		//	Load views
-		$this->load->view('structure/header', $this->data);
-		$this->load->view('admin/accounts/merge/index', $this->data);
-		$this->load->view('structure/footer', $this->data);
-	}
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/accounts/merge/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 }
 
-
 // --------------------------------------------------------------------------
-
 
 /**
  * OVERLOADING NAILS' ADMIN MODULES
@@ -1616,13 +1553,12 @@ class NAILS_Accounts extends NAILS_Admin_Controller
  *
  **/
 
-if (! defined('NAILS_ALLOW_EXTENSION_ACCOUNTS')) :
+if (!defined('NAILS_ALLOW_EXTENSION_ACCOUNTS')) {
 
-	class Accounts extends NAILS_Accounts
-	{
-	}
-
-endif;
-
-/* End of file accounts.php */
-/* Location: ./modules/admin/controllers/accounts.php */
+    /**
+     * Proxy class for NAILS_Accounts
+     */
+    class Accounts extends NAILS_Accounts
+    {
+    }
+}

@@ -1,26 +1,21 @@
 <?php
 
-/**
-* Name:         Admin: CDN
-* Description:  CDN manager
-*
-*/
-
-//  Include Admin_Controller; executes common admin functionality.
+//  Include NAILS_Admin_Controller; executes common admin functionality.
 require_once '_admin.php';
 
 /**
- * OVERLOADING NAILS' ADMIN MODULES
+ * Manage the CDN
  *
- * Note the name of this class; done like this to allow apps to extend this class.
- * Read full explanation at the bottom of this file.
- *
- **/
-
+ * @package     Nails
+ * @subpackage  module-admin
+ * @category    Controller
+ * @author      Nails Dev Team
+ * @link
+ */
 class NAILS_Cdnadmin extends NAILS_Admin_Controller
 {
     /**
-     * Announces this module's details to those who ask
+     * Announces this controllers details
      * @return stdClass
      */
     public static function announce()
@@ -59,8 +54,8 @@ class NAILS_Cdnadmin extends NAILS_Admin_Controller
     // --------------------------------------------------------------------------
 
     /**
-     * Describes this module's permissions
-     * @param  int $classIndex The class index, increments based on the number of instances announce() returns
+     * Returns an array of extra permissions for this controller
+     * @param  string $classIndex The class_index value, used when multiple admin instances are available
      * @return array
      */
     public static function permissions($classIndex = null)
@@ -432,6 +427,7 @@ class NAILS_Cdnadmin extends NAILS_Admin_Controller
             $purgeIds = explode(',', $this->input->get('ids'));
             $purgeIds = array_filter($purgeIds);
             $purgeIds = array_unique($purgeIds);
+
         } else {
 
             $purgeIds = null;
@@ -536,9 +532,7 @@ class NAILS_Cdnadmin extends NAILS_Admin_Controller
     }
 }
 
-
 // --------------------------------------------------------------------------
-
 
 /**
  * OVERLOADING NAILS' ADMIN MODULES
@@ -566,6 +560,9 @@ class NAILS_Cdnadmin extends NAILS_Admin_Controller
 
 if (!defined('NAILS_ALLOW_EXTENSION_CDN')) {
 
+    /**
+     * Proxy class for NAILS_Cdnadmin
+     */
     class Cdnadmin extends NAILS_Cdnadmin
     {
     }

@@ -1,7 +1,13 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
 
 /**
- * Define email types for this module.
+ * This config file defines email types for this module.
+ *
+ * @package     Nails
+ * @subpackage  module-admin
+ * @category    Config
+ * @author      Nails Dev Team
+ * @link
  */
 
 $config['email_types'] = array();
@@ -14,6 +20,3 @@ $config['email_types'][0]->template_header	= '';
 $config['email_types'][0]->template_body	= 'admin/email/email_templates/test_email';
 $config['email_types'][0]->template_footer	= '';
 $config['email_types'][0]->default_subject	= 'Test Email';
-
-/* End of file email_types.php */
-/* Location: ./module-admin/admin/config/email_types.php */

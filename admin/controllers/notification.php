@@ -1,172 +1,142 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
 
-/**
- * Name:		Admin: Notification
- * Description:	Manage notification
- *
- **/
-
-//	Include Admin_Controller; executes common admin functionality.
+//  Include NAILS_Admin_Controller; executes common admin functionality.
 require_once '_admin.php';
 
 /**
- * OVERLOADING NAILS' ADMIN MODULES
+ * Manage app notifications
  *
- * Note the name of this class; done like this to allow apps to extend this class.
- * Read full explanation at the bottom of this file.
- *
- **/
-
+ * @package     Nails
+ * @subpackage  module-admin
+ * @category    Controller
+ * @author      Nails Dev Team
+ * @link
+ */
 class NAILS_Notification extends NAILS_Admin_Controller
 {
+    /**
+     * Announces this controllers details
+     * @return stdClass
+     */
+    public static function announce()
+    {
+        $d = new stdClass();
 
-	/**
-	 * Announces this module's details to those in the know.
-	 *
-	 * @access	static
-	 * @param	none
-	 * @return	void
-	 **/
-	static function announce()
-	{
-		$d = new stdClass();
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Load the laguage file
+        get_instance()->lang->load('admin_notification');
 
-		//	Load the laguage file
-		get_instance()->lang->load( 'admin_notification' );
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Configurations
+        $d->name = lang('notification_module_name');
+        $d->icon = 'fa-dot-circle-o';
 
-		//	Configurations
-		$d->name = lang( 'notification_module_name' );
-		$d->icon = 'fa-dot-circle-o';
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Navigation options
+        $d->funcs          = array();
+        $d->funcs['index'] = lang('notification_nav_index');
 
-		//	Navigation options
-		$d->funcs				= array();
-		$d->funcs['index']		= lang( 'notification_nav_index' );
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        return $d;
+    }
 
-		return $d;
-	}
+    // --------------------------------------------------------------------------
 
+    /**
+     * Constructs the controller
+     */
+    public function __construct()
+    {
+        parent::__construct();
 
-	// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
+        $this->load->model('system/app_notification_model');
+    }
 
-	/**
-	 * Constructor
-	 *
-	 * @access	public
-	 * @param	none
-	 * @return	void
-	 **/
-	public function __construct()
-	{
-		parent::__construct();
+    // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+    /**
+     * Manage who receives notifications
+     * @return void
+     */
+    public function index()
+    {
+        //  Page Title
+        $this->data['page']->title = lang('notification_index_title');
 
-		$this->load->model( 'system/app_notification_model' );
-	}
+        // --------------------------------------------------------------------------
 
+        if ($this->input->post()) {
 
-	// --------------------------------------------------------------------------
+            $notification = $this->input->post('notification');
 
+            if (is_array($notification)) {
 
-	/**
-	 * Manage evcents
-	 *
-	 * @access	public
-	 * @param	none
-	 * @return	void
-	 **/
-	public function index()
-	{
-		//	Page Title
-		$this->data['page']->title = lang( 'notification_index_title' );
+                $set = array();
 
-		// --------------------------------------------------------------------------
+                foreach ($notification as $grouping => $options) {
 
-		if ( $this->input->post() ) :
+                    $set[$grouping] = array();
 
-			$_notification = $this->input->post( 'notification' );
+                    foreach ($options as $key => $emails) {
 
-			if ( is_array( $_notification ) ) :
+                        $emails = explode(',', $emails);
+                        $emails = array_filter($emails);
+                        $emails = array_unique($emails);
 
-				$_set = array();
+                        foreach ($emails as &$email) {
 
-				foreach( $_notification AS $grouping => $options ) :
+                            $email = trim($email) ;
 
-					$_set[$grouping] = array();
+                            if (!valid_email($email)) {
 
-					foreach( $options AS $key => $emails ) :
+                                $error = '"<strong>' . $email . '</strong>" is not a valid email.';
+                                break 3;
+                            }
+                        }
 
-						$emails = explode( ',', $emails );
-						$emails = array_filter( $emails );
-						$emails = array_unique( $emails );
+                        $set[$grouping][$key] = $emails;
+                    }
+                }
 
-						foreach( $emails AS &$email ) :
+                if (empty($error)) {
 
-							$email = trim( $email ) ;
+                    foreach ($set as $grouping => $options) {
 
-							if ( ! valid_email( $email ) ) :
+                        $this->app_notification_model->set($options, $grouping);
+                    }
 
-								$_error = '"<strong>' . $email . '</strong>" is not a valid email.';
-								break 3;
+                    $this->data['success'] = '<strong>Success!</strong> Notifications were updated successfully.';
 
-							endif;
+                } else {
 
-						endforeach;
+                    $this->data['error'] = $error;
+                }
+            }
+        }
 
-						$_set[$grouping][$key] = $emails;
+        // --------------------------------------------------------------------------
 
-					endforeach;
+        //  Conditionally set this as this method may be overridden by the app to add
+        //  custom notification types
 
-				endforeach;
+        $this->data['notifications'] = $this->app_notification_model->get_definitions();
 
-				if ( empty( $_error ) ) :
+        // --------------------------------------------------------------------------
 
-					foreach( $_set AS $grouping => $options ) :
-
-						$this->app_notification_model->set( $options, $grouping );
-
-					endforeach;
-
-					$this->data['success'] = '<strong>Success!</strong> Notifications were updated successfully.';
-
-				else :
-
-					$this->data['error'] = $_error;
-
-				endif;
-
-			endif;
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		//	Conditionally set this as this method may be overridden by the app to add
-		//	custom notification types
-
-		$this->data['notifications'] = $this->app_notification_model->get_definitions();
-
-		// --------------------------------------------------------------------------
-
-		//	Load views
-		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/notification/index',	$this->data );
-		$this->load->view( 'structure/footer',			$this->data );
-	}
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/notification/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 }
 
-
 // --------------------------------------------------------------------------
-
 
 /**
  * OVERLOADING NAILS' ADMIN MODULES
@@ -192,14 +162,12 @@ class NAILS_Notification extends NAILS_Admin_Controller
  *
  **/
 
-if ( ! defined( 'NAILS_ALLOW_EXTENSION_DASHBOARD' ) ) :
+if (!defined('NAILS_ALLOW_EXTENSION_DASHBOARD')) {
 
-	class Notification extends NAILS_Notification
-	{
-	}
-
-endif;
-
-
-/* End of file notification.php */
-/* Location: ./modules/admin/controllers/notification.php */
+    /**
+     * Proxy class for NAILS_Notification
+     */
+    class Notification extends NAILS_Notification
+    {
+    }
+}

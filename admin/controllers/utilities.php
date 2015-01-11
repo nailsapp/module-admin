@@ -1,709 +1,720 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
 
-/**
- * Name:		Admin: Utilities
- * Description:	Various admin utilities
- *
- **/
-
-//	Include Admin_Controller; executes common admin functionality.
+//  Include NAILS_Admin_Controller; executes common admin functionality.
 require_once '_admin.php';
-
 /**
- * OVERLOADING NAILS' ADMIN MODULES
+ * This class brings various admin utilities
  *
- * Note the name of this class; done like this to allow apps to extend this class.
- * Read full explanation at the bottom of this file.
- *
- **/
-
+ * @package     Nails
+ * @subpackage  module-admin
+ * @category    Controller
+ * @author      Nails Dev Team
+ * @link
+ */
 class NAILS_Utilities extends NAILS_Admin_Controller
 {
-	protected $_export_sources;
-	protected $_export_formats;
+    protected $exportSources;
+    protected $exportFormats;
 
+    // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+    /**
+     * Announces this controllers details
+     * @return stdClass
+     */
+    public static function announce()
+    {
+        $d = new stdClass();
 
+        // --------------------------------------------------------------------------
 
-	/**
-	 * Announces this module's details to anyone who asks.
-	 *
-	 * @access	static
-	 * @param	none
-	 * @return	void
-	 **/
-	static function announce()
-	{
-		$d = new stdClass();
+        //  Load the laguage file
+        get_instance()->lang->load('admin_utilities');
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Load the laguage file
-		get_instance()->lang->load( 'admin_utilities' );
+        //  Configurations
+        $d->name = lang('utilities_module_name');
+        $d->icon = 'fa-sliders';
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Configurations
-		$d->name = lang( 'utilities_module_name' );
-		$d->icon = 'fa-sliders';
+        //  Navigation options
+        $d->funcs                   = array();
+        $d->funcs['test_email']     = lang('utilities_nav_test_email');
+        $d->funcs['rewrite_routes'] = lang('utilities_nav_rewrite_routes');
+        $d->funcs['export']         = lang('utilities_nav_export');
 
-		// --------------------------------------------------------------------------
+        if (module_is_enabled('cdn')) {
 
-		//	Navigation options
-		$d->funcs					= array();
-		$d->funcs['test_email']		= lang( 'utilities_nav_test_email' );
-		$d->funcs['rewrite_routes']	= lang( 'utilities_nav_rewrite_routes' );
-		$d->funcs['export']			= lang( 'utilities_nav_export' );
+            $d->funcs['cdn/orphans'] = 'CDN: Find orphaned objects';
+        }
 
-		if ( module_is_enabled( 'cdn' ) ) :
+        // --------------------------------------------------------------------------
 
-			$d->funcs['cdn/orphans']	= 'CDN: Find orphaned objects';
+        return $d;
+    }
 
-		endif;
+    // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+    /**
+     * Constructs the controller
+     */
+    public function __construct()
+    {
+        parent::__construct();
 
-		return $d;
-	}
+        // --------------------------------------------------------------------------
 
+        //  Default export sources
+        $this->exportSources = array();
 
-	// --------------------------------------------------------------------------
+        if (user_has_permission('admin.accounts:0')) {
 
+            $this->exportSources[] = array('Members: All', 'Export a list of all the site\'s registered users and their meta data.', 'users_all');
+        }
 
-	public function __construct()
-	{
-		parent::__construct();
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Default export formats
+        $this->exportFormats   = array();
+        $this->exportFormats[] = array('CSV', 'Easily imports to many software packages, including Microsoft Excel.', 'csv');
+        $this->exportFormats[] = array('HTML', 'Produces an HTML table containing the data', 'html');
+        $this->exportFormats[] = array('PDF', 'Saves a PDF using the data from the HTML export option', 'pdf');
+        $this->exportFormats[] = array('PHP Serialize', 'Export as an object serialized using PHP\'s serialize() function', 'serialize');
+        $this->exportFormats[] = array('JSON', 'Export as a JSON array', 'json');
+    }
 
-		//	Default export sources
-		$this->_export_sources = array();
+    // --------------------------------------------------------------------------
 
-		if ( user_has_permission( 'admin.accounts:0' ) ) :
+    /**
+     * Send a test email
+     * @return void
+     */
+    public function test_email()
+    {
+        //  Page Title
+        $this->data['page']->title = lang ('utilities_test_email_title');
 
-			$this->_export_sources[] = array( 'Members: All', 'Export a list of all the site\'s registered users and their meta data.', 'users_all' );
+        // --------------------------------------------------------------------------
 
-		endif;
+        if ($this->input->post()) {
 
-		// --------------------------------------------------------------------------
+            //  Form validation and update
+            $this->load->library('form_validation');
 
-		//	Default export formats
-		$this->_export_formats		= array();
-		$this->_export_formats[]	= array( 'CSV', 'Easily imports to many software packages, including Microsoft Excel.', 'csv' );
-		$this->_export_formats[]	= array( 'HTML', 'Produces an HTML table containing the data', 'html' );
-		$this->_export_formats[]	= array( 'PDF', 'Saves a PDF using the data from the HTML export option', 'pdf' );
-		$this->_export_formats[]	= array( 'PHP Serialize', 'Export as an object serialized using PHP\'s serialize() function', 'serialize' );
-		$this->_export_formats[]	= array( 'JSON', 'Export as a JSON array', 'json' );
-	}
+            //  Define rules
+            $this->form_validation->set_rules('recipient', lang('utilities_test_email_field_name'), 'xss_clean|required|valid_email');
 
-	// --------------------------------------------------------------------------
+            //  Set Messages
+            $this->form_validation->set_message('required', lang('fv_required'));
+            $this->form_validation->set_message('valid_email', lang('fv_valid_email'));
 
+            //  Execute
+            if ($this->form_validation->run()) {
 
-	/**
-	 * Send test email
-	 *
-	 * @access	public
-	 * @param	none
-	 * @return	void
-	 **/
-	public function test_email()
-	{
-		//	Page Title
-		$this->data['page']->title = lang ( 'utilities_test_email_title' );
+                //  Prepare date
+                $email           = new stdClass();
+                $email->to_email = $this->input->post('recipient');
+                $email->type     = 'test_email';
+                $email->data     = array();
 
-		// --------------------------------------------------------------------------
+                //  Send the email
+                if ($this->emailer->send($email)) {
 
-		if ( $this->input->post() ) :
+                    $this->data['success'] = lang('utilities_test_email_success', array($email->to_email, date('Y-m-d H:i:s')));
 
-			//	Form validation and update
-			$this->load->library( 'form_validation' );
+                } else {
 
-			//	Define rules
-			$this->form_validation->set_rules( 'recipient',	lang( 'utilities_test_email_field_name' ), 'xss_clean|required|valid_email' );
+                    echo '<h1>' . lang('utilities_test_email_error') . '</h1>';
+                    echo $this->email->print_debugger();
+                    return;
+                }
+            }
+        }
 
-			//	Set Messages
-			$this->form_validation->set_message( 'required',	lang( 'fv_required' ) );
-			$this->form_validation->set_message( 'valid_email',	lang( 'fv_valid_email' ) );
+        // --------------------------------------------------------------------------
 
-			//	Execute
-			if ( $this->form_validation->run() ) :
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/utilities/send_test', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-				//	Prepare date
-				$_email				= new stdClass();
-				$_email->to_email	= $this->input->post( 'recipient' );
-				$_email->type		= 'test_email';
-				$_email->data		= array();
+    // --------------------------------------------------------------------------
 
-				//	Send the email
-				if ( $this->emailer->send( $_email ) ) :
+    /**
+     * Rewrite the app's routes
+     * @return void
+     */
+    public function rewrite_routes()
+    {
+        if ($this->input->post('go')) {
 
-					$this->data['success'] = lang( 'utilities_test_email_success', array( $_email->to_email, date( 'Y-m-d H:i:s' ) ) );
+            $this->load->model('system/routes_model');
 
-				else:
+            if ($this->routes_model->update()) {
 
-					echo '<h1>' . lang( 'utilities_test_email_error' ) . '</h1>';
-					echo $this->email->print_debugger();
-					return;
+                $this->data['success'] = '<strong>Success!</strong> Routes rewritten successfully.';
 
-				endif;
+            } else {
 
-			endif;
+                $this->data['error']  = '<strong>Sorry,</strong> there was a problem writing the routes. ';
+                $this->data['error'] .= $this->routes_model->last_error();
+            }
+        }
 
-		endif;
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/utilities/rewrite_routes', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		//	Load views
-		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/utilities/send_test',	$this->data );
-		$this->load->view( 'structure/footer',			$this->data );
-	}
+    // --------------------------------------------------------------------------
 
+    /**
+     * Export data
+     * @return void
+     */
+    public function export()
+    {
+        if ($this->input->post()) {
 
-	// --------------------------------------------------------------------------
+            //  Form validation and update
+            $this->load->library('form_validation');
 
+            //  Define rules
+            $this->form_validation->set_rules('source', lang('utilities_export_field_source'), 'xss_clean|required');
+            $this->form_validation->set_rules('format', lang('utilities_export_field_format'), 'xss_clean|required');
 
-	public function rewrite_routes()
-	{
-		if ( $this->input->post( 'go' ) ) :
+            //  Set Messages
+            $this->form_validation->set_message('required', lang('fv_required'));
 
-			$this->load->model( 'system/routes_model' );
+            //  Execute
+            if ($this->form_validation->run() && isset($this->exportSources[$this->input->post('source')]) && isset($this->exportFormats[$this->input->post('format')])) {
 
-			if ( $this->routes_model->update() ) :
+                $source = $this->exportSources[$this->input->post('source')];
+                $format = $this->exportFormats[$this->input->post('format')];
 
-				$this->data['success'] = '<strong>Success!</strong> Routes rewritten successfully.';
+                if (!method_exists($this, '_export_source_' . $source[2])) {
 
-			else :
+                    $this->data['error'] = lang('utilities_export_error_source_notexist');
 
-				$this->data['error'] = '<strong>Sorry,</strong> there was a problem writing the routes. ' . $this->routes_model->last_error();
+                } elseif (!method_exists($this, '_export_format_' . $format[2])) {
 
-			endif;
+                    $this->data['error'] = lang('utilities_export_error_format_notexist');
 
-		endif;
+                } else {
 
-		// --------------------------------------------------------------------------
+                    //  All seems well, export data!
+                    $data = $this->{'_export_source_' . $source[2]}();
 
-		//	Load views
-		$this->load->view( 'structure/header',					$this->data );
-		$this->load->view( 'admin/utilities/rewrite_routes',	$this->data );
-		$this->load->view( 'structure/footer',					$this->data );
-	}
+                    //  Anything to report?
+                    if (!empty($data)) {
 
+                        //  if $data is an array then we need to write multiple files to a zip
+                        if (is_array($data)) {
 
-	// --------------------------------------------------------------------------
+                            //  Load Zip class
+                            $this->load->library('zip');
 
+                            //  Process each file
+                            foreach ($data as $data) {
 
-	public function export()
-	{
-		if ( $this->input->post() ) :
+                                $file = $this->{'_export_format_' . $format[2]}($data, true);
 
-			//	Form validation and update
-			$this->load->library( 'form_validation' );
+                                $this->zip->add_data($file[0], $file[1]);
+                            }
 
-			//	Define rules
-			$this->form_validation->set_rules( 'source',	lang( 'utilities_export_field_source' ), 'xss_clean|required' );
-			$this->form_validation->set_rules( 'format',	lang( 'utilities_export_field_format' ), 'xss_clean|required' );
+                            $this->zip->download('data-export-' . $source[2] . '-' . date('Y-m-d_H-i-s'));
 
-			//	Set Messages
-			$this->form_validation->set_message( 'required',	lang( 'fv_required' ) );
+                        } else {
 
-			//	Execute
-			if ( $this->form_validation->run() && isset( $this->_export_sources[$this->input->post( 'source' )] ) && isset( $this->_export_formats[$this->input->post( 'format' )] ) ) :
+                            $this->{'_export_format_' . $format[2]}($data);
+                        }
+                    }
 
-				$_source = $this->_export_sources[$this->input->post( 'source' )];
-				$_format = $this->_export_formats[$this->input->post( 'format' )];
+                    return;
+                }
 
-				if ( ! method_exists( $this, '_export_source_' . $_source[2] ) ) :
 
-					$this->data['error'] = lang( 'utilities_export_error_source_notexist' );
+            } elseif (!isset($this->exportSources[ $this->input->post('source') ])) {
 
-				elseif ( ! method_exists( $this, '_export_format_' . $_format[2] ) ) :
+                $this->data['error'] = lang('utilities_export_error_source');
 
-					$this->data['error'] = lang( 'utilities_export_error_format_notexist' );
+            } elseif (!isset($this->exportFormats[ $this->input->post('format') ])) {
 
-				else :
+                $this->data['error'] = lang('utilities_export_error_format');
 
-					//	All seems well, export data!
-					$_data = $this->{'_export_source_' . $_source[2]}();
+            } else {
 
-					//	Anything to report?
-					if ( ! empty( $_data ) ) :
+                $this->data['error'] = lang('fv_there_were_errors');
+            }
+        }
 
-						//	if $_data is an array then we need to write multiple files to a zip
-						if ( is_array( $_data ) ) :
+        // --------------------------------------------------------------------------
 
-							//	Load Zip class
-							$this->load->library( 'zip' );
+        //  Set view data
+        $this->data['page']->title = lang('utilities_export_title');
+        $this->data['sources']     = $this->exportSources;
+        $this->data['formats']     = $this->exportFormats;
 
-							//	Process each file
-							foreach( $_data AS $data ) :
+        // --------------------------------------------------------------------------
 
-								$_file = $this->{'_export_format_' . $_format[2]}( $data, TRUE );
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/utilities/export/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-								$this->zip->add_data( $_file[0], $_file[1] );
+    // --------------------------------------------------------------------------
 
-							endforeach;
+    /**
+     * Export Source: Users
+     * @param  array  $out array of data to include in the output
+     * @return array
+     */
+    protected function _export_source_users_all($out = array())
+    {
+        if (!user_has_permission('admin.accounts:0')) {
 
-							$this->zip->download( 'data-export-' . $_source[2] . '-' . date( 'Y-m-d_H-i-s' ) );
+            return false;
+        }
 
-						else :
+        // --------------------------------------------------------------------------
 
-							$this->{'_export_format_' . $_format[2]}( $_data );
+        //  Prepare our out array
+        $out     = $out;
+        $counter = count($out);
 
-						endif;
+        //  User
+        $out[$counter]           = new stdClass();
+        $out[$counter]->label    = 'Users';
+        $out[$counter]->filename = NAILS_DB_PREFIX . 'user';
+        $out[$counter]->fields   = array();
+        $out[$counter]->data     = array();
+        $counter++;
 
-					endif;
+        //  user_group
+        $out[$counter]           = new stdClass();
+        $out[$counter]->label    = 'User Groups';
+        $out[$counter]->filename = NAILS_DB_PREFIX . 'user_group';
+        $out[$counter]->fields   = array();
+        $out[$counter]->data     = array();
+        $counter++;
 
-					return;
+        //  user_meta
+        $out[$counter]           = new stdClass();
+        $out[$counter]->label    = 'User Meta';
+        $out[$counter]->filename = NAILS_DB_PREFIX . 'user_meta';
+        $out[$counter]->fields   = array();
+        $out[$counter]->data     = array();
+        $counter++;
 
-				endif;
+        //  Nails user_meta_* tables
+        $tables = $this->db->query('SHOW TABLES LIKE \'' . NAILS_DB_PREFIX . 'user_meta_%\'')->result();
+        foreach ($tables as $table) {
 
+            $table = array_values((array) $table);
 
-			elseif ( ! isset( $this->_export_sources[ $this->input->post( 'source' ) ] ) ) :
+            $out[$counter]           = new stdClass();
+            $out[$counter]->label    = 'Table: ' . $table[0];
+            $out[$counter]->filename = $table[0];
+            $out[$counter]->fields   = array();
+            $out[$counter]->data     = array();
 
-				$this->data['error'] = lang( 'utilities_export_error_source' );
+            $counter++;
+        }
 
-			elseif ( ! isset( $this->_export_formats[ $this->input->post( 'format' ) ] ) ) :
+        //  All other user_meta_* tables
+        $tables = $this->db->query('SHOW TABLES LIKE \'user_meta_%\'')->result();
+        foreach ($tables as $table) {
 
-				$this->data['error'] = lang( 'utilities_export_error_format' );
+            $table = array_values((array) $table);
 
-			else:
+            $out[$counter]           = new stdClass();
+            $out[$counter]->label    = 'Table: ' . $table[0];
+            $out[$counter]->filename = $table[0];
+            $out[$counter]->fields   = array();
+            $out[$counter]->data     = array();
 
-				$this->data['error'] = lang( 'fv_there_were_errors' );
+            $counter++;
+        }
 
-			endif;
+        // --------------------------------------------------------------------------
 
-		endif;
+        //  Fetch data
+        foreach ($out as &$out) {
 
-		// --------------------------------------------------------------------------
+            $fields = $this->db->query('DESCRIBE ' . $out->filename)->result();
+            foreach ($fields as $field) {
 
-		//	Set view data
-		$this->data['page']->title	= lang( 'utilities_export_title' );
-		$this->data['sources']		= $this->_export_sources;
-		$this->data['formats']		= $this->_export_formats;
+                $out->fields[] = $field->Field;
+            }
 
-		// --------------------------------------------------------------------------
+            $out->data  = $this->db->get($out->filename)->result_array();
+        }
 
-		//	Load views
-		$this->load->view( 'structure/header',				$this->data );
-		$this->load->view( 'admin/utilities/export/index',	$this->data );
-		$this->load->view( 'structure/footer',				$this->data );
-	}
+        // --------------------------------------------------------------------------
 
+        return $out;
+    }
 
-	// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
+    /**
+     * Export Format: CSV
+     * @param  array   $data       The data to export
+     * @param  boolean $returnData Whether or not to return the data, or output it to the browser
+     * @return mixed
+     */
+    protected function _export_format_csv($data, $returnData = false)
+    {
+        //  Send header
+        if (!$returnData) {
 
-	protected function _export_source_users_all( $out = array() )
-	{
-		if ( ! user_has_permission( 'admin.accounts:0' ) ) :
+            $this->output->set_content_type('application/octet-stream');
+            $this->output->set_header('Pragma: public');
+            $this->output->set_header('Expires: 0');
+            $this->output->set_header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            $this->output->set_header('Cache-Control: private', false);
+            $this->output->set_header('Content-Disposition: attachment; filename=data-export-' . $data->filename . '-' . date('Y-m-d_H-i-s') . '.csv;');
+            $this->output->set_header('Content-Transfer-Encoding: binary');
+        }
 
-			return FALSE;
+        // --------------------------------------------------------------------------
 
-		endif;
+        //  Set view data
+        $this->data['label']  = $data->label;
+        $this->data['fields'] = $data->fields;
+        $this->data['data']   = $data->data;
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Prepare our out array
-		$_out		= $out;
-		$_counter	= count( $_out );
+            //  Load view
+        if (!$returnData) {
 
-		//	User
-		$_out[$_counter]			= new stdClass();
-		$_out[$_counter]->label		= 'Users';
-		$_out[$_counter]->filename	= NAILS_DB_PREFIX . 'user';
-		$_out[$_counter]->fields	= array();
-		$_out[$_counter]->data		= array();
-		$_counter++;
+            $this->load->view('admin/utilities/export/csv', $this->data);
 
-		//	user_group
-		$_out[$_counter]			= new stdClass();
-		$_out[$_counter]->label		= 'User Groups';
-		$_out[$_counter]->filename	= NAILS_DB_PREFIX . 'user_group';
-		$_out[$_counter]->fields	= array();
-		$_out[$_counter]->data		= array();
-		$_counter++;
+        } else {
 
-		//	user_meta
-		$_out[$_counter]			= new stdClass();
-		$_out[$_counter]->label		= 'User Meta';
-		$_out[$_counter]->filename	= NAILS_DB_PREFIX . 'user_meta';
-		$_out[$_counter]->fields	= array();
-		$_out[$_counter]->data		= array();
-		$_counter++;
+            $out   = array();
+            $out[] = $data->filename . '.csv';
+            $out[] = $this->load->view('admin/utilities/export/csv', $this->data, true);
 
-		//	Nails user_meta_* tables
-		$_tables = $this->db->query( 'SHOW TABLES LIKE \'' . NAILS_DB_PREFIX . 'user_meta_%\'' )->result();
-		foreach( $_tables AS $table ) :
+            return $out;
+        }
+    }
 
-			$_table = array_values( (array) $table );
+    // --------------------------------------------------------------------------
 
-			$_out[$_counter]			= new stdClass();
-			$_out[$_counter]->label		= 'Table: ' . $_table[0];
-			$_out[$_counter]->filename	= $_table[0];
-			$_out[$_counter]->fields	= array();
-			$_out[$_counter]->data		= array();
+    /**
+     * Export Format: HTML
+     * @param  array   $data       The data to export
+     * @param  boolean $returnData Whether or not to return the data, or output it to the browser
+     * @return mixed
+     */
+    protected function _export_format_html($data, $returnData = false)
+    {
+        //  Send header
+        if (!$returnData) {
 
-			$_counter++;
+            $this->output->set_content_type('application/octet-stream');
+            $this->output->set_header('Pragma: public');
+            $this->output->set_header('Expires: 0');
+            $this->output->set_header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            $this->output->set_header('Cache-Control: private', false);
+            $this->output->set_header('Content-Disposition: attachment; filename=data-export-' . $data->filename . '-' . date('Y-m-d_H-i-s') . '.html;');
+            $this->output->set_header('Content-Transfer-Encoding: binary');
+        }
 
-		endforeach;
+        // --------------------------------------------------------------------------
 
-		//	All other user_meta_* tables
-		$_tables = $this->db->query( 'SHOW TABLES LIKE \'user_meta_%\'' )->result();
-		foreach( $_tables AS $table ) :
+        //  Set view data
+        $this->data['label']  = $data->label;
+        $this->data['fields'] = $data->fields;
+        $this->data['data']   = $data->data;
 
-			$_table = array_values( (array) $table );
+        // --------------------------------------------------------------------------
 
-			$_out[$_counter]			= new stdClass();
-			$_out[$_counter]->label		= 'Table: ' . $_table[0];
-			$_out[$_counter]->filename	= $_table[0];
-			$_out[$_counter]->fields	= array();
-			$_out[$_counter]->data		= array();
+        //  Load view
+        if (!$returnData) {
 
-			$_counter++;
+            $this->load->view('admin/utilities/export/html', $this->data);
 
-		endforeach;
+        } else {
 
-		// --------------------------------------------------------------------------
+            $out    = array();
+            $out[]  = $data->filename . '.html';
+            $out[]  = $this->load->view('admin/utilities/export/html', $this->data, true);
 
-		//	Fetch data
-		foreach( $_out AS &$out ) :
+            return $out;
+        }
+    }
 
-			$_fields = $this->db->query( 'DESCRIBE ' . $out->filename )->result();
-			foreach ( $_fields AS $field ) :
+    // --------------------------------------------------------------------------
 
-				$out->fields[] = $field->Field;
+    /**
+     * Export Format: PDF
+     * @param  array   $data       The data to export
+     * @param  boolean $returnData Whether or not to return the data, or output it to the browser
+     * @return mixed
+     */
+    protected function _export_format_pdf($data, $returnData = false)
+    {
+        $html = $this->_export_format_html($data, true);
 
-			endforeach;
+        // --------------------------------------------------------------------------
 
-			$out->data	= $this->db->get( $out->filename )->result_array();
+        $this->load->library('pdf/pdf');
+        $this->pdf->set_paper_size('A4', 'landscape');
+        $this->pdf->load_html($html[1]);
 
-		endforeach;
+        //  Load view
+        if (!$returnData) {
 
-		// --------------------------------------------------------------------------
+            $this->pdf->download($data->filename . '.pdf');
 
-		return $_out;
-	}
+        } else {
 
+            $this->pdf->render();
 
-	// --------------------------------------------------------------------------
+            $out   = array();
+            $out[] = $data->filename . '.pdf';
+            $out[] = $this->pdf->output();
 
+            $this->pdf->reset();
 
-	protected function _export_format_csv( $data, $return_data = FALSE )
-	{
-		//	Send header
-		if ( ! $return_data ) :
+            return $out;
+        }
+    }
 
-			$this->output->set_content_type( 'application/octet-stream' );
-			$this->output->set_header( 'Pragma: public' );
-			$this->output->set_header( 'Expires: 0' );
-			$this->output->set_header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
-			$this->output->set_header( 'Cache-Control: private', FALSE );
-			$this->output->set_header( 'Content-Disposition: attachment; filename=data-export-' . $data->filename . '-' . date( 'Y-m-d_H-i-s' ) . '.csv;' );
-			$this->output->set_header( 'Content-Transfer-Encoding: binary' );
+    // --------------------------------------------------------------------------
 
-		endif;
+    /**
+     * Export Format: Serialize
+     * @param  array   $data       The data to export
+     * @param  boolean $returnData Whether or not to return the data, or output it to the browser
+     * @return mixed
+     */
+    protected function _export_format_serialize($data, $returnData = false)
+    {
+        //  Send header
+        if (!$returnData) {
 
-		// --------------------------------------------------------------------------
+            $this->output->set_content_type('application/octet-stream');
+            $this->output->set_header('Pragma: public');
+            $this->output->set_header('Expires: 0');
+            $this->output->set_header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            $this->output->set_header('Cache-Control: private', false);
+            $this->output->set_header('Content-Disposition: attachment; filename=data-export-' . $data->filename . '-' . date('Y-m-d_H-i-s') . '.txt;');
+            $this->output->set_header('Content-Transfer-Encoding: binary');
+        }
 
-		//	Set view data
-		$this->data['label']	= $data->label;
-		$this->data['fields']	= $data->fields;
-		$this->data['data']		= $data->data;
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Set view data
+        $this->data['data'] = $data;
 
-			//	Load view
-		if ( ! $return_data ) :
+        // --------------------------------------------------------------------------
 
-			$this->load->view( 'admin/utilities/export/csv', $this->data );
+        //  Load view
+        if (!$returnData) {
 
-		else :
+            $this->load->view('admin/utilities/export/serialize', $this->data);
 
-			$_out	= array();
-			$_out[]	= $data->filename . '.csv';
-			$_out[]	= $this->load->view( 'admin/utilities/export/csv', $this->data, TRUE );
+        } else {
 
-			return $_out;
+            $out   = array();
+            $out[] = $data->filename . '.txt';
+            $out[] = $this->load->view('admin/utilities/export/serialize', $this->data, true);
 
-		endif;
-	}
+            return $out;
+        }
+    }
 
+    // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+    /**
+     * Export Format: JSON
+     * @param  array   $data       The data to export
+     * @param  boolean $returnData Whether or not to return the data, or output it to the browser
+     * @return mixed
+     */
+    protected function _export_format_json($data, $returnData = false)
+    {
+        //  Send header
+        if (!$returnData) {
 
+            $this->output->set_content_type('application/octet-stream');
+            $this->output->set_header('Pragma: public');
+            $this->output->set_header('Expires: 0');
+            $this->output->set_header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            $this->output->set_header('Cache-Control: private', false);
+            $this->output->set_header('Content-Disposition: attachment; filename=data-export-' . $data->filename . '-' . date('Y-m-d_H-i-s') . '.json;');
+            $this->output->set_header('Content-Transfer-Encoding: binary');
+        }
 
-	protected function _export_format_html( $data, $return_data = FALSE )
-	{
-		//	Send header
-		if ( ! $return_data ) :
+        // --------------------------------------------------------------------------
 
-			$this->output->set_content_type( 'application/octet-stream' );
-			$this->output->set_header( 'Pragma: public' );
-			$this->output->set_header( 'Expires: 0' );
-			$this->output->set_header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
-			$this->output->set_header( 'Cache-Control: private', FALSE );
-			$this->output->set_header( 'Content-Disposition: attachment; filename=data-export-' . $data->filename . '-' . date( 'Y-m-d_H-i-s' ) . '.html;' );
-			$this->output->set_header( 'Content-Transfer-Encoding: binary' );
+        //  Set view data
+        $this->data['data'] = $data;
 
-		endif;
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Load view
+        if (!$returnData) {
 
-		//	Set view data
-		$this->data['label']	= $data->label;
-		$this->data['fields']	= $data->fields;
-		$this->data['data']		= $data->data;
+            $this->load->view('admin/utilities/export/json', $this->data);
 
-		// --------------------------------------------------------------------------
+        } else {
 
-		//	Load view
-		if ( ! $return_data ) :
+            $out   = array();
+            $out[] = $data->filename . '.json';
+            $out[] = $this->load->view('admin/utilities/export/json', $this->data, true);
 
-			$this->load->view( 'admin/utilities/export/html', $this->data );
+            return $out;
+        }
+    }
 
-		else :
+    // --------------------------------------------------------------------------
 
-			$_out	= array();
-			$_out[]	= $data->filename . '.html';
-			$_out[]	= $this->load->view( 'admin/utilities/export/html', $this->data, TRUE );
+    /**
+     * Manage CDN utilities
+     * @return void
+     */
+    public function cdn()
+    {
+        $method = $this->uri->segment(4) ? $this->uri->segment(4) : 'index';
+        $method = ucfirst(strtolower($method));
 
-			return $_out;
+        if (method_exists($this, 'cdn' . $method)) {
 
-		endif;
-	}
+            //  Call method
+            $this->{'cdn' . $method}();
 
+        } else {
 
-	// --------------------------------------------------------------------------
+            show_404();
+        }
+    }
 
+    // --------------------------------------------------------------------------
 
-	protected function _export_format_pdf( $data, $return_data = FALSE )
-	{
-		$_html = $this->_export_format_html( $data, TRUE );
+    /**
+     * Find orphaned CDN objects
+     * @return void
+     */
+    protected function cdnOrphans()
+    {
+        if ($this->input->is_cli_request()) {
 
-		// --------------------------------------------------------------------------
+            return $this->cdnOrphansCli();
+        }
 
-		$this->load->library( 'pdf/pdf' );
-		$this->pdf->set_paper_size( 'A4', 'landscape' );
-		$this->pdf->load_html( $_html[1] );
+        // --------------------------------------------------------------------------
 
-		//	Load view
-		if ( ! $return_data ) :
+        if ($this->input->post()) {
 
-			$this->pdf->download( $data->filename . '.pdf' );
+            //  A little form validation
+            $type   = $this->input->post('type');
+            $parser = $this->input->post('parser');
+            $pass   = true;
 
-		else :
+            if ($type == 'db' && $parser == 'create') {
 
-			$this->pdf->render();
+                $pass   = false;
+                $error  = 'Cannot use "Add to database" results parser when finding orphaned database objects.';
+            }
 
-			$_out	= array();
-			$_out[]	= $data->filename . '.pdf';
-			$_out[]	= $this->pdf->output();
 
-			$this->pdf->reset();
+            if ($pass) {
 
-			return $_out;
+                switch ($type) {
 
-		endif;
-	}
+                    case 'db':
 
+                        $this->data['orphans']  = $this->cdn->find_orphaned_objects();
+                        break;
 
-	// --------------------------------------------------------------------------
+                    //  @TODO
+                    case 'file':
 
+                        $this->data['message']  = '<strong>TODO:</strong> find orphaned files.';
+                        break;
 
-	protected function _export_format_serialize( $data, $return_data = FALSE )
-	{
-		//	Send header
-		if ( ! $return_data ) :
+                    //  Invalid request
+                    default:
 
-			$this->output->set_content_type( 'application/octet-stream' );
-			$this->output->set_header( 'Pragma: public' );
-			$this->output->set_header( 'Expires: 0' );
-			$this->output->set_header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
-			$this->output->set_header( 'Cache-Control: private', FALSE );
-			$this->output->set_header( 'Content-Disposition: attachment; filename=data-export-' . $data->filename . '-' . date( 'Y-m-d_H-i-s' ) . '.txt;' );
-			$this->output->set_header( 'Content-Transfer-Encoding: binary' );
+                        $this->data['error']    = '<strong>Sorry,</strong> invalid search type.';
+                        break;
+                }
 
-		endif;
+                if (isset($this->data['orphans'])) {
 
-		// --------------------------------------------------------------------------
+                    switch($parser) {
 
-		//	Set view data
-		$this->data['data'] = $data;
+                        case 'list':
 
-		// --------------------------------------------------------------------------
+                            $this->data['success'] = '<strong>Search complete!</strong> your results are show below.';
+                            break;
 
-		//	Load view
-		if ( ! $return_data ) :
+                        //  TODO: keep the unset(), it prevents the table from rendering
+                        case 'purge':
 
-			$this->load->view( 'admin/utilities/export/serialize', $this->data );
+                            $this->data['message'] = '<strong>TODO:</strong> purge results.'; unset($this->data['orphans']);
+                            break;
 
-		else :
+                        case 'create':
 
-			$_out	= array();
-			$_out[]	= $data->filename . '.txt';
-			$_out[]	= $this->load->view( 'admin/utilities/export/serialize', $this->data, TRUE );
+                            $this->data['message'] = '<strong>TODO:</strong> create objects using results.'; unset($this->data['orphans']);
+                            break;
 
-			return $_out;
+                        //  Invalid request
+                        default:
 
-		endif;
-	}
+                            $this->data['error'] = '<strong>Sorry,</strong> invalid result parse selected.'; unset($this->data['orphans']);
+                            break;
+                    }
+                }
 
+            } else {
 
-	// --------------------------------------------------------------------------
+                $this->data['error'] = '<strong>Sorry,</strong> an error occurred. ' . $error;
+            }
+        }
 
+        // --------------------------------------------------------------------------
 
-	protected function _export_format_json( $data, $return_data = FALSE )
-	{
-		//	Send header
-		if ( ! $return_data ) :
+        $this->data['page']->title = 'CDN: Find Orphaned Objects';
 
-			$this->output->set_content_type( 'application/octet-stream' );
-			$this->output->set_header( 'Pragma: public' );
-			$this->output->set_header( 'Expires: 0' );
-			$this->output->set_header( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );
-			$this->output->set_header( 'Cache-Control: private', FALSE );
-			$this->output->set_header( 'Content-Disposition: attachment; filename=data-export-' . $data->filename . '-' . date( 'Y-m-d_H-i-s' ) . '.json;' );
-			$this->output->set_header( 'Content-Transfer-Encoding: binary' );
+        // --------------------------------------------------------------------------
 
-		endif;
+        $this->asset->load('nails.admin.utilities.cdn.orphans.min.js', true);
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		//	Set view data
-		$this->data['data'] = $data;
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/utilities/cdn/orphans', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-		//	Load view
-		if ( ! $return_data ) :
-
-			$this->load->view( 'admin/utilities/export/json', $this->data );
-
-		else :
-
-			$_out	= array();
-			$_out[]	= $data->filename . '.json';
-			$_out[]	= $this->load->view( 'admin/utilities/export/json', $this->data, TRUE );
-
-			return $_out;
-
-		endif;
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	public function cdn()
-	{
-		switch ( $this->uri->segment( 4 ) ) :
-
-			case 'orphans' :	$this->_cdn_orphans();	break;
-			default :			show_404();				break;
-
-		endswitch;
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _cdn_orphans()
-	{
-		if ( $this->input->is_cli_request() ) :
-
-			return $this->_cdn_orphans_cli();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		if ( $this->input->post() ) :
-
-			//	A little form validation
-			$_type		= $this->input->post( 'type' );
-			$_parser	= $this->input->post( 'parser' );
-			$_pass		= TRUE;
-
-			if ( $_type == 'db' && $_parser == 'create' ) :
-
-				$_pass	= FALSE;
-				$_error	= 'Cannot use "Add to database" results parser when finding orphaned database objects.';
-
-			endif;
-
-
-			if ( $_pass ) :
-
-				switch( $_type ) :
-
-					case 'db'	:	$this->data['orphans']	= $this->cdn->find_orphaned_objects();				break;
-
-					//	TODO
-					case 'file'	:	$this->data['message']	= '<strong>TODO:</strong> find orphaned files.';	break;
-
-					//	Invalid request
-					default		:	$this->data['error']	= '<strong>Sorry,</strong> invalid search type.';	break;
-
-				endswitch;
-
-				if ( isset( $this->data['orphans'] ) ) :
-
-					switch( $_parser ) :
-
-						case 'list'		:	$this->data['success'] = '<strong>Search complete!</strong> your results are show below.';								break;
-
-						//	TODO: keep the unset(), it prevents the table from rendering
-						case 'purge'	:	$this->data['message']	= '<strong>TODO:</strong> purge results.'; unset( $this->data['orphans'] );						break;
-						case 'create'	:	$this->data['message']	= '<strong>TODO:</strong> create objects using results.'; unset( $this->data['orphans'] );		break;
-
-						//	Invalid request
-						default			:	$this->data['error']	= '<strong>Sorry,</strong> invalid result parse selected.'; unset( $this->data['orphans'] );	break;
-
-					endswitch;
-
-				endif;
-
-			else :
-
-				$this->data['error'] = '<strong>Sorry,</strong> an error occurred. ' . $_error;
-
-			endif;
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		$this->data['page']->title = 'CDN: Find Orphaned Objects';
-
-		// --------------------------------------------------------------------------
-
-		$this->asset->load( 'nails.admin.utilities.cdn.orphans.min.js', TRUE );
-
-		// --------------------------------------------------------------------------
-
-		$this->load->view( 'structure/header',				$this->data );
-		$this->load->view( 'admin/utilities/cdn/orphans',	$this->data );
-		$this->load->view( 'structure/footer',				$this->data );
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	protected function _cdn_orphans_cli()
-	{
-		//	TODO: Complete CLI functionality for report generating
-		echo 'Sorry, this functionality is not complete yet. If you are experiencing timeouts please increase the timeout limit for PHP.';
-	}
-
+    /**
+     * Find orphaned CDN objects (command line)
+     * @return void
+     */
+    protected function cdnOrphansCli()
+    {
+        //  @TODO: Complete CLI functionality for report generating
+        echo 'Sorry, this functionality is not complete yet. If you are experiencing timeouts please increase the timeout limit for PHP.';
+    }
 }
 
-
 // --------------------------------------------------------------------------
-
 
 /**
  * OVERLOADING NAILS' ADMIN MODULES
@@ -729,14 +740,12 @@ class NAILS_Utilities extends NAILS_Admin_Controller
  *
  **/
 
-if ( ! defined( 'NAILS_ALLOW_EXTENSION_UTILITIES' ) ) :
+if (!defined('NAILS_ALLOW_EXTENSION_UTILITIES')) {
 
-	class Utilities extends NAILS_Utilities
-	{
-	}
-
-endif;
-
-
-/* End of file utilities.php */
-/* Location: ./modules/admin/controllers/utilities.php */
+    /**
+     * Proxy class for NAILS_Utilities
+     */
+    class Utilities extends NAILS_Utilities
+    {
+    }
+}

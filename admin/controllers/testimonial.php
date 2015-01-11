@@ -1,315 +1,289 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
 
-/**
- * Name:		Admin: Testimonials
- * Description:	Manage testimonials
- *
- **/
-
-//	Include Admin_Controller; executes common admin functionality.
+//  Include NAILS_Admin_Controller; executes common admin functionality.
 require_once '_admin.php';
 
 /**
- * OVERLOADING NAILS' ADMIN MODULES
+ * Manage testimonials
  *
- * Note the name of this class; done like this to allow apps to extend this class.
- * Read full explanation at the bottom of this file.
- *
- **/
-
+ * @package     Nails
+ * @subpackage  module-admin
+ * @category    Controller
+ * @author      Nails Dev Team
+ * @link
+ */
 class NAILS_Testimonial extends NAILS_Admin_Controller
 {
+    /**
+     * Announces this controllers details
+     * @return stdClass
+     */
+    public static function announce()
+    {
+        $d = new stdClass();
 
-	/**
-	 * Announces this module's details to those in the know.
-	 *
-	 * @access	static
-	 * @param	none
-	 * @return	void
-	 **/
-	static function announce()
-	{
-		$d = new stdClass();
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Load the laguage file
+        get_instance()->lang->load('admin_testimonials');
 
-		//	Load the laguage file
-		get_instance()->lang->load( 'admin_testimonials' );
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Configurations
+        $d->name = lang('testimonials_module_name');
+        $d->icon = 'fa-comments';
 
-		//	Configurations
-		$d->name = lang( 'testimonials_module_name' );
-		$d->icon = 'fa-comments';
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Navigation options
+        $d->funcs          = array();
+        $d->funcs['index'] = lang('testimonials_nav_index');
 
-		//	Navigation options
-		$d->funcs				= array();
-		$d->funcs['index']		= lang( 'testimonials_nav_index' );
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        return $d;
+    }
 
-		return $d;
-	}
+    // --------------------------------------------------------------------------
 
+    /**
+     * Returns an array of extra permissions for this controller
+     * @param  string $classIndex The class_index value, used when multiple admin instances are available
+     * @return array
+     */
+    public static function permissions($classIndex = null)
+    {
+        $permissions = parent::permissions($classIndex);
 
-	// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
+        $permissions['can_manage'] = 'Can manage testimonials';
+        $permissions['can_create'] = 'Can create testimonials';
+        $permissions['can_edit']   = 'Can edit testimonials';
+        $permissions['can_delete'] = 'Can delete testimonials';
 
-	static function permissions( $class_index = NULL )
-	{
-		$_permissions = parent::permissions( $class_index );
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        return $permissions;
+    }
 
-		$_permissions['can_manage']	= 'Can manage testimonials';
-		$_permissions['can_create']	= 'Can create testimonials';
-		$_permissions['can_edit']	= 'Can edit testimonials';
-		$_permissions['can_delete']	= 'Can delete testimonials';
+    // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+    /**
+     * Constructs the controller
+     */
+    public function __construct()
+    {
+        parent::__construct();
 
-		return $_permissions;
-	}
+        // --------------------------------------------------------------------------
 
+        $this->load->model('testimonial/testimonial_model');
+    }
 
-	// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
+    /**
+     * Browse testimonials
+     * @return void
+     */
+    public function index()
+    {
+        if (!user_has_permission('admin.testimonial:0.can_manage')) {
 
-	/**
-	 * Constructor
-	 *
-	 * @access	public
-	 * @param	none
-	 * @return	void
-	 **/
-	public function __construct()
-	{
-		parent::__construct();
+            unauthorised();
+        }
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		$this->load->model( 'testimonial/testimonial_model' );
-	}
+        //  Page Title
+        $this->data['page']->title = lang('testimonials_index_title');
 
+        // --------------------------------------------------------------------------
 
-	// --------------------------------------------------------------------------
+        $this->data['testimonials'] = $this->testimonial_model->get_all();
 
+        // --------------------------------------------------------------------------
 
-	/**
-	 * Manage evcents
-	 *
-	 * @access	public
-	 * @param	none
-	 * @return	void
-	 **/
-	public function index()
-	{
-		if ( ! user_has_permission( 'admin.testimonial:0.can_manage' ) ) :
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/testimonial/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-			unauthorised();
+    // --------------------------------------------------------------------------
 
-		endif;
+    /**
+     * Create a new testimonial
+     * @return void
+     */
+    public function create()
+    {
+        if (!user_has_permission('admin.testimonial:0.can_create')) {
 
-		// --------------------------------------------------------------------------
+            unauthorised();
+        }
 
-		//	Page Title
-		$this->data['page']->title = lang( 'testimonials_index_title' );
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        //  Page Title
+        $this->data['page']->title = lang('testimonials_create_title');
 
-		$this->data['testimonials'] = $this->testimonial_model->get_all();
+        // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+        if ($this->input->post()) {
 
-		//	Load views
-		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/testimonial/index',	$this->data );
-		$this->load->view( 'structure/footer',			$this->data );
-	}
+            $this->load->library('form_validation');
 
+            $this->form_validation->set_rules('quote', '', 'xss_clean|required');
+            $this->form_validation->set_rules('quote_by', '', 'xss_clean|required');
+            $this->form_validation->set_rules('order', '', 'xss_clean');
 
-	// --------------------------------------------------------------------------
+            $this->form_validation->set_message('required', lang('fv_required'));
 
+            if ($this->form_validation->run()) {
 
-	public function create()
-	{
-		if ( ! user_has_permission( 'admin.testimonial:0.can_create' ) ) :
+                $data             = array();
+                $data['quote']    = $this->input->post('quote');
+                $data['quote_by'] = $this->input->post('quote_by');
+                $data['order']    = (int) $this->input->post('order');
 
-			unauthorised();
+                if ($this->testimonial_model->create($data)) {
 
-		endif;
+                    $this->session->set_flashdata('success', lang('testimonials_create_ok'));
+                    redirect('admin/testimonial');
 
-		// --------------------------------------------------------------------------
+                } else {
 
-		//	Page Title
-		$this->data['page']->title = lang( 'testimonials_create_title' );
+                    $this->data['error'] = lang('testimonials_create_fail');
+                }
 
-		// --------------------------------------------------------------------------
+            } else {
 
-		if ( $this->input->post() ) :
+                $this->data['error'] = lang('fv_there_were_errors');
+            }
+        }
 
-			$this->load->library( 'form_validation' );
+        // --------------------------------------------------------------------------
 
-			$this->form_validation->set_rules( 'quote',		'', 'xss_clean|required' );
-			$this->form_validation->set_rules( 'quote_by',	'', 'xss_clean|required' );
-			$this->form_validation->set_rules( 'order',		'', 'xss_clean' );
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/testimonial/create', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-			$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
+    // --------------------------------------------------------------------------
 
-			if ( $this->form_validation->run() ) :
+    /**
+     * Edit a testimonial
+     * @return void
+     */
+    public function edit()
+    {
+        if (!user_has_permission('admin.testimonial:0.can_edit')) {
 
-				$_data				= array();
-				$_data['quote']		= $this->input->post( 'quote' );
-				$_data['quote_by']	= $this->input->post( 'quote_by' );
-				$_data['order']		= (int) $this->input->post( 'order' );
+            unauthorised();
+        }
 
-				if ( $this->testimonial_model->create( $_data ) ) :
+        // --------------------------------------------------------------------------
 
-					$this->session->set_flashdata( 'success', lang( 'testimonials_create_ok' ) );
-					redirect( 'admin/testimonial' );
+        $this->data['testimonial'] = $this->testimonial_model->get_by_id($this->uri->segment(4));
 
-				else :
+        if (!$this->data['testimonial']) {
 
-					$this->data['error'] = lang( 'testimonials_create_fail' );
+            $this->session->set_flashdata('error', lang('testimonials_common_bad_id'));
+            redirect('admin/testimonial');
+        }
 
-				endif;
+        // --------------------------------------------------------------------------
 
-			else :
+        //  Page Title
+        $this->data['page']->title = lang('testimonials_edit_title');
 
-				$this->data['error'] = lang( 'fv_there_were_errors' );
+        // --------------------------------------------------------------------------
 
-			endif;
+        if ($this->input->post()) {
 
-		endif;
+            $this->load->library('form_validation');
 
-		// --------------------------------------------------------------------------
+            $this->form_validation->set_rules('quote', '', 'xss_clean|required');
+            $this->form_validation->set_rules('quote_by', '', 'xss_clean|required');
+            $this->form_validation->set_rules('order', '', 'xss_clean');
 
-		//	Load views
-		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/testimonial/create',	$this->data );
-		$this->load->view( 'structure/footer',			$this->data );
-	}
+            $this->form_validation->set_message('required', lang('fv_required'));
 
+            if ($this->form_validation->run()) {
 
-	// --------------------------------------------------------------------------
+                $data             = array();
+                $data['quote']    = $this->input->post('quote');
+                $data['quote_by'] = $this->input->post('quote_by');
+                $data['order']    = (int) $this->input->post('order');
 
+                if ($this->testimonial_model->update($this->data['testimonial']->id, $data)) {
 
-	public function edit()
-	{
-		if ( ! user_has_permission( 'admin.testimonial:0.can_edit' ) ) :
+                    $this->session->set_flashdata('success', lang('testimonials_edit_ok'));
+                    redirect('admin/testimonial');
 
-			unauthorised();
+                } else {
 
-		endif;
+                    $this->data['error'] = lang('testimonials_edit_fail');
+                }
 
-		// --------------------------------------------------------------------------
+            } else {
 
-		$this->data['testimonial'] = $this->testimonial_model->get_by_id( $this->uri->segment( 4 ) );
+                $this->data['error'] = lang('fv_there_were_errors');
+            }
+        }
 
-		if ( ! $this->data['testimonial'] ) :
+        // --------------------------------------------------------------------------
 
-			$this->session->set_flashdata( 'error', lang( 'testimonials_common_bad_id' ) );
-			redirect( 'admin/testimonial' );
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/testimonial/edit', $this->data);
+        $this->load->view('structure/footer', $this->data);
+    }
 
-		endif;
+    // --------------------------------------------------------------------------
 
-		// --------------------------------------------------------------------------
+    /**
+     * Delete a testimonial
+     * @return void
+     */
+    public function delete()
+    {
+        if (!user_has_permission('admin.testimonial:0.can_delete')) {
 
-		//	Page Title
-		$this->data['page']->title = lang( 'testimonials_edit_title' );
+            unauthorised();
+        }
 
-		// --------------------------------------------------------------------------
+        // --------------------------------------------------------------------------
 
-		if ( $this->input->post() ) :
+        $testimonial = $this->testimonial_model->get_by_id($this->uri->segment(4));
 
-			$this->load->library( 'form_validation' );
+        if (!$testimonial) {
 
-			$this->form_validation->set_rules( 'quote',		'', 'xss_clean|required' );
-			$this->form_validation->set_rules( 'quote_by',	'', 'xss_clean|required' );
-			$this->form_validation->set_rules( 'order',		'', 'xss_clean' );
+            $this->session->set_flashdata('error', lang('testimonials_common_bad_id'));
+            redirect('admin/testimonial');
+        }
 
-			$this->form_validation->set_message( 'required', lang( 'fv_required' ) );
+        // --------------------------------------------------------------------------
 
-			if ( $this->form_validation->run() ) :
+        if ($this->testimonial_model->delete($testimonial->id)) {
 
-				$_data				= array();
-				$_data['quote']		= $this->input->post( 'quote' );
-				$_data['quote_by']	= $this->input->post( 'quote_by' );
-				$_data['order']		= (int) $this->input->post( 'order' );
+            $this->session->set_flashdata('success', lang('testimonials_delete_ok'));
 
-				if ( $this->testimonial_model->update( $this->data['testimonial']->id, $_data ) ) :
+        } else {
 
-					$this->session->set_flashdata( 'success', lang( 'testimonials_edit_ok' ) );
-					redirect( 'admin/testimonial' );
+            $this->session->set_flashdata('error', lang('testimonials_delete_fail'));
+        }
 
-				else :
+        // --------------------------------------------------------------------------
 
-					$this->data['error'] = lang( 'testimonials_edit_fail' );
-
-				endif;
-
-			else :
-
-				$this->data['error'] = lang( 'fv_there_were_errors' );
-
-			endif;
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		//	Load views
-		$this->load->view( 'structure/header',			$this->data );
-		$this->load->view( 'admin/testimonial/edit',	$this->data );
-		$this->load->view( 'structure/footer',			$this->data );
-	}
-
-
-	// --------------------------------------------------------------------------
-
-
-	public function delete()
-	{
-		if ( ! user_has_permission( 'admin.testimonial:0.can_delete' ) ) :
-
-			unauthorised();
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		$_testimonial = $this->testimonial_model->get_by_id( $this->uri->segment( 4 ) );
-
-		if ( ! $_testimonial ) :
-
-			$this->session->set_flashdata( 'error', lang( 'testimonials_common_bad_id' ) );
-			redirect( 'admin/testimonial' );
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		if ( $this->testimonial_model->delete( $_testimonial->id ) ) :
-
-			$this->session->set_flashdata( 'success', lang( 'testimonials_delete_ok' ) );
-
-		else :
-
-			$this->session->set_flashdata( 'error', lang( 'testimonials_delete_fail' ) );
-
-		endif;
-
-		// --------------------------------------------------------------------------
-
-		redirect( 'admin/testimonial' );
-	}
+        redirect('admin/testimonial');
+    }
 }
 
-
 // --------------------------------------------------------------------------
-
 
 /**
  * OVERLOADING NAILS' ADMIN MODULES
@@ -335,14 +309,12 @@ class NAILS_Testimonial extends NAILS_Admin_Controller
  *
  **/
 
-if ( ! defined( 'NAILS_ALLOW_EXTENSION_TESTIMONIAL' ) ) :
+if (!defined('NAILS_ALLOW_EXTENSION_TESTIMONIAL')) {
 
-	class Testimonial extends NAILS_Testimonial
-	{
-	}
-
-endif;
-
-
-/* End of file testimonial.php */
-/* Location: ./modules/admin/controllers/testimonial.php */
+    /**
+     * Proxy class for NAILS_Testimonial
+     */
+    class Testimonial extends NAILS_Testimonial
+    {
+    }
+}
