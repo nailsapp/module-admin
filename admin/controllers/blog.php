@@ -647,8 +647,8 @@ class NAILS_Blog extends NAILS_Admin_Controller
             //  Override the header and footer
             if ($this->data['is_fancybox']) {
 
-                $this->data['header_override'] = 'structure/header/nails-admin-blank';
-                $this->data['footer_override'] = 'structure/footer/nails-admin-blank';
+                $this->data[headerOverride] = 'structure/header/nails-admin-blank';
+                $this->data[footerOverride] = 'structure/footer/nails-admin-blank';
             }
 
             //  Start the page title
