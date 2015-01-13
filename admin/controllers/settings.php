@@ -799,7 +799,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
             $this->data['success'] = '<strong>Success!</strong> Blog settings have been saved.';
 
-            $this->load->model('common/routes_model');
+            $this->load->model('routes_model');
 
             if (!$this->routes_model->update('shop')) {
 
@@ -1028,7 +1028,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
         $this->load->model('shop/shop_tax_rate_model');
         $this->load->model('shop/shop_skin_front_model');
         $this->load->model('shop/shop_skin_checkout_model');
-        $this->load->model('common/country_model');
+        $this->load->model('country_model');
 
         // --------------------------------------------------------------------------
 
@@ -1135,7 +1135,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
             // --------------------------------------------------------------------------
 
             //  Rewrite routes
-            $this->load->model('common/routes_model');
+            $this->load->model('routes_model');
             if (!$this->routes_model->update('shop')) {
 
                 $this->data['warning'] = '<strong>Warning:</strong> while the shop settings were updated, the routes file could not be updated. The shop may not behave as expected,';

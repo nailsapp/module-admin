@@ -171,7 +171,7 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
         //  Load common blocks items
         $this->load->model('cms/cms_page_model');
-        $this->load->model('common/routes_model');
+        $this->load->model('routes_model');
 
         // --------------------------------------------------------------------------
 

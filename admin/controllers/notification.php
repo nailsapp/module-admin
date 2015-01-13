@@ -55,7 +55,7 @@ class NAILS_Notification extends NAILS_Admin_Controller
 
         // --------------------------------------------------------------------------
 
-        $this->load->model('common/app_notification_model');
+        $this->load->model('app_notification_model');
     }
 
     // --------------------------------------------------------------------------
@@ -122,10 +122,12 @@ class NAILS_Notification extends NAILS_Admin_Controller
 
         // --------------------------------------------------------------------------
 
-        //  Conditionally set this as this method may be overridden by the app to add
-        //  custom notification types
+        /**
+         * Conditionally set this as this method may be overridden by the app to add
+         * custom notification types
+         */
 
-        $this->data['notifications'] = $this->app_notification_model->get_definitions();
+        $this->data['notifications'] = $this->app_notification_model->getDefinitions();
 
         // --------------------------------------------------------------------------
 

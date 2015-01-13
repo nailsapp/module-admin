@@ -216,7 +216,7 @@ class NAILS_Utilities extends NAILS_Admin_Controller
     {
         if ($this->input->post('go')) {
 
-            $this->load->model('common/routes_model');
+            $this->load->model('routes_model');
 
             if ($this->routes_model->update()) {
 
