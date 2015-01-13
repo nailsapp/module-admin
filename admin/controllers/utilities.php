@@ -97,6 +97,12 @@ class NAILS_Utilities extends NAILS_Admin_Controller
                 'Export a list of all the site\'s registered users and their meta data.',
                 'users_all'
             );
+            
+            $this->exportSources[] = array(
+                'Members: Names and Email',
+                'Export a list of all the site\'s registered users and their email addresses.',
+                'users_email'
+            );
         }
 
         // --------------------------------------------------------------------------
@@ -420,6 +426,56 @@ class NAILS_Utilities extends NAILS_Admin_Controller
             }
 
             $out->data  = $this->db->get($out->filename)->result_array();
+        }
+
+        // --------------------------------------------------------------------------
+
+        return $out;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Export Source: Users (email)
+     * @param  array  $out array of data to include in the output
+     * @return array
+     */
+    protected function _export_source_users_email($out = array())
+    {
+        if (!user_has_permission('admin.accounts:0')) {
+
+            return false;
+        }
+
+        // --------------------------------------------------------------------------
+
+        //  Prepare our out array
+        $out = $out;
+
+        //  Fetch all users via the user_model
+        $users = $this->user->get_all();
+
+        //  Set column headings
+        $out           = new stdClass();
+        $out->label    = 'Users';
+        $out->filename = NAILS_DB_PREFIX . 'user';
+        $out->fields   = array(
+            'first_name',
+            'last_name',
+            'email'
+        );
+        $out->data     = array();
+        
+        // --------------------------------------------------------------------------
+
+        //  Add each user to the output array
+        foreach ($users as $u) {
+
+            $out->data[] = array(
+                $u->first_name,
+                $u->last_name,
+                $u->email
+            );
         }
 
         // --------------------------------------------------------------------------
