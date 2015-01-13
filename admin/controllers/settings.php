@@ -1463,8 +1463,8 @@ class NAILS_Settings extends NAILS_Admin_Controller
             //  Handle modal viewing
             if ($this->input->get('is_fancybox')) {
 
-                $this->data[headerOverride] = 'structure/header/nails-admin-blank';
-                $this->data[footerOverride] = 'structure/footer/nails-admin-blank';
+                $this->data['headerOverride'] = 'structure/header/nails-admin-blank';
+                $this->data['footerOverride'] = 'structure/footer/nails-admin-blank';
             }
 
             //  Render the interface
@@ -1572,8 +1572,8 @@ class NAILS_Settings extends NAILS_Admin_Controller
 
         if ($this->input->get('is_fancybox')) {
 
-            $this->data[headerOverride] = 'structure/header/nails-admin-blank';
-            $this->data[footerOverride] = 'structure/footer/nails-admin-blank';
+            $this->data['headerOverride'] = 'structure/header/nails-admin-blank';
+            $this->data['footerOverride'] = 'structure/footer/nails-admin-blank';
 
         }
 

@@ -268,8 +268,8 @@ class NAILS_Cdnadmin extends NAILS_Admin_Controller
 
         if ($this->input->get('is_fancybox')) {
 
-            $this->data[headerOverride] = 'structure/header/nails-admin-blank';
-            $this->data[footerOverride] = 'structure/header/nails-admin-blank';
+            $this->data['headerOverride'] = 'structure/header/nails-admin-blank';
+            $this->data['footerOverride'] = 'structure/header/nails-admin-blank';
         }
 
         // --------------------------------------------------------------------------

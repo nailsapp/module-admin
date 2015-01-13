@@ -822,8 +822,8 @@ class NAILS_Accounts extends NAILS_Admin_Controller
         //  Load views
         if ($this->input->get('inline') || $this->input->get('is_fancybox')) {
 
-            $this->data[headerOverride] = 'structure/header/nails-admin-blank';
-            $this->data[footerOverride] = 'structure/footer/nails-admin-blank';
+            $this->data['headerOverride'] = 'structure/header/nails-admin-blank';
+            $this->data['footerOverride'] = 'structure/footer/nails-admin-blank';
         }
 
         $this->load->view('structure/header', $this->data);
