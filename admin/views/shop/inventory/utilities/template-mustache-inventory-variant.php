@@ -160,7 +160,7 @@
 						if ( isset( $variation->meta ) ) :
 
 							//	DB Data
-							foreach( $variation->meta AS $variation_meta ) :
+							foreach ( $variation->meta AS $variation_meta ) :
 
 								$_defaults[$variation_meta->meta_field_id] = $variation_meta->value;
 
@@ -175,7 +175,7 @@
 						elseif ( isset( $variation['meta'][$product_type_id] ) ) :
 
 							//	POST Data
-							foreach( $variation['meta'][$product_type_id] AS $meta_field_id => $meta_field_value ) :
+							foreach ( $variation['meta'][$product_type_id] AS $meta_field_id => $meta_field_value ) :
 
 								$_defaults[$meta_field_id] = $meta_field_value;
 
@@ -259,7 +259,7 @@
 
 						if ( ! empty( $variation->price_raw ) ) :
 
-							foreach( $variation->price_raw AS $price ) :
+							foreach ( $variation->price_raw AS $price ) :
 
 								$_price[$price->currency]			= $price->price;
 								$_sale_price[$price->currency]	= $price->sale_price;
@@ -463,7 +463,7 @@
 
 					if ( ! empty( $_gallery ) ) :
 
-						foreach( $_gallery AS $image ) :
+						foreach ( $_gallery AS $image ) :
 
 							//	Is this item selected for this variation?
 							$_checked = array_search( $image, $_selected ) !== FALSE ? 'selected' : FALSE;

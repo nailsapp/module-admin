@@ -99,7 +99,7 @@
 
 			if ( isset( $cmspage ) ) :
 
-				foreach( $pages_nested_flat AS $id => $label ) :
+				foreach ( $pages_nested_flat AS $id => $label ) :
 
 					if ( $id == $cmspage->id ) :
 
@@ -173,7 +173,7 @@
 		<ul class="templates">
 		<?php
 
-			foreach( $templates AS $template ) :
+			foreach ( $templates AS $template ) :
 
 				echo '<li>';
 
@@ -218,7 +218,7 @@
 		<?php
 
 			//	Any additional page data for the templates
-			foreach( $templates AS $template ) :
+			foreach ( $templates AS $template ) :
 
 				$_visible = $_default_template == $template->slug ? 'block' : 'none';
 				echo '<div id="additional-fields-' . $template->slug . '" class="additional-fields" style="display:' . $_visible . '">';
@@ -236,7 +236,7 @@
 
 				if ( $template->additional_fields ) :
 
-					foreach( $template->additional_fields AS $field ) :
+					foreach ( $template->additional_fields AS $field ) :
 
 						//	Set the default key
 						$field['default'] = ! empty( $cmspage->draft->template_data->data->additional_fields->{$template->slug}->{$field['key']} ) ? $cmspage->draft->template_data->data->additional_fields->{$template->slug}->{$field['key']} : '';
@@ -283,7 +283,7 @@
 		<p>
 		<?php
 
-			foreach( $templates AS $template ) :
+			foreach ( $templates AS $template ) :
 
 				//	This template selected?
 				$_selected = $_default_template == $template->slug ? TRUE : FALSE;

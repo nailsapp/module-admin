@@ -44,7 +44,7 @@
 
 						if ( $meta_fields ) :
 
-							foreach( $meta_fields AS $field ) :
+							foreach ( $meta_fields AS $field ) :
 
 								echo '<tr>';
 									echo '<td class="label">';

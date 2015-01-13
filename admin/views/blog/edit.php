@@ -222,7 +222,7 @@
 				</p>
 				<?php
 
-					foreach( $associations AS $index => $assoc ) :
+					foreach ( $associations AS $index => $assoc ) :
 
 						echo '<fieldset class="association" id="edit-blog-post-association-' . $index . '">';
 						echo isset( $assoc->legend ) && $assoc->legend ? '<legend>' . $assoc->legend . '</legend>' : '';
@@ -239,7 +239,7 @@
 
 							$_selected = array();
 
-							foreach( $assoc->current AS $current ) :
+							foreach ( $assoc->current AS $current ) :
 
 								$_selected[] = $current->associated_id;
 
@@ -249,7 +249,7 @@
 
 						echo '<select name="associations[' . $index . '][]" ' . $_multiple . ' class="select2">';
 
-							foreach( $assoc->data AS $data ) :
+							foreach ( $assoc->data AS $data ) :
 
 								$_checked = array_search( $data->id, $_selected ) !== FALSE ? 'selected="selected"' : '';
 								echo '<option value="' . $data->id . '" ' . $_checked . '>' . $data->label . '</option>';
@@ -308,7 +308,7 @@
 
 						$_gallery_items = array();
 
-						foreach( $post->gallery AS $item ) :
+						foreach ( $post->gallery AS $item ) :
 
 							$_gallery_items[] = $item->image_id;
 
@@ -327,7 +327,7 @@
 					</li>
 					<?php
 
-						foreach( $_gallery_items AS $image ) :
+						foreach ( $_gallery_items AS $image ) :
 
 							$this->load->view('admin/blog/_utilities/template-mustache-gallery-item', array('objectId' => $image));
 

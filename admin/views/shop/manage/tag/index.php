@@ -42,7 +42,7 @@
 
 						if ( $tags ) :
 
-							foreach( $tags AS $tag ) :
+							foreach ( $tags AS $tag ) :
 
 								echo '<tr>';
 									echo '<td class="label">';

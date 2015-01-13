@@ -97,7 +97,7 @@
 
 			$_options = array();
 
-			foreach( $date_formats AS $format ) :
+			foreach ( $date_formats AS $format ) :
 
 				$_options[$format->slug] = $format->label . ' (' . $format->example . ')';
 
@@ -126,7 +126,7 @@
 
 			$_options = array();
 
-			foreach( $time_formats AS $format ) :
+			foreach ( $time_formats AS $format ) :
 
 				$_options[$format->slug] = $format->label . ' (' . $format->example . ')';
 

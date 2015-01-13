@@ -41,7 +41,7 @@
         <select name="newGroupId" class="select2">
         <?php
 
-        foreach($userGroups AS $id => $label) {
+        foreach ($userGroups AS $id => $label) {
 
             echo '<option value="' . $id. '">';
                 echo $label;

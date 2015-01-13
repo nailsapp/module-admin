@@ -43,7 +43,7 @@
 
 						if ( $brands ) :
 
-							foreach( $brands AS $brand ) :
+							foreach ( $brands AS $brand ) :
 
 								echo '<tr>';
 									echo '<td class="label">';

@@ -89,7 +89,7 @@
 					</p>
 					<?php
 
-						foreach( $providers AS $provider ) :
+						foreach ( $providers AS $provider ) :
 
 							$_field					= array();
 							$_field['key']			= 'auth_social_signon_' . $provider['slug'] . '_enabled';

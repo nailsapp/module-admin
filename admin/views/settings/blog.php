@@ -197,7 +197,7 @@
 							$_selected_skin = ! empty( $settings['skin'] ) ? $settings['skin'] : 'blog-skin-classic';
 
 							echo '<ul class="skins">';
-							foreach( $skins AS $skin ) :
+							foreach ( $skins AS $skin ) :
 
 								$_name			= ! empty( $skin->name ) ? $skin->name : 'Untitled';
 								$_description	= ! empty( $skin->description ) ? $skin->description : '';
@@ -524,7 +524,7 @@
 
 							if ( is_array( $_associations ) ) :
 
-								foreach( $_associations AS $assoc ) :
+								foreach ( $_associations AS $assoc ) :
 
 									$_field				= array();
 									$_field['key']		= 'sidebar_association_' . $assoc->slug;

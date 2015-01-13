@@ -171,7 +171,7 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
         //  Load common blocks items
         $this->load->model('cms/cms_page_model');
-        $this->load->model('system/routes_model');
+        $this->load->model('common/routes_model');
 
         // --------------------------------------------------------------------------
 
@@ -180,7 +180,7 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
         if (method_exists($this, 'pages' . $method)) {
 
-            if (!$this->routes_model->can_write_routes()) {
+            if (!$this->routes_model->canWriteRoutes()) {
 
                 $this->data['message'] = '<strong>Hey!</strong> There\'s a problem with the routing system. ';
                 $this->data['message'] .= $this->routes_model->cant_write_reason;

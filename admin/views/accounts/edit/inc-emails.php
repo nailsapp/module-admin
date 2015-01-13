@@ -15,7 +15,7 @@
             <tbody>
                 <?php
 
-                foreach($user_emails as $email) {
+                foreach ($user_emails as $email) {
 
                     echo '<tr data-email="' . $email->email . '" class="existingEmail">';
                     echo '<td class="email">';

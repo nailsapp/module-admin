@@ -55,7 +55,7 @@ class NAILS_Notification extends NAILS_Admin_Controller
 
         // --------------------------------------------------------------------------
 
-        $this->load->model('system/app_notification_model');
+        $this->load->model('common/app_notification_model');
     }
 
     // --------------------------------------------------------------------------

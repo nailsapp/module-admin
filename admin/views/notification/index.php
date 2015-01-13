@@ -11,7 +11,7 @@
 
 			echo form_open();
 
-			foreach( $notifications AS $grouping => $noti ) :
+			foreach ( $notifications AS $grouping => $noti ) :
 
 				echo '<fieldset>';
 					echo $noti->label ? '<legend>' . $noti->label . '</legend>' : '';
@@ -26,7 +26,7 @@
 						echo '<thead>';
 						echo '<tbody>';
 
-						foreach( $noti->options AS $key => $data ) :
+						foreach ( $noti->options AS $key => $data ) :
 
 							$_default = implode( ', ', $this->app_notification_model->get( $key, $grouping ) );
 

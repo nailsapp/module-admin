@@ -104,7 +104,7 @@
 					$_field['default'] = array();
 
 					//	Build an array which matches the potential $_POST array
-					foreach($item->brands AS $brand) {
+					foreach ($item->brands AS $brand) {
 
 						$_field['default'][] = $brand->id;
 					}
@@ -131,7 +131,7 @@
 					$_field['default'] = array();
 
 					//	Build an array which matches the potential $_POST array
-					foreach($item->categories AS $category) {
+					foreach ($item->categories AS $category) {
 
 						$_field['default'][] = $category->id;
 					}
@@ -158,7 +158,7 @@
 					$_field['default'] = array();
 
 					//	Build an array which matches the potential $_POST array
-					foreach($item->tags AS $tag) {
+					foreach ($item->tags AS $tag) {
 
 						$_field['default'][] = $tag->id;
 					}
@@ -411,7 +411,7 @@
 
 					if (!empty($_gallery)) {
 
-						foreach($_gallery AS $image) {
+						foreach ($_gallery AS $image) {
 
 							$viewData = array(
 								'objectId' => $image
@@ -521,7 +521,7 @@
 						$_selected = array();
 
 						//	Build an array which matches the potential $_POST array
-						foreach($item->ranges AS $range) {
+						foreach ($item->ranges AS $range) {
 
 							$_selected[] = $range->id;
 						}

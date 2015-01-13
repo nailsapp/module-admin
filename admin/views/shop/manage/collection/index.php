@@ -43,7 +43,7 @@
 
 						if ( $collections ) :
 
-							foreach( $collections AS $collection ) :
+							foreach ( $collections AS $collection ) :
 
 								echo '<tr>';
 									echo '<td class="label">';

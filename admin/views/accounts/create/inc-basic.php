@@ -15,7 +15,7 @@
 
 		//	Prepare ID's
 		$_groups_by_id = array();
-		foreach( $groups AS $group ) :
+		foreach ( $groups AS $group ) :
 
 			//	If the group is a superuser group and the active user is not a superuser
 			//	then remove it

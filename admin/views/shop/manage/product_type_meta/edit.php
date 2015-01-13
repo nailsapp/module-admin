@@ -120,7 +120,7 @@
 
 						elseif( isset( $meta_field->associated_product_types ) ) :
 
-							foreach( $meta_field->associated_product_types AS $product_type ) :
+							foreach ( $meta_field->associated_product_types AS $product_type ) :
 
 								$_selected[] = $product_type->id;
 
@@ -128,7 +128,7 @@
 
 						endif;
 
-						foreach( $product_types AS $type ) :
+						foreach ( $product_types AS $type ) :
 
 							$_is_selected = array_search( $type->id, $_selected ) !== FALSE ? 'selected="selected"' : '';
 

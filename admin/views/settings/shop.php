@@ -471,7 +471,7 @@
 						if ( $skins_front ) :
 
 							echo '<ul class="skins">';
-							foreach( $skins_front AS $skin ) :
+							foreach ( $skins_front AS $skin ) :
 
 								$_name			= ! empty( $skin->name ) ? $skin->name : 'Untitled';
 								$_description	= ! empty( $skin->description ) ? $skin->description : '';
@@ -529,7 +529,7 @@
 						if ( $skins_checkout ) :
 
 							echo '<ul class="skins">';
-							foreach( $skins_checkout AS $skin ) :
+							foreach ( $skins_checkout AS $skin ) :
 
 								$_name			= ! empty( $skin->name ) ? $skin->name : 'Untitled';
 								$_description	= ! empty( $skin->description ) ? $skin->description : '';
@@ -652,7 +652,7 @@
 										$_options = array();
 										$_field['class'] = 'select2';
 
-										foreach( $setting->options AS $option ) :
+										foreach ( $setting->options AS $option ) :
 
 											if ( isset( $option->value ) ) :
 
@@ -759,7 +759,7 @@
 										$_options = array();
 										$_field['class'] = 'select2';
 
-										foreach( $setting->options AS $option ) :
+										foreach ( $setting->options AS $option ) :
 
 											if ( isset( $option->value ) ) :
 
@@ -857,7 +857,7 @@
 						$_enabled_payment_gateways = set_value( 'enabled_payment_gateways', app_setting( 'enabled_payment_gateways', 'shop' ) );
 						$_enabled_payment_gateways = array_filter( (array) $_enabled_payment_gateways );
 
-						foreach( $payment_gateways AS $slug ) :
+						foreach ( $payment_gateways AS $slug ) :
 
 							$_enabled = array_search( $slug, $_enabled_payment_gateways ) !== FALSE ? TRUE : FALSE;
 
@@ -922,7 +922,7 @@
 
 					$_currencies = array();
 
-					foreach( $currencies AS $c ) :
+					foreach ( $currencies AS $c ) :
 
 						$_currencies[$c->code] = $c->code . ' - ' . $c->label;
 
@@ -1098,7 +1098,7 @@
 
 						$_enabled_shipping_driver = set_value( 'enabled_shipping_driver', app_setting( 'enabled_shipping_driver', 'shop' ) );
 
-						foreach( $shipping_drivers AS $driver ) :
+						foreach ( $shipping_drivers AS $driver ) :
 
 							$_name			= ! empty( $driver->name ) ? $driver->name : 'Untitled';
 							$_description	= ! empty( $driver->description ) ? $driver->description : '';
