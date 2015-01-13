@@ -783,7 +783,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
         $this->data['languages']    = $this->language_model->get_all_enabled_flat();
 
         //  Fetch any user uploads
-        if (module_is_enabled('cdn')) {
+        if (isModuleEnabled('cdn')) {
 
             $this->data['user_uploads'] = $this->cdn->get_objects_for_user($user->id);
         }

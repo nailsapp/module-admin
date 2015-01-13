@@ -135,7 +135,7 @@
 							<td class="actions">
 							<?php
 
-								echo anchor(site_url('email/view_online/' . $email->ref, page_is_secure()), lang('action_preview'), 'class="awesome small fancybox fancybox.iframe" target="_blank"');
+								echo anchor(site_url('email/view_online/' . $email->ref, isPageSecure()), lang('action_preview'), 'class="awesome small fancybox fancybox.iframe" target="_blank"');
 
 								if (!user_has_permission('admin.email:0.can_resend')) {
 

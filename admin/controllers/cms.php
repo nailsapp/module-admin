@@ -20,7 +20,7 @@ class NAILS_Cms extends NAILS_Admin_Controller
      */
     public static function announce()
     {
-        if (!module_is_enabled('cms')) {
+        if (!isModuleEnabled('cms')) {
 
             return false;
         }

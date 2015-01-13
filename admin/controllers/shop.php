@@ -25,7 +25,7 @@ class NAILS_Shop extends NAILS_Admin_Controller
      */
     public static function announce()
     {
-        if (!module_is_enabled('shop')) {
+        if (!isModuleEnabled('shop')) {
 
             return false;
         }
