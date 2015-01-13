@@ -97,7 +97,7 @@ class NAILS_Utilities extends NAILS_Admin_Controller
                 'Export a list of all the site\'s registered users and their meta data.',
                 'users_all'
             );
-            
+
             $this->exportSources[] = array(
                 'Members: Names and Email',
                 'Export a list of all the site\'s registered users and their email addresses.',
@@ -464,8 +464,8 @@ class NAILS_Utilities extends NAILS_Admin_Controller
             'last_name',
             'email'
         );
-        $out->data     = array();
-        
+        $out->data = array();
+
         // --------------------------------------------------------------------------
 
         //  Add each user to the output array
