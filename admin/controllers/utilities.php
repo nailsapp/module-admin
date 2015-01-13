@@ -66,23 +66,88 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 
         // --------------------------------------------------------------------------
 
-        //  Default export sources
+        /**
+         * Define the export sources
+         *
+         * Each item in this array is an array which defines the source, in the
+         * following format:
+         *
+         * array(
+         *    0 => 'Source Title',
+         *    1 => 'Source Description',
+         *    2 => 'sourceMethod'
+         * )
+         *
+         * The source method should be a callable method which is prefixed with
+         * _export_source_, using the above as an example, the method would be:
+         *
+         * _export_source_sourceMethod()
+         *
+         * This method should return an array where the indexes are the column
+         * names and the values are not arrays, i.e stuff which would fit into
+         * a single cell in Excel).
+         */
+
         $this->exportSources = array();
 
         if (user_has_permission('admin.accounts:0')) {
 
-            $this->exportSources[] = array('Members: All', 'Export a list of all the site\'s registered users and their meta data.', 'users_all');
+            $this->exportSources[] = array(
+                'Members: All',
+                'Export a list of all the site\'s registered users and their meta data.',
+                'users_all'
+            );
         }
 
         // --------------------------------------------------------------------------
 
-        //  Default export formats
+        /**
+         * Define the export formats
+         *
+         * Each item in this array is an array which defines the formats, in the
+         * following format:
+         *
+         * array(
+         *    0 => 'Format Title',
+         *    1 => 'Format Description',
+         *    2 => 'formatMethod'
+         * )
+         *
+         * The format method should be a callable method which is prefixed with
+         * _export_format_, using the above as an example, the method would be:
+         *
+         * _export_format_formatMethod($data, $returnData = false)
+         *
+         * Where $data is the values generated from a source method. The method
+         * should handle generating the file and sending to the user, unless
+         * $returnData is true, in which case it should return the file's content
+         */
+
         $this->exportFormats   = array();
-        $this->exportFormats[] = array('CSV', 'Easily imports to many software packages, including Microsoft Excel.', 'csv');
-        $this->exportFormats[] = array('HTML', 'Produces an HTML table containing the data', 'html');
-        $this->exportFormats[] = array('PDF', 'Saves a PDF using the data from the HTML export option', 'pdf');
-        $this->exportFormats[] = array('PHP Serialize', 'Export as an object serialized using PHP\'s serialize() function', 'serialize');
-        $this->exportFormats[] = array('JSON', 'Export as a JSON array', 'json');
+        $this->exportFormats[] = array(
+            'CSV',
+            'Easily imports to many software packages, including Microsoft Excel.',
+            'csv');
+
+        $this->exportFormats[] = array(
+            'HTML',
+            'Produces an HTML table containing the data',
+            'html');
+
+        $this->exportFormats[] = array(
+            'PDF',
+            'Saves a PDF using the data from the HTML export option',
+            'pdf');
+
+        $this->exportFormats[] = array(
+            'PHP Serialize',
+            'Export as an object serialized using PHP\'s serialize() function',
+            'serialize');
+
+        $this->exportFormats[] = array(
+            'JSON',
+            'Export as a JSON array',
+            'json');
     }
 
     // --------------------------------------------------------------------------
@@ -104,7 +169,7 @@ class NAILS_Utilities extends NAILS_Admin_Controller
             $this->load->library('form_validation');
 
             //  Define rules
-            $this->form_validation->set_rules('recipient', lang('utilities_test_email_field_name'), 'xss_clean|required|valid_email');
+            $this->form_validation->set_rules('recipient', '', 'xss_clean|required|valid_email');
 
             //  Set Messages
             $this->form_validation->set_message('required', lang('fv_required'));
