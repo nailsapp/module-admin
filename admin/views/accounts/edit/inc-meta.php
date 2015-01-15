@@ -4,7 +4,7 @@
 
 		if ( $user_meta ) :
 
-			foreach ( $user_meta AS $field => $value ) :
+			foreach ( $user_meta as $field => $value ) :
 
 				//	Always ignore some fields
 				if ( array_search( $field, $ignored_fields ) !== FALSE )
@@ -69,7 +69,7 @@
 								$_results = $this->db->get( $_table )->result();
 								$_options = array();
 
-								foreach ( $_results AS $row ) :
+								foreach ( $_results as $row ) :
 
 									$_options[$row->{$_select_id}] = $row->{$_select_name};
 

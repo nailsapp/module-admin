@@ -74,7 +74,7 @@
 	<p>
 	<?php
 
-		foreach ( $_buttons AS $button ) :
+		foreach ( $_buttons as $button ) :
 
 			echo $button;
 

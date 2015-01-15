@@ -58,7 +58,7 @@
 							<ul style="padding:0;margin:0;">
 								<?php
 
-									foreach ( $changelog AS $item ) :
+									foreach ( $changelog as $item ) :
 
 										echo '<li style="list-style-typ:none;padding:5px;display:block;">';
 

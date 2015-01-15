@@ -24,7 +24,7 @@
 
 			if ( $items ) :
 
-				foreach ( $items AS $item ) :
+				foreach ( $items as $item ) :
 
 					echo '<tr>';
 
@@ -67,7 +67,7 @@
 						echo '<hr style="margin:0.5em 0;" />';
 						echo '<small>';
 						echo '<ul>';
-						foreach ( $item->changes AS $change ) :
+						foreach ( $item->changes as $change ) :
 
 							$_old = $change->old_value == '' ? '<span>blank</span>' : $change->old_value;
 							$_new = $change->new_value == '' ? '<span>blank</span>' : $change->new_value;

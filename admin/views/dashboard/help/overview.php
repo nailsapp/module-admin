@@ -17,7 +17,7 @@
 
 				if ( $videos ) :
 
-					foreach ( $videos AS $v ) :
+					foreach ( $videos as $v ) :
 
 					echo '<tr>';
 					echo '<td class="id">' . $v->id . '</td>';

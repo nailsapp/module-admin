@@ -43,7 +43,7 @@
 
 						if ( $ranges ) :
 
-							foreach ( $ranges AS $range ) :
+							foreach ( $ranges as $range ) :
 
 								echo '<tr>';
 									echo '<td class="label">';

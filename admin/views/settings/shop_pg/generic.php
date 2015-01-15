@@ -51,7 +51,7 @@
 				<hr />
 				<?php
 
-					foreach ( $params AS $key => $value ) :
+					foreach ( $params as $key => $value ) :
 
 						//	Prep the visible label
 						$_label		= $key;

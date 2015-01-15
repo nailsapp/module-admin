@@ -50,7 +50,7 @@
 
 						if ( $product_types ) :
 
-							foreach ( $product_types AS $product_type ) :
+							foreach ( $product_types as $product_type ) :
 
 								echo '<tr>';
 									echo '<td class="label">';

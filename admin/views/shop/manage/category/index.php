@@ -46,7 +46,7 @@
 
 						if ( $categories ) :
 
-							foreach ( $categories AS $category ) :
+							foreach ( $categories as $category ) :
 
 								echo '<tr>';
 									echo '<td class="label indentosaurus indent-' . $category->depth . '">';
@@ -58,7 +58,7 @@
 											echo $category->label;
 
 											$_breadcrumbs = array();
-											foreach ( $category->breadcrumbs AS $bc ) :
+											foreach ( $category->breadcrumbs as $bc ) :
 
 												$_breadcrumbs[] = $bc->label;
 

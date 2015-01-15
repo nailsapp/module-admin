@@ -111,7 +111,7 @@
 				$_visible = $_field['default'] ? 'none' : 'block';
 				echo '<div id="toggle-superuser" style="display:' . $_visible . ';">';
 
-					foreach ( $loaded_modules AS $detail ) :
+					foreach ( $loaded_modules as $detail ) :
 
 						if ( $detail->class_name == 'dashboard' ) :
 
@@ -152,7 +152,7 @@
 							if ( ! empty( $detail->extra_permissions ) ) :
 							echo '<div class="extra-permissions">';
 
-								foreach ( $detail->extra_permissions AS $permission => $label ) :
+								foreach ( $detail->extra_permissions as $permission => $label ) :
 
 									if ( $this->input->post() ) :
 

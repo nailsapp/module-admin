@@ -8,7 +8,7 @@
 
 	$_data = array();	//	An array of objects in the format {id,label}
 
-	foreach ( $tags AS $cat ) :
+	foreach ( $tags as $cat ) :
 
 		$_temp			= new stdClass();
 		$_temp->id		= $cat->id;

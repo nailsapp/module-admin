@@ -281,7 +281,7 @@
 
 					if ( ! empty( $order->items ) ) :
 
-						foreach ( $order->items AS $item ) :
+						foreach ( $order->items as $item ) :
 
 							echo '<tr>';
 								echo '<td>';
@@ -355,7 +355,7 @@
 
 					if ( ! empty( $payments ) ) :
 
-						foreach ( $payments AS $payment ) :
+						foreach ( $payments as $payment ) :
 
 							echo '<tr>';
 								echo '<td>';

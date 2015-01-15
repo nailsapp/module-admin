@@ -36,7 +36,7 @@
 
 					if ( $vouchers->data ) :
 
-						foreach ( $vouchers->data AS $voucher ) :
+						foreach ( $vouchers->data as $voucher ) :
 
 							?>
 							<tr id="order-<?=number_format( $voucher->id )?>">
@@ -196,7 +196,7 @@
 
 										if ( $_buttons ) :
 
-											foreach ( $_buttons AS $button ) :
+											foreach ( $_buttons as $button ) :
 
 												echo $button;
 

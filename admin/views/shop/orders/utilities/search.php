@@ -16,7 +16,7 @@
 		// --------------------------------------------------------------------------
 
 		$_sort = array();
-		foreach ( $sortfields AS $field ) :
+		foreach ( $sortfields as $field ) :
 
 			$_sort[$field['col']] = $field['label'];
 

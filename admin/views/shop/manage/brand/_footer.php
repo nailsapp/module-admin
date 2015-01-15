@@ -3,7 +3,7 @@
 	//	Build the options, requires an ID and a Label
 	$_options = array();
 
-	foreach ( $brands AS $brand ) :
+	foreach ( $brands as $brand ) :
 
 		$_temp			= new stdClass();
 		$_temp->id		= $brand->id;

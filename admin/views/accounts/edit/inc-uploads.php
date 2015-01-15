@@ -8,7 +8,7 @@
 
 		if ( $user_uploads ) :
 
-			foreach ( $user_uploads AS $file ) :
+			foreach ( $user_uploads as $file ) :
 
 				echo '<li class="file">';
 

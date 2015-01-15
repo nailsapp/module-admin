@@ -24,7 +24,7 @@
 
 			if ( ! empty( $blogs ) ) :
 
-				foreach ( $blogs AS $blog ) :
+				foreach ( $blogs as $blog ) :
 
 					echo '<tr>';
 						echo '<td class="label">';

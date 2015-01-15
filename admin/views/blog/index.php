@@ -40,7 +40,7 @@
 				$_date_format = active_user( 'pref_date_format' );
 				$_time_format = active_user( 'pref_time_format' );
 
-				foreach ( $posts AS $post ) :
+				foreach ( $posts as $post ) :
 
 					echo '<tr class="post" data-title="' . $post->title . '">';
 

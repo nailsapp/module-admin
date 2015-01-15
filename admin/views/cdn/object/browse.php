@@ -47,7 +47,7 @@
 
             if ($objects) {
 
-                foreach ($objects AS $object) {
+                foreach ($objects as $object) {
 
                     echo '<tr>';
                         echo '<td class="id">' . number_format($object->id) . '</td>';

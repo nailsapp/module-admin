@@ -43,7 +43,7 @@
 
 					if ( ! empty( $products ) ) :
 
-						foreach ( $products AS $item ) :
+						foreach ( $products as $item ) :
 
 							?>
 							<tr id="product-<?=$item->id?>">

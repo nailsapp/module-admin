@@ -32,7 +32,7 @@
 
 				if ( $emails->data ) :
 
-					foreach ( $emails->data AS $email ) :
+					foreach ( $emails->data as $email ) :
 
 						?>
 						<tr>

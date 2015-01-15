@@ -29,7 +29,7 @@
 				<th class="group"><?=lang( 'accounts_index_th_group' )?></th>
 				<?php
 
-					foreach ( $columns AS $col ) :
+					foreach ( $columns as $col ) :
 
 						echo isset( $col['class'] ) ? '<th class="' . $col['class'] . '">' : '<th>';
 						echo $col['label'];
@@ -46,7 +46,7 @@
 
 				if ( $users->data ) :
 
-					foreach ( $users->data AS $member ) :
+					foreach ( $users->data as $member ) :
 
 						$_data = array(
 							'member'	=> &$member

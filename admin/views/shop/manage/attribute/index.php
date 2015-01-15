@@ -42,7 +42,7 @@
 
 						if ( $attributes ) :
 
-							foreach ( $attributes AS $attribute ) :
+							foreach ( $attributes as $attribute ) :
 
 								echo '<tr>';
 									echo '<td class="label">';

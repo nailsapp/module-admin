@@ -2,7 +2,7 @@ id,url,type_id,type_label,user_id,first_name,last_name,email,gender
 <?php
 
 
-	foreach ( $events AS $event ) :
+	foreach ( $events as $event ) :
 
 
 		echo $event->id . ',';

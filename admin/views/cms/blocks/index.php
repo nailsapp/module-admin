@@ -39,7 +39,7 @@
 
 			if ( $blocks ) :
 
-				foreach ( $blocks AS $block ) :
+				foreach ( $blocks as $block ) :
 
 					echo '<tr class="block" data-title="' . $block->title . '">';
 
@@ -65,7 +65,7 @@
 
 						echo '<td class="default">';
 						echo '<ul>';
-						foreach ( $block->translations AS $variation ) :
+						foreach ( $block->translations as $variation ) :
 
 							$_label = ! empty( $languages[$variation->language] ) ? $languages[$variation->language] : $variation->language;
 

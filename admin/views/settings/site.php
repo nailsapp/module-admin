@@ -89,7 +89,7 @@
 					</p>
 					<?php
 
-						foreach ( $providers AS $provider ) :
+						foreach ( $providers as $provider ) :
 
 							$_field					= array();
 							$_field['key']			= 'auth_social_signon_' . $provider['slug'] . '_enabled';
@@ -118,7 +118,7 @@
 										echo 'Please provide the following information. Fields marked with a * are required.';
 									echo '</p>';
 
-									foreach ( $provider['fields'] AS $key => $label ) :
+									foreach ( $provider['fields'] as $key => $label ) :
 
 										/**
 										 * Secondary conditional detects an actual array fo fields rather than
@@ -127,7 +127,7 @@
 
 										if ( is_array( $label ) && ! isset( $label['label'] ) ) :
 
-											foreach ( $label AS $key1 => $label1 ) :
+											foreach ( $label as $key1 => $label1 ) :
 
 												$_field				= array();
 												$_field['key']		= 'auth_social_signon_' . $provider['slug'] . '_' . $key . '_' . $key1;

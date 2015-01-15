@@ -37,7 +37,7 @@
 
 			if ( $pages ) :
 
-				foreach ( $pages AS $page ) :
+				foreach ( $pages as $page ) :
 
 					$_data = $page->draft;
 
@@ -81,7 +81,7 @@
 
 									$_out = array();
 
-									foreach ( $_breadcrumbs AS $crumb ) :
+									foreach ( $_breadcrumbs as $crumb ) :
 
 										$_out[] = $crumb->title;
 

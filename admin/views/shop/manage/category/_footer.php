@@ -3,13 +3,13 @@
 	//	Build the options, requires an ID and a Label
 	$_options = array();
 
-	foreach ( $categories AS $category ) :
+	foreach ( $categories as $category ) :
 
 		$_temp			= new stdClass();
 		$_temp->id		= $category->id;
 		$_temp->label	= array();
 
-		foreach ( $category->breadcrumbs AS $crumb ) :
+		foreach ( $category->breadcrumbs as $crumb ) :
 
 			$_temp->label[] = $crumb->label;
 

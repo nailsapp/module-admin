@@ -471,7 +471,7 @@
 						if ( $skins_front ) :
 
 							echo '<ul class="skins">';
-							foreach ( $skins_front AS $skin ) :
+							foreach ( $skins_front as $skin ) :
 
 								$_name			= ! empty( $skin->name ) ? $skin->name : 'Untitled';
 								$_description	= ! empty( $skin->description ) ? $skin->description : '';
@@ -529,7 +529,7 @@
 						if ( $skins_checkout ) :
 
 							echo '<ul class="skins">';
-							foreach ( $skins_checkout AS $skin ) :
+							foreach ( $skins_checkout as $skin ) :
 
 								$_name			= ! empty( $skin->name ) ? $skin->name : 'Untitled';
 								$_description	= ! empty( $skin->description ) ? $skin->description : '';
@@ -617,7 +617,7 @@
 
 						echo '<div class="fieldset">';
 
-						foreach ( $skin_front_current->settings AS $setting ) :
+						foreach ( $skin_front_current->settings as $setting ) :
 
 							$_field					= array();
 							$_field['key']			= ! empty( $setting->key ) ? 'skin_config[' . $skin_front_current->slug . '][' . $setting->key . ']' : '';
@@ -652,7 +652,7 @@
 										$_options = array();
 										$_field['class'] = 'select2';
 
-										foreach ( $setting->options AS $option ) :
+										foreach ( $setting->options as $option ) :
 
 											if ( isset( $option->value ) ) :
 
@@ -724,7 +724,7 @@
 
 						echo '<div class="fieldset">';
 
-						foreach ( $skin_checkout_current->settings AS $setting ) :
+						foreach ( $skin_checkout_current->settings as $setting ) :
 
 							$_field					= array();
 							$_field['key']			= ! empty( $setting->key ) ? 'skin_config[' . $skin_checkout_current->slug . '][' . $setting->key . ']' : '';
@@ -759,7 +759,7 @@
 										$_options = array();
 										$_field['class'] = 'select2';
 
-										foreach ( $setting->options AS $option ) :
+										foreach ( $setting->options as $option ) :
 
 											if ( isset( $option->value ) ) :
 
@@ -857,7 +857,7 @@
 						$_enabled_payment_gateways = set_value( 'enabled_payment_gateways', app_setting( 'enabled_payment_gateways', 'shop' ) );
 						$_enabled_payment_gateways = array_filter( (array) $_enabled_payment_gateways );
 
-						foreach ( $payment_gateways AS $slug ) :
+						foreach ( $payment_gateways as $slug ) :
 
 							$_enabled = array_search( $slug, $_enabled_payment_gateways ) !== FALSE ? TRUE : FALSE;
 
@@ -922,7 +922,7 @@
 
 					$_currencies = array();
 
-					foreach ( $currencies AS $c ) :
+					foreach ( $currencies as $c ) :
 
 						$_currencies[$c->code] = $c->code . ' - ' . $c->label;
 
@@ -949,7 +949,7 @@
 					$_default = array_filter( (array) $_default );
 
 					echo '<select name="additional_currencies[]" multiple="multiple" class="select2">';
-					foreach ( $currencies AS $currency ) :
+					foreach ( $currencies as $currency ) :
 
 						$_selected = array_search( $currency->code, $_default ) !== FALSE ? 'selected="selected"' : '';
 
@@ -1025,7 +1025,7 @@
 					$_default = array_filter( (array) $_default );
 
 					echo '<select name="ship_to_continents[]" multiple="multiple" class="select2">';
-						foreach ( $continents_flat AS $key => $label ) :
+						foreach ( $continents_flat as $key => $label ) :
 
 							$_selected = array_search( $key, $_default ) !== FALSE ? ' selected="selected"' : '';
 
@@ -1046,7 +1046,7 @@
 					$_default = array_filter( (array) $_default );
 
 					echo '<select name="ship_to_countries[]" multiple="multiple" class="select2">';
-						foreach ( $countries_flat AS $key => $label ) :
+						foreach ( $countries_flat as $key => $label ) :
 
 							$_selected = array_search( $key, $_default ) !== FALSE ? ' selected="selected"' : '';
 
@@ -1067,7 +1067,7 @@
 					$_default = array_filter( (array) $_default );
 
 					echo '<select name="ship_to_exclude[]" multiple="multiple" class="select2">';
-						foreach ( $countries_flat AS $key => $label ) :
+						foreach ( $countries_flat as $key => $label ) :
 
 							$_selected = array_search( $key, $_default ) !== FALSE ? ' selected="selected"' : '';
 
@@ -1098,7 +1098,7 @@
 
 						$_enabled_shipping_driver = set_value( 'enabled_shipping_driver', app_setting( 'enabled_shipping_driver', 'shop' ) );
 
-						foreach ( $shipping_drivers AS $driver ) :
+						foreach ( $shipping_drivers as $driver ) :
 
 							$_name			= ! empty( $driver->name ) ? $driver->name : 'Untitled';
 							$_description	= ! empty( $driver->description ) ? $driver->description : '';

@@ -28,7 +28,7 @@
 
 		<tbody>
 
-		<?php foreach ( $groups AS $group ) : ?>
+		<?php foreach ( $groups as $group ) : ?>
 
 			<tr>
 				<td class="label">

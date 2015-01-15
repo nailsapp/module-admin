@@ -43,7 +43,7 @@
 
 						if ( $tax_rates ) :
 
-							foreach ( $tax_rates AS $tax_rate ) :
+							foreach ( $tax_rates as $tax_rate ) :
 
 								echo '<tr>';
 									echo '<td class="label">';

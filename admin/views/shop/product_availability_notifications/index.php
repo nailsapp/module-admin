@@ -30,7 +30,7 @@
 
 					if ( ! empty( $notifications ) ) :
 
-						foreach ( $notifications AS $item ) :
+						foreach ( $notifications as $item ) :
 
 							?>
 							<tr id="notification-<?=$item->id?>">

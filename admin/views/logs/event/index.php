@@ -25,7 +25,7 @@
 
 			if ( $events ) :
 
-				foreach ( $events AS $event ) :
+				foreach ( $events as $event ) :
 
 					echo '<tr class="event">';
 

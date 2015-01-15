@@ -21,7 +21,7 @@
 			$_field['id']		= 'bucket-chooser';
 
 			$_options = array();
-			foreach ( $buckets AS $bucket ) :
+			foreach ( $buckets as $bucket ) :
 
 				$_options[$bucket->slug] = $bucket->label;
 

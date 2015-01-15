@@ -44,14 +44,14 @@
 
 						if ( $meta_fields ) :
 
-							foreach ( $meta_fields AS $field ) :
+							foreach ( $meta_fields as $field ) :
 
 								echo '<tr>';
 									echo '<td class="label">';
 										echo $field->label;
 									echo '</td>';
 									echo '<td class="associated">';
-										foreach ( $field->associated_product_types AS $association ) :
+										foreach ( $field->associated_product_types as $association ) :
 
 											echo '<span class="badge">' . anchor( 'admin/shop/manage/product_type/edit/' . $association->id, $association->label ) . '</span>';
 

@@ -59,7 +59,7 @@
 	<!--	EXTRA COLUMNS	-->
 	<?php
 
-		foreach ( $columns AS $col ) :
+		foreach ( $columns as $col ) :
 
 			$this->load->view( 'admin/accounts/utilities/user_row_column_' . $col['view'] );
 
@@ -179,7 +179,7 @@
 				// --------------------------------------------------------------------------
 
 				//	These buttons are variable between views
-				foreach ( $actions AS $button ) :
+				foreach ( $actions as $button ) :
 
 					$_buttons[] = anchor( $button['url'] . $_return, $button['label'], 'class="awesome small ' . $button['class'] . '"' );
 
@@ -190,7 +190,7 @@
 				//	Render all the buttons, if any
 				if ( $_buttons ) :
 
-					foreach ( $_buttons AS $button ) :
+					foreach ( $_buttons as $button ) :
 
 						echo $button;
 

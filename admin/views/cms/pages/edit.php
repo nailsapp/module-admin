@@ -99,7 +99,7 @@
 
 			if ( isset( $cmspage ) ) :
 
-				foreach ( $pages_nested_flat AS $id => $label ) :
+				foreach ( $pages_nested_flat as $id => $label ) :
 
 					if ( $id == $cmspage->id ) :
 
@@ -173,7 +173,7 @@
 		<ul class="templates">
 		<?php
 
-			foreach ( $templates AS $template ) :
+			foreach ( $templates as $template ) :
 
 				echo '<li>';
 
@@ -187,7 +187,7 @@
 
 					//	Glue together
 					$_attr_str = '';
-					foreach ( $_attr AS $key => $value ) :
+					foreach ( $_attr as $key => $value ) :
 
 						$_attr_str .= $key . '="' . $value . '" ';
 
@@ -218,7 +218,7 @@
 		<?php
 
 			//	Any additional page data for the templates
-			foreach ( $templates AS $template ) :
+			foreach ( $templates as $template ) :
 
 				$_visible = $_default_template == $template->slug ? 'block' : 'none';
 				echo '<div id="additional-fields-' . $template->slug . '" class="additional-fields" style="display:' . $_visible . '">';
@@ -236,7 +236,7 @@
 
 				if ( $template->additional_fields ) :
 
-					foreach ( $template->additional_fields AS $field ) :
+					foreach ( $template->additional_fields as $field ) :
 
 						//	Set the default key
 						$field['default'] = ! empty( $cmspage->draft->template_data->data->additional_fields->{$template->slug}->{$field['key']} ) ? $cmspage->draft->template_data->data->additional_fields->{$template->slug}->{$field['key']} : '';
@@ -283,19 +283,19 @@
 		<p>
 		<?php
 
-			foreach ( $templates AS $template ) :
+			foreach ( $templates as $template ) :
 
 				//	This template selected?
 				$_selected = $_default_template == $template->slug ? TRUE : FALSE;
 
-				foreach ( $template->widget_areas AS $slug => $area ) :
+				foreach ( $template->widget_areas as $slug => $area ) :
 
 					//	Define attributes
 					$_data				= array();
 					$_data['area-slug']	= $slug;
 
 					$_attr = '';
-					foreach ( $_data AS $key => $value ) :
+					foreach ( $_data as $key => $value ) :
 
 						$_attr .= 'data-' . $key . '="' . $value . '" ';
 
@@ -310,7 +310,7 @@
 
 					//	Glue together
 					$_attr_str = '';
-					foreach ( $_attr AS $key => $value ) :
+					foreach ( $_attr as $key => $value ) :
 
 						$_attr_str .= $key . '="' . $value . '" ';
 

@@ -135,7 +135,7 @@
 							$_post_cats = array();
 							if ( isset( $post->categories ) ) :
 
-								foreach ( $post->categories AS $cat ) :
+								foreach ( $post->categories as $cat ) :
 
 									$_post_cats[] = $cat->id;
 
@@ -146,13 +146,13 @@
 							$_post_raw	= $this->input->post( 'categories' ) ? $this->input->post( 'categories' ) : $_post_cats;
 							$_post		= array();
 
-							foreach ( $_post_raw AS $key => $value ) :
+							foreach ( $_post_raw as $key => $value ) :
 
 								$_post[$value] = TRUE;
 
 							endforeach;
 
-							foreach ( $categories AS $category ) :
+							foreach ( $categories as $category ) :
 
 								$_selected = isset( $_post[$category->id] ) ? 'selected="selected"' : '';
 								echo '<option value="' . $category->id . '" ' . $_selected . '>' . $category->label . '</option>';
@@ -180,7 +180,7 @@
 							$_post_tags = array();
 							if ( isset( $post->tags ) ) :
 
-								foreach ( $post->tags AS $tag ) :
+								foreach ( $post->tags as $tag ) :
 
 									$_post_tags[] = $tag->id;
 
@@ -191,13 +191,13 @@
 							$_post_raw	= $this->input->post( 'tags' ) ? $this->input->post( 'tags' ) : $_post_tags;
 							$_post		= array();
 
-							foreach ( $_post_raw AS $key => $value ) :
+							foreach ( $_post_raw as $key => $value ) :
 
 								$_post[$value] = TRUE;
 
 							endforeach;
 
-							foreach ( $tags AS $tag ) :
+							foreach ( $tags as $tag ) :
 
 								$_selected = isset( $_post[$tag->id] ) ? 'selected="selected"' : '';
 								echo '<option value="' . $tag->id . '" ' . $_selected . '>' . $tag->label . '</option>';
@@ -222,7 +222,7 @@
 				</p>
 				<?php
 
-					foreach ( $associations AS $index => $assoc ) :
+					foreach ( $associations as $index => $assoc ) :
 
 						echo '<fieldset class="association" id="edit-blog-post-association-' . $index . '">';
 						echo isset( $assoc->legend ) && $assoc->legend ? '<legend>' . $assoc->legend . '</legend>' : '';
@@ -239,7 +239,7 @@
 
 							$_selected = array();
 
-							foreach ( $assoc->current AS $current ) :
+							foreach ( $assoc->current as $current ) :
 
 								$_selected[] = $current->associated_id;
 
@@ -249,7 +249,7 @@
 
 						echo '<select name="associations[' . $index . '][]" ' . $_multiple . ' class="select2">';
 
-							foreach ( $assoc->data AS $data ) :
+							foreach ( $assoc->data as $data ) :
 
 								$_checked = array_search( $data->id, $_selected ) !== FALSE ? 'selected="selected"' : '';
 								echo '<option value="' . $data->id . '" ' . $_checked . '>' . $data->label . '</option>';
@@ -308,7 +308,7 @@
 
 						$_gallery_items = array();
 
-						foreach ( $post->gallery AS $item ) :
+						foreach ( $post->gallery as $item ) :
 
 							$_gallery_items[] = $item->image_id;
 
@@ -327,7 +327,7 @@
 					</li>
 					<?php
 
-						foreach ( $_gallery_items AS $image ) :
+						foreach ( $_gallery_items as $image ) :
 
 							$this->load->view('admin/blog/_utilities/template-mustache-gallery-item', array('objectId' => $image));
 

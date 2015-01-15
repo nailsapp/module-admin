@@ -22,7 +22,7 @@
 			$_field['class']		= 'select2';
 
 			$_options = array();
-			foreach ( $sources AS $key => $source ) :
+			foreach ( $sources as $key => $source ) :
 
 				$_options[$key] = $source[0] . ' - ' . $source[1];
 
@@ -45,7 +45,7 @@
 			$_field['class']		= 'select2';
 
 			$_options = array();
-			foreach ( $formats AS $key => $format ) :
+			foreach ( $formats as $key => $format ) :
 
 				$_options[$key] = $format[0] . ' - ' . $format[1];
 

@@ -48,7 +48,7 @@ class NAILS_Admin_Model extends NAILS_Model
         // --------------------------------------------------------------------------
 
         //  Look in our search paths for a controller of the same name as the module.
-        foreach ($this->searchPaths AS $path) {
+        foreach ($this->searchPaths as $path) {
 
             if (file_exists($path . $module . '.php')) {
 
@@ -70,7 +70,7 @@ class NAILS_Admin_Model extends NAILS_Model
                         $moduleDetails = array($moduleDetails);
                     }
 
-                    foreach ($moduleDetails AS $index => &$detail) {
+                    foreach ($moduleDetails as $index => &$detail) {
 
                         //  If there're no methods then remove it
                         if (empty($detail->funcs)) {

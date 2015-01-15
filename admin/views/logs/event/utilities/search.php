@@ -16,7 +16,7 @@
 			echo '<span class="text">Show only events created by the following user(s):</span>';
 			echo '<select multiple="multiple" name="user_id[]" class="select2 user" data-placeholder="Choose some users. Leave blank to include all users.">';
 
-			foreach ( $users AS $user ) :
+			foreach ( $users as $user ) :
 
 				$_selected = $this->input->get( 'user_id' ) && array_search( $user->id, $this->input->get( 'user_id' ) ) !== FALSE ? 'selected="selected"' : '';
 
@@ -38,7 +38,7 @@
 			echo '<span class="text">Show only events of type(s):</span>';
 			echo '<select multiple="multiple" name="event_type[]" class="select2 type" data-placeholder="Choose some event types. Leave blank to include all event types.">';
 
-			foreach ( $types AS $id => $label ) :
+			foreach ( $types as $id => $label ) :
 
 				$_selected = $this->input->get( 'event_type' ) && array_search( $id, $this->input->get( 'event_type' ) ) !== FALSE ? 'selected="selected"' : '';
 

@@ -25,7 +25,7 @@
 
 			if ( $testimonials ) :
 
-				foreach ( $testimonials AS $testimonial ) :
+				foreach ( $testimonials as $testimonial ) :
 
 					echo '<tr>';
 						echo '<td class="quote">';

@@ -58,7 +58,7 @@
 
 					$_options = array();
 
-					foreach ( $categories AS $cat ) :
+					foreach ( $categories as $cat ) :
 
 						//	Category can't have itself as the parent
 						if ( isset( $category->id ) && $category->id == $cat->id ) :
@@ -68,7 +68,7 @@
 						endif;
 
 						$_breadcrumbs = array();
-						foreach ( $cat->breadcrumbs AS $bc ) :
+						foreach ( $cat->breadcrumbs as $bc ) :
 
 							$_breadcrumbs[] = $bc->label;
 

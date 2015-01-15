@@ -83,7 +83,7 @@
 						<?=count( $block->default_value_revisions )?> Revisions
 						<a href="#" class="toggle-revisions right">Show/Hide</a>
 					</li>
-					<?php foreach ( $block->default_value_revisions AS $revision ) : ?>
+					<?php foreach ( $block->default_value_revisions as $revision ) : ?>
 						<li class="revision">
 							<span class="revision-content" rel="tipsy-left" title="<?=$revision->created?> by <?=$revision->user->id ? $revision->user->first_name . ' ' . $revision->user->last_name : 'Unknown'?>">
 								<?=$revision->value ? $revision->value : '<span class="no-data">No Value</span>'?>
@@ -111,7 +111,7 @@
 		<?php
 
 			$_counter = 1;
-			foreach ( $block->translations AS $translation ) :
+			foreach ( $block->translations as $translation ) :
 
 				if ( $translation->language == APP_DEFAULT_LANG_CODE )
 					continue;
@@ -154,7 +154,7 @@
 							<?=count( $translation->revisions )?> Revisions
 							<a href="#" class="toggle-revisions right">Show/Hide</a>
 						</li>
-						<?php foreach ( $translation->revisions AS $revision ) : ?>
+						<?php foreach ( $translation->revisions as $revision ) : ?>
 							<li class="revision">
 								<span class="revision-content" rel="tipsy-left" title="<?=$revision->created?> by <?=$revision->user->id ? $revision->user->first_name . ' ' . $revision->user->last_name : 'Unknown'?>">
 									<?=$revision->value?>

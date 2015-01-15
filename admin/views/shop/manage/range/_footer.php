@@ -3,7 +3,7 @@
 	//	Build the options, requires an ID and a Label
 	$_options = array();
 
-	foreach ( $ranges AS $range ) :
+	foreach ( $ranges as $range ) :
 
 		$_temp			= new stdClass();
 		$_temp->id		= $range->id;

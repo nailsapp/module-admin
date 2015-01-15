@@ -9,7 +9,7 @@
 
 	$_options[] = $_temp;
 
-	foreach ( $tax_rates AS $tax ) :
+	foreach ( $tax_rates as $tax ) :
 
 		$_temp			= new stdClass();
 		$_temp->id		= $tax->id;

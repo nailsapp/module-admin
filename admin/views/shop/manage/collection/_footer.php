@@ -3,7 +3,7 @@
 	//	Build the options, requires an ID and a Label
 	$_options = array();
 
-	foreach ( $collections AS $collection ) :
+	foreach ( $collections as $collection ) :
 
 		$_temp			= new stdClass();
 		$_temp->id		= $collection->id;

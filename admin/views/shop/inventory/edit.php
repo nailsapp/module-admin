@@ -104,7 +104,7 @@
 					$_field['default'] = array();
 
 					//	Build an array which matches the potential $_POST array
-					foreach ($item->brands AS $brand) {
+					foreach ($item->brands as $brand) {
 
 						$_field['default'][] = $brand->id;
 					}
@@ -131,7 +131,7 @@
 					$_field['default'] = array();
 
 					//	Build an array which matches the potential $_POST array
-					foreach ($item->categories AS $category) {
+					foreach ($item->categories as $category) {
 
 						$_field['default'][] = $category->id;
 					}
@@ -158,7 +158,7 @@
 					$_field['default'] = array();
 
 					//	Build an array which matches the potential $_POST array
-					foreach ($item->tags AS $tag) {
+					foreach ($item->tags as $tag) {
 
 						$_field['default'][] = $tag->id;
 					}
@@ -306,7 +306,7 @@
 						$_variations = array();
 
 						//	Build an array which matches the potential $_POST array
-						foreach ($item->variations AS $variation) {
+						foreach ($item->variations as $variation) {
 
 							$_variations[] = $variation;
 						}
@@ -318,7 +318,7 @@
 
 					if (!empty($_variations)) {
 
-						foreach ($_variations AS $variation) {
+						foreach ($_variations as $variation) {
 
 							$_data['variation']		= $variation;
 							$_data['num_variants']	= count($_variations);
@@ -411,7 +411,7 @@
 
 					if (!empty($_gallery)) {
 
-						foreach ($_gallery AS $image) {
+						foreach ($_gallery as $image) {
 
 							$viewData = array(
 								'objectId' => $image
@@ -453,7 +453,7 @@
 							$_attributes = array();
 
 							//	Build an array which matches the potential $_POST array
-							foreach ($item->attributes AS $attribute) {
+							foreach ($item->attributes as $attribute) {
 
 								$_temp					= array();
 								$_temp['attribute_id']	= $attribute->id;
@@ -470,7 +470,7 @@
 						if (!empty($_attributes)) {
 
 							$_counter = 0;
-							foreach ($_attributes AS $attribute) {
+							foreach ($_attributes as $attribute) {
 
 								$_data = array('attribute' => $attribute, 'counter' => $_counter);
 
@@ -521,7 +521,7 @@
 						$_selected = array();
 
 						//	Build an array which matches the potential $_POST array
-						foreach ($item->ranges AS $range) {
+						foreach ($item->ranges as $range) {
 
 							$_selected[] = $range->id;
 						}
@@ -531,7 +531,7 @@
 						$_selected = array();
 					}
 
-					foreach ($ranges AS $range) {
+					foreach ($ranges as $range) {
 
 						$_checked = array_search($range->id, $_selected) !== false ? 'selected="selected"' : '';
 
@@ -570,7 +570,7 @@
 						$_selected = array();
 
 						//	Build an array which matches the potential $_POST array
-						foreach ($item->collections AS $collection) {
+						foreach ($item->collections as $collection) {
 
 							$_selected[] = $collection->id;
 						}
@@ -580,7 +580,7 @@
 						$_selected = array();
 					}
 
-					foreach ($collections AS $collection) {
+					foreach ($collections as $collection) {
 
 						$_checked = array_search($collection->id, $_selected) !== false ? 'selected="selected"' : '';
 

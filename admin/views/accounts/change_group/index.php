@@ -22,7 +22,7 @@
             <tbody>
             <?php
 
-                foreach ($users AS $theUser) {
+                foreach ($users as $theUser) {
 
                 echo '<tr>';
                     echo '<td class="userId">' . number_format($theUser->id) . '</td>';
@@ -41,7 +41,7 @@
         <select name="newGroupId" class="select2">
         <?php
 
-        foreach ($userGroups AS $id => $label) {
+        foreach ($userGroups as $id => $label) {
 
             echo '<option value="' . $id. '">';
                 echo $label;

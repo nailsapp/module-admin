@@ -12,7 +12,7 @@
 			echo form_open( NULL, 'method="GET"' );
 				echo '<select name="blog_id" class="select2" id="blog-id" placeholder="Please select a blog">';
 					echo '<option></option>';
-					foreach ( $blogs AS $id => $label ) :
+					foreach ( $blogs as $id => $label ) :
 						$_selected = $selected_blog == $id ? 'selected="selected"' : '';
 						echo '<option ' . $_selected . ' value="' . $id . '">' . $label . '</option>';
 					endforeach;
@@ -197,7 +197,7 @@
 							$_selected_skin = ! empty( $settings['skin'] ) ? $settings['skin'] : 'blog-skin-classic';
 
 							echo '<ul class="skins">';
-							foreach ( $skins AS $skin ) :
+							foreach ( $skins as $skin ) :
 
 								$_name			= ! empty( $skin->name ) ? $skin->name : 'Untitled';
 								$_description	= ! empty( $skin->description ) ? $skin->description : '';
@@ -524,7 +524,7 @@
 
 							if ( is_array( $_associations ) ) :
 
-								foreach ( $_associations AS $assoc ) :
+								foreach ( $_associations as $assoc ) :
 
 									$_field				= array();
 									$_field['key']		= 'sidebar_association_' . $assoc->slug;

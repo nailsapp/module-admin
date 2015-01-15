@@ -37,7 +37,7 @@
 
 			if ( $sliders ) :
 
-				foreach ( $sliders AS $slider ) :
+				foreach ( $sliders as $slider ) :
 
 					echo '<tr class="slider" data-label="' . $slider->label . '">';
 						echo '<td class="label">';

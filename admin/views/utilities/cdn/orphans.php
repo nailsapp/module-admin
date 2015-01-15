@@ -76,7 +76,7 @@
 
 					if ( ! empty( $orphans['orphans'] ) ) :
 
-						foreach ( $orphans['orphans'] AS $orphan ) :
+						foreach ( $orphans['orphans'] as $orphan ) :
 
 							echo '<tr>';
 								echo '<td>' . $orphan->bucket . '</td>';

@@ -148,7 +148,7 @@
 		<div class="tab page fieldset" id="tab-variation-<?=$_counter?>-meta">
 			<?php
 
-				foreach ( $product_types_meta AS $product_type_id => $fields ) :
+				foreach ( $product_types_meta as $product_type_id => $fields ) :
 
 					echo '<div class="meta-fields meta-fields-' . $product_type_id . '" style="display:none;">';
 
@@ -160,7 +160,7 @@
 						if ( isset( $variation->meta ) ) :
 
 							//	DB Data
-							foreach ( $variation->meta AS $variation_meta ) :
+							foreach ( $variation->meta as $variation_meta ) :
 
 								$_defaults[$variation_meta->meta_field_id] = $variation_meta->value;
 
@@ -175,7 +175,7 @@
 						elseif ( isset( $variation['meta'][$product_type_id] ) ) :
 
 							//	POST Data
-							foreach ( $variation['meta'][$product_type_id] AS $meta_field_id => $meta_field_value ) :
+							foreach ( $variation['meta'][$product_type_id] as $meta_field_id => $meta_field_value ) :
 
 								$_defaults[$meta_field_id] = $meta_field_value;
 
@@ -183,7 +183,7 @@
 
 						endif;
 
-						foreach ( $fields AS $field ) :
+						foreach ( $fields as $field ) :
 
 							$_field					= array();
 							$_field['key']			= 'variation[' . $_counter . '][meta][' . $product_type_id . '][' .  $field->id . ']';
@@ -259,7 +259,7 @@
 
 						if ( ! empty( $variation->price_raw ) ) :
 
-							foreach ( $variation->price_raw AS $price ) :
+							foreach ( $variation->price_raw as $price ) :
 
 								$_price[$price->currency]			= $price->price;
 								$_sale_price[$price->currency]	= $price->sale_price;
@@ -328,7 +328,7 @@
 					<?php
 
 						$_counter_inside = 1;
-						foreach ( $currencies AS $currency ) :
+						foreach ( $currencies as $currency ) :
 
 							if ( $currency->code != SHOP_BASE_CURRENCY_CODE ) :
 
@@ -463,7 +463,7 @@
 
 					if ( ! empty( $_gallery ) ) :
 
-						foreach ( $_gallery AS $image ) :
+						foreach ( $_gallery as $image ) :
 
 							//	Is this item selected for this variation?
 							$_checked = array_search( $image, $_selected ) !== FALSE ? 'selected' : FALSE;
@@ -514,7 +514,7 @@
 						echo '<div class="shipping-driver-options" style="display:' . $_display . '">';
 
 							//	Any further options from the shipping driver?
-							foreach ( $shipping_options_variant AS $field ) :
+							foreach ( $shipping_options_variant as $field ) :
 
 								//	Prep the field names
 								if ( empty( $field['key'] ) ) :

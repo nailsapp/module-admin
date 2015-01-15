@@ -52,7 +52,7 @@
 
 					if ( $categories ) :
 
-						foreach ( $categories AS $category ) :
+						foreach ( $categories as $category ) :
 
 							echo '<tr>';
 								echo '<td class="label">';

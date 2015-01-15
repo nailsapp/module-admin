@@ -37,7 +37,7 @@
 
 			if ( $menus ) :
 
-				foreach ( $menus AS $menu ) :
+				foreach ( $menus as $menu ) :
 
 					echo '<tr class="menu" data-label="' . $menu->label . '">';
 						echo '<td class="label">';

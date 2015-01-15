@@ -1,9 +1,9 @@
 id,user_id,first_name,last_name,email,verb,article,item,item_id,title,item_url,created,field,old_value,new_value
 <?php
 
-	foreach ( $items AS $item ) :
+	foreach ( $items as $item ) :
 
-		foreach ( $item->changes AS $change ) :
+		foreach ( $item->changes as $change ) :
 
 			echo $item->id . ',';
 			echo $item->user->id ? (int) $item->user->id . ',' : ',';

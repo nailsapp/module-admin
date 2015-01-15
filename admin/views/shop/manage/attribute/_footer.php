@@ -3,7 +3,7 @@
 	//	Build the options, requires an ID and a Label
 	$_options = array();
 
-	foreach ( $attributes AS $attribute ) :
+	foreach ( $attributes as $attribute ) :
 
 		$_temp			= new stdClass();
 		$_temp->id		= $attribute->id;

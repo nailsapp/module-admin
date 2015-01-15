@@ -32,7 +32,7 @@
 
 					if ( $orders->data ) :
 
-						foreach ( $orders->data AS $order ) :
+						foreach ( $orders->data as $order ) :
 
 							?>
 							<tr id="order-<?=$order->id?>">

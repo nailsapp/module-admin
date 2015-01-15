@@ -16,7 +16,7 @@
 		// --------------------------------------------------------------------------
 
 		$_sort = array();
-		foreach ( $sortfields AS $field ) :
+		foreach ( $sortfields as $field ) :
 
 			$_sort[$field['col']] = $field['label'];
 
@@ -52,7 +52,7 @@
 
 		$_user_groups_obj = $user_group->get_all();
 		$_groups = array( '' => 'All Groups' );
-		foreach ( $_user_groups_obj AS $g ) :
+		foreach ( $_user_groups_obj as $g ) :
 
 			$_groups[$g->id] = $g->label;
 
