@@ -255,7 +255,7 @@ class NAILS_Cms extends NAILS_Admin_Controller
         //  Assets
         $this->asset->library('jqueryui');
         $this->asset->load('mustache.js/mustache.js', 'BOWER');
-        $this->asset->load('nails.admin.cms.pages.create_edit.js', true);
+        $this->asset->load('nails.admin.cms.pages.create_edit.min.js', true);
 
         // --------------------------------------------------------------------------
 
@@ -307,7 +307,7 @@ class NAILS_Cms extends NAILS_Admin_Controller
         //  Assets
         $this->asset->library('jqueryui');
         $this->asset->load('mustache.js/mustache.js', 'BOWER');
-        $this->asset->load('nails.admin.cms.pages.create_edit.min.js', true);
+        $this->asset->load('nails.admin.cms.pages.create_edit.js', true);
 
         // --------------------------------------------------------------------------
 
