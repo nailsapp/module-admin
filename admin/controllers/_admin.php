@@ -9,6 +9,7 @@
  * @author      Nails Dev Team
  * @link
  */
+
 class NAILS_Admin_Controller extends NAILS_Controller
 {
     protected $loadedModules;
