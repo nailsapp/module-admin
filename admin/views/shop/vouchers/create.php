@@ -1,170 +1,180 @@
 <div class="group-shop vouchers create">
-	<p>
-		Use the following form to create a new voucher for use in the shop.
-	</p>
-	<?=form_open()?>
-	<fieldset id="create-voucher-basic">
-		<legend>Basic Information</legend>
-		<?php
+    <p>
+        Use the following form to create a new voucher for use in the shop.
+    </p>
+    <?=form_open()?>
+    <fieldset id="create-voucher-basic">
+        <legend>Basic Information</legend>
+        <?php
 
-			//	Voucher type
-			$_field				= array();
-			$_field['key']		= 'type';
-			$_field['label']	= 'Type';
-			$_field['class']	= 'select2';
-			$_field['required']	= TRUE;
+            //  Voucher type
+            $field             = array();
+            $field['key']      = 'type';
+            $field['label']    = 'Type';
+            $field['class']    = 'select2';
+            $field['required'] = TRUE;
 
-			$_options = array(
-				'NORMAL'		=> 'Normal',
-				'LIMITED_USE'	=> 'Limited use',
-				'GIFT_CARD'		=> 'Gift Card'
-			);
+            $options = array(
+                'NORMAL'      => 'Normal',
+                'LIMITED_USE' => 'Limited use',
+                'GIFT_CARD'   => 'Gift Card'
+           );
 
-			echo form_field_dropdown( $_field, $_options );
+            echo form_field_dropdown($field, $options);
 
-			// --------------------------------------------------------------------------
+            // --------------------------------------------------------------------------
 
-			//	Code
-			$_field					= array();
-			$_field['key']			= 'code';
-			$_field['label']		= 'Code';
-			$_field['sub_label']	= '<a href="#" id="generate-code">Generate Valid Code</a>';
-			$_field['placeholder']	= 'Define the code for this voucher or generate one using the link on the left.';
-			$_field['required']		= TRUE;
+            //  Code
+            $field                = array();
+            $field['key']         = 'code';
+            $field['label']       = 'Code';
+            $field['sub_label']   = '<a href="#" id="generate-code">Generate Valid Code</a>';
+            $field['placeholder'] = 'Define the code for this voucher or generate one using the link on the left.';
+            $field['required']    = TRUE;
 
-			echo form_field( $_field );
+            echo form_field($field);
 
-			// --------------------------------------------------------------------------
+            // --------------------------------------------------------------------------
 
-			//	Label
-			$_field					= array();
-			$_field['key']			= 'label';
-			$_field['label']		= 'Label/Description';
-			$_field['placeholder']	= 'The label is shown to the user when the voucher is applied.';
-			$_field['required']		= TRUE;
+            //  Label
+            $field                = array();
+            $field['key']         = 'label';
+            $field['label']       = 'Label/Description';
+            $field['placeholder'] = 'The label is shown to the user when the voucher is applied.';
+            $field['required']    = TRUE;
 
-			echo form_field( $_field );
+            echo form_field($field);
 
-			// --------------------------------------------------------------------------
+            // --------------------------------------------------------------------------
 
-			//	Discount type
-			$_field				= array();
-			$_field['key']		= 'discount_type';
-			$_field['label']	= 'Discount Type';
-			$_field['class']	= 'select2';
-			$_field['required']	= TRUE;
+            //  Discount type
+            $field             = array();
+            $field['key']      = 'discount_type';
+            $field['label']    = 'Discount Type';
+            $field['class']    = 'select2';
+            $field['required'] = TRUE;
 
-			$_options = array(
-				'PERCENTAGE'	=> 'Percentage',
-				'AMOUNT'		=> 'Specific amount'
-			);
+            $options = array(
+                'PERCENTAGE' => 'Percentage',
+                'AMOUNT'     => 'Specific amount'
+           );
 
-			echo form_field_dropdown( $_field, $_options );
+            echo form_field_dropdown($field, $options);
 
-			// --------------------------------------------------------------------------
+            // --------------------------------------------------------------------------
 
-			//	Discount value
-			$_field					= array();
-			$_field['key']			= 'discount_value';
-			$_field['label']		= 'Discount Value';
-			$_field['placeholder']	= 'Define the value of the discount as appropriate (i.e percentage or amount)';
-			$_field['required']		= TRUE;
+            //  Discount value
+            $field                = array();
+            $field['key']         = 'discount_value';
+            $field['label']       = 'Discount Value';
+            $field['placeholder'] = 'Define the value of the discount as appropriate (i.e percentage or amount)';
+            $field['required']    = TRUE;
 
-			echo form_field( $_field, 'If Discount Type is Percentage then specify a number 1-100, if it\'s a Specific Amount then define the amount.' );
+            echo form_field($field, 'If Discount Type is Percentage then specify a number 1-100, if it\'s a Specific Amount then define the amount.');
 
-			// --------------------------------------------------------------------------
+            // --------------------------------------------------------------------------
 
-			//	Discount application
-			$_field				= array();
-			$_field['key']		= 'discount_application';
-			$_field['label']	= 'Applies to';
-			$_field['class']	= 'select2';
-			$_field['required']	= TRUE;
+            //  Discount application
+            $field             = array();
+            $field['key']      = 'discount_application';
+            $field['label']    = 'Applies to';
+            $field['class']    = 'select2';
+            $field['required'] = TRUE;
 
-			$_options = array(
-				'PRODUCTS'		=> 'Purchases Only',
-				'PRODUCT_TYPES'	=> 'Certain Type of Product Only',
-				'SHIPPING'		=> 'Shipping Costs Only',
-				'ALL'			=> 'Both Products and Shipping'
-			);
+            $options = array(
+                'PRODUCTS'      => 'Purchases Only',
+                'PRODUCT_TYPES' => 'Certain Type of Product Only',
+                'SHIPPING'      => 'Shipping Costs Only',
+                'ALL'           => 'Both Products and Shipping'
+           );
 
-			echo form_field_dropdown( $_field, $_options );
+            echo form_field_dropdown($field, $options);
 
-			// --------------------------------------------------------------------------
+            // --------------------------------------------------------------------------
 
-			//	Valid from
-			$_field					= array();
-			$_field['key']			= 'valid_from';
-			$_field['label']		= 'Valid From';
-			$_field['default']		= date( 'Y-m-d H:i:s', strtotime( 'TODAY' ) );
-			$_field['placeholder']	= 'YYYY-MM-DD HH:MM:SS';
-			$_field['class']		= 'datetime1';
-			$_field['required']		= TRUE;
+            //  Valid from
+            $field                = array();
+            $field['key']         = 'valid_from';
+            $field['label']       = 'Valid From';
+            $field['default']     = date('Y-m-d H:i:s', strtotime('TODAY'));
+            $field['placeholder'] = 'YYYY-MM-DD HH:MM:SS';
+            $field['class']       = 'datetime1';
+            $field['required']    = TRUE;
 
-			echo form_field( $_field );
+            echo form_field($field);
 
-			// --------------------------------------------------------------------------
+            // --------------------------------------------------------------------------
 
-			//	Valid To
-			$_field					= array();
-			$_field['key']			= 'valid_to';
-			$_field['label']		= 'Valid To';
-			$_field['sub_label']	= 'Leave blank for no expiry date';
-			$_field['placeholder']	= 'YYYY-MM-DD HH:MM:SS';
-			$_field['class']		= 'datetime2';
+            //  Valid To
+            $field                = array();
+            $field['key']         = 'valid_to';
+            $field['label']       = 'Valid To';
+            $field['sub_label']   = 'Leave blank for no expiry date';
+            $field['placeholder'] = 'YYYY-MM-DD HH:MM:SS';
+            $field['class']       = 'datetime2';
 
-			echo form_field( $_field, 'If left blank then the voucher will not expire (unless another expiring condition is met).' );
+            echo form_field($field, 'If left blank then the voucher will not expire (unless another expiring condition is met).');
 
-		?>
-	</fieldset>
+        ?>
+    </fieldset>
+    <fieldset id="create-voucher-meta">
+        <legend>Extended Data</legend>
+        <div id="no-extended-data" style="display:block;">
+            <p class="system-alert">
+                <strong>Note:</strong> More options may become available depending on your choices above.
+            </p>
+        </div>
+        <div id="type-limited" style="display:none;">
+            <?php
 
-	<fieldset id="create-voucher-meta">
-		<legend>Extended Data</legend>
-		<div id="no-extended-data" style="display:block;">
-			<p class="system-alert message">
-				<strong>Note:</strong> More options may become available depending on your choices above.
-			</p>
-		</div>
-		<div id="type-limited" style="display:none;">
-			<?php
+            //  Limited Use Limit
+            $field                = array();
+            $field['key']         = 'limited_use_limit';
+            $field['label']       = 'Limit number of uses';
+            $field['placeholder'] = 'Define the number of times this voucher can be used.';
+            $field['required']    = TRUE;
 
-			//	Limited Use Limit
-			$_field					= array();
-			$_field['key']			= 'limited_use_limit';
-			$_field['label']		= 'Limit number of uses';
-			$_field['placeholder']	= 'Define the number of times this voucher can be used.';
-			$_field['required']		= TRUE;
+            echo form_field($field);
 
-			echo form_field( $_field );
+            ?>
+        </div>
+        <div id="application-product_types" style="display:none;">
+            <?php
 
-			?>
-		</div>
-		<div id="application-product_types" style="display:none;">
-			<?php
+            if (empty($product_types)) {
 
-			//	Product Types application
-			$_field					= array();
-			$_field['key']			= 'product_type_id';
-			$_field['label']		= 'Limit to products of type';
-			$_field['required']		= TRUE;
-			$_field['class']		= 'select2';
+                echo '<p class="system-alert error">';
+                    echo '<strong>No product types are defined</strong>';
+                    echo '<br />At least one product type must be defined before you can create vouchers ';
+                    echo 'which apply to particular product types.';
+                echo '</p>';
 
-			echo form_field_dropdown( $_field, $product_types );
+            } else {
 
-			?>
-		</div>
-	</fieldset>
-	<p>
-		<?=form_submit( 'submit', lang( 'action_create' ), 'class="awesome"' )?>
-	</p>
-	<?=form_close()?>
+                //  Product Types application
+                $field             = array();
+                $field['key']      = 'product_type_id';
+                $field['label']    = 'Limit to products of type';
+                $field['required'] = TRUE;
+                $field['class']    = 'select2';
+
+                echo form_field_dropdown($field, $product_types);
+
+            }
+
+            ?>
+        </div>
+    </fieldset>
+    <p>
+        <?=form_submit('submit', lang('action_create'), 'class="awesome"')?>
+    </p>
+    <?=form_close()?>
 </div>
-
 <script type="text/javascript">
-	$( function(){
+    $(function(){
 
-		var _shop_voucher = new NAILS_Admin_Shop_Vouchers;
-		_shop_voucher.init_create();
+        var _shop_voucher = new NAILS_Admin_Shop_Vouchers;
+        _shop_voucher.init_create();
 
-	})
+    })
 </script>

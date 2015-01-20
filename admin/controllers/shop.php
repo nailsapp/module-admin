@@ -228,10 +228,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
         // --------------------------------------------------------------------------
 
         //  Defaults defaults
-        $this->shop_inventory_group         = false;
-        $this->shop_inventory_where         = array();
-        $this->shop_inventory_actions       = array();
-        $this->shop_inventory_sortfields    = array();
 
         $this->shop_orders_group            = false;
         $this->shop_orders_where            = array();
@@ -244,12 +240,6 @@ class NAILS_Shop extends NAILS_Admin_Controller
         $this->shop_vouchers_sortfields     = array();
 
         // --------------------------------------------------------------------------
-
-        $this->shop_inventory_sortfields[] = array('label' => 'ID', 'col' => 'p.id');
-        $this->shop_inventory_sortfields[] = array('label' => 'Title', 'col' => 'p.label');
-        $this->shop_inventory_sortfields[] = array('label' => 'Type', 'col' => 'pt.label');
-        $this->shop_inventory_sortfields[] = array('label' => 'Active', 'col' => 'p.is_active');
-        $this->shop_inventory_sortfields[] = array('label' => 'Modified', 'col' => 'p.modified');
 
         $this->shop_orders_sortfields[] = array('label' => 'ID', 'col' => 'o.id');
         $this->shop_orders_sortfields[] = array('label' => 'Date Placed', 'col' => 'o.created');
@@ -317,17 +307,17 @@ class NAILS_Shop extends NAILS_Admin_Controller
         // --------------------------------------------------------------------------
 
         //  Set useful vars
-        $page           = $this->input->get('page')     ? $this->input->get('page')     : 0;
-        $per_page       = $this->input->get('per_page') ? $this->input->get('per_page') : 50;
-        $sort_on        = $this->input->get('sort_on')  ? $this->input->get('sort_on')  : 'p.label';
+        $page       = $this->input->get('page')     ? $this->input->get('page')     : 0;
+        $per_page   = $this->input->get('per_page') ? $this->input->get('per_page') : 50;
+        $sort_on    = $this->input->get('sort_on')  ? $this->input->get('sort_on')  : 'p.label';
         $sort_order = $this->input->get('order')    ? $this->input->get('order')    : 'desc';
         $search     = $this->input->get('search')   ? $this->input->get('search')   : '';
 
         //  Set sort variables for view and for $data
-        $this->data['sort_on']      = $data['sort']['column']   = $sort_on;
-        $this->data['sort_order']   = $data['sort']['order']    = $sort_order;
-        $this->data['search']       = $data['search']           = $search;
-        $this->data['category_id']  = $data['category_id']      = $this->input->get('category');
+        $this->data['sort_on']     = $data['sort']['column'] = $sort_on;
+        $this->data['sort_order']  = $data['sort']['order']  = $sort_order;
+        $this->data['search']      = $data['search']         = $search;
+        $this->data['category_id'] = $data['category_id']    = $this->input->get('category');
 
         if (!empty($data['category_id'])) {
 
@@ -1525,94 +1515,38 @@ class NAILS_Shop extends NAILS_Admin_Controller
         //  Set method info
         $this->data['page']->title = 'Manage Vouchers';
 
+        //  Define the $data variable, this'll be passed to the get_all() and count_all() methods
+        $data = array('sort' => array());
+
         // --------------------------------------------------------------------------
 
-        //  Searching, sorting, ordering and paginating.
-        $hash = 'search_' . md5(uri_string()) . '_';
+        //  Set useful vars
+        $page       = $this->input->get('page')     ? $this->input->get('page')     : 0;
+        $per_page   = $this->input->get('per_page') ? $this->input->get('per_page') : 50;
+        $sort_on    = $this->input->get('sort_on')  ? $this->input->get('sort_on')  : 'sv.created';
+        $sort_order = $this->input->get('order')    ? $this->input->get('order')    : 'desc';
+        $search     = $this->input->get('search')   ? $this->input->get('search')   : '';
 
-        if ($this->input->get('reset')) {
+        //  Set sort variables for view and for $data
+        $this->data['sort_on']     = $data['sort']['column'] = $sort_on;
+        $this->data['sort_order']  = $data['sort']['order']  = $sort_order;
+        $this->data['search']      = $data['search']         = $search;
 
-            $this->session->unset_userdata($hash . 'per_page');
-            $this->session->unset_userdata($hash . 'sort');
-            $this->session->unset_userdata($hash . 'order');
+        //  Restrict to certain columns
+        if ($this->input->get('show')) {
+
+            $data['where_in'] = array();
+            $data['where_in'][] = array('column' => 'sv.type', 'value' => $this->input->get('show'));
         }
 
-        $default_per_page   = $this->session->userdata($hash . 'per_page') ? $this->session->userdata($hash . 'per_page') : 50;
-        $default_sort       = $this->session->userdata($hash . 'sort') ?    $this->session->userdata($hash . 'sort') : 'v.id';
-        $default_order      = $this->session->userdata($hash . 'order') ?   $this->session->userdata($hash . 'order') : 'desc';
+        //  Define and populate the pagination object
+        $this->data['pagination']             = new stdClass();
+        $this->data['pagination']->page       = $page;
+        $this->data['pagination']->per_page   = $per_page;
+        $this->data['pagination']->total_rows = $this->shop_voucher_model->count_all($data);
 
-        //  Define vars
-        $search = array('keywords' => $this->input->get('search'), 'columns' => array());
-
-        foreach ($this->shop_vouchers_sortfields as $field) {
-
-            $search['columns'][strtolower($field['label'])] = $field['col'];
-        }
-
-        $limit      = array(
-                        $this->input->get('per_page') ? $this->input->get('per_page') : $default_per_page,
-                        $this->input->get('offset') ? $this->input->get('offset') : 0
-                    );
-        $order      = array(
-                        $this->input->get('sort') ? $this->input->get('sort') : $default_sort,
-                        $this->input->get('order') ? $this->input->get('order') : $default_order
-                    );
-
-        //  Set sorting and ordering info in session data so it's remembered for when user returns
-        $this->session->set_userdata($hash . 'per_page', $limit[0]);
-        $this->session->set_userdata($hash . 'sort', $order[0]);
-        $this->session->set_userdata($hash . 'order', $order[1]);
-
-        //  Set values for the page
-        $this->data['search']               = new stdClass();
-        $this->data['search']->per_page     = $limit[0];
-        $this->data['search']->sort         = $order[0];
-        $this->data['search']->order        = $order[1];
-        $this->data['search']->show         = $this->input->get('show');
-
-        // --------------------------------------------------------------------------
-
-        //  Prepare the where
-        if ($this->data['search']->show) {
-
-            $where = '(';
-
-            if ($this->data['search']->show) {
-
-                $where .= '`v`.`type` IN (';
-
-                    $statuses = array_keys($this->data['search']->show);
-                    foreach ($statuses as &$stat) {
-
-                        $stat = strtoupper($stat);
-                    }
-                    $where .= "'" . implode("', '", $statuses) . "'";
-
-                $where .= ')';
-            }
-
-            $where .= ')';
-
-        } else {
-
-            $where = null;
-        }
-
-        // --------------------------------------------------------------------------
-
-        //  Pass any extra data to the view
-        $this->data['actions']      = $this->shop_vouchers_actions;
-        $this->data['sortfields']   = $this->shop_vouchers_sortfields;
-
-        // --------------------------------------------------------------------------
-
-        //  Fetch vouchers
-        $this->data['vouchers']     = new stdClass();
-        $this->data['vouchers']->data = $this->shop_voucher_model->get_all(false, $order, $limit, $where, $search);
-
-        //  Work out pagination
-        $this->data['vouchers']->pagination                 = new stdClass();
-        $this->data['vouchers']->pagination->total_results  = $this->shop_voucher_model->count_vouchers(false, $where, $search);
+        //  Fetch all the items for this page
+        $this->data['vouchers'] = $this->shop_voucher_model->get_all($page, $per_page, $data);
 
         // --------------------------------------------------------------------------
 
@@ -1654,11 +1588,10 @@ class NAILS_Shop extends NAILS_Admin_Controller
                 case 'LIMITED_USE':
 
                     $this->form_validation->set_rules('limited_use_limit', '', 'required|is_natural_no_zero');
-
-                    $this->form_validation->set_message('is_natural_no_zero', 'Only positive integers are valid.');
-
                     $this->form_validation->set_rules('discount_type', '', 'required|callback__callback_voucher_valid_discount_type');
                     $this->form_validation->set_rules('discount_application', '', 'required|callback__callback_voucher_valid_discount_application');
+
+                    $this->form_validation->set_message('is_natural_no_zero', 'Only positive integers are valid.');
                     break;
 
                 case 'NORMAL':
@@ -1671,8 +1604,8 @@ class NAILS_Shop extends NAILS_Admin_Controller
                 case 'GIFT_CARD':
 
                     //  Quick hack
-                    $POST['discount_type']          = 'AMOUNT';
-                    $POST['discount_application']   = 'ALL';
+                    $POST['discount_type']        = 'AMOUNT';
+                    $POST['discount_application'] = 'ALL';
                     break;
             }
 
@@ -1727,41 +1660,41 @@ class NAILS_Shop extends NAILS_Admin_Controller
             if ($this->form_validation->run($this)) {
 
                 //  Prepare the $data variable
-                $data   = array();
+                $data = array();
 
-                $data['type']                   = $this->input->post('type');
-                $data['code']                   = strtoupper($this->input->post('code'));
-                $data['discount_type']          = $this->input->post('discount_type');
-                $data['discount_value']     = $this->input->post('discount_value');
-                $data['discount_application']   = $this->input->post('discount_application');
-                $data['label']                  = $this->input->post('label');
-                $data['valid_from']         = $this->input->post('valid_from');
-                $data['is_active']              = true;
+                $data['type']                 = $this->input->post('type');
+                $data['code']                 = strtoupper($this->input->post('code'));
+                $data['discount_type']        = $this->input->post('discount_type');
+                $data['discount_value']       = $this->input->post('discount_value');
+                $data['discount_application'] = $this->input->post('discount_application');
+                $data['label']                = $this->input->post('label');
+                $data['valid_from']           = $this->input->post('valid_from');
+                $data['is_active']            = true;
 
                 if ($this->input->post('valid_to')) {
 
-                    $data['valid_to']           = $this->input->post('valid_to');
+                    $data['valid_to'] = $this->input->post('valid_to');
 
                 }
 
                 //  Define specifics
                 if ($this->input->post('type') == 'GIFT_CARD') {
 
-                    $data['gift_card_balance']      = $this->input->post('discount_value');
-                    $data['discount_type']          = 'AMOUNT';
-                    $data['discount_application']   = 'ALL';
+                    $data['gift_card_balance']    = $this->input->post('discount_value');
+                    $data['discount_type']        = 'AMOUNT';
+                    $data['discount_application'] = 'ALL';
 
                 }
 
                 if ($this->input->post('type') == 'LIMITED_USE') {
 
-                    $data['limited_use_limit']  = $this->input->post('limited_use_limit');
+                    $data['limited_use_limit'] = $this->input->post('limited_use_limit');
 
                 }
 
                 if ($this->input->post('discount_application') == 'PRODUCT_TYPES') {
 
-                    $data['product_type_id']    = $this->input->post('product_type_id');
+                    $data['product_type_id'] = $this->input->post('product_type_id');
 
                 }
 
@@ -1816,22 +1749,27 @@ class NAILS_Shop extends NAILS_Admin_Controller
     {
         if (!user_has_permission('admin.shop:0.vouchers_activate')) {
 
-            $this->session->set_flashdata('error', '<strong>Sorry,</strong> you do not have permission to activate vouchers.');
-            redirect('admin/shop/vouchers');
-        }
-
-        // --------------------------------------------------------------------------
-
-        $id = $this->uri->segment(5);
-
-        if ($this->shop_voucher_model->update($id, array('is_active' => true))) {
-
-            $this->session->set_flashdata('success', '<strong>Success!</strong> Voucher was activated successfully.');
+            $status  = 'error';
+            $message = '<strong>Sorry,</strong> you do not have permission to activate vouchers.';
 
         } else {
 
-            $this->session->set_flashdata('error', '<strong>Sorry,</strong> There was a problem activating the voucher. ' . $this->shop_voucher_model->last_error());
+            $id = $this->uri->segment(5);
+
+            if ($this->shop_voucher_model->activate($id)) {
+
+                $status  = 'success';
+                $message = '<strong>Success!</strong> Voucher was activated successfully.';
+
+            } else {
+
+                $status   = 'error';
+                $message  = '<strong>Sorry,</strong> There was a problem activating the voucher. ';
+                $message .= $this->shop_voucher_model->last_error();
+            }
         }
+
+        $this->session->set_flashdata($status, $message);
 
         redirect('admin/shop/vouchers');
     }
@@ -1846,22 +1784,27 @@ class NAILS_Shop extends NAILS_Admin_Controller
     {
         if (!user_has_permission('admin.shop:0.vouchers_deactivate')) {
 
-            $this->session->set_flashdata('error', '<strong>Sorry,</strong> you do not have permission to suspend vouchers.');
-            redirect('admin/shop/vouchers');
-        }
-
-        // --------------------------------------------------------------------------
-
-        $id = $this->uri->segment(5);
-
-        if ($this->shop_voucher_model->update($id, array('is_active' => false))) {
-
-            $this->session->set_flashdata('success', '<strong>Success!</strong> Voucher was suspended successfully.');
+            $status  = 'error';
+            $message = '<strong>Sorry,</strong> you do not have permission to suspend vouchers.';
 
         } else {
 
-            $this->session->set_flashdata('error', '<strong>Sorry,</strong> There was a problem suspending the voucher. ' . $this->shop_voucher_model->last_error());
+            $id = $this->uri->segment(5);
+
+            if ($this->shop_voucher_model->suspend($id)) {
+
+                $status  = 'success';
+                $message = '<strong>Success!</strong> Voucher was suspended successfully.';
+
+            } else {
+
+                $status   = 'error';
+                $message  = '<strong>Sorry,</strong> There was a problem suspending the voucher. ';
+                $message .= $this->shop_voucher_model->last_error();
+            }
         }
+
+        $this->session->set_flashdata($status, $message);
 
         redirect('admin/shop/vouchers');
     }

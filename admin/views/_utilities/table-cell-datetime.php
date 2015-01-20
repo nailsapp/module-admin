@@ -11,7 +11,7 @@
 
     } else {
 
-        if (isset($nodata)) {
+        if (!empty($nodata)) {
 
             echo '<td class="datetime no-data">';
                 echo $nodata;
