@@ -22,13 +22,13 @@
 			<thead>
 				<tr>
 					<th class="code">Code</th>
-					<th class="code">Active</th>
-					<th class="type">Details</th>
+					<th class="boolean">Active</th>
+					<th class="details">Details</th>
 					<th class="user">Created By</th>
-					<th class="user">Created</th>
+					<th class="datetime">Created</th>
 					<th class="value">Discount</th>
-					<th class="valid_from">Valid From</th>
-					<th class="expires">Expires</th>
+					<th class="datetime">Valid From</th>
+					<th class="datetime">Expires</th>
 					<th class="uses">Uses</th>
 					<th class="actions">Actions</th>
 				</tr>
@@ -48,7 +48,7 @@
 										'value' => $voucher->is_active
 									)
 								);
-								echo '<td class="type">';
+								echo '<td class="details">';
 
 									echo $voucher->label;
 
