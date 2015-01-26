@@ -134,21 +134,21 @@ class NAILS_Admin_Controller extends NAILS_Controller
         $this->asset->clear();
 
         //  CSS
-        $this->asset->load('fancybox/source/jquery.fancybox.css', 'BOWER');
-        $this->asset->load('jquery-toggles/css/toggles.css', 'BOWER');
-        $this->asset->load('jquery-toggles/css/themes/toggles-modern.css', 'BOWER');
-        $this->asset->load('tipsy/src/stylesheets/tipsy.css', 'BOWER');
-        $this->asset->load('fontawesome/css/font-awesome.min.css', 'BOWER');
+        $this->asset->load('fancybox/source/jquery.fancybox.css', 'NAILS-BOWER');
+        $this->asset->load('jquery-toggles/css/toggles.css', 'NAILS-BOWER');
+        $this->asset->load('jquery-toggles/css/themes/toggles-modern.css', 'NAILS-BOWER');
+        $this->asset->load('tipsy/src/stylesheets/tipsy.css', 'NAILS-BOWER');
+        $this->asset->load('fontawesome/css/font-awesome.min.css', 'NAILS-BOWER');
         $this->asset->load('nails.admin.css', true);
 
         //  JS
-        $this->asset->load('jquery/dist/jquery.min.js', 'BOWER');
-        $this->asset->load('fancybox/source/jquery.fancybox.pack.js', 'BOWER');
-        $this->asset->load('jquery-toggles/toggles.min.js', 'BOWER');
-        $this->asset->load('tipsy/src/javascripts/jquery.tipsy.js', 'BOWER');
-        $this->asset->load('jquery.scrollTo/jquery.scrollTo.min.js', 'BOWER');
-        $this->asset->load('jquery-cookie/jquery.cookie.js', 'BOWER');
-        $this->asset->load('retina.js/dist/retina.min.js', 'BOWER');
+        $this->asset->load('jquery/dist/jquery.min.js', 'NAILS-BOWER');
+        $this->asset->load('fancybox/source/jquery.fancybox.pack.js', 'NAILS-BOWER');
+        $this->asset->load('jquery-toggles/toggles.min.js', 'NAILS-BOWER');
+        $this->asset->load('tipsy/src/javascripts/jquery.tipsy.js', 'NAILS-BOWER');
+        $this->asset->load('jquery.scrollTo/jquery.scrollTo.min.js', 'NAILS-BOWER');
+        $this->asset->load('jquery-cookie/jquery.cookie.js', 'NAILS-BOWER');
+        $this->asset->load('retina.js/dist/retina.min.js', 'NAILS-BOWER');
         $this->asset->load('nails.default.min.js', true);
         $this->asset->load('nails.admin.min.js', true);
         $this->asset->load('nails.forms.min.js', true);

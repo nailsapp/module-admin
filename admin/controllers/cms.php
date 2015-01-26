@@ -215,7 +215,7 @@ class NAILS_Cms extends NAILS_Admin_Controller
         // --------------------------------------------------------------------------
 
         //  Assets
-        $this->asset->load('mustache.js/mustache.js', 'BOWER');
+        $this->asset->load('mustache.js/mustache.js', 'NAILS-BOWER');
         $this->asset->load('nails.admin.cms.pages.min.js', true);
 
         // --------------------------------------------------------------------------
@@ -254,7 +254,7 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
         //  Assets
         $this->asset->library('jqueryui');
-        $this->asset->load('mustache.js/mustache.js', 'BOWER');
+        $this->asset->load('mustache.js/mustache.js', 'NAILS-BOWER');
         $this->asset->load('nails.admin.cms.pages.create_edit.min.js', true);
 
         // --------------------------------------------------------------------------
@@ -306,7 +306,7 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
         //  Assets
         $this->asset->library('jqueryui');
-        $this->asset->load('mustache.js/mustache.js', 'BOWER');
+        $this->asset->load('mustache.js/mustache.js', 'NAILS-BOWER');
         $this->asset->load('nails.admin.cms.pages.create_edit.js', true);
 
         // --------------------------------------------------------------------------
@@ -526,7 +526,7 @@ class NAILS_Cms extends NAILS_Admin_Controller
 
         //  Load common blocks items
         $this->load->model('cms/cms_block_model');
-        $this->asset->load('mustache.js/mustache.js', 'BOWER');
+        $this->asset->load('mustache.js/mustache.js', 'NAILS-BOWER');
         $this->asset->load('nails.admin.cms.blocks.min.js', true);
 
         // --------------------------------------------------------------------------
@@ -1062,8 +1062,8 @@ class NAILS_Cms extends NAILS_Admin_Controller
         //  Assets
         $this->asset->library('jqueryui');
         $this->asset->load('nails.admin.cms.menus.create_edit.min.js', true);
-        $this->asset->load('nestedSortable/jquery.ui.nestedSortable.js', 'BOWER');
-        $this->asset->load('mustache.js/mustache.js', 'BOWER');
+        $this->asset->load('nestedSortable/jquery.ui.nestedSortable.js', 'NAILS-BOWER');
+        $this->asset->load('mustache.js/mustache.js', 'NAILS-BOWER');
 
         // --------------------------------------------------------------------------
 
@@ -1146,8 +1146,8 @@ class NAILS_Cms extends NAILS_Admin_Controller
         //  Assets
         $this->asset->library('jqueryui');
         $this->asset->load('nails.admin.cms.menus.create_edit.min.js', true);
-        $this->asset->load('nestedSortable/jquery.ui.nestedSortable.js', 'BOWER');
-        $this->asset->load('mustache.js/mustache.js', 'BOWER');
+        $this->asset->load('nestedSortable/jquery.ui.nestedSortable.js', 'NAILS-BOWER');
+        $this->asset->load('mustache.js/mustache.js', 'NAILS-BOWER');
 
         // --------------------------------------------------------------------------
 

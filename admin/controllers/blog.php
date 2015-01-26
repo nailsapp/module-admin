@@ -317,7 +317,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
         //  Load assets
         $this->asset->library('uploadify');
-        $this->asset->load('mustache.js/mustache.js', 'BOWER');
+        $this->asset->load('mustache.js/mustache.js', 'NAILS-BOWER');
         $this->asset->load('nails.admin.blog.create_edit.js', true);
 
         // --------------------------------------------------------------------------
@@ -533,7 +533,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
         //  Load assets
         $this->asset->library('uploadify');
-        $this->asset->load('mustache.js/mustache.js', 'BOWER');
+        $this->asset->load('mustache.js/mustache.js', 'NAILS-BOWER');
         $this->asset->load('nails.admin.blog.create_edit.js', true);
 
         // --------------------------------------------------------------------------

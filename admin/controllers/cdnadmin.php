@@ -275,9 +275,9 @@ class NAILS_Cdnadmin extends NAILS_Admin_Controller
         // --------------------------------------------------------------------------
 
         $this->asset->load('nails.admin.cdn.upload.min.js', 'NAILS');
-        $this->asset->load('dropzone/downloads/css/dropzone.css', 'BOWER');
-        $this->asset->load('dropzone/downloads/css/basic.css', 'BOWER');
-        $this->asset->load('dropzone/downloads/dropzone.min.js', 'BOWER');
+        $this->asset->load('dropzone/downloads/css/dropzone.css', 'NAILS-BOWER');
+        $this->asset->load('dropzone/downloads/css/basic.css', 'NAILS-BOWER');
+        $this->asset->load('dropzone/downloads/dropzone.min.js', 'NAILS-BOWER');
         $this->asset->inline('var _upload = new NAILS_Admin_CDN_Upload();', 'JS');
 
         // --------------------------------------------------------------------------
