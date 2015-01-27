@@ -571,7 +571,8 @@ class NAILS_Accounts extends NAILS_Admin_Controller
             $this->form_validation->set_rules('datetime_format_time', '', 'xss_clean|required');
             $this->form_validation->set_rules('password', '', 'xss_clean');
             $this->form_validation->set_rules('temp_pw', '', 'xss_clean');
-            $this->form_validation->set_rules('reset_security_questions', '', 'xss_clean');
+            $this->form_validation->set_rules('reset_mfa_question', '', 'xss_clean');
+            $this->form_validation->set_rules('reset_mfa_device', '', 'xss_clean');
 
             // --------------------------------------------------------------------------
 
@@ -660,17 +661,18 @@ class NAILS_Accounts extends NAILS_Admin_Controller
                 if (!isset($this->data['upload_error'])) {
 
                     //  Set basic data
-                    $data['temp_pw']                  = stringToBoolean($this->input->post('temp_pw'));
-                    $data['reset_security_questions'] = stringToBoolean($this->input->post('reset_security_questions'));
-                    $data['first_name']               = $this->input->post('first_name');
-                    $data['last_name']                = $this->input->post('last_name');
-                    $data['username']                 = $this->input->post('username');
-                    $data['gender']                   = $this->input->post('gender');
-                    $data['dob']                      = $this->input->post('dob');
-                    $data['dob']                      = !empty($data['dob']) ? $data['dob'] : null;
-                    $data['timezone']                 = $this->input->post('timezone');
-                    $data['datetime_format_date']     = $this->input->post('datetime_format_date');
-                    $data['datetime_format_time']     = $this->input->post('datetime_format_time');
+                    $data['temp_pw']              = stringToBoolean($this->input->post('temp_pw'));
+                    $data['reset_mfa_question']   = stringToBoolean($this->input->post('reset_mfa_question'));
+                    $data['reset_mfa_device']     = stringToBoolean($this->input->post('reset_mfa_device'));
+                    $data['first_name']           = $this->input->post('first_name');
+                    $data['last_name']            = $this->input->post('last_name');
+                    $data['username']             = $this->input->post('username');
+                    $data['gender']               = $this->input->post('gender');
+                    $data['dob']                  = $this->input->post('dob');
+                    $data['dob']                  = !empty($data['dob']) ? $data['dob'] : null;
+                    $data['timezone']             = $this->input->post('timezone');
+                    $data['datetime_format_date'] = $this->input->post('datetime_format_date');
+                    $data['datetime_format_time'] = $this->input->post('datetime_format_time');
 
                     if ($this->input->post('password')) {
 

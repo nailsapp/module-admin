@@ -1,34 +1,31 @@
 <fieldset id="edit-user-mfa-question">
+    <legend><?=lang('accounts_edit_mfa_question_legend')?></legend>
+    <div class="box-container">
+    <?php
 
-	<legend><?=lang( 'accounts_edit_security_questions_legend' )?></legend>
+        //  Require new securty questions on log in
+        $field             = array();
+        $field['key']      = 'reset_mfa_question';
+        $field['label']    = lang('accounts_edit_mfa_question_field_reset_label');
+        $field['default']  = false;
+        $field['required'] = false;
 
-	<div class="box-container">
-	<?php
+        $options   = array();
 
-		//	Require new securty questions on log in
-		$_field					= array();
-		$_field['key']			= 'reset_security_questions';
-		$_field['label']		= lang( 'accounts_edit_security_questions_field_reset_label' );
-		$_field['default']		= FALSE;
-		$_field['required']		= FALSE;
+        $options[] = array(
+            'value'    => 'true',
+            'label'    => lang('accounts_edit_mfa_question_field_reset_yes'),
+            'selected' => set_radio($field['key']) ? true : false
+       );
 
-		$_options	= array();
+        $options[] = array(
+            'value'    => 'false',
+            'label'    => lang('accounts_edit_mfa_question_field_reset_no'),
+            'selected' => !set_radio($field['key']) ? true : false
+       );
 
-		$_options[] = array(
-			'value'		=> 'TRUE',
-			'label'		=> lang( 'accounts_edit_security_questions_field_reset_yes' ),
-			'selected'	=> set_radio( $_field['key'] ) ? TRUE : FALSE
-		);
+        echo form_field_radio($field, $options);
 
-		$_options[] = array(
-			'value'		=> 'FALSE',
-			'label'		=> lang( 'accounts_edit_security_questions_field_reset_no' ),
-			'selected'	=>	! set_radio( $_field['key'] ) ? TRUE : FALSE
-		);
-
-		echo form_field_radio( $_field, $_options );
-
-	?>
-	</div>
-
+    ?>
+    </div>
 </fieldset>
