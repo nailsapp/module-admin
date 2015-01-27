@@ -1,4 +1,4 @@
-<fieldset id="edit-user-security-questions">
+<fieldset id="edit-user-mfa-question">
 
 	<legend><?=lang( 'accounts_edit_security_questions_legend' )?></legend>
 

@@ -17,9 +17,15 @@
 
     $this->config->load('auth/auth');
 
-    if ($this->config->item('auth_two_factor_enable')) {
+    if ($this->config->item('authTwoFactorMode') == 'QUESTION') {
 
-        $this->load->view('accounts/edit/inc-security-questions');
+        $this->load->view('accounts/edit/inc-mfa-question');
+    }
+
+
+    if ($this->config->item('authTwoFactorMode') == 'DEVICE') {
+
+        $this->load->view('accounts/edit/inc-mfa-device');
     }
 
     $this->load->view('accounts/edit/inc-meta');
