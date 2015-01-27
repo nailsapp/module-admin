@@ -9,6 +9,7 @@
  * @author      Nails Dev Team
  * @link
  */
+
 class NAILS_Admin_Model extends NAILS_Model
 {
     protected $searchPaths;

@@ -9,6 +9,7 @@
  * @author      Nails Dev Team
  * @link
  */
+
 class NAILS_Admin_changelog_model extends NAILS_Model
 {
     protected $changes;

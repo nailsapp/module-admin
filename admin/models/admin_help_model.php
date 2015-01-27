@@ -9,6 +9,7 @@
  * @author      Nails Dev Team
  * @link
  */
+
 class NAILS_Admin_help_model extends NAILS_Model
 {
     /**

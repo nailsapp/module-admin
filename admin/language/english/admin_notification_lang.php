@@ -11,14 +11,14 @@
  */
 
 //	Generic for module
-$lang['notification_module_name']		= 'Notifications';
+$lang['notification_module_name'] = 'Notifications';
 
 // --------------------------------------------------------------------------
 
 //	Nav
-$lang['notification_nav_index']			= 'Manage Notifications';
+$lang['notification_nav_index'] = 'Manage Notifications';
 
 // --------------------------------------------------------------------------
 
 //	Index
-$lang['notification_index_title']			= 'Manage Notifications';
+$lang['notification_index_title'] = 'Manage Notifications';

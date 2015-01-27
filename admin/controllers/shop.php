@@ -12,6 +12,7 @@ require_once '_admin.php';
  * @author      Nails Dev Team
  * @link
  */
+
 class NAILS_Shop extends NAILS_Admin_Controller
 {
     protected $reportSources;

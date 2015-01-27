@@ -1,24 +1,25 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
+
+//  Include Admin_Controller; executes common admin functionality.
+require_once '_admin.php';
 
 /**
- * Name:		Admin
- * Description:	Exists purely to redirect users to the dashboard. Must exist and cannot be overloaded
+ * This class does nothing but is required for ModularExtensions to behave as expected
  *
- **/
-
-//	Include Admin_Controller; executes common admin functionality.
-require_once '_admin.php';
+ * @package     Nails
+ * @subpackage  module-admin
+ * @category    Controller
+ * @author      Nails Dev Team
+ * @link
+ */
 
 class Admin extends NAILS_Admin_Controller
 {
-	public function index()
-	{
-		/**
-		 * This method will never actally be reached; _admin.php handles the blank admin
-		 * route and will forcibly redirect to the admin dashboard if a blank route is used.
-		 */
-	}
+    public function index()
+    {
+        /**
+         * This method will never actally be reached; _admin.php handles the blank admin
+         * route and will forcibly redirect to the admin dashboard if a blank route is used.
+         */
+    }
 }
-
-/* End of file admin.php */
-/* Location: ./modules/admin/controllers/admin.php */

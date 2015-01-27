@@ -2,6 +2,7 @@
 
 //  Include NAILS_Admin_Controller; executes common admin functionality.
 require_once '_admin.php';
+
 /**
  * This class brings various admin utilities
  *
@@ -11,6 +12,7 @@ require_once '_admin.php';
  * @author      Nails Dev Team
  * @link
  */
+
 class NAILS_Utilities extends NAILS_Admin_Controller
 {
     protected $exportSources;
