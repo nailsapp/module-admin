@@ -409,7 +409,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
 
                         if (isset($this->data['post']->$field)) {
 
-                            switch($field) {
+                            switch ($field) {
 
                                 case 'associations':
 

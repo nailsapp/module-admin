@@ -9,7 +9,7 @@
 
 			else :
 
-				switch( $member->gender ) :
+				switch ( $member->gender ) :
 
 					case 'female' :	echo img( array( 'src' => cdn_blank_avatar( 65, 65, 'female' ), 'class' => 'profile-img' ) );	break;
 					default	: 		echo img( array( 'src' => cdn_blank_avatar( 65, 65, 'male' ), 'class' => 'profile-img' ) );		break;

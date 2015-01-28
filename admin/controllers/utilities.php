@@ -777,7 +777,7 @@ class NAILS_Utilities extends NAILS_Admin_Controller
 
                 if (isset($this->data['orphans'])) {
 
-                    switch($parser) {
+                    switch ($parser) {
 
                         case 'list':
 

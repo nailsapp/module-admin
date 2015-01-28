@@ -523,7 +523,7 @@ class NAILS_Accounts extends NAILS_Admin_Controller
                 $datatype  = 'string';
                 $type      = 'text';
 
-                switch(strtolower($col->Type)) {
+                switch (strtolower($col->Type)) {
 
                     case 'text':
 

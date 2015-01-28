@@ -12,7 +12,7 @@
 
 				echo '<li class="file">';
 
-				switch( $file->mime ) :
+				switch ( $file->mime ) :
 
 					case 'image/jpg':
 					case 'image/jpeg':

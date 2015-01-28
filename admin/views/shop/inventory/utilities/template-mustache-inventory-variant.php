@@ -533,7 +533,7 @@
 
 								$_type = isset( $field['type'] ) ? $field['type'] : '';
 
-								switch( $_type ) :
+								switch ( $_type ) :
 
 									case 'dropdown' :
 

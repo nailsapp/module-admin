@@ -27,7 +27,7 @@
 
 	<?php
 
-		switch( $this->input->get( 'message' ) ) :
+		switch ( $this->input->get( 'message' ) ) :
 
 			case 'saved' :
 
@@ -247,7 +247,7 @@
 						//	Tip?
 						$_tip = ! empty( $field['tip'] ) ? $field['tip'] : '';
 
-						switch( $field['type'] ) :
+						switch ( $field['type'] ) :
 
 							case 'dropdown' :
 

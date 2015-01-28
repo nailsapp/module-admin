@@ -53,7 +53,7 @@
                         echo '<td class="id">' . number_format($object->id) . '</td>';
                         echo '<td class="thumbnail">';
 
-                            switch($object->mime) {
+                            switch ($object->mime) {
 
                                 case 'image/png' :
                                 case 'image/jpeg' :

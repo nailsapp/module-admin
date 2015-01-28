@@ -101,7 +101,7 @@
 								<?php
 
 
-									switch( $order->status ) :
+									switch ( $order->status ) :
 
 										case 'UNPAID' :		$status = 'error';		break;
 										case 'PAID' :		$status = 'success';	break;

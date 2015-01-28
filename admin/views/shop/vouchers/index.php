@@ -79,7 +79,7 @@
 									// --------------------------------------------------------------------------
 
 									echo '<small>Applies to: ';
-									switch($voucher->discount_application) {
+									switch ($voucher->discount_application) {
 
 										case 'PRODUCTS':
 
