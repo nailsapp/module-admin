@@ -1,55 +1,54 @@
-<?php if ( isModuleEnabled( 'cdn' ) ) : ?>
-<fieldset  id="edit-user-uploads" class="uploads">
-	<legend><?=lang( 'accounts_edit_upload_legend' )?></legend>
-	<p>
-	<?php
+<?php
 
-		echo '<ul>';
+if (isModuleEnabled('nailsapp/module-cdn')) {
 
-		if ( $user_uploads ) :
+    ?>
+    <fieldset  id="edit-user-uploads" class="uploads">
+        <legend><?=lang('accounts_edit_upload_legend')?></legend>
+        <p>
+        <?php
 
-			foreach ( $user_uploads as $file ) :
+            echo '<ul>';
 
-				echo '<li class="file">';
+            if ($user_uploads) {
 
-				switch ( $file->mime ) :
+                foreach ($user_uploads as $file) {
 
-					case 'image/jpg':
-					case 'image/jpeg':
-					case 'image/gif':
-					case 'image/png':
+                    echo '<li class="file">';
 
-						echo '<a href="' . cdn_serve( $file->id ) . '" class="fancybox image">';
-						echo img( cdn_thumb( $file->id, 35, 35 ) );
-						echo $file->filename_display;
-						echo '<small>Bucket: ' . $file->bucket->slug . '</small>';
-						echo '</a>';
+                    switch ($file->mime) {
 
-					break;
+                        case 'image/jpg':
+                        case 'image/jpeg':
+                        case 'image/gif':
+                        case 'image/png':
 
-					// --------------------------------------------------------------------------
+                            echo '<a href="' . cdn_serve($file->id) . '" class="fancybox image">';
+                            echo img(cdn_thumb($file->id, 35, 35));
+                            echo $file->filename_display;
+                            echo '<small>Bucket: ' . $file->bucket->slug . '</small>';
+                            echo '</a>';
+                            break;
 
-					default :
+                        default:
 
-						echo anchor( cdn_serve( $file->id ) . '?dl=1', $file->filename_display . '<small>Bucket: ' . $file->bucket->slug . '</small>' );
+                            echo anchor(cdn_serve($file->id) . '?dl=1', $file->filename_display . '<small>Bucket: ' . $file->bucket->slug . '</small>');
+                            break;
+                    }
 
-					break;
+                    echo '</li>';
+                }
 
-				endswitch;
+            } else {
 
-				echo '</li>';
+                echo '<li class="no-data">' . lang('accounts_edit_upload_nofile') . '</li>';
+            }
 
-			endforeach;
+            echo '</ul>';
 
-		else :
+        ?>
+        </p>
+    </fieldset>
+    <?php
 
-			echo '<li class="no-data">' . lang( 'accounts_edit_upload_nofile' ) . '</li>';
-
-		endif;
-
-		echo '</ul>';
-
-	?>
-	</p>
-</fieldset>
-<?php endif;
+}

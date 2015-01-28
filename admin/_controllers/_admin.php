@@ -12,11 +12,6 @@
 
 class NAILS_Admin_Controller extends NAILS_Controller
 {
-    protected $loadedModules;
-    protected $currentModule;
-
-    // --------------------------------------------------------------------------
-
     /**
      * Construct the controller
      */
@@ -68,18 +63,18 @@ class NAILS_Admin_Controller extends NAILS_Controller
         //  Check that admin is running on the SECURE_BASE_URL url
         if (APP_SSL_ROUTING) {
 
-            $_host1 = $this->input->server('HTTP_HOST');
-            $_host2 = parse_url(SECURE_BASE_URL);
+            $host1 = $this->input->server('HTTP_HOST');
+            $host2 = parse_url(SECURE_BASE_URL);
 
-            if (!empty($_host2['host']) && $_host2['host'] != $_host1) {
+            if (!empty($host2['host']) && $host2['host'] != $host1) {
 
                 //  Not on the secure URL, redirect with message
-                $_redirect = $this->input->server('REQUEST_URI');
+                $redirect = $this->input->server('REQUEST_URI');
 
-                if ($_redirect) {
+                if ($redirect) {
 
                     $this->session->set_flashdata('message', lang('admin_not_secure'));
-                    redirect($_redirect);
+                    redirect($redirect);
                 }
             }
         }
@@ -90,29 +85,39 @@ class NAILS_Admin_Controller extends NAILS_Controller
         $this->load->model('admin_model');
         $this->config->load('admin/admin');
 
-        //  App admin config
-        if (file_exists(FCPATH . APPPATH . 'config/admin.php')) {
+        //  App admin config(s)
+        $paths = array(
+            FCPATH . APPPATH . 'config/admin.php',
+            FCPATH . APPPATH . 'modules/admin/config/admin.php'
+        );
 
-            $this->config->load(FCPATH . APPPATH . 'config/admin.php');
+        foreach ($paths as $path) {
+
+            if (file_exists($path)) {
+
+                $this->config->load($path);
+            }
         }
 
         // --------------------------------------------------------------------------
 
         /**
-         * Fetch all available modules for this installation and get the user's ACL.
-         * Make sure the user has permission to access this module.
+         * Fetch all Admin controllers for which the active user has permission to
+         * access. Then check that the user has permission to access the controller
+         * which is currently being accessed.
          */
 
-        $this->loadedModules        = array();
-        $this->data['loaded_modules'] =& $this->loadedModules;
+        $this->data['adminControllers'] = $this->admin_model->findAdminControllers();
+dumpanddie($this->data['adminControllers']);
+
+
 
         //  Fetch all available modules for this installation and user
-        $this->loadedModules     = $this->admin_model->get_active_modules();
-        $this->data['has_modules'] = count($this->loadedModules) ? true : false;
+        $this->data['has_modules'] = count($this->adminControllers) ? true : false;
 
         //  Fetch the current module, if this is null then it means no access
         $this->currentModule = $this->admin_model->get_current_module();
-
+dumpanddie($this->currentModule);
         if (is_null($this->currentModule)) {
 
             unauthorised();

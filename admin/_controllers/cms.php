@@ -21,7 +21,7 @@ class NAILS_Cms extends NAILS_Admin_Controller
      */
     public static function announce()
     {
-        if (!isModuleEnabled('cms')) {
+        if (!isModuleEnabled('nailsapp/module-cms')) {
 
             return false;
         }

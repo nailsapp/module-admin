@@ -47,7 +47,7 @@ class NAILS_Utilities extends NAILS_Admin_Controller
         $d->funcs['rewrite_routes'] = lang('utilities_nav_rewrite_routes');
         $d->funcs['export']         = lang('utilities_nav_export');
 
-        if (isModuleEnabled('cdn')) {
+        if (isModuleEnabled('nailsapp/module-cdn')) {
 
             $d->funcs['cdn/orphans'] = 'CDN: Find orphaned objects';
         }

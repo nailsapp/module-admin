@@ -12,9 +12,29 @@
 
 class NAILS_Admin_Model extends NAILS_Model
 {
-    protected $searchPaths;
+    public function findAdminControllers()
+    {
 
-    // --------------------------------------------------------------------------
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    protected $searchPaths;
 
     /**
      * Constructs the model
@@ -120,23 +140,39 @@ class NAILS_Admin_Model extends NAILS_Model
 
         // --------------------------------------------------------------------------
 
-        $modulesPotential   = _NAILS_GET_POTENTIAL_MODULES();
-        $modulesUnavailable = _NAILS_GET_UNAVAILABLE_MODULES();
-        $modulesAvailable   = array();
+        // $modulesPotential   = _NAILS_GET_MODULES();
+        // $modulesUnavailable = _NAILS_GET_UNAVAILABLE_MODULES();
+        // $modulesAvailable   = array();
 
         // --------------------------------------------------------------------------
 
         /**
-         * Look for controllers
+         * Paths to check for admin controllers
          * [0] => Path to search
-         * [1] => Whether to test against $modulesUnavailable
+         * [1] => Whether to test that the module it represents is available
          */
 
         $paths   = array();
-        $paths[] = array(NAILS_PATH . 'module-admin/admin/controllers/', true);
-        $paths[] = array(FCPATH . APPPATH . 'modules/admin/controllers/', false);
+        $paths[] = NAILS_PATH . 'module-admin/admin/controllers/';
+        $paths[] = FCPATH . APPPATH . 'modules/admin/controllers/';
 
-        //  Filter out non PHP files
+        //  Available modules
+        $modules = _NAILS_GET_MODULES();
+
+        foreach ($modules as $module) {
+
+            //  Skip admin
+            if ($module->name == 'nailsapp/module-admin') {
+
+                continue;
+            }
+
+            $paths[] = $module->path . 'admin/controllers/';
+        }
+
+        dumpanddie($paths);
+
+        //  Filter out non PHP files and files which start with an underscore
         $regex = '/^[^_][a-zA-Z_]+\.php$/';
 
         //  Load directory helper
@@ -157,9 +193,23 @@ class NAILS_Admin_Model extends NAILS_Model
                             $module = pathinfo($controller);
                             $module = $module['filename'];
 
+                            /**
+                             * Controller looks valid, but before we add it to modulesAvailable let's test that
+                             * the module it represents is available.
+                             *
+                             * @todo Modules should provide their own admin controlelrs rather than have them
+                             * bundled with nailsapp/module-admin
+                             */
+
                             if (!empty($path[1])) {
 
-                                //  Module looks valid, is it a potential module, and if so, is it available?
+                                if ($module != 'blog') {
+                                    continue;
+                                }
+                                dump($path);
+                                dumpanddie($module);
+
+                                //  controller looks valid,
                                 if (array_search('nailsapp/module-' . $module, $modulesPotential) !== false) {
 
                                     if (array_search('nailsapp/module-' . $module, $modulesUnavailable) !== false) {

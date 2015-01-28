@@ -41,17 +41,17 @@ class NAILS_Settings extends NAILS_Admin_Controller
         $d->funcs['admin'] = lang('settings_nav_admin');
         $d->funcs['site']  = lang('settings_nav_site');
 
-        if (isModuleEnabled('blog')) {
+        if (isModuleEnabled('nailsapp/module-blog')) {
 
             $d->funcs['blog'] = lang('settings_nav_blog');
         }
 
-        if (isModuleEnabled('email')) {
+        if (isModuleEnabled('nailsapp/module-email')) {
 
             $d->funcs['email'] = lang('settings_nav_email');
         }
 
-        if (isModuleEnabled('shop')) {
+        if (isModuleEnabled('nailsapp/module-shop')) {
 
             $d->funcs['shop'] = lang('settings_nav_shop');
         }
@@ -446,7 +446,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
      */
     public function blog()
     {
-        if (!isModuleEnabled('blog')) {
+        if (!isModuleEnabled('nailsapp/module-blog')) {
 
             show_404();
         }
@@ -1009,7 +1009,7 @@ class NAILS_Settings extends NAILS_Admin_Controller
      */
     public function shop()
     {
-        if (!isModuleEnabled('shop')) {
+        if (!isModuleEnabled('nailsapp/module-shop')) {
 
             show_404();
         }

@@ -25,7 +25,7 @@ class NAILS_Blog extends NAILS_Admin_Controller
      */
     public static function announce()
     {
-        if (!isModuleEnabled('blog')) {
+        if (!isModuleEnabled('nailsapp/module-blog')) {
 
             return false;
         }
