@@ -13,6 +13,45 @@
 class AdminRouter extends NAILS_Controller
 {
     protected $adminControllers;
+    protected $adminControllersNav;
+    protected $admincontrollersNavNotSortable;
+
+    // --------------------------------------------------------------------------
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        //  An array of Nav groupings which shouldn't be sortable
+
+        /**
+         * Admin nav groupings are sortable by default, if you wish to make any
+         * "sticky" then define them here. The order here will be respected i.e.,
+         * The first item will stick to the very top, the next beneath it and so
+         * forth.
+         */
+
+        $this->admincontrollersNavSticky = array(
+            'Dashboard',
+            'Utilities',
+            'Settings'
+        );
+
+        /**
+         * Sticky items by default stick to the top of the nav. If you wish for
+         * any to stick to the bottom define them here. The order defined above
+         * will be respected, i.e., the order below doesn't matter.
+         */
+
+        $this->admincontrollersNavStickyBottom = array(
+            'Utilities',
+            'Settings'
+        );
+
+        /**
+         * If you wish to give groupings
+         */
+    }
 
     // --------------------------------------------------------------------------
 
@@ -38,6 +77,17 @@ class AdminRouter extends NAILS_Controller
 
         //  Determine which admin controllers are available to the system
         $this->findAdminControllers();
+
+        /**
+         * Sort the controlelrs into a view friendly array, taking into
+         * consideration the user's order and state preferences.
+         */
+
+        $this->prepAdminControllersNav();
+
+        //  Save adminControllers to controller data so everyone can use it
+        $this->data['adminControllers']    = $this->adminControllers;
+        $this->data['adminControllersNav'] = $this->adminControllersNav;
 
         //  Route the user's request
         $this->routeRequest();
@@ -183,10 +233,90 @@ class AdminRouter extends NAILS_Controller
         $this->adminControllers[$moduleName]->controllers[$fileName] = array(
             'className' => $className,
             'path'      => $classPath,
-            'details'   => $className::announce()
+            'methods'   => $className::announce()
         );
 
         return true;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Generates a "view friendly" array of the admin controllers, takes into
+     * consideration the user's order and state preferences
+     * @return void
+     */
+    public function prepAdminControllersNav()
+    {
+        $adminControllersNav = array();
+
+        foreach ($this->adminControllers as $module => $moduleDetails) {
+            foreach($moduleDetails->controllers as $controller => $controllerDetails) {
+                foreach($controllerDetails['methods'] as $method => $methodDetails) {
+
+                    $methodUrl  = $module . '/' . $controller;
+                    $methodUrl .= empty($method) ? '' : '/';
+                    $methodUrl .= $method;
+
+                    $methodGroup = !empty($methodDetails[0]) ? $methodDetails[0] : 'Undefined Group';
+                    $methodLabel = !empty($methodDetails[1]) ? $methodDetails[1] : 'Undefined Action';
+
+                    if (!isset($adminControllersNav[md5($methodGroup)])) {
+                        $adminControllersNav[md5($methodGroup)]           = new \stdClass();
+                        $adminControllersNav[md5($methodGroup)]->label    = $methodGroup;
+                        $adminControllersNav[md5($methodGroup)]->icon     = 'fa-cog';
+                        $adminControllersNav[md5($methodGroup)]->sortable = true;
+                        $adminControllersNav[md5($methodGroup)]->actions  = array();
+                    }
+
+                    $adminControllersNav[md5($methodGroup)]->actions[$methodUrl] = $methodLabel;
+                }
+            }
+        }
+
+        //  Reset the indexes
+        $adminControllersNav = array_values($adminControllersNav);
+
+        foreach($adminControllersNav as $group) {
+
+            //  Set the icons
+            //  @todo
+
+            //  Set sortable
+            if (in_array($group->label, $this->admincontrollersNavSticky)) {
+                $group->sortable = false;
+            }
+        }
+
+        //  Split the groups
+        $stickyTop    = array();
+        $out          = array();
+        $stickyBottom = array();
+
+        foreach ($this->admincontrollersNavSticky as $sticky) {
+            foreach($adminControllersNav as $group) {
+                if ($group->label == $sticky) {
+                    if (in_array($sticky, $this->admincontrollersNavStickyBottom)) {
+                        $stickyBottom[] = $group;
+                    } else {
+                        $stickyTop[] = $group;
+                    }
+                }
+            }
+        }
+
+        foreach($adminControllersNav as $group) {
+
+            if (!in_array($group->label, $this->admincontrollersNavSticky)) {
+                $out[] = $group;
+            }
+        }
+
+        //  Order the non-sticky items as per the user's pref, alphabetically if no prefs
+        //  @todo
+
+        //  Save to the class
+        $this->adminControllersNav = array_merge($stickyTop, $out, $stickyBottom);
     }
 
     // --------------------------------------------------------------------------
@@ -216,14 +346,18 @@ class AdminRouter extends NAILS_Controller
         // --------------------------------------------------------------------------
 
         //  What are we trying to access?
-        $module     = $this->uri->rsegment(3) ? $this->uri->rsegment(3) : 'admin';
+        $module     = $this->uri->rsegment(3) ? $this->uri->rsegment(3) : '';
         $controller = $this->uri->rsegment(4) ? $this->uri->rsegment(4) : $module;
         $method     = $this->uri->rsegment(5) ? $this->uri->rsegment(5) : 'index';
 
-        if (isset($this->adminControllers[$module]->controllers[$controller])) {
-            $requestController  = $this->adminControllers[$module]->controllers[$controller];
-            $className          = $requestController['className'];
-            $requestPage        = new $className($this->adminControllers);
+        if (empty($module)) {
+
+            redirect('admin/admin/dashboard');
+
+        } elseif (isset($this->adminControllers[$module]->controllers[$controller])) {
+            $requestController = $this->adminControllers[$module]->controllers[$controller];
+            $className         = $requestController['className'];
+            $requestPage       = new $className();
 
             if (is_callable(array($requestPage, $method))) {
                 return $requestPage->$method();

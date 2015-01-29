@@ -26,29 +26,13 @@ class Utilities extends \AdminController
     public static function announce()
     {
         $d = parent::announce();
-
-        // --------------------------------------------------------------------------
-
-        //  Load the laguage file
-        get_instance()->lang->load('admin_utilities');
-
-        // --------------------------------------------------------------------------
-
-        //  Configurations
-        $d->name = lang('utilities_module_name');
-        $d->icon = 'fa-sliders';
-
-        // --------------------------------------------------------------------------
-
-        //  Navigation options
-        $d->funcs                   = array();
-        $d->funcs['test_email']     = lang('utilities_nav_test_email');
-        $d->funcs['rewrite_routes'] = lang('utilities_nav_rewrite_routes');
-        $d->funcs['export']         = lang('utilities_nav_export');
+        $d['test_email']     = array('Utilities', 'Send Test Email');
+        $d['rewrite_routes'] = array('Utilities', 'Rewrite Routes');
+        $d['export']         = array('Utilities', 'Export Data');
 
         if (isModuleEnabled('nailsapp/module-cdn')) {
 
-            $d->funcs['cdn/orphans'] = 'CDN: Find orphaned objects';
+            $d['cdn/orphans'] = array('Utilities', 'CDN: Find orphaned objects');
         }
 
         // --------------------------------------------------------------------------
@@ -61,9 +45,9 @@ class Utilities extends \AdminController
     /**
      * Constructs the controller
      */
-    public function __construct($adminControllers)
+    public function __construct()
     {
-        parent::__construct($adminControllers);
+        parent::__construct();
 
         // --------------------------------------------------------------------------
 

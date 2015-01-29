@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This class renders the admin dashboard and the help section
+ * This class renders the admin dashboard
  *
  * @package     Nails
  * @subpackage  module-admin
@@ -12,7 +12,7 @@
 
 namespace Nails\Admin\Admin;
 
-class Admin extends \AdminController
+class Dashboard extends \AdminController
 {
    /**
      * Announces this controllers details
@@ -20,34 +20,8 @@ class Admin extends \AdminController
      */
     public static function announce()
     {
-        $d = parent::announce();
-
-        // --------------------------------------------------------------------------
-
-        //  Load the laguage file
-        get_instance()->lang->load('admin_dashboard');
-
-        // --------------------------------------------------------------------------
-
-        //  Configurations
-        $d->name = lang('dashboard_module_name');
-        $d->icon = 'fa-home';
-
-        // --------------------------------------------------------------------------
-
-        //  Navigation options
-        $d->funcs          = array();
-        $d->funcs['index'] = lang('dashboard_nav_index');
-
-        //  Only show the help option if there are videos available
-        get_instance()->load->model('admin_help_model');
-
-        if (get_instance()->admin_help_model->count_all()) {
-            $d->funcs['help'] = lang('dashboard_nav_help');
-        }
-
-        // --------------------------------------------------------------------------
-
+        $d     = parent::announce();
+        $d[''] = array('Dashboard', 'Site Overview');
         return $d;
     }
 

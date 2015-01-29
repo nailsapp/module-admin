@@ -6,24 +6,22 @@ class AdminController extends MX_Controller
 
     // --------------------------------------------------------------------------
 
-    public function __construct($adminControllers)
+    public function __construct()
     {
         parent::__construct();
 
         // --------------------------------------------------------------------------
 
-        //  Add the current module to the $page variable (for convenience)
+        //  Get the controller data
         $this->data =& getControllerData();
-        $this->data['adminControllers'] = $adminControllers;
 
         // --------------------------------------------------------------------------
 
-        //  Load libraries, languages etc
-        $this->load->library('cdn/cdn');
-        $this->lang->load('admin/admin_generic');
-        $this->config->load('admin/admin');
+        /**
+         * Load a bunch of things which are useful/needed in admin
+         */
 
-        //  App admin config(s)
+        //  Configs
         $paths = array(
             FCPATH . APPPATH . 'config/admin.php',
             FCPATH . APPPATH . 'modules/admin/config/admin.php'
@@ -34,6 +32,12 @@ class AdminController extends MX_Controller
                 $this->config->load($path);
             }
         }
+
+        //  Libraries
+        $this->load->library('cdn/cdn');
+
+        //  Languages
+        $this->lang->load('admin/admin_generic');
 
         // --------------------------------------------------------------------------
 
@@ -108,11 +112,11 @@ class AdminController extends MX_Controller
 
     /**
      * Defines the admin controller
-     * @return stdClass
+     * @return array
      */
     public static function announce()
     {
-        return new \stdClass();
+        return array();
     }
 
     // --------------------------------------------------------------------------

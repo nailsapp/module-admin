@@ -1097,8 +1097,8 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
         if ($this->input->get('is_fancybox')) {
 
-            $this->data['headerOverride'] = 'structure/header/nails-admin-blank';
-            $this->data['footerOverride'] = 'structure/footer/nails-admin-blank';
+            $this->data['headerOverride'] = 'structure/headerBlank';
+            $this->data['footerOverride'] = 'structure/footerBlank';
         }
 
         // --------------------------------------------------------------------------
@@ -1917,8 +1917,8 @@ class NAILS_Shop extends NAILS_Admin_Controller
             //  Override the header and footer
             if ($this->data['is_fancybox']) {
 
-                $this->data['headerOverride'] = 'structure/header/nails-admin-blank';
-                $this->data['footerOverride'] = 'structure/footer/nails-admin-blank';
+                $this->data['headerOverride'] = 'structure/headerBlank';
+                $this->data['footerOverride'] = 'structure/footerBlank';
             }
 
             //  Start the page title
