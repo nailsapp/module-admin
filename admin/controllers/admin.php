@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This class routes all requests in admin to the appropriate place
+ * This class renders the admin dashboard and the help section
  *
  * @package     Nails
  * @subpackage  module-admin
@@ -10,178 +10,122 @@
  * @link
  */
 
-class Admin extends NAILS_Controller
+namespace Nails\Admin\Admin;
+
+class Admin extends \AdminController
 {
-    protected $adminControllers;
-
-    // --------------------------------------------------------------------------
-
-    public function index()
+   /**
+     * Announces this controllers details
+     * @return stdClass
+     */
+    public static function announce()
     {
-        //  Determine what admin controllers are available to the system
-        $this->findAdminControllers();
+        $d = parent::announce();
 
-        //  Route the user's request
-        $this->routeRequest();
+        // --------------------------------------------------------------------------
+
+        //  Load the laguage file
+        get_instance()->lang->load('admin_dashboard');
+
+        // --------------------------------------------------------------------------
+
+        //  Configurations
+        $d->name = lang('dashboard_module_name');
+        $d->icon = 'fa-home';
+
+        // --------------------------------------------------------------------------
+
+        //  Navigation options
+        $d->funcs          = array();
+        $d->funcs['index'] = lang('dashboard_nav_index');
+
+        //  Only show the help option if there are videos available
+        get_instance()->load->model('admin_help_model');
+
+        if (get_instance()->admin_help_model->count_all()) {
+            $d->funcs['help'] = lang('dashboard_nav_help');
+        }
+
+        // --------------------------------------------------------------------------
+
+        return $d;
     }
 
     // --------------------------------------------------------------------------
 
     /**
-     * Searches modules and the app for valid admin controllers which the active
-     * user has permission to access.
+     * The admin homepage/dashbaord
      * @return void
      */
-    protected function findAdminControllers()
+    public function index()
     {
-        //  Set things up
-        $this->load->helper('directory');
+        //  Page Data
+        $this->data['page']->title = lang('dashboard_welcome_title');
 
-        //  Make the interface available
-        require_once NAILS_PATH . 'module-admin/interfaces/AdminController.php';
-
-        //  Look in the admin module
-        $this->loadAdminControllers(
-            'admin',
-            NAILS_PATH . 'module-admin/admin/controllers/',
-            FCPATH . APPPATH . 'modules/admin/controllers/'
-        );
-
-        //  Look in all enabled modules
-        $modules = _NAILS_GET_MODULES();
-
-        foreach ($modules as $module) {
-
-            /**
-             * Skip the admin module. We use the moduleName rather than the component name
-             * so that we don't inadvertantly load up the admin module (or any module identifying
-             * itself as admin) and listing all the files contained therein; we only want
-             * admin/controllers.
-             */
-
-            if ($module->moduleName == 'admin') {
-
-                continue;
-            }
-
-            $this->loadAdminControllers(
-                $module->moduleName,
-                $module->path . 'admin/controllers/',
-                FCPATH . APPPATH . 'modules/' . $module->moduleName . '/admin/controllers/'
-            );
-        }
+        // --------------------------------------------------------------------------
 
         /**
-         * Ok! So we have all available AdminControllers and the classes are all loaded. Let's
-         * see which the user has permission to access.
+         * Fetch recent admin changelog events
+         * @TODO: widgitize this and use the API
          */
 
-        // @todo
+        $this->data['changelog'] = $this->admin_changelog_model->get_recent();
+
+        // --------------------------------------------------------------------------
+
+        //  Choose a hello phrase
+        $this->load->helper('array');
+
+        $phrases   = array();
+        $phrases[] = 'Be awesome.';
+        $phrases[] = 'You look nice!';
+        $phrases[] = 'What are we doing today?';
+        $phrases[] = active_user('first_name') ?  : 'Hey!';
+
+        if (active_user('first_name')) {
+            $phrases[] = 'Today is gonna be a good day, ' . active_user('first_name') . '.';
+            $phrases[] = 'Hey, ' . active_user('first_name') . '!';
+        } else {
+            $phrases[] = 'Today is gonna be a good day.';
+            $phrases[] = 'Hey!';
+        }
+
+        $this->data['phrase'] = random_element($phrases);
+
+        // --------------------------------------------------------------------------
+
+        //  Assets
+        $this->asset->load('nails.admin.dashboard.min.js', true);
+
+        // --------------------------------------------------------------------------
+
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/dashboard/index', $this->data);
+        $this->load->view('structure/footer', $this->data);
     }
 
     // --------------------------------------------------------------------------
 
-    protected function loadAdminControllers($moduleName, $controllerPath, $appPath)
+    /**
+     * The help section for admin
+     * @return void
+     */
+    public function help()
     {
-        //  Does a path exist? don't pollute the array with empty modules
-        if (is_dir($controllerPath)) {
+        //  Page Title
+        $this->data['page']->title = lang('dashboard_help_title');
 
-            //  Look for controllers
-            $files = directory_map($controllerPath, 1);
+        // --------------------------------------------------------------------------
 
-            foreach ($files as $file) {
+        //  Get data
+        $this->data['videos'] = $this->admin_help_model->get_all();
 
-                $this->loadAdminController($file, $moduleName, $controllerPath, $appPath);
-            }
-        }
-    }
+        // --------------------------------------------------------------------------
 
-    // --------------------------------------------------------------------------
-
-    protected function loadAdminController($file, $moduleName, $controllerPath, $appPath)
-    {
-        $fileName = substr($file, 0, strpos($file, '.php'));
-
-        //  PHP file, no leading underscore
-        if (!preg_match('/^[^_][a-zA-Z_]+\.php$/', $file)) {
-
-            return false;
-        }
-
-        //  Valid file, load it up and define the full class path and name
-        require_once $controllerPath . $file;
-        $classPath = $controllerPath . $file;
-        $className = 'Nails\Admin\\' . ucfirst($moduleName) . '\\' . ucfirst($fileName);
-
-        //  If there's an app version of this controller than we'll use that one instead.
-        if (is_file($appPath . $file)) {
-
-            require_once $appPath . $file;
-            $classPath = $appPath . $file;
-            $className = 'App\Admin\\' . ucfirst($moduleName) . '\\' . ucfirst($fileName);
-
-            //  Does the expected class exist? If it doesn't fall back to the previous one
-            if (!class_exists($className)) {
-
-                $classPath = $controllerPath . $file;
-                $className = 'Nails\Admin\\' . ucfirst($moduleName) . '\\' . ucfirst($fileName);
-            }
-        }
-
-        //  Does the expected class exist?
-        if (!class_exists($className)) {
-
-            return false;
-        }
-
-        //  Does it implement the AdminController interface?
-        $reflect = new ReflectionClass($className);
-
-        if (!$reflect->implementsInterface('\Nails\Admin\Interfaces\AdminController')) {
-
-            return false;
-        }
-
-        //  Cool! We have a controller which is valid, Add it to the stack!
-        if (!isset($this->adminControllers[$moduleName])) {
-
-            $this->adminControllers[$moduleName]              = new stdClass();
-            $this->adminControllers[$moduleName]->controllers = array();
-        }
-
-        $this->adminControllers[$moduleName]->controllers[$fileName] = array(
-            'className' => $className,
-            'path'      => $classPath,
-            'details'   => $className::announce()
-        );
-
-        return true;
-    }
-
-    // --------------------------------------------------------------------------
-
-    protected function routeRequest()
-    {
-        //  What are we trying to access?
-        $module     = $this->uri->rsegment(3) ? $this->uri->rsegment(3) : 'admin';
-        $controller = $this->uri->rsegment(4) ? $this->uri->rsegment(4) : 'index';
-        $method     = $this->uri->rsegment(5) ? $this->uri->rsegment(5) : 'index';
-
-        //  Special case for the
-
-
-
-        dump($this->uri->rsegments);
-        dump('module: ' . $module);
-        dump('controller: ' . $controller);
-        dump('method: ' . $method);
-        dump('$this->adminControllers[' . $module . ']->controllers[' . $controller . ']->' . $method . '();');
-
-        /**
-         * Firstly, is the request valid? i.e., does it route to an adminController
-         * we know about?
-         */
-
-        dump($this->adminControllers);
+        //  Load views
+        $this->load->view('structure/header', $this->data);
+        $this->load->view('admin/dashboard/help/overview', $this->data);
+        $this->load->view('structure/footer', $this->data);
     }
 }

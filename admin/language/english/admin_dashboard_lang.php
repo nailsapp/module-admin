@@ -23,7 +23,7 @@ $lang['dashboard_nav_help']  = 'Help Videos';
 
 //  No Modules
 $lang['dashboard_nomodules_title']   = 'How very strange...';
-$lang['dashboard_nomodules_message'] = 'You don\'t have permission to access any of the administration features for this site. This is most likely a misconfiguration of your account; please see the site administrator for assistance, or send an email to <a href="mailto:%1$s">%1$s</a> for assistance.';
+$lang['dashboard_nomodules_message'] = 'You don\'t have permission to access any of the administration features for this site. This is most likely a misconfiguration of your account; please see the site administrator for assistance, or send an email to <a href="mailto:%1$s">%1$s</a>.';
 
 // --------------------------------------------------------------------------
 
