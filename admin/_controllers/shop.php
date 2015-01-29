@@ -392,34 +392,56 @@ class NAILS_Shop extends NAILS_Admin_Controller
 
         //  Process POST
         if ($this->input->post()) {
-
-            //  Form validation, this'll be fun...
-            $this->load->library('form_validation');
-
-            //  Define all the rules
-            $this->__inventory_create_edit_validation_rules($this->input->post());
-
-            // --------------------------------------------------------------------------
-
-            if ($this->form_validation->run($this)) {
-
-                //  Validated!Create the product
+            
+            //  If the product is a draft i.e. not active, go ahead and save it without any 
+            if (empty($this->input->post('is_active'))) {
+                
+                //  Create draft product
                 $product = $this->shop_product_model->create($this->input->post());
 
                 if ($product) {
 
-                    $this->session->set_flashdata('success', '<strong>Success!</strong> Product was created successfully.');
+                    $this->session->set_flashdata('success', '<strong>Success!</strong> Draft product was created successfully.');
                     redirect('admin/shop/inventory');
 
                 } else {
 
-                    $this->data['error'] = '<strong>Sorry,</strong> there was a problem creating the Product. ' . $this->shop_product_model->last_error();
+                    $this->data['error'] = '<strong>Sorry,</strong> there was a problem creating draft product. ' . $this->shop_product_model->last_error();
 
-                                }
-            } else {
+                }
+                
+            }else{
 
-                $this->data['error'] = lang('fv_there_were_errors');
+                //  Form validation, this'll be fun...
+                $this->load->library('form_validation');
+    
+                //  Define all the rules
+                $this->__inventory_create_edit_validation_rules($this->input->post());
+    
+                // --------------------------------------------------------------------------
+    
+                if ($this->form_validation->run($this)) {
+    
+                    //  Validated!Create the product
+                    $product = $this->shop_product_model->create($this->input->post());
+    
+                    if ($product) {
+    
+                        $this->session->set_flashdata('success', '<strong>Success!</strong> Product was created successfully.');
+                        redirect('admin/shop/inventory');
+    
+                    } else {
+    
+                        $this->data['error'] = '<strong>Sorry,</strong> there was a problem creating the Product. ' . $this->shop_product_model->last_error();
+    
+                                    }
+                } else {
+    
+                    $this->data['error'] = lang('fv_there_were_errors');
+                }
+                   
             }
+
         }
 
         // --------------------------------------------------------------------------
