@@ -173,12 +173,11 @@
             foreach ($adminControllersNav as $module) {
 
                 $sortableClass = $module->sortable ? 'sortable' : 'not-sortable';
-
-
+                $openState     = $module->open ? 'open' : 'closed';
 
                 ?>
-                <li class="module admin-branding-background-primary <?=$sortableClass?>" data-initial-state="closed">
-                    <div class="box">
+                <li class="module admin-branding-background-primary <?=$sortableClass?>" data-grouping="<?=md5($module->label)?>" data-initial-state="<?=$openState?>">
+                    <div class="box <?=$openState?>">
                         <h2>
                             <div class="icon admin-branding-text-highlight">
                             <?php

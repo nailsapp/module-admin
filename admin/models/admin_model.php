@@ -12,390 +12,6 @@
 
 class NAILS_Admin_Model extends NAILS_Model
 {
-    public function findAdminControllers()
-    {
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    protected $searchPaths;
-
-    /**
-     * Constructs the model
-     */
-    public function __construct()
-    {
-        parent::__construct();
-
-        // --------------------------------------------------------------------------
-
-        /**
-         * Set the search paths to look for modules within; paths listed first
-         * take priority over those listed after it.
-         *
-         **/
-
-        $this->searchPaths[] = FCPATH . APPPATH . 'modules/admin/controllers/';
-        $this->searchPaths[] = NAILS_PATH . 'module-admin/admin/controllers/';
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Look for modules which reside within the search paths.
-     * @param   string   $module The name of the module to search for
-     * @return  stdClass
-     **/
-    public function find_module($module)
-    {
-        $moduleDetails = array();
-
-        // --------------------------------------------------------------------------
-
-        //  Look in our search paths for a controller of the same name as the module.
-        foreach ($this->searchPaths as $path) {
-
-            if (file_exists($path . $module . '.php')) {
-
-                require_once $path . $module . '.php';
-
-                $moduleDetails = $module::announce();
-
-                if (!is_array($moduleDetails)) {
-
-                    $moduleDetails = array($moduleDetails);
-                }
-
-                $moduleDetails = array_filter($moduleDetails);
-
-                if ($moduleDetails) {
-
-                    if (!is_array($moduleDetails)) {
-
-                        $moduleDetails = array($moduleDetails);
-                    }
-
-                    foreach ($moduleDetails as $index => &$detail) {
-
-                        //  If there're no methods then remove it
-                        if (empty($detail->funcs)) {
-
-                            $detail = null;
-
-                        } else {
-
-                            //  Basics
-                            $detail->class_name    = $module;
-                            $detail->class_index   = $module . ':' . $index;
-
-                            //  Any extra permissions?
-                            $detail->extra_permissions = $module::permissions($detail->class_index);
-                        }
-                    }
-                }
-            }
-        }
-
-        // --------------------------------------------------------------------------
-
-        $moduleDetails = array_filter($moduleDetails);
-        $moduleDetails = array_values($moduleDetails);
-
-        return $moduleDetails;
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Loop through the enabled modules and see if a controller exists for it; if
-     * it does load it up and execute the announce static method to see if we can
-     * display it to the active user.
-     * @return array
-     */
-    public function get_active_modules()
-    {
-        $cache_key = 'available_admin_modules_' . active_user('id');
-        $cache     = $this->_get_cache($cache_key);
-
-        if ($cache) {
-
-            return $cache;
-        }
-
-        // --------------------------------------------------------------------------
-
-        // $modulesPotential   = _NAILS_GET_MODULES();
-        // $modulesUnavailable = _NAILS_GET_UNAVAILABLE_MODULES();
-        // $modulesAvailable   = array();
-
-        // --------------------------------------------------------------------------
-
-        /**
-         * Paths to check for admin controllers
-         * [0] => Path to search
-         * [1] => Whether to test that the module it represents is available
-         */
-
-        $paths   = array();
-        $paths[] = NAILS_PATH . 'module-admin/admin/controllers/';
-        $paths[] = FCPATH . APPPATH . 'modules/admin/controllers/';
-
-        //  Available modules
-        $modules = _NAILS_GET_MODULES();
-
-        foreach ($modules as $module) {
-
-            //  Skip admin
-            if ($module->name == 'nailsapp/module-admin') {
-
-                continue;
-            }
-
-            $paths[] = $module->path . 'admin/controllers/';
-        }
-
-        dumpanddie($paths);
-
-        //  Filter out non PHP files and files which start with an underscore
-        $regex = '/^[^_][a-zA-Z_]+\.php$/';
-
-        //  Load directory helper
-        $this->load->helper('directory');
-
-        foreach ($paths as $path) {
-
-            if (is_dir($path[0])) {
-
-                $controllers = directory_map($path[0]);
-
-                if (is_array($controllers)) {
-
-                    foreach ($controllers as $controller) {
-
-                        if (preg_match($regex, $controller)) {
-
-                            $module = pathinfo($controller);
-                            $module = $module['filename'];
-
-                            /**
-                             * Controller looks valid, but before we add it to modulesAvailable let's test that
-                             * the module it represents is available.
-                             *
-                             * @todo Modules should provide their own admin controlelrs rather than have them
-                             * bundled with nailsapp/module-admin
-                             */
-
-                            if (!empty($path[1])) {
-
-                                if ($module != 'blog') {
-                                    continue;
-                                }
-                                dump($path);
-                                dumpanddie($module);
-
-                                //  controller looks valid,
-                                if (array_search('nailsapp/module-' . $module, $modulesPotential) !== false) {
-
-                                    if (array_search('nailsapp/module-' . $module, $modulesUnavailable) !== false) {
-
-                                        //  Not installed
-                                        continue;
-                                    }
-                                }
-                            }
-
-                            // --------------------------------------------------------------------------
-
-                            $modulesAvailable[] = $module;
-                        }
-                    }
-                }
-            }
-        }
-
-        // --------------------------------------------------------------------------
-
-        //  Form the discovered modules into a more structured array
-        $loadedModules = array();
-
-        foreach ($modulesAvailable as $module) {
-
-            $module = $this->find_module($module);
-
-            if (!empty($module)) {
-
-                foreach ($module as $module) {
-
-                    $loadedModules[$module->class_index] = $module;
-                }
-            }
-        }
-
-        // --------------------------------------------------------------------------
-
-        /**
-         * If the user has a custom order specified then use that, otherwise fall back to
-         * sort alphabetically by name.
-         */
-
-        $userNavPref = $this->admin_model->get_admin_data('nav');
-        $out         = array();
-
-        if (!empty($userNavPref)) {
-
-            //  User's preference first
-            foreach ($userNavPref as $module => $options) {
-
-                if (!empty($loadedModules[$module])) {
-
-                    $out[$module] = $loadedModules[$module];
-                }
-            }
-
-            //  Anything left over goes to the end.
-            foreach ($loadedModules as $module) {
-
-                if (!isset($out[$module->class_index])) {
-
-                    $out[$module->class_index] = $module;
-                }
-            }
-
-        } else {
-
-            $this->load->helper('array');
-            array_sort_multi($loadedModules, 'name');
-
-            foreach ($loadedModules as $module) {
-
-                $out[$module->class_index] = $module;
-            }
-        }
-
-        // --------------------------------------------------------------------------
-
-        /**
-         * Place the dashboard at the top of the list and settings & utilities at
-         * the end, always.
-         * Hit tip: http://stackoverflow.com/a/11276338/789224
-         */
-
-        if (isset($out['dashboard:0'])) {
-
-            $out = array('dashboard:0' => $out['dashboard:0']) + $out;
-        }
-
-        if (isset($out['settings:0'])) {
-
-            $item = $out['settings:0'];
-            unset($out['settings:0']);
-            $out = $out + array('settings:0' => $item);
-        }
-
-        if (isset($out['utilities:0'])) {
-
-            $item = $out['utilities:0'];
-            unset($out['utilities:0']);
-            $out = $out + array('utilities:0' => $item);
-        }
-
-        $out = array_values($out);
-
-        // --------------------------------------------------------------------------
-
-        //  Permissions
-        //  ===========
-
-        /**
-         * Admin modules are opt in (i.e non super users must explicitly be granted
-         * access). Loop through all potential modules and remoe any which are not
-         * available to the currently active user. Super users can see everything.
-         */
-
-        if (!$this->user_model->is_superuser()) {
-
-            /**
-             * Loop through each available module and remove any which don't feature
-             * in the user's ACL.
-             */
-
-            $acl = active_user('acl');
-
-            for ($i = 0; $i < count($out); $i++) {
-
-                //  Dashboard is *always* allowed
-                if ($out[$i]->class_name != 'dashboard') {
-
-                    /**
-                     * Dealing with a module which is *not* the dashboard, is it
-                     * featured in the user's ACL? If not, remove.
-                     */
-
-                    if (!isset($acl['admin'][$out[$i]->class_index])) {
-
-                        //  See ya, bye.
-                        $out[$i] = null;
-                    }
-                }
-            }
-        }
-
-        // --------------------------------------------------------------------------
-
-        $out = array_filter($out);
-        $out = array_values($out);
-
-        // --------------------------------------------------------------------------
-
-        $this->_set_cache($cache_key, $out);
-
-        // --------------------------------------------------------------------------
-
-        return $out;
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Returns the currently active admin module
-     * @return mixed stdClass on success null failue or permission denied
-     */
-    public function get_current_module()
-    {
-        $modules   = $this->get_active_modules();
-        $curModule = $this->uri->segment(2, 'admin');
-        $current   = null;
-
-        foreach ($modules as $m) {
-
-            if ($m->class_name == $curModule) {
-
-                $current = $m;
-                break;
-            }
-        }
-
-        return $current;
-    }
-
-    // --------------------------------------------------------------------------
-
     /**
      * Sets a piece of admin data
      * @param  string  $key    The key to set
@@ -403,7 +19,7 @@ class NAILS_Admin_Model extends NAILS_Model
      * @param  mixed   $userId The user's ID, if null active user is used.
      * @return boolean
      */
-    public function set_admin_data($key, $value, $userId = null)
+    public function setAdminData($key, $value, $userId = null)
     {
         return $this->setUnsetAdminData($key, $value, $userId, true);
     }
@@ -416,7 +32,7 @@ class NAILS_Admin_Model extends NAILS_Model
      * @param  mixed   $userId The user's ID, if null active user is used.
      * @return boolean
      */
-    public function unset_admin_data($key, $userId = null)
+    public function unsetAdminData($key, $userId = null)
     {
         return $this->setUnsetAdminData($key, null, $userId, false);
     }
@@ -437,7 +53,7 @@ class NAILS_Admin_Model extends NAILS_Model
         $userId = $this->adminDataGetUserId($userId);
 
         //  Get the existing data for this user
-        $existing = $this->get_admin_data(null, $userId);
+        $existing = $this->getAdminData(null, $userId);
 
         if ($set) {
 
@@ -472,7 +88,7 @@ class NAILS_Admin_Model extends NAILS_Model
      * @param  mixed  $userId The user's ID, if null active user is used.
      * @return mixed
      */
-    public function get_admin_data($key = null, $userId = null)
+    public function getAdminData($key = null, $userId = null)
     {
         //  Get the user ID
         $userId = $this->adminDataGetUserId($userId);
@@ -531,7 +147,7 @@ class NAILS_Admin_Model extends NAILS_Model
      * @param  mixed   $userId The user's ID, if null active user is used.
      * @return boolean
      */
-    public function clear_admin_data($userId)
+    public function clearAdminData($userId)
     {
         //  Get the user ID
         $userId = $this->adminDataGetUserId($userId);

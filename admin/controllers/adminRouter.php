@@ -83,6 +83,7 @@ class AdminRouter extends NAILS_Controller
          * consideration the user's order and state preferences.
          */
 
+        $this->load->model('admin_model');
         $this->prepAdminControllersNav();
 
         //  Save adminControllers to controller data so everyone can use it
@@ -266,6 +267,7 @@ class AdminRouter extends NAILS_Controller
                         $adminControllersNav[md5($methodGroup)]->label    = $methodGroup;
                         $adminControllersNav[md5($methodGroup)]->icon     = 'fa-cog';
                         $adminControllersNav[md5($methodGroup)]->sortable = true;
+                        $adminControllersNav[md5($methodGroup)]->open     = true;
                         $adminControllersNav[md5($methodGroup)]->actions  = array();
                     }
 
@@ -290,7 +292,7 @@ class AdminRouter extends NAILS_Controller
 
         //  Split the groups
         $stickyTop    = array();
-        $out          = array();
+        $middle       = array();
         $stickyBottom = array();
 
         foreach ($this->admincontrollersNavSticky as $sticky) {
@@ -308,15 +310,72 @@ class AdminRouter extends NAILS_Controller
         foreach($adminControllersNav as $group) {
 
             if (!in_array($group->label, $this->admincontrollersNavSticky)) {
-                $out[] = $group;
+                $middle[] = $group;
             }
         }
 
-        //  Order the non-sticky items as per the user's pref, alphabetically if no prefs
-        //  @todo
+        /**
+         * Sort everything alphabetically, then loop through the user's prefs and sort
+         * by their preferences. If any modules are left over they'll appear at the end,
+         * in alphabetical order. Also, set the open state of the module.
+         */
+
+        //  Sort alphabetically
+        $this->load->helper('array');
+        array_sort_multi($middle, 'label');
+
+        //  Get user's prefs
+        $userNavPref = $this->admin_model->getAdminData('nav');
+
+        if (!empty($userNavPref)) {
+
+            $temp = array();
+
+            foreach ($userNavPref as $groupMd5 => $state) {
+
+                for ($i=0; $i < count($middle); $i++) {
+
+                    if (empty($middle[$i])) {
+
+                        continue;
+                    }
+
+                    if ($groupMd5 == md5($middle[$i]->label)) {
+
+                        if (!in_array($middle[$i]->label, $this->admincontrollersNavSticky)) {
+
+                            $temp[] = $middle[$i];
+                            $middle[$i] = null;
+                        }
+                    }
+                }
+            }
+
+            //  Filter out the blanks
+            $middle = array_filter($middle);
+            $middle = array_values($middle);
+
+            //  Merge
+            $middle = array_merge($temp, $middle);
+        }
 
         //  Save to the class
-        $this->adminControllersNav = array_merge($stickyTop, $out, $stickyBottom);
+        $this->adminControllersNav = array_merge($stickyTop, $middle, $stickyBottom);
+
+        //  Set the open states of the modules
+        if (!empty($userNavPref)) {
+
+            foreach ($userNavPref as $groupMd5 => $state) {
+
+                for ($i=0; $i < count($this->adminControllersNav); $i++) {
+
+                    if ($groupMd5 == md5($this->adminControllersNav[$i]->label)) {
+
+                        $this->adminControllersNav[$i]->open = $state->open;
+                    }
+                }
+            }
+        }
     }
 
     // --------------------------------------------------------------------------

@@ -17,7 +17,6 @@ $lang['email_method_unfinished'] = '<strong>Not quite ready!</strong><br />This 
 // --------------------------------------------------------------------------
 
 //  Nav
-$lang['email_nav_index']    = 'Message Archive';
 $lang['email_nav_compose']  = 'Compose Message';
 $lang['email_nav_campaign'] = 'Manage Campaigns';
 

@@ -20,7 +20,7 @@ class Help extends \AdminController
      */
     public static function announce()
     {
-        $d        = parent::announce();
+        $d = parent::announce();
         get_instance()->load->model('admin_help_model');
 
         if (get_instance()->admin_help_model->count_all()) {

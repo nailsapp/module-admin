@@ -693,7 +693,7 @@ class Utilities extends \AdminController
      */
     public function cdn()
     {
-        $method = $this->uri->segment(4) ? $this->uri->segment(4) : 'index';
+        $method = $this->uri->segment(5) ? $this->uri->segment(5) : 'index';
         $method = ucfirst(strtolower($method));
 
         if (method_exists($this, 'cdn' . $method)) {
