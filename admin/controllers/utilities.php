@@ -20,7 +20,7 @@ class Utilities extends \AdminController
     // --------------------------------------------------------------------------
 
     /**
-     * Announces this controllers details
+     * Announces this controller's details
      * @return stdClass
      */
     public static function announce()
@@ -51,6 +51,11 @@ class Utilities extends \AdminController
 
         // --------------------------------------------------------------------------
 
+        //  Language
+        $this->lang->load('admin_utilities');
+
+        // --------------------------------------------------------------------------
+
         /**
          * Define the export sources
          *
@@ -64,9 +69,9 @@ class Utilities extends \AdminController
          * )
          *
          * The source method should be a callable method which is prefixed with
-         * _export_source_, using the above as an example, the method would be:
+         * exportSource, using the above as an example, the method would be:
          *
-         * _export_source_sourceMethod()
+         * exportSourcesourceMethod()
          *
          * This method should return an array where the indexes are the column
          * names and the values are not arrays, i.e stuff which would fit into
@@ -80,13 +85,13 @@ class Utilities extends \AdminController
             $this->exportSources[] = array(
                 'Members: All',
                 'Export a list of all the site\'s registered users and their meta data.',
-                'users_all'
+                'UsersAll'
             );
 
             $this->exportSources[] = array(
                 'Members: Names and Email',
                 'Export a list of all the site\'s registered users and their email addresses.',
-                'users_email'
+                'UsersEmail'
             );
         }
 
@@ -101,13 +106,13 @@ class Utilities extends \AdminController
          * array(
          *    0 => 'Format Title',
          *    1 => 'Format Description',
-         *    2 => 'formatMethod'
+         *    2 => 'FormatMethod'
          * )
          *
          * The format method should be a callable method which is prefixed with
-         * _export_format_, using the above as an example, the method would be:
+         * exportFormat, using the above as an example, the method would be:
          *
-         * _export_format_formatMethod($data, $returnData = false)
+         * exportFormatFormatMethod($data, $returnData = false)
          *
          * Where $data is the values generated from a source method. The method
          * should handle generating the file and sending to the user, unless
@@ -118,27 +123,27 @@ class Utilities extends \AdminController
         $this->exportFormats[] = array(
             'CSV',
             'Easily imports to many software packages, including Microsoft Excel.',
-            'csv');
+            'Csv');
 
         $this->exportFormats[] = array(
             'HTML',
             'Produces an HTML table containing the data',
-            'html');
+            'Html');
 
         $this->exportFormats[] = array(
             'PDF',
             'Saves a PDF using the data from the HTML export option',
-            'pdf');
+            'Pdf');
 
         $this->exportFormats[] = array(
             'PHP Serialize',
             'Export as an object serialized using PHP\'s serialize() function',
-            'serialize');
+            'Serialize');
 
         $this->exportFormats[] = array(
             'JSON',
             'Export as a JSON array',
-            'json');
+            'Json');
     }
 
     // --------------------------------------------------------------------------
@@ -192,9 +197,7 @@ class Utilities extends \AdminController
         // --------------------------------------------------------------------------
 
         //  Load views
-        $this->load->view('structure/header', $this->data);
-        $this->load->view('admin/utilities/send_test', $this->data);
-        $this->load->view('structure/footer', $this->data);
+        \Nails\Admin\Helper::loadView('sendTestEmail');
     }
 
     // --------------------------------------------------------------------------
@@ -223,9 +226,7 @@ class Utilities extends \AdminController
         // --------------------------------------------------------------------------
 
         //  Load views
-        $this->load->view('structure/header', $this->data);
-        $this->load->view('admin/utilities/rewrite_routes', $this->data);
-        $this->load->view('structure/footer', $this->data);
+        \Nails\Admin\Helper::loadView('rewriteRoutes');
     }
 
     // --------------------------------------------------------------------------
@@ -254,32 +255,32 @@ class Utilities extends \AdminController
                 $source = $this->exportSources[$this->input->post('source')];
                 $format = $this->exportFormats[$this->input->post('format')];
 
-                if (!method_exists($this, '_export_source_' . $source[2])) {
+                if (!method_exists($this, 'exportSource' . $source[2])) {
 
                     $this->data['error'] = lang('utilities_export_error_source_notexist');
 
-                } elseif (!method_exists($this, '_export_format_' . $format[2])) {
+                } elseif (!method_exists($this, 'exportFormat' . $format[2])) {
 
                     $this->data['error'] = lang('utilities_export_error_format_notexist');
 
                 } else {
 
                     //  All seems well, export data!
-                    $data = $this->{'_export_source_' . $source[2]}();
+                    $results = $this->{'exportSource' . $source[2]}();
 
                     //  Anything to report?
-                    if (!empty($data)) {
+                    if (!empty($results)) {
 
-                        //  if $data is an array then we need to write multiple files to a zip
-                        if (is_array($data)) {
+                        //  if $results is an array then we need to write multiple files to a zip
+                        if (is_array($results)) {
 
                             //  Load Zip class
                             $this->load->library('zip');
 
                             //  Process each file
-                            foreach ($data as $data) {
+                            foreach ($results as $result) {
 
-                                $file = $this->{'_export_format_' . $format[2]}($data, true);
+                                $file = $this->{'exportFormat' . $format[2]}($result, true);
 
                                 $this->zip->add_data($file[0], $file[1]);
                             }
@@ -288,7 +289,7 @@ class Utilities extends \AdminController
 
                         } else {
 
-                            $this->{'_export_format_' . $format[2]}($data);
+                            $this->{'exportFormat' . $format[2]}($results);
                         }
                     }
 
@@ -320,9 +321,7 @@ class Utilities extends \AdminController
         // --------------------------------------------------------------------------
 
         //  Load views
-        $this->load->view('structure/header', $this->data);
-        $this->load->view('admin/utilities/export/index', $this->data);
-        $this->load->view('structure/footer', $this->data);
+        \Nails\Admin\Helper::loadView('export/index');
     }
 
     // --------------------------------------------------------------------------
@@ -332,7 +331,7 @@ class Utilities extends \AdminController
      * @param  array  $out array of data to include in the output
      * @return array
      */
-    protected function _export_source_users_all($out = array())
+    protected function exportSourceUsersAll($out = array())
     {
         if (!user_has_permission('admin.accounts:0')) {
 
@@ -357,6 +356,14 @@ class Utilities extends \AdminController
         $out[$counter]           = new \stdClass();
         $out[$counter]->label    = 'User Groups';
         $out[$counter]->filename = NAILS_DB_PREFIX . 'user_group';
+        $out[$counter]->fields   = array();
+        $out[$counter]->data     = array();
+        $counter++;
+
+        //  useR_email
+        $out[$counter]           = new \stdClass();
+        $out[$counter]->label    = 'User Email';
+        $out[$counter]->filename = NAILS_DB_PREFIX . 'user_email';
         $out[$counter]->fields   = array();
         $out[$counter]->data     = array();
         $counter++;
@@ -402,15 +409,15 @@ class Utilities extends \AdminController
         // --------------------------------------------------------------------------
 
         //  Fetch data
-        foreach ($out as &$out) {
+        foreach ($out as &$file) {
 
-            $fields = $this->db->query('DESCRIBE ' . $out->filename)->result();
+            $fields = $this->db->query('DESCRIBE ' . $file->filename)->result();
             foreach ($fields as $field) {
 
-                $out->fields[] = $field->Field;
+                $file->fields[] = $field->Field;
             }
 
-            $out->data  = $this->db->get($out->filename)->result_array();
+            $file->data  = $this->db->get($file->filename)->result_array();
         }
 
         // --------------------------------------------------------------------------
@@ -425,7 +432,7 @@ class Utilities extends \AdminController
      * @param  array  $out array of data to include in the output
      * @return array
      */
-    protected function _export_source_users_email($out = array())
+    protected function exportSourceUsersEmail($out = array())
     {
         if (!user_has_permission('admin.accounts:0')) {
 
@@ -438,7 +445,7 @@ class Utilities extends \AdminController
         $out = $out;
 
         //  Fetch all users via the user_model
-        $users = $this->user->get_all();
+        $users = $this->user_model->get_all();
 
         //  Set column headings
         $out           = new \stdClass();
@@ -476,7 +483,7 @@ class Utilities extends \AdminController
      * @param  boolean $returnData Whether or not to return the data, or output it to the browser
      * @return mixed
      */
-    protected function _export_format_csv($data, $returnData = false)
+    protected function exportFormatCsv($data, $returnData = false)
     {
         //  Send header
         if (!$returnData) {
@@ -502,13 +509,13 @@ class Utilities extends \AdminController
             //  Load view
         if (!$returnData) {
 
-            $this->load->view('admin/utilities/export/csv', $this->data);
+            \Nails\Admin\Helper::loadView('export/csv', false);
 
         } else {
 
             $out   = array();
             $out[] = $data->filename . '.csv';
-            $out[] = $this->load->view('admin/utilities/export/csv', $this->data, true);
+            $out[] = \Nails\Admin\Helper::loadView('export/csv', false, true);
 
             return $out;
         }
@@ -522,7 +529,7 @@ class Utilities extends \AdminController
      * @param  boolean $returnData Whether or not to return the data, or output it to the browser
      * @return mixed
      */
-    protected function _export_format_html($data, $returnData = false)
+    protected function exportFormatHtml($data, $returnData = false)
     {
         //  Send header
         if (!$returnData) {
@@ -548,13 +555,13 @@ class Utilities extends \AdminController
         //  Load view
         if (!$returnData) {
 
-            $this->load->view('admin/utilities/export/html', $this->data);
+            \Nails\Admin\Helper::loadView('export/html', false);
 
         } else {
 
             $out    = array();
             $out[]  = $data->filename . '.html';
-            $out[]  = $this->load->view('admin/utilities/export/html', $this->data, true);
+            $out[] = \Nails\Admin\Helper::loadView('export/html', false, true);
 
             return $out;
         }
@@ -568,9 +575,9 @@ class Utilities extends \AdminController
      * @param  boolean $returnData Whether or not to return the data, or output it to the browser
      * @return mixed
      */
-    protected function _export_format_pdf($data, $returnData = false)
+    protected function exportFormatPdf($data, $returnData = false)
     {
-        $html = $this->_export_format_html($data, true);
+        $html = $this->exportFormathtml($data, true);
 
         // --------------------------------------------------------------------------
 
@@ -605,7 +612,7 @@ class Utilities extends \AdminController
      * @param  boolean $returnData Whether or not to return the data, or output it to the browser
      * @return mixed
      */
-    protected function _export_format_serialize($data, $returnData = false)
+    protected function exportFormatSerialize($data, $returnData = false)
     {
         //  Send header
         if (!$returnData) {
@@ -629,13 +636,13 @@ class Utilities extends \AdminController
         //  Load view
         if (!$returnData) {
 
-            $this->load->view('admin/utilities/export/serialize', $this->data);
+            \Nails\Admin\Helper::loadView('export/serialize', false);
 
         } else {
 
             $out   = array();
             $out[] = $data->filename . '.txt';
-            $out[] = $this->load->view('admin/utilities/export/serialize', $this->data, true);
+            $out[] = \Nails\Admin\Helper::loadView('export/serialize', false, true);
 
             return $out;
         }
@@ -649,7 +656,7 @@ class Utilities extends \AdminController
      * @param  boolean $returnData Whether or not to return the data, or output it to the browser
      * @return mixed
      */
-    protected function _export_format_json($data, $returnData = false)
+    protected function exportFormatJson($data, $returnData = false)
     {
         //  Send header
         if (!$returnData) {
@@ -673,13 +680,13 @@ class Utilities extends \AdminController
         //  Load view
         if (!$returnData) {
 
-            $this->load->view('admin/utilities/export/json', $this->data);
+            \Nails\Admin\Helper::loadView('export/json', false);
 
         } else {
 
             $out   = array();
             $out[] = $data->filename . '.json';
-            $out[] = $this->load->view('admin/utilities/export/json', $this->data, true);
+            $out[] = \Nails\Admin\Helper::loadView('export/json', false, true);
 
             return $out;
         }
@@ -802,9 +809,7 @@ class Utilities extends \AdminController
 
         // --------------------------------------------------------------------------
 
-        $this->load->view('structure/header', $this->data);
-        $this->load->view('admin/utilities/cdn/orphans', $this->data);
-        $this->load->view('structure/footer', $this->data);
+        \Nails\Admin\Helper::loadView('cdn/orphans');
     }
 
     // --------------------------------------------------------------------------

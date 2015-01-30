@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Admin changelog model
+ * Admin model
  *
  * @package     Nails
  * @subpackage  module-admin

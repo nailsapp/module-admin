@@ -210,12 +210,12 @@
                             <ul>
                             <?php
 
-                                foreach ($module->actions as $url => $label) {
+                                foreach ($module->actions as $url => $methodDetails) {
 
                                     echo '<li>';
                                         echo anchor(
                                             'admin/' . $url,
-                                            $label
+                                            $methodDetails->label
                                         );
                                     echo '</li>';
                                 }

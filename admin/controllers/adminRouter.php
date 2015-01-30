@@ -18,6 +18,9 @@ class AdminRouter extends NAILS_Controller
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Cosntruct the adminRouter, define the sticky groupings
+     */
     public function __construct()
     {
         parent::__construct();
@@ -106,8 +109,9 @@ class AdminRouter extends NAILS_Controller
         //  Set things up
         $this->load->helper('directory');
 
-        //  Fetch the admincontroller base class
+        //  Fetch the adminController base class and the adminHelper
         require_once NAILS_PATH . 'module-admin/admin/controllers/adminController.php';
+        require_once NAILS_PATH . 'module-admin/admin/controllers/adminHelper.php';
 
         //  Look in the admin module
         $this->loadAdminControllers(
@@ -252,8 +256,8 @@ class AdminRouter extends NAILS_Controller
         $adminControllersNav = array();
 
         foreach ($this->adminControllers as $module => $moduleDetails) {
-            foreach($moduleDetails->controllers as $controller => $controllerDetails) {
-                foreach($controllerDetails['methods'] as $method => $methodDetails) {
+            foreach ($moduleDetails->controllers as $controller => $controllerDetails) {
+                foreach ($controllerDetails['methods'] as $method => $methodDetails) {
 
                     $methodUrl  = $module . '/' . $controller;
                     $methodUrl .= empty($method) ? '' : '/';
@@ -271,7 +275,10 @@ class AdminRouter extends NAILS_Controller
                         $adminControllersNav[md5($methodGroup)]->actions  = array();
                     }
 
-                    $adminControllersNav[md5($methodGroup)]->actions[$methodUrl] = $methodLabel;
+                    $adminControllersNav[md5($methodGroup)]->actions[$methodUrl]        = new \stdClass();
+                    $adminControllersNav[md5($methodGroup)]->actions[$methodUrl]->label = $methodLabel;
+                    $adminControllersNav[md5($methodGroup)]->actions[$methodUrl]->class = $controllerDetails['className'];
+                    $adminControllersNav[md5($methodGroup)]->actions[$methodUrl]->path  = $controllerDetails['path'];
                 }
             }
         }
@@ -279,7 +286,7 @@ class AdminRouter extends NAILS_Controller
         //  Reset the indexes
         $adminControllersNav = array_values($adminControllersNav);
 
-        foreach($adminControllersNav as $group) {
+        foreach ($adminControllersNav as $group) {
 
             //  Set the icons
             //  @todo
@@ -296,7 +303,7 @@ class AdminRouter extends NAILS_Controller
         $stickyBottom = array();
 
         foreach ($this->admincontrollersNavSticky as $sticky) {
-            foreach($adminControllersNav as $group) {
+            foreach ($adminControllersNav as $group) {
                 if ($group->label == $sticky) {
                     if (in_array($sticky, $this->admincontrollersNavStickyBottom)) {
                         $stickyBottom[] = $group;
@@ -307,7 +314,7 @@ class AdminRouter extends NAILS_Controller
             }
         }
 
-        foreach($adminControllersNav as $group) {
+        foreach ($adminControllersNav as $group) {
 
             if (!in_array($group->label, $this->admincontrollersNavSticky)) {
                 $middle[] = $group;
@@ -414,7 +421,9 @@ class AdminRouter extends NAILS_Controller
             redirect('admin/admin/dashboard');
 
         } elseif (isset($this->adminControllers[$module]->controllers[$controller])) {
+
             $requestController = $this->adminControllers[$module]->controllers[$controller];
+            $this->data['currentRequest'] = $requestController;
             $className         = $requestController['className'];
             $requestPage       = new $className();
 

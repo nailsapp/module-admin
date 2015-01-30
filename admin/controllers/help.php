@@ -15,7 +15,7 @@ namespace Nails\Admin\Admin;
 class Help extends \AdminController
 {
    /**
-     * Announces this controllers details
+     * Announces this controller's details
      * @return stdClass
      */
     public static function announce()
@@ -29,5 +29,27 @@ class Help extends \AdminController
         }
 
         return $d;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Renders the admin help pagge
+     * @return void
+     */
+    public function index()
+    {
+        //  Page Title
+        $this->data['page']->title = lang('dashboard_help_title');
+
+        // --------------------------------------------------------------------------
+
+        //  Get data
+        $this->data['videos'] = $this->admin_help_model->get_all();
+
+        // --------------------------------------------------------------------------
+
+        //  Load views
+        \Nails\Admin\Helper::loadView('index');
     }
 }

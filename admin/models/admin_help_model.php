@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Admin changelog model
+ * Admin help model
  *
  * @package     Nails
  * @subpackage  module-admin
@@ -17,6 +17,7 @@ class NAILS_Admin_help_model extends NAILS_Model
      */
     public function __construct()
     {
+        parent::__construct();
         $this->_table = NAILS_DB_PREFIX . 'admin_help_video';
     }
 }

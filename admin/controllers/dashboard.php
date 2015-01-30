@@ -15,7 +15,7 @@ namespace Nails\Admin\Admin;
 class Dashboard extends \AdminController
 {
    /**
-     * Announces this controllers details
+     * Announces this controller's details
      * @return stdClass
      */
     public static function announce()
@@ -54,7 +54,6 @@ class Dashboard extends \AdminController
         $phrases[] = 'Be awesome.';
         $phrases[] = 'You look nice!';
         $phrases[] = 'What are we doing today?';
-        $phrases[] = active_user('first_name') ?  : 'Hey!';
 
         if (active_user('first_name')) {
             $phrases[] = 'Today is gonna be a good day, ' . active_user('first_name') . '.';
@@ -74,32 +73,6 @@ class Dashboard extends \AdminController
         // --------------------------------------------------------------------------
 
         //  Load views
-        $this->load->view('structure/header', $this->data);
-        $this->load->view('admin/dashboard/index', $this->data);
-        $this->load->view('structure/footer', $this->data);
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * The help section for admin
-     * @return void
-     */
-    public function help()
-    {
-        //  Page Title
-        $this->data['page']->title = lang('dashboard_help_title');
-
-        // --------------------------------------------------------------------------
-
-        //  Get data
-        $this->data['videos'] = $this->admin_help_model->get_all();
-
-        // --------------------------------------------------------------------------
-
-        //  Load views
-        $this->load->view('structure/header', $this->data);
-        $this->load->view('admin/dashboard/help/overview', $this->data);
-        $this->load->view('structure/footer', $this->data);
+        \Nails\Admin\Helper::loadView('index');
     }
 }

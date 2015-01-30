@@ -1,11 +1,25 @@
 <?php
 
+/**
+ * This class is the base class of all Admin controllers, it defines some basic
+ * methods which should exist.
+ *
+ * @package     Nails
+ * @subpackage  module-admin
+ * @category    Controller
+ * @author      Nails Dev Team
+ * @link
+ */
+
 class AdminController extends MX_Controller
 {
     protected $data;
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Construct the controller, load all the admin assets, etc
+     */
     public function __construct()
     {
         parent::__construct();

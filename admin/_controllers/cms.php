@@ -16,7 +16,7 @@ require_once '_admin.php';
 class NAILS_Cms extends NAILS_Admin_Controller
 {
     /**
-     * Announces this controllers details
+     * Announces this controller's details
      * @return stdClass
      */
     public static function announce()
