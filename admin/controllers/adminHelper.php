@@ -14,6 +14,29 @@ namespace Nails\Admin;
 
 class Helper
 {
+    public static function navGrouping($label, $icon = 'fa-cog')
+    {
+        $navGrouping        = new \stdClass();
+        $navGrouping->label = $label;
+        $navGrouping->icon  = 'fa-cog';
+
+        return $navGrouping;
+    }
+
+    // --------------------------------------------------------------------------
+
+    public static function navOption($url, $label)
+    {
+
+        $navOption           = new \stdClass();
+        $navOption->url      = $url;
+        $navOption->label    = $label;
+
+        return $navOption;
+    }
+
+    // --------------------------------------------------------------------------
+
     /**
      * Loads a view in admin taking into account the module being accessed.
      * @param  string  $viewFile      The view to load

@@ -52,8 +52,19 @@ class AdminRouter extends NAILS_Controller
         );
 
         /**
-         * If you wish to give groupings
+         * Load helps we'll need
          */
+
+        $this->load->helper('directory');
+
+        /**
+         * Fetch the base classes we'll be using
+         * @todo: autoload these
+         */
+
+        require_once NAILS_PATH . 'module-admin/admin/controllers/adminController.php';
+        require_once NAILS_PATH . 'module-admin/admin/controllers/adminHelper.php';
+        require_once NAILS_PATH . 'module-admin/admin/controllers/adminNav.php';
     }
 
     // --------------------------------------------------------------------------
@@ -82,7 +93,7 @@ class AdminRouter extends NAILS_Controller
         $this->findAdminControllers();
 
         /**
-         * Sort the controlelrs into a view friendly array, taking into
+         * Sort the controllers into a view friendly array, taking into
          * consideration the user's order and state preferences.
          */
 
@@ -106,19 +117,14 @@ class AdminRouter extends NAILS_Controller
      */
     protected function findAdminControllers()
     {
-        //  Set things up
-        $this->load->helper('directory');
-
-        //  Fetch the adminController base class and the adminHelper
-        require_once NAILS_PATH . 'module-admin/admin/controllers/adminController.php';
-        require_once NAILS_PATH . 'module-admin/admin/controllers/adminHelper.php';
-
         //  Look in the admin module
         $this->loadAdminControllers(
             'admin',
             NAILS_PATH . 'module-admin/admin/controllers/',
             FCPATH . APPPATH . 'modules/admin/controllers/',
             array(
+                'adminController.php',
+                'adminHelper.php',
                 'adminRouter.php'
             )
         );
@@ -235,10 +241,36 @@ class AdminRouter extends NAILS_Controller
             $this->adminControllers[$moduleName]->controllers = array();
         }
 
+        $navGroupings = $className::announce();
+
+        if (empty($navGroupings)) {
+
+            /**
+             * Thw announce method did not return any data, this might
+             * be intentional so don't consider it an exceptional case. For example
+             * the contect might be such that no groupings should be returned, e.g:
+             * no help videos in Admin help section.
+             */
+
+            return false;
+
+        } elseif (!is_array($navGroupings) && !($navGroupings instanceof \Nails\Admin\Nav)) {
+
+            /**
+             * @todo Use an admin specific exception class, and autoload it.
+             */
+
+            throw new Exception('Admin Nav groupings returned by ' . $className . '::announce() were invalid', 1);
+
+        } elseif (!is_array($navGroupings)) {
+
+            $navGroupings = array($navGroupings);
+        }
+
         $this->adminControllers[$moduleName]->controllers[$fileName] = array(
-            'className' => $className,
-            'path'      => $classPath,
-            'methods'   => $className::announce()
+            'className' => (string) $className,
+            'path'      => (string) $classPath,
+            'groupings' => $navGroupings
         );
 
         return true;
@@ -257,28 +289,36 @@ class AdminRouter extends NAILS_Controller
 
         foreach ($this->adminControllers as $module => $moduleDetails) {
             foreach ($moduleDetails->controllers as $controller => $controllerDetails) {
-                foreach ($controllerDetails['methods'] as $method => $methodDetails) {
+                foreach ($controllerDetails['groupings'] as $grouping) {
 
-                    $methodUrl  = $module . '/' . $controller;
-                    $methodUrl .= empty($method) ? '' : '/';
-                    $methodUrl .= $method;
+                    //  Begin by defining which group this action belongs in
+                    $groupLabel = $grouping->getLabel();
 
-                    $methodGroup = !empty($methodDetails[0]) ? $methodDetails[0] : 'Undefined Group';
-                    $methodLabel = !empty($methodDetails[1]) ? $methodDetails[1] : 'Undefined Action';
-
-                    if (!isset($adminControllersNav[md5($methodGroup)])) {
-                        $adminControllersNav[md5($methodGroup)]           = new \stdClass();
-                        $adminControllersNav[md5($methodGroup)]->label    = $methodGroup;
-                        $adminControllersNav[md5($methodGroup)]->icon     = 'fa-cog';
-                        $adminControllersNav[md5($methodGroup)]->sortable = true;
-                        $adminControllersNav[md5($methodGroup)]->open     = true;
-                        $adminControllersNav[md5($methodGroup)]->actions  = array();
+                    if (!isset($adminControllersNav[md5($groupLabel)])) {
+                        $adminControllersNav[md5($groupLabel)]           = new \stdClass();
+                        $adminControllersNav[md5($groupLabel)]->label    = $groupLabel;
+                        $adminControllersNav[md5($groupLabel)]->sortable = true;
+                        $adminControllersNav[md5($groupLabel)]->open     = true;
+                        $adminControllersNav[md5($groupLabel)]->methods  = array();
                     }
 
-                    $adminControllersNav[md5($methodGroup)]->actions[$methodUrl]        = new \stdClass();
-                    $adminControllersNav[md5($methodGroup)]->actions[$methodUrl]->label = $methodLabel;
-                    $adminControllersNav[md5($methodGroup)]->actions[$methodUrl]->class = $controllerDetails['className'];
-                    $adminControllersNav[md5($methodGroup)]->actions[$methodUrl]->path  = $controllerDetails['path'];
+                    //  Group icon
+                    $adminControllersNav[md5($groupLabel)]->icon = $grouping->getIcon();
+
+                    //  Group methods
+                    $groupMethods = $grouping->getMethods();
+
+                    foreach ($groupMethods as $methodUrl => $methodLabel) {
+
+                        $url  = $module . '/' . $controller;
+                        $url .= empty($methodUrl) ? '' : '/';
+                        $url .= $methodUrl;
+
+                        $adminControllersNav[md5($groupLabel)]->actions[$url]        = new \stdClass();
+                        $adminControllersNav[md5($groupLabel)]->actions[$url]->label = $methodLabel;
+                        $adminControllersNav[md5($groupLabel)]->actions[$url]->class = $controllerDetails['className'];
+                        $adminControllersNav[md5($groupLabel)]->actions[$url]->path  = $controllerDetails['path'];
+                    }
                 }
             }
         }
@@ -287,9 +327,6 @@ class AdminRouter extends NAILS_Controller
         $adminControllersNav = array_values($adminControllersNav);
 
         foreach ($adminControllersNav as $group) {
-
-            //  Set the icons
-            //  @todo
 
             //  Set sortable
             if (in_array($group->label, $this->admincontrollersNavSticky)) {
@@ -382,6 +419,17 @@ class AdminRouter extends NAILS_Controller
                     }
                 }
             }
+        }
+
+        /**
+         * Finally, now that everything has been sorted, go through all the groupings
+         * and sort their emthods alphabetically so there's some feeling of order in
+         * amongst all this chaos.
+         */
+
+        foreach ($this->adminControllersNav as $grouping) {
+
+            array_sort_multi($grouping->actions, 'label');
         }
     }
 

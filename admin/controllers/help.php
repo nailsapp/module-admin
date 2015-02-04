@@ -5,7 +5,7 @@
  *
  * @package     Nails
  * @subpackage  module-admin
- * @category    Controller
+ * @category    AdminController
  * @author      Nails Dev Team
  * @link
  */
@@ -15,20 +15,20 @@ namespace Nails\Admin\Admin;
 class Help extends \AdminController
 {
    /**
-     * Announces this controller's details
+     * Announces this controller's navGroupings
      * @return stdClass
      */
     public static function announce()
     {
-        $d = parent::announce();
         get_instance()->load->model('admin_help_model');
 
         if (get_instance()->admin_help_model->count_all()) {
 
-            $d[''] = array('Dashboard', 'Help Videos');
-        }
+            $navGroup = new \Nails\Admin\Nav('Dashboard');
+            $navGroup->addMethod('Help Videos');
 
-        return $d;
+            return $navGroup;
+        }
     }
 
     // --------------------------------------------------------------------------

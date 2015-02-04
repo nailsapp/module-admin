@@ -5,7 +5,7 @@
  *
  * @package     Nails
  * @subpackage  module-admin
- * @category    Controller
+ * @category    AdminController
  * @author      Nails Dev Team
  * @link
  */
@@ -20,24 +20,26 @@ class Utilities extends \AdminController
     // --------------------------------------------------------------------------
 
     /**
-     * Announces this controller's details
+     * Announces this controller's navGroupings
      * @return stdClass
      */
     public static function announce()
     {
-        $d = parent::announce();
-        $d['test_email']     = array('Utilities', 'Send Test Email');
-        $d['rewrite_routes'] = array('Utilities', 'Rewrite Routes');
-        $d['export']         = array('Utilities', 'Export Data');
+        $navGroup = new \Nails\Admin\Nav('Utilities');
+        $navGroup
+            ->addMethod('Send Test Email', 'test_email')
+            ->addMethod('Rewrite Routes', 'rewrite_routes')
+            ->addMethod('Export Data', 'export');
 
+        /**
+         * @todo: CDN module should provide this grouping
+         */
         if (isModuleEnabled('nailsapp/module-cdn')) {
 
-            $d['cdn/orphans'] = array('Utilities', 'CDN: Find orphaned objects');
+            $navGroup->addMethod('CDN: Find orphaned objects', 'cdn/orphans');
         }
 
-        // --------------------------------------------------------------------------
-
-        return $d;
+        return $navGroup;
     }
 
     // --------------------------------------------------------------------------

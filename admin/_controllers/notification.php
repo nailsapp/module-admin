@@ -16,7 +16,7 @@ require_once '_admin.php';
 class NAILS_Notification extends NAILS_Admin_Controller
 {
     /**
-     * Announces this controller's details
+     * Announces this controller's navGroupings
      * @return stdClass
      */
     public static function announce()

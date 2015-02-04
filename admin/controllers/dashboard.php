@@ -5,7 +5,7 @@
  *
  * @package     Nails
  * @subpackage  module-admin
- * @category    Controller
+ * @category    AdminController
  * @author      Nails Dev Team
  * @link
  */
@@ -15,14 +15,15 @@ namespace Nails\Admin\Admin;
 class Dashboard extends \AdminController
 {
    /**
-     * Announces this controller's details
+     * Announces this controller's navGroupings
      * @return stdClass
      */
     public static function announce()
     {
-        $d     = parent::announce();
-        $d[''] = array('Dashboard', 'Site Overview');
-        return $d;
+        $navGroup = new \Nails\Admin\Nav('Dashboard');
+        $navGroup->addMethod('Site Overview');
+
+        return $navGroup;
     }
 
     // --------------------------------------------------------------------------
