@@ -19,8 +19,8 @@ class Utilities extends \AdminController
 
     // --------------------------------------------------------------------------
 
-    /**
-     * Announces this controller's navGroupings
+     /**
+     * Announces this controller's navGroups
      * @return stdClass
      */
     public static function announce()
@@ -82,7 +82,7 @@ class Utilities extends \AdminController
 
         $this->exportSources = array();
 
-        if (user_has_permission('admin.accounts:0')) {
+        if (userHasPermission('admin.accounts:0')) {
 
             $this->exportSources[] = array(
                 'Members: All',
@@ -157,7 +157,7 @@ class Utilities extends \AdminController
     public function test_email()
     {
         //  Page Title
-        $this->data['page']->title = lang ('utilities_test_email_title');
+        $this->data['page']->title = 'Send a Test Email';
 
         // --------------------------------------------------------------------------
 
@@ -185,11 +185,12 @@ class Utilities extends \AdminController
                 //  Send the email
                 if ($this->emailer->send($email)) {
 
-                    $this->data['success'] = lang('utilities_test_email_success', array($email->to_email, date('Y-m-d H:i:s')));
+                    $this->data['success']  = '<strong>Done!</strong> Test email successfully sent to <strong>';
+                    $this->data['success'] .= $email->to_email . '</strong> at ' . userDatetime();
 
                 } else {
 
-                    echo '<h1>' . lang('utilities_test_email_error') . '</h1>';
+                    echo '<h1>Sending Failed, debugging data below:</h1>';
                     echo $this->email->print_debugger();
                     return;
                 }
@@ -245,8 +246,8 @@ class Utilities extends \AdminController
             $this->load->library('form_validation');
 
             //  Define rules
-            $this->form_validation->set_rules('source', lang('utilities_export_field_source'), 'xss_clean|required');
-            $this->form_validation->set_rules('format', lang('utilities_export_field_format'), 'xss_clean|required');
+            $this->form_validation->set_rules('source', '', 'xss_clean|required');
+            $this->form_validation->set_rules('format', '', 'xss_clean|required');
 
             //  Set Messages
             $this->form_validation->set_message('required', lang('fv_required'));
@@ -259,11 +260,11 @@ class Utilities extends \AdminController
 
                 if (!method_exists($this, 'exportSource' . $source[2])) {
 
-                    $this->data['error'] = lang('utilities_export_error_source_notexist');
+                    $this->data['error'] = '<strong>Sorry,</strong> that data source is not available.';
 
                 } elseif (!method_exists($this, 'exportFormat' . $format[2])) {
 
-                    $this->data['error'] = lang('utilities_export_error_format_notexist');
+                    $this->data['error'] = '<strong>Sorry,</strong> that format type is not available.';
 
                 } else {
 
@@ -301,11 +302,11 @@ class Utilities extends \AdminController
 
             } elseif (!isset($this->exportSources[ $this->input->post('source') ])) {
 
-                $this->data['error'] = lang('utilities_export_error_source');
+                $this->data['error'] = '<strong>Sorry,</strong> invalid data source.';
 
             } elseif (!isset($this->exportFormats[ $this->input->post('format') ])) {
 
-                $this->data['error'] = lang('utilities_export_error_format');
+                $this->data['error'] = '<strong>Sorry,</strong> invalid format type.';
 
             } else {
 
@@ -316,7 +317,7 @@ class Utilities extends \AdminController
         // --------------------------------------------------------------------------
 
         //  Set view data
-        $this->data['page']->title = lang('utilities_export_title');
+        $this->data['page']->title = 'Export Data';
         $this->data['sources']     = $this->exportSources;
         $this->data['formats']     = $this->exportFormats;
 
@@ -335,7 +336,7 @@ class Utilities extends \AdminController
      */
     protected function exportSourceUsersAll($out = array())
     {
-        if (!user_has_permission('admin.accounts:0')) {
+        if (!userHasPermission('admin.accounts:0')) {
 
             return false;
         }
@@ -436,7 +437,7 @@ class Utilities extends \AdminController
      */
     protected function exportSourceUsersEmail($out = array())
     {
-        if (!user_has_permission('admin.accounts:0')) {
+        if (!userHasPermission('admin.accounts:0')) {
 
             return false;
         }

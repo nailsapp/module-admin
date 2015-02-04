@@ -7,7 +7,7 @@
 	<?php
 
 		$this->load->view( 'admin/logs/event/utilities/search' );
-		$this->load->view( 'admin/_utilities/pagination' );
+		echo \Nails\Admin\Helper::loadPagination($pagination->total_rows);
 
 	?>
 
@@ -29,8 +29,8 @@
 
 					echo '<tr class="event">';
 
-					$this->load->view( 'admin/_utilities/table-cell-datetime',	array( 'datetime' => $event->created ) );
-					$this->load->view( 'admin/_utilities/table-cell-user',		$event->user );
+					echo \Nails\Admin\Helper::loadDatetimeCell($event->created);
+					echo \Nails\Admin\Helper::loadUserCell($event->user);
 
 					// --------------------------------------------------------------------------
 
@@ -79,7 +79,7 @@
 
 	<?php
 
-		$this->load->view( 'admin/_utilities/pagination' );
+		echo \Nails\Admin\Helper::loadPagination($pagination->total_rows);
 
 	?>
 </div>

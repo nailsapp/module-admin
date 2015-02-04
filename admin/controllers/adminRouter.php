@@ -237,7 +237,7 @@ class AdminRouter extends NAILS_Controller
 
         //  Cool! We have a controller which is valid, Add it to the stack!
         if (!isset($this->adminControllers[$moduleName])) {
-            $this->adminControllers[$moduleName]              = new stdClass();
+            $this->adminControllers[$moduleName]              = new \stdClass();
             $this->adminControllers[$moduleName]->controllers = array();
         }
 

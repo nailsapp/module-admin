@@ -141,7 +141,7 @@ class NAILS_Admin_changelog_model extends NAILS_Model
 
             $subkey = md5($field);
 
-            $this->changes[$key]['changes'][$subkey]            = new stdClass();
+            $this->changes[$key]['changes'][$subkey]            = new \stdClass();
             $this->changes[$key]['changes'][$subkey]->field     = $field;
             $this->changes[$key]['changes'][$subkey]->old_value = $oldValue;
             $this->changes[$key]['changes'][$subkey]->new_value = $newValue;
@@ -258,7 +258,7 @@ class NAILS_Admin_changelog_model extends NAILS_Model
 
         $obj->changes = @unserialize($obj->changes);
 
-        $obj->user              = new stdClass();
+        $obj->user              = new \stdClass();
         $obj->user->id          = $obj->user_id;
         $obj->user->first_name  = $obj->first_name;
         $obj->user->last_name   = $obj->last_name;

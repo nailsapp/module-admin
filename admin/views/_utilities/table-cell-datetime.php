@@ -5,9 +5,9 @@
     if (!empty($dateTime) && $dateTime != '0000-00-00 00:00:00') {
 
         echo '<td class="datetime">';
-            echo nice_time($dateTime);
+            echo niceTime($dateTime);
             echo '<small>';
-                echo user_datetime($dateTime);
+                echo userDatetime($dateTime);
             echo '</small>';
         echo '</td>';
 

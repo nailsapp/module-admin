@@ -14,6 +14,11 @@
             <div class="sidebar admin-branding-background-primary"></div>
         </div>
         <!--    GLOBAL JS   -->
-        <?php $this->asset->output('JS-INLINE'); ?>
+        <?php
+
+            $this->asset->output('JS');
+            $this->asset->output('JS-INLINE');
+
+        ?>
     </body>
 </html>

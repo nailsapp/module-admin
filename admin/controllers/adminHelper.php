@@ -47,19 +47,6 @@ class Helper
     public static function loadView($viewFile, $loadStructure = true, $returnView = false)
     {
         $controllerData =& getControllerData();
-        $controllerPath = !empty($controllerData['currentRequest']['path']) ? $controllerData['currentRequest']['path'] : '';
-
-        //  Work out where the controller's view folder is
-        $viewPath       = dirname($controllerPath);
-        $viewPath      .= '/../views/';
-
-        //  And get the directory name which is the same as the controller's filename
-        $basename  = basename($controllerPath);
-        $basename  = substr($basename, 0, strrpos($basename, '.'));
-        $viewPath .= $basename . '/';
-
-        //  Glue the requested view onto the end and add .php
-        $viewPath .= $viewFile . '.php';
 
         //  Get the CI super object
         $ci =& get_instance();
@@ -74,7 +61,7 @@ class Helper
                 $return .= $ci->load->view('structure/header', $controllerData, true);
             }
 
-            $return .= $ci->load->view($viewPath, $controllerData, true);
+            $return .= self::loadInlineView($viewFile, $controllerData, true);
 
             if ($loadStructure) {
 
@@ -90,13 +77,57 @@ class Helper
                 $ci->load->view('structure/header', $controllerData);
             }
 
-            $ci->load->view($viewPath, $controllerData);
+            self::loadInlineView($viewFile, $controllerData);
 
             if ($loadStructure) {
 
                 $ci->load->view('structure/footer', $controllerData);
             }
         }
+    }
+
+    // --------------------------------------------------------------------------
+
+    public static function loadInlineView($viewFile, $viewData, $returnView = false)
+    {
+        $controllerData =& getControllerData();
+        $controllerPath = !empty($controllerData['currentRequest']['path']) ? $controllerData['currentRequest']['path'] : '';
+
+        //  Work out where the controller's view folder is
+        $viewPath  = dirname($controllerPath);
+        $viewPath .= '/../views/';
+
+        //  And get the directory name which is the same as the controller's filename
+        $basename  = basename($controllerPath);
+        $basename  = substr($basename, 0, strrpos($basename, '.'));
+        $viewPath .= $basename . '/';
+
+        //  Glue the requested view onto the end and add .php
+        $viewPath .= $viewFile . '.php';
+
+        //  Get the CI super object
+        $ci =& get_instance();
+
+        //  Hey presto!
+        if ($returnView) {
+
+            return $ci->load->view($viewPath, $viewData, true);
+
+        } else {
+
+            $ci->load->view($viewPath, $viewData);
+        }
+    }
+
+    // --------------------------------------------------------------------------
+
+    public static function loadSearch($sortOn = array(), $filters = array())
+    {
+        $data = array(
+            'sortOn'  => $sortOn,
+            'filters' => $filters
+        );
+        return get_instance()->load->view('admin/_utilities/search', $data, true);
     }
 
     // --------------------------------------------------------------------------
@@ -160,5 +191,22 @@ class Helper
             'noData'   => $noData
         );
         return get_instance()->load->view('admin/_utilities/table-cell-datetime', $data, true);
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the markup for a 'boolean' table cell
+     * @param  string $value    The value to 'truthy' test
+     * @param  string $dateTime A datetime to show (for truthy values only)
+     * @return string
+     */
+    public static function loadBoolCell($value, $dateTime = null)
+    {
+        $data = array(
+            'value'    => $value,
+            'dateTime' => $dateTime
+        );
+        return get_instance()->load->view('admin/_utilities/table-cell-boolean', $data, true);
     }
 }

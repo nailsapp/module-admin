@@ -1,61 +1,55 @@
 <div class="group-utilities export">
+    <p>
+        Export data stored in the site\'s database in a variety of formats.
+    </p>
+    <p class="system-alert message">
+        <strong>Please note:</strong> Exporting may take some time when executing on large databases. Please be patient.
+    </p>
+    <?=form_open()?>
+    <fieldset>
+        <legend>Data Source</legend>
+        <?php
 
-	<p>
-		<?=lang( 'utilities_export_intro' )?>
-	</p>
-	<p class="system-alert message">
-		<?=lang( 'utilities_export_warn' )?>
-	</p>
+            //  Display Name
+            $field             = array();
+            $field['key']      = 'source';
+            $field['label']    = 'Source';
+            $field['required'] = true;
+            $field['class']    = 'select2';
 
-	<?=form_open()?>
-	<fieldset>
-		<legend><?=lang( 'utilities_export_legend_source' )?></legend>
-		<?php
+            $options = array();
+            foreach ($sources as $key => $source) {
 
-			//	Display Name
-			$_field					= array();
-			$_field['key']			= 'source';
-			$_field['label']		= lang( 'utilities_export_field_source' );
-			$_field['required']		= TRUE;
-			$_field['class']		= 'select2';
+                $options[$key] = $source[0] . ' - ' . $source[1];
+            }
 
-			$_options = array();
-			foreach ( $sources as $key => $source ) :
+            echo form_field_dropdown($field, $options);
 
-				$_options[$key] = $source[0] . ' - ' . $source[1];
+        ?>
+    </fieldset>
+    <fieldset>
+        <legend>Export Format</legend>
+        <?php
 
-			endforeach;
+            //  Display Name
+            $field             = array();
+            $field['key']      = 'format';
+            $field['label']    = 'Format';
+            $field['required'] = true;
+            $field['class']    = 'select2';
 
-			echo form_field_dropdown( $_field, $_options );
+            $options = array();
+            foreach ($formats as $key => $format) {
 
-		?>
-	</fieldset>
+                $options[$key] = $format[0] . ' - ' . $format[1];
+            }
 
-	<fieldset>
-		<legend><?=lang( 'utilities_export_legend_format' )?></legend>
-		<?php
+            echo form_field_dropdown($field, $options);
 
-			//	Display Name
-			$_field					= array();
-			$_field['key']			= 'format';
-			$_field['label']		= lang( 'utilities_export_field_format' );
-			$_field['required']		= TRUE;
-			$_field['class']		= 'select2';
-
-			$_options = array();
-			foreach ( $formats as $key => $format ) :
-
-				$_options[$key] = $format[0] . ' - ' . $format[1];
-
-			endforeach;
-
-			echo form_field_dropdown( $_field, $_options );
-
-		?>
-	</fieldset>
-
-	<p>
-		<?=form_submit( 'submit', 'Export', 'class="awesome"' )?>
-	</p>
-	<?=form_close()?>
+        ?>
+    </fieldset>
+    <p>
+        <?=form_submit('submit', 'Export', 'class="awesome"')?>
+    </p>
+    <?=form_close()?>
 </div>

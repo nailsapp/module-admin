@@ -51,7 +51,6 @@
 
         echo $this->asset->output('CSS');
         echo $this->asset->output('CSS-INLINE');
-        echo $this->asset->output('JS');
 
     ?>
     <link rel="stylesheet" type="text/css" media="print" href="<?=NAILS_ASSETS_URL . 'css/nails.admin.print.css'?>" />
@@ -244,29 +243,26 @@
         <div class="content_inner">
             <?php
 
-                echo '<div class="page-title">';
+                //  Page title
+                if (!empty($page->module->name) && !empty($page->title)) {
 
-                    //  Page title
-                    if (!empty($page->module->name) && !empty($page->title)) {
+                    $pageTitle = $page->module->name . ' &rsaquo; ' . $page->title;
 
-                        echo '<h1>';
-                            echo $page->module->name . ' &rsaquo; ' . $page->title;
-                        echo '</h1>';
+                } elseif (empty($page->module->name) && !empty($page->title)) {
 
-                    } elseif (empty($page->module->name) && !empty($page->title)) {
+                    $pageTitle = $page->title;
 
-                        echo '<h1>';
-                            echo $page->title;
-                        echo '</h1>';
+                } elseif (!empty($page->module->name)) {
 
-                    } elseif (!empty($page->module->name)) {
+                    $pageTitle = $page->module->name;
+                }
 
-                        echo '<h1>';
-                            echo $page->module->name;
-                        echo '</h1>';
-                    }
+                if (!empty($pageTitle)) {
 
-                echo '</div>';
+                    echo '<div class="page-title">';
+                        echo '<h1>' . $pageTitle . '</h1>';
+                    echo '</div>';
+                }
 
                 if (!empty($error)) {
 

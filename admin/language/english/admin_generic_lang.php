@@ -40,15 +40,6 @@ $lang['js_error_saving']    = 'Sorry, there was a problem storing the state of t
 
 // --------------------------------------------------------------------------
 
-//  Search boxes
-$lang['admin_search_placeholder'] = 'Type your search term and hit enter';
-$lang['admin_search_sort']        = 'Sort results by';
-$lang['admin_search_order_1']     = 'and order results in';
-$lang['admin_search_order_2']     = 'order, show';
-$lang['admin_search_per_page']    = 'per page.';
-
-// --------------------------------------------------------------------------
-
 //  Misc
 $lang['admin_login_as']             = 'Login As';
 $lang['admin_confirm_delete_title'] = 'Are you sure?';

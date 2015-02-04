@@ -7,7 +7,7 @@
 	<?php
 
 		$this->load->view( 'admin/logs/changelog/utilities/search' );
-		$this->load->view( 'admin/_utilities/pagination' );
+		echo \Nails\Admin\Helper::loadPagination($pagination->total_rows);
 
 	?>
 
@@ -28,7 +28,7 @@
 
 					echo '<tr>';
 
-					$this->load->view( 'admin/_utilities/table-cell-user',	$item->user );
+					echo \Nails\Admin\Helper::loadUserCell($item->user);
 
 					echo '<td class="changes">';
 
@@ -87,7 +87,7 @@
 
 					echo '</td>';
 
-					$this->load->view( 'admin/_utilities/table-cell-datetime',	array( 'datetime' => $item->created ) );
+					echo \Nails\Admin\Helper::loadDatetimeCell($item->created);
 
 					echo '</tr>';
 
@@ -109,7 +109,7 @@
 
 	<?php
 
-		$this->load->view( 'admin/_utilities/pagination' );
+		echo \Nails\Admin\Helper::loadPagination($pagination->total_rows);
 
 	?>
 </div>
