@@ -11,52 +11,61 @@
 
         echo '<div class="search-text">';
             echo form_input(
-                'search',
-                $this->input->get('search'),
+                'keywords',
+                $keywords,
                 'autocomplete="off" placeholder="Type your search term and hit enter"'
             );
         echo '</div>';
 
         // --------------------------------------------------------------------------
 
-        //  Sort Column
-        $curSortOn = $this->input->get('sortOn');
+        if (!empty($sortColumns)) {
 
-        echo 'Sort results by';
-        echo form_dropdown('sortOn', $sortOn, $curSortOn);
+            echo '<span style="padding-right: 1em;">';
+
+                //  Sort Column
+                echo 'Sort results by';
+                echo form_dropdown('sortOn', $sortColumns, $sortOn);
+
+                // --------------------------------------------------------------------------
+
+                //  Sort order
+                $options = array(
+                    'asc'  => 'Ascending',
+                    'desc' => 'Descending'
+                );
+
+                echo form_dropdown('sortOrder', $options, $sortOrder);
+
+            echo '</span>';
+        }
 
         // --------------------------------------------------------------------------
 
-        //  Sort order
-        $sortOrder = array(
-            'asc'  => 'Ascending',
-            'desc' => 'Descending'
-        );
-        $curSortOrder = $this->input->get('sortOrder') ? $this->input->get('sortOrder') : 'desc';
+        echo '<span style="padding-right: 1em;">';
 
-        echo 'and order results in';
-        echo form_dropdown('sortOrder', $sortOrder, $curSortOrder);
-        echo 'order, show';
+            //  Results per page
+            $options = array(
+                10  => 10,
+                25  => 25,
+                50  => 50,
+                75  => 75,
+                100 => 100
+            );
 
-        // --------------------------------------------------------------------------
+            echo 'Show';
+            echo form_dropdown('perPage', $options, $perPage);
+            echo 'results per page.';
 
-        //  Results per page
-        $perPage = array(
-            10  => 10,
-            25  => 25,
-            50  => 50,
-            75  => 75,
-            100 => 100
-        );
-        $curPerPage = $this->input->get('perPage') ? $this->input->get('perPage') : 50;
-
-        echo form_dropdown('perPage', $perPage, $curPerPage, 'style="width:75px;');
-        echo 'per page.';
+        echo '</span>';
 
         // --------------------------------------------------------------------------
 
         //  Filters
-        //  @TODO
+        if (!empty($filters)) {
+
+            //  @TODO
+        }
 
         // --------------------------------------------------------------------------
 

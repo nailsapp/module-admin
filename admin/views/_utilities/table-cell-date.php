@@ -7,7 +7,7 @@
         echo '<td class="datetime">';
             echo niceTime($datetime);
             echo '<small>';
-                echo userDate($datetime);
+                echo toUserDate($datetime);
             echo '</small>';
         echo '</td>';
 

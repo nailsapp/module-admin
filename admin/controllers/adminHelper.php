@@ -14,31 +14,9 @@ namespace Nails\Admin;
 
 class Helper
 {
-    public static function navGrouping($label, $icon = 'fa-cog')
-    {
-        $navGrouping        = new \stdClass();
-        $navGrouping->label = $label;
-        $navGrouping->icon  = 'fa-cog';
-
-        return $navGrouping;
-    }
-
-    // --------------------------------------------------------------------------
-
-    public static function navOption($url, $label)
-    {
-
-        $navOption           = new \stdClass();
-        $navOption->url      = $url;
-        $navOption->label    = $label;
-
-        return $navOption;
-    }
-
-    // --------------------------------------------------------------------------
-
     /**
-     * Loads a view in admin taking into account the module being accessed.
+     * Loads a view in admin taking into account the module being accessed. Passes controller
+     * data and optionally loads the header and footer views.
      * @param  string  $viewFile      The view to load
      * @param  boolean $loadStructure Whether or not to include the header and footers in the output
      * @param  boolean $returnView    Whether to return the view or send it to the Output class
@@ -88,6 +66,13 @@ class Helper
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Load a single view taking into account the module being accessed.
+     * @param  string  $viewFile   The view to load
+     * @param  array   $viewData   The data to pass to the view
+     * @param  boolean $returnView Whether to return the view or send it to the Output class
+     * @return mixed               String when $returnView is true, void otherwise
+     */
     public static function loadInlineView($viewFile, $viewData, $returnView = false)
     {
         $controllerData =& getControllerData();
@@ -121,36 +106,91 @@ class Helper
 
     // --------------------------------------------------------------------------
 
-    public static function loadSearch($sortOn = array(), $filters = array())
+    /**
+     * Loads the admin "search" component
+     * @param  stdClass $searchObject An object as created by self::searchObject();
+     * @return string
+     */
+    public static function loadSearch($searchObject)
     {
         $data = array(
-            'sortOn'  => $sortOn,
-            'filters' => $filters
+            'sortColumns' => isset($searchObject->sortColumns) ? $searchObject->sortColumns : array(),
+            'sortOn'      => isset($searchObject->sortOn) ? $searchObject->sortOn : null,
+            'sortOrder'   => isset($searchObject->sortOrder) ? $searchObject->sortOrder : null,
+            'perPage'     => isset($searchObject->perPage) ? $searchObject->perPage : 50,
+            'keywords'    => isset($searchObject->keywords) ? $searchObject->keywords : '',
+            'filters'     => isset($searchObject->filters) ? $searchObject->filters : array()
         );
+
         return get_instance()->load->view('admin/_utilities/search', $data, true);
     }
 
     // --------------------------------------------------------------------------
 
     /**
-     * Returns pagination markup for the current page.
-     * @param  integer $totalRows The total number of rows in the resultset
-     * @param  integer $perPage   the number of results to show per page
+     * Creates a standard object designed for use with self::loadSearch()
+     * @param  array    $sortColumns An array of columns to sort results by
+     * @param  string   $sortOn      The column to sort on
+     * @param  string   $sortOrder   The order to sort results in
+     * @param  integer  $perPage     The number of results to show per page
+     * @param  string   $keywords    Keywords to apply to the search result
+     * @param  array    $filters     An array of filters to filter the results by
+     * @return stdClass
+     */
+    public static function searchObject($sortColumns, $sortOn, $sortOrder, $perPage, $keywords = '', $filters = array())
+    {
+        $searchObject              = new \stdClass();
+        $searchObject->sortColumns = $sortColumns;
+        $searchObject->sortOn      = $sortOn;
+        $searchObject->sortOrder   = $sortOrder;
+        $searchObject->perPage     = $perPage;
+        $searchObject->keywords    = $keywords;
+        $searchObject->filters     = $filters;
+
+        return $searchObject;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Loads the admin "pagination" component
+     * @param  stdClass $paginationObject An object as created by self::paginationObject();
      * @return string
      */
-    public static function loadPagination($totalRows = 0, $perPage = 50)
+    public static function loadPagination($paginationObject)
     {
         $data = array(
-            'totalRows' => $totalRows,
-            'perPage'   => $perPage
+            'page'      => isset($paginationObject->page) ? $paginationObject->page : null,
+            'perPage'   => isset($paginationObject->perPage) ? $paginationObject->perPage : null,
+            'totalRows' => isset($paginationObject->totalRows) ? $paginationObject->totalRows : null
         );
+
         return get_instance()->load->view('admin/_utilities/pagination', $data, true);
     }
 
     // --------------------------------------------------------------------------
 
     /**
-     * Returns the markup for a 'user' table cell
+     * Creates a standard object designed for use with self::loadPagination();
+     * @param  integer $page      The current page number
+     * @param  integer $perPage   The number of results per page
+     * @param  integer $totalRows The total number of results in the result set
+     * @return stdClass
+     */
+    public static function paginationObject($page, $perPage, $totalRows)
+    {
+        $paginationObject            = new \stdClass();
+        $paginationObject->page      = $page;
+        $paginationObject->perPage   = $perPage;
+        $paginationObject->totalRows = $totalRows;
+
+        return $paginationObject;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Load the admin "user" table cell component
      * @param  stdClass $user The user object
      * @return string
      */
@@ -162,7 +202,7 @@ class Helper
     // --------------------------------------------------------------------------
 
     /**
-     * Returns the markup for a 'date' table cell
+     * Load the admin "date" table cell component
      * @param  string $date   The date to render
      * @param  string $noData What to render if the date is invalid or empty
      * @return string
@@ -173,13 +213,14 @@ class Helper
             'date'   => $date,
             'noData' => $noData
         );
+
         return get_instance()->load->view('admin/_utilities/table-cell-date', $data, true);
     }
 
     // --------------------------------------------------------------------------
 
     /**
-     * Returns the markup for a 'dateTime' table cell
+     * Load the admin "dateTime" table cell component
      * @param  string $dateTime The dateTime to render
      * @param  string $noData   What to render if the datetime is invalid or empty
      * @return string
@@ -190,13 +231,14 @@ class Helper
             'dateTime' => $dateTime,
             'noData'   => $noData
         );
+
         return get_instance()->load->view('admin/_utilities/table-cell-datetime', $data, true);
     }
 
     // --------------------------------------------------------------------------
 
     /**
-     * Returns the markup for a 'boolean' table cell
+     * Load the admin "boolean" table cell component
      * @param  string $value    The value to 'truthy' test
      * @param  string $dateTime A datetime to show (for truthy values only)
      * @return string
@@ -207,6 +249,7 @@ class Helper
             'value'    => $value,
             'dateTime' => $dateTime
         );
+
         return get_instance()->load->view('admin/_utilities/table-cell-boolean', $data, true);
     }
 }

@@ -186,7 +186,7 @@ class Utilities extends \AdminController
                 if ($this->emailer->send($email)) {
 
                     $this->data['success']  = '<strong>Done!</strong> Test email successfully sent to <strong>';
-                    $this->data['success'] .= $email->to_email . '</strong> at ' . userDatetime();
+                    $this->data['success'] .= $email->to_email . '</strong> at ' . toUserDatetime();
 
                 } else {
 
