@@ -243,18 +243,7 @@ class AdminRouter extends NAILS_Controller
 
         $navGroupings = $className::announce();
 
-        if (empty($navGroupings)) {
-
-            /**
-             * Thw announce method did not return any data, this might
-             * be intentional so don't consider it an exceptional case. For example
-             * the contect might be such that no groupings should be returned, e.g:
-             * no help videos in Admin help section.
-             */
-
-            return false;
-
-        } elseif (!is_array($navGroupings) && !($navGroupings instanceof \Nails\Admin\Nav)) {
+        if (!empty($navGroupings) && !is_array($navGroupings) && !($navGroupings instanceof \Nails\Admin\Nav)) {
 
             /**
              * @todo Use an admin specific exception class, and autoload it.
@@ -264,7 +253,7 @@ class AdminRouter extends NAILS_Controller
 
         } elseif (!is_array($navGroupings)) {
 
-            $navGroupings = array($navGroupings);
+            $navGroupings = array_filter(array($navGroupings));
         }
 
         $this->adminControllers[$moduleName]->controllers[$fileName] = array(

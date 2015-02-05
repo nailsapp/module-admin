@@ -100,6 +100,26 @@
 </head>
 <body class="blank">
 <?php
+    //  Page title
+    if (!empty($page->module->name) && !empty($page->title)) {
+
+        $pageTitle = $page->module->name . ' &rsaquo; ' . $page->title;
+
+    } elseif (empty($page->module->name) && !empty($page->title)) {
+
+        $pageTitle = $page->title;
+
+    } elseif (!empty($page->module->name)) {
+
+        $pageTitle = $page->module->name;
+    }
+
+    if (!empty($pageTitle)) {
+
+        echo '<div class="page-title">';
+            echo '<h1>' . $pageTitle . '</h1>';
+        echo '</div>';
+    }
 
     if (!empty($error)) {
 

@@ -36,14 +36,28 @@ class Helper
 
             if ($loadStructure) {
 
-                $return .= $ci->load->view('structure/header', $controllerData, true);
+                if (!empty($controllerData['headerOverride'])) {
+
+                    $return .= $ci->load->view($controllerData['headerOverride'], $controllerData, true);
+
+                } else {
+
+                    $return .= $ci->load->view('structure/header', $controllerData, true);
+                }
             }
 
             $return .= self::loadInlineView($viewFile, $controllerData, true);
 
             if ($loadStructure) {
 
-                $return .= $ci->load->view('structure/footer', $controllerData, true);
+                if (!empty($controllerData['footerOverride'])) {
+
+                    $return .= $ci->load->view($controllerData['footerOverride'], $controllerData, true);
+
+                } else {
+
+                    $return .= $ci->load->view('structure/footer', $controllerData, true);
+                }
             }
 
             return $return;
@@ -52,14 +66,28 @@ class Helper
 
             if ($loadStructure) {
 
-                $ci->load->view('structure/header', $controllerData);
+                if (!empty($controllerData['headerOverride'])) {
+
+                    $ci->load->view($controllerData['headerOverride'], $controllerData);
+
+                } else {
+
+                    $ci->load->view('structure/header', $controllerData);
+                }
             }
 
             self::loadInlineView($viewFile, $controllerData);
 
             if ($loadStructure) {
 
-                $ci->load->view('structure/footer', $controllerData);
+                if (!empty($controllerData['footerOverride'])) {
+
+                    $ci->load->view($controllerData['footerOverride'], $controllerData);
+
+                } else {
+
+                    $ci->load->view('structure/footer', $controllerData);
+                }
             }
         }
     }
