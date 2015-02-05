@@ -26,7 +26,7 @@ echo '<td class="' . $knownUser . ' user-cell">';
 
         if (isset($id) && $id && userHasPermission('admin.accoutns:0.can_edit_user')) {
 
-            echo anchor('admin/accounts/edit/' . $id, $name, 'class="fancybox" data-fancybox-type="iframe"');
+            echo anchor('admin/auth/accounts/edit/' . $id, $name, 'class="fancybox" data-fancybox-type="iframe"');
 
         } else {
 
