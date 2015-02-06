@@ -4,10 +4,22 @@
     </div>
     <?php
 
-        $form = array(
+        parse_str($this->input->server('QUERY_STRING'), $query);
+        unset($query['keywords']);
+        unset($query['sortOn']);
+        unset($query['sortOrder']);
+        unset($query['perPage']);
+
+        $formAttr = array(
             'method' => 'GET'
         );
-        echo form_open(null, $form);
+
+        echo form_open(null, $formAttr);
+
+        foreach ($query as $key => $value) {
+
+            echo form_hidden($key, $value);
+        }
 
         echo '<div class="search-text">';
             echo form_input(
@@ -69,7 +81,10 @@
 
         // --------------------------------------------------------------------------
 
-        echo anchor(uri_string(), 'Reset', 'class="awesome small right"');
+        $resetUrl  = uri_string();
+        $resetUrl .= $query ? '?' . http_build_query($query) : '';
+
+        echo anchor($resetUrl, 'Reset', 'class="awesome small right"');
         echo '<button type="submit" class="awesome small right">Search</button>';
 
         // --------------------------------------------------------------------------
