@@ -14,6 +14,10 @@ namespace Nails\Admin;
 
 class Helper
 {
+    protected static $headerButtons = array();
+
+    // --------------------------------------------------------------------------
+
     /**
      * Loads a view in admin taking into account the module being accessed. Passes controller
      * data and optionally loads the header and footer views.
@@ -279,5 +283,40 @@ class Helper
         );
 
         return get_instance()->load->view('admin/_utilities/table-cell-boolean', $data, true);
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Adds a button to Admin's header area
+     * @param string $url   The button's URL
+     * @param string $label The button's label
+     * @param string $class The class(es) to apply to the button
+     */
+    public static function addHeaderButton($url, $label, $color = 'green', $confirmTitle = '', $confirmBody = '')
+    {
+        if ($confirmTitle || $confirmBody) {
+
+            $color .= ' confirm';
+        }
+
+        self::$headerButtons[] = array(
+            'url'          => $url,
+            'label'        => $label,
+            'color'        => $color,
+            'confirmTitle' => $confirmTitle,
+            'confirmBody'  => $confirmBody
+        );
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the admin header bttons
+     * @return array
+     */
+    public static function getHeaderButtons()
+    {
+        return self::$headerButtons;
     }
 }

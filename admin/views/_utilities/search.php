@@ -9,6 +9,7 @@
         unset($query['sortOn']);
         unset($query['sortOrder']);
         unset($query['perPage']);
+        unset($query['page']);
 
         $formAttr = array(
             'method' => 'GET'

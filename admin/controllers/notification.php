@@ -114,8 +114,6 @@ class Notification extends \AdminController
         // --------------------------------------------------------------------------
 
         //  Load views
-        $this->load->view('structure/header', $this->data);
-        $this->load->view('admin/notification/index', $this->data);
-        $this->load->view('structure/footer', $this->data);
+        \Nails\Admin\Helper::loadView('index');
     }
 }
