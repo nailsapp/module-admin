@@ -156,7 +156,7 @@ class AdminRouter extends NAILS_Controller
          * see which the user has permission to access.
          */
 
-        if (!$this->user->is_superuser()) {
+        if (!$this->user_model->is_superuser()) {
             dumpanddie('not a superuser, do the checks');
         }
     }
