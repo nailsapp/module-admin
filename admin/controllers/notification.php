@@ -93,7 +93,7 @@ class Notification extends \AdminController
                         $this->app_notification_model->set($options, $grouping);
                     }
 
-                    $this->data['success'] = '<strong>Success!</strong> Notifications were updated successfully.';
+                    $this->data['success'] = 'Notifications were updated successfully.';
 
                 } else {
 

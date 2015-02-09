@@ -153,11 +153,11 @@ class Utilities extends \AdminController
 
             if ($this->routes_model->update()) {
 
-                $this->data['success'] = '<strong>Success!</strong> Routes rewritten successfully.';
+                $this->data['success'] = 'Routes rewritten successfully.';
 
             } else {
 
-                $this->data['error']  = '<strong>Sorry,</strong> there was a problem writing the routes. ';
+                $this->data['error']  = 'There was a problem writing the routes. ';
                 $this->data['error'] .= $this->routes_model->last_error();
             }
         }
@@ -196,11 +196,11 @@ class Utilities extends \AdminController
 
                 if (!method_exists($this, 'exportSource' . $source[2])) {
 
-                    $this->data['error'] = '<strong>Sorry,</strong> that data source is not available.';
+                    $this->data['error'] = 'That data source is not available.';
 
                 } elseif (!method_exists($this, 'exportFormat' . $format[2])) {
 
-                    $this->data['error'] = '<strong>Sorry,</strong> that format type is not available.';
+                    $this->data['error'] = 'That format type is not available.';
 
                 } else {
 
@@ -238,11 +238,11 @@ class Utilities extends \AdminController
 
             } elseif (!isset($this->exportSources[ $this->input->post('source') ])) {
 
-                $this->data['error'] = '<strong>Sorry,</strong> invalid data source.';
+                $this->data['error'] = 'Invalid data source.';
 
             } elseif (!isset($this->exportFormats[ $this->input->post('format') ])) {
 
-                $this->data['error'] = '<strong>Sorry,</strong> invalid format type.';
+                $this->data['error'] = 'Invalid format type.';
 
             } else {
 

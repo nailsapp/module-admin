@@ -52,7 +52,7 @@ class Settings extends \AdminController
 
             } else {
 
-                $this->data['error'] = '<strong>Sorry,</strong> I can\'t determine what type of update you are trying to perform.';
+                $this->data['error'] = 'I can\'t determine what type of update you are trying to perform.';
             }
         }
 
@@ -87,11 +87,11 @@ class Settings extends \AdminController
         //  Save
         if ($this->app_setting_model->set($settings, 'admin')) {
 
-            $this->data['success'] = '<strong>Success!</strong> Admin branding settings have been saved.';
+            $this->data['success'] = 'Admin branding settings have been saved.';
 
         } else {
 
-            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving admin branding settings.';
+            $this->data['error'] = 'There was a problem saving admin branding settings.';
         }
     }
 
@@ -128,11 +128,11 @@ class Settings extends \AdminController
         //  Save
         if ($this->app_setting_model->set($settings, 'admin')) {
 
-            $this->data['success'] = '<strong>Success!</strong> Admin whitelist settings have been saved.';
+            $this->data['success'] = 'Admin whitelist settings have been saved.';
 
         } else {
 
-            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving admin whitelist settings.';
+            $this->data['error'] = 'There was a problem saving admin whitelist settings.';
         }
     }
 
@@ -160,7 +160,7 @@ class Settings extends \AdminController
 
             } else {
 
-                $this->data['error'] = '<strong>Sorry,</strong> I can\'t determine what type of update you are trying to perform.';
+                $this->data['error'] = 'I can\'t determine what type of update you are trying to perform.';
             }
         }
 
@@ -202,11 +202,11 @@ class Settings extends \AdminController
         //  Save
         if ($this->app_setting_model->set($settings, 'app')) {
 
-            $this->data['success'] = '<strong>Success!</strong> Site settings have been saved.';
+            $this->data['success'] = 'Site settings have been saved.';
 
         } else {
 
-            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving settings.';
+            $this->data['error'] = 'There was a problem saving settings.';
         }
     }
 
@@ -348,18 +348,18 @@ class Settings extends \AdminController
             if ($rollback) {
 
                 $this->db->trans_rollback();
-                $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving authentication settings. ' . $error;
+                $this->data['error'] = 'There was a problem saving authentication settings. ' . $error;
 
             } else {
 
                 $this->db->trans_commit();
-                $this->data['success'] = '<strong>Success!</strong> Authentication settings were saved.';
+                $this->data['success'] = 'Authentication settings were saved.';
 
             }
 
         } else {
 
-            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving authentication settings. ' . $error;
+            $this->data['error'] = 'There was a problem saving authentication settings. ' . $error;
         }
     }
 
@@ -397,11 +397,11 @@ class Settings extends \AdminController
         //  Save
         if ($this->app_setting_model->set($settings, 'app')) {
 
-            $this->data['success'] = '<strong>Success!</strong> Maintenance settings have been saved.';
+            $this->data['success'] = 'Maintenance settings have been saved.';
 
         } else {
 
-            $this->data['error'] = '<strong>Sorry,</strong> there was a problem saving maintenance settings.';
+            $this->data['error'] = 'There was a problem saving maintenance settings.';
         }
     }
 }

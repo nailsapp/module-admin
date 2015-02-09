@@ -100,6 +100,7 @@
 <body class="<?=!$adminControllers ? 'no-modules' : ''?>">
     <div class="header">
         <div class="app-name">
+            <b class="fa fa-bars " id="mobileMenuBurger"></b>
             <a href="<?=site_url('admin')?>">
                 <span class="app-name admin-branding-text-primary">
                     <?=APP_NAME?>
@@ -160,6 +161,36 @@
 
             ?>
             </div>
+        </div>
+        <div id="mobileMenu">
+            <ul class="menuItems">
+            <?php
+
+                foreach ($adminControllersNav as $module) {
+
+                    echo '<li>';
+                        echo '<span class="moduleName">';
+                            echo $module->label;
+                        echo '</span>';
+
+                        echo '<ul>';
+                        foreach ($module->actions as $url => $methodDetails) {
+
+                            echo '<li>';
+                                echo anchor(
+                                    'admin/' . $url,
+                                    $methodDetails->label
+                                );
+                            echo '</li>';
+                        }
+                        echo '</ul>';
+
+                    echo '</li>';
+                }
+
+
+            ?>
+            </ul>
         </div>
     </div>
     <div class="sidebar">
@@ -228,8 +259,8 @@
             }
         ?>
         </ul>
-        <p class="text-center">
-            <a href="#" id="admin-nav-reset">Reset Nav</a>
+        <p class="text-center" id="admin-nav-reset">
+            <a href="#">Reset Nav</a>
         </p>
         <div class="no-modules">
             <p class="system-alert error">
@@ -292,6 +323,10 @@
                 if (!empty($error)) {
 
                     echo '<div class="system-alert error">';
+                        echo '<p><strong>';
+                            echo '<b class="alert-icon fa fa-times-circle"></b>';
+                            echo 'Sorry, something went wrong.';
+                        echo '</strong></p>';
                         echo '<p>' . $error . '</p>';
                     echo '</div>';
                 }
@@ -299,6 +334,10 @@
                 if (!empty($success)) {
 
                     echo '<div class="system-alert success">';
+                        echo '<p><strong>';
+                            echo '<b class="alert-icon fa fa-check-circle"></b>';
+                            echo 'Success!';
+                        echo '</strong></p>';
                         echo '<p>' . $success . '</p>';
                     echo '</div>';
                 }
