@@ -104,11 +104,6 @@ class Notification extends \AdminController
 
         // --------------------------------------------------------------------------
 
-        /**
-         * Conditionally set this as this method may be overridden by the app to add
-         * custom notification types
-         */
-
         $this->data['notifications'] = $this->app_notification_model->getDefinitions();
 
         // --------------------------------------------------------------------------

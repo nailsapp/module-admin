@@ -1,115 +1,106 @@
-<div class="group-stats browse">
+<div class="group-logs browse changelog">
+    <p>
+        Whenever an administrator makes a change to any data the change log is updated.
+    </p>
+    <?php
 
-	<p>
-		Whenever an administrator makes a change to any data the change log is updated.
-	</p>
+        // $this->load->view('admin/logs/changelog/utilities/search');
+        echo \Nails\Admin\Helper::loadPagination($pagination->total_rows);
 
-	<?php
+    ?>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th class="user">user</th>
+                    <th class="changes">Changes</th>
+                    <th class="datetime">Date</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php
 
-		$this->load->view( 'admin/logs/changelog/utilities/search' );
-		echo \Nails\Admin\Helper::loadPagination($pagination->total_rows);
+                if ($items) {
 
-	?>
+                    foreach ($items as $item) {
 
-	<table>
-		<thead>
-			<tr>
-				<th class="user">user</th>
-				<th class="changes">Changes</th>
-				<th class="datetime">Date</th>
-			</tr>
-		</thead>
-		<tbody>
-		<?php
+                        echo '<tr>';
 
-			if ( $items ) :
+                            echo \Nails\Admin\Helper::loadUserCell($item->user);
 
-				foreach ( $items as $item ) :
+                            echo '<td class="changes">';
 
-					echo '<tr>';
+                            $_sentance = array();
+                            if (!empty($item->user->first_name)) {
 
-					echo \Nails\Admin\Helper::loadUserCell($item->user);
+                                $_sentance[] = $item->user->first_name;
 
-					echo '<td class="changes">';
+                            } else {
 
-					$_sentance		= array();
-					if ( ! empty( $item->user->first_name ) ) :
+                                $_sentance[] = 'Someone';
+                            }
+                            $_sentance[] = $item->verb;
+                            $_sentance[] = $item->article;
+                            $_sentance[] = $item->title ? $item->item . ',' : $item->item;
 
-						$_sentance[] = $item->user->first_name;
+                            if ($item->title) {
 
-					else :
+                                if ($item->url) {
 
-						$_sentance[] = 'Someone';
+                                    $_sentance[] = '<strong>' . anchor($item->url, $item->title) . '</strong>';
 
-					endif;
-					$_sentance[]	= $item->verb;
-					$_sentance[]	= $item->article;
-					$_sentance[]	= $item->title ? $item->item . ',' : $item->item;
+                                } else {
 
-					if ( $item->title ) :
+                                    $_sentance[] = $item->title;
+                                }
+                            }
 
-						if ( $item->url ) :
+                            echo implode(' ', $_sentance);
 
-							$_sentance[] = '<strong>' . anchor( $item->url, $item->title ) . '</strong>';
+                            if ( $item->changes) {
 
-						else :
+                                echo '<hr style="margin:0.5em 0;" />';
+                                echo '<small>';
+                                    echo '<ul>';
+                                    foreach ($item->changes as $change) {
 
-							$_sentance[] = $item->title;
+                                        $_old = $change->old_value == '' ? '<span>blank</span>' : $change->old_value;
+                                        $_new = $change->new_value == '' ? '<span>blank</span>' : $change->new_value;
 
-						endif;
+                                        echo '<li>';
+                                            echo '<strong>' . $change->field . '</strong>: ';
+                                            echo '<em>' . $_old . '</em>';
+                                            echo '&nbsp;&rarr;&nbsp;';
+                                            echo '<em>' . $_new . '</em>';
+                                        echo '</li>';
+                                    }
+                                    echo '</ul>';
+                                echo '<small>';
+                            }
 
-					endif;
+                            echo '</td>';
 
-					echo implode( ' ', $_sentance );
+                            echo \Nails\Admin\Helper::loadDatetimeCell($item->created);
 
-					if (  $item->changes ) :
+                        echo '</tr>';
+                    }
 
-						echo '<hr style="margin:0.5em 0;" />';
-						echo '<small>';
-						echo '<ul>';
-						foreach ( $item->changes as $change ) :
+                } else {
 
-							$_old = $change->old_value == '' ? '<span>blank</span>' : $change->old_value;
-							$_new = $change->new_value == '' ? '<span>blank</span>' : $change->new_value;
+                    echo '<tr>';
+                        echo '<td colspan="5" class="no-data">';
+                            echo 'No changelog items found';
+                        echo '</td>';
+                    echo '</tr>';
+                }
 
-							echo '<li>';
-							echo '<strong>' . $change->field . '</strong>: ';
-							echo '<em>' . $_old . '</em>';
-							echo '&nbsp;&rarr;&nbsp;';
-							echo '<em>' . $_new . '</em>';
-							echo '</li>';
+            ?>
+            </tbody>
+        </table>
+    </div>
+    <?php
 
-						endforeach;
-						echo '</ul>';
-						echo '<small>';
+        echo \Nails\Admin\Helper::loadPagination($pagination->total_rows);
 
-					endif;
-
-					echo '</td>';
-
-					echo \Nails\Admin\Helper::loadDatetimeCell($item->created);
-
-					echo '</tr>';
-
-				endforeach;
-
-			else :
-
-				echo '<tr>';
-				echo '<td colspan="5" class="no-data">';
-				echo 'No changelog items found';
-				echo '</td>';
-				echo '</tr>';
-
-			endif;
-
-		?>
-		</tbody>
-	</table>
-
-	<?php
-
-		echo \Nails\Admin\Helper::loadPagination($pagination->total_rows);
-
-	?>
+    ?>
 </div>

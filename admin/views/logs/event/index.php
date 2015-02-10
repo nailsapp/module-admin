@@ -1,85 +1,80 @@
-<div class="group-stats browse">
+<div class="group-logs browse events">
+    <p>
+        Whenever users interact with the site 'events' are created.
+    </p>
+    <?php
 
-	<p>
-		Whenever users interact with the site 'events' are created.
-	</p>
+        // $this->load->view('admin/logs/event/utilities/search');
+        echo \Nails\Admin\Helper::loadPagination($pagination->total_rows);
 
-	<?php
+    ?>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th class="datetime">Date</th>
+                    <th class="user">User</th>
+                    <th class="event">Type of Event</th>
+                    <th class="actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php
 
-		$this->load->view( 'admin/logs/event/utilities/search' );
-		echo \Nails\Admin\Helper::loadPagination($pagination->total_rows);
+                if ($events) {
 
-	?>
+                    foreach ($events as $event) {
 
-	<table>
-		<thead>
-			<tr>
-				<th class="datetime">Date</th>
-				<th class="user">User</th>
-				<th class="event">Type of Event</th>
-				<th class="actions">Actions</th>
-			</tr>
-		</thead>
-		<tbody>
-		<?php
+                        echo '<tr class="event">';
 
-			if ( $events ) :
+                        echo \Nails\Admin\Helper::loadDatetimeCell($event->created);
+                        echo \Nails\Admin\Helper::loadUserCell($event->user);
 
-				foreach ( $events as $event ) :
+                        // --------------------------------------------------------------------------
 
-					echo '<tr class="event">';
+                        echo '<td class="event">';
+                            echo $event->type->label ? $event->type->label : title_case(str_replace('_', ' ', $event->type->slug));
+                            echo '<small>' . $event->type->description . '</small>';
+                        echo '</td>';
 
-					echo \Nails\Admin\Helper::loadDatetimeCell($event->created);
-					echo \Nails\Admin\Helper::loadUserCell($event->user);
+                        // --------------------------------------------------------------------------
 
-					// --------------------------------------------------------------------------
+                        if ($event->data) {
 
-					echo '<td class="event">';
-					echo $event->type->label ? $event->type->label : title_case( str_replace( '_', ' ', $event->type->slug ) );
-					echo '<small>' . $event->type->description . '</small>';
-					echo '</td>';
+                            echo '<td class="actions">';
+                                echo '<a href="#data-' . $event->id . '" class="awesome small fancybox">View Data</a>';
+                                echo '<div id="data-' . $event->id . '" style="display:none;">';
+                                    echo '<p class="system-alert message"><strong>Note:</strong> This is raw, unformatted data associated with the event.<br />The system uses this information to specify specific items relating to this particular event.</p>';
+                                    echo '<div style="white-space:pre; margin-top:1em;padding:1em;border:1px dashed #CCC;background:#EFEFEF;">';
+                                        echo print_r($event->data, TRUE);
+                                    echo '</div>';
+                                echo '</div>';
+                            echo '</td>';
 
-					// --------------------------------------------------------------------------
+                        } else {
 
-					if ( $event->data ) :
+                            echo '<td class="actions no-data">&mdash;</td>';
+                        }
 
-						echo '<td class="actions">';
-						echo '<a href="#data-' . $event->id . '" class="awesome small fancybox">View Data</a>';
-						echo '<div id="data-' . $event->id . '" style="display:none;">';
-						echo '<p class="system-alert message"><strong>Note:</strong> This is raw, unformatted data associated with the event.<br />The system uses this information to specify specific items relating to this particular event.</p>';
-						echo '<div style="white-space:pre; margin-top:1em;padding:1em;border:1px dashed #CCC;background:#EFEFEF;">';
-						echo print_r( $event->data, TRUE );
-						echo '</div>';
-						echo '</div>';
-						echo '</td>';
+                        echo '</tr>';
+                    }
 
-					else :
+                } else {
 
-						echo '<td class="actions no-data">&mdash;</td>';
+                    echo '<tr>';
+                        echo '<td colspan="5" class="no-data">';
+                            echo 'No Events found';
+                        echo '</td>';
+                    echo '</tr>';
+                }
 
-					endif;
+            ?>
+            </tbody>
+        </table>
+    </div>
+    <?php
 
-					echo '</tr>';
+        echo \Nails\Admin\Helper::loadPagination($pagination->total_rows);
 
-				endforeach;
-
-			else :
-
-				echo '<tr>';
-				echo '<td colspan="5" class="no-data">';
-				echo 'No Events found';
-				echo '</td>';
-				echo '</tr>';
-
-			endif;
-
-		?>
-		</tbody>
-	</table>
-
-	<?php
-
-		echo \Nails\Admin\Helper::loadPagination($pagination->total_rows);
-
-	?>
+    ?>
 </div>

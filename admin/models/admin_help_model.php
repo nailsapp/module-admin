@@ -48,7 +48,7 @@ class NAILS_Admin_help_model extends NAILS_Model
  *
  **/
 
-if ( ! defined( 'NAILS_ALLOW_EXTENSION_ADMIN_HELP_MODEL' ) ) {
+if (!defined('NAILS_ALLOW_EXTENSION_ADMIN_HELP_MODEL')) {
 
     class Admin_help_model extends NAILS_Admin_help_model
     {

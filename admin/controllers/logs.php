@@ -57,11 +57,30 @@ class Logs extends \AdminController
 
         $this->data['page']->title = 'Browse Logs';
 
-        // --------------------------------------------------------------------------
+        $this->asset->load('mustache.js/mustache.js', 'NAILS-BOWER');
+        $this->asset->load('nails.admin.logs.site.min.js', 'NAILS');
+        $this->asset->inline('logsSite = new NAILS_Admin_Logs_Site();','JS');
 
-        $this->load->view('structure/header', $this->data);
-        $this->load->view('admin/logs/site/index', $this->data);
-        $this->load->view('structure/footer', $this->data);
+        \Nails\Admin\Helper::loadView('site/index');
+    }
+
+    // --------------------------------------------------------------------------
+
+    public function site_view()
+    {
+        if (!userHasPermission('admin.logs:0.can_browse_site_logs')) {
+
+            unauthorised();
+        }
+
+        // --------------------------------------------------------------------------
+        $file = $this->uri->segment(5);
+        $this->data['page']->title = 'Browse Logs &rsaquo; ' . $file;
+
+        $this->load->model('admin/admin_sitelog_model');
+        $this->data['logs'] = $this->admin_sitelog_model->readLog($file);
+
+        \Nails\Admin\Helper::loadView('site/view');
     }
 
     // --------------------------------------------------------------------------
@@ -138,6 +157,9 @@ class Logs extends \AdminController
         //  Are we downloading? Or viewing?
         if ($this->input->get('dl')) {
 
+            //  Downloading, fetch the complete dataset
+            //  =======================================
+
             //  Fetch events
             $this->data['events'] = new \stdClass();
             $this->data['events'] = $this->event->get_all($order, null, $where);
@@ -156,12 +178,13 @@ class Logs extends \AdminController
             // --------------------------------------------------------------------------
 
             //  Render view
-            $this->load->view('admin/logs/event/csv', $this->data);
+            \Nails\Admin\Helper::loadView('event/csv');
 
         } else {
 
             //  Viewing, make sure we paginate
             //  =======================================
+
             $this->data['pagination']             = new \stdClass();
             $this->data['pagination']->page       = $this->input->get('page')     ? $this->input->get('page')     : 0;
             $this->data['pagination']->per_page   = $this->input->get('per_page') ? $this->input->get('per_page') : 50;
@@ -172,16 +195,12 @@ class Logs extends \AdminController
 
             // --------------------------------------------------------------------------
 
-            //  Fetch users
-            $this->data['users'] = $this->user_model->get_all_minimal();
             $this->data['types'] = $this->event->get_types_flat();
 
             // --------------------------------------------------------------------------
 
             //  Load views
-            $this->load->view('structure/header', $this->data);
-            $this->load->view('admin/logs/event/index', $this->data);
-            $this->load->view('structure/footer', $this->data);
+            \Nails\Admin\Helper::loadView('event/index');
         }
     }
 
@@ -252,7 +271,7 @@ class Logs extends \AdminController
             // --------------------------------------------------------------------------
 
             //  Render view
-            $this->load->view('admin/logs/changelog/csv', $this->data);
+            \Nails\Admin\Helper::loadView('changelog/csv');
 
         } else {
 
@@ -273,15 +292,8 @@ class Logs extends \AdminController
 
             // --------------------------------------------------------------------------
 
-            //  Fetch users
-            $this->data['users'] = $this->user_model->get_all_minimal();
-
-            // --------------------------------------------------------------------------
-
             //  Load views
-            $this->load->view('structure/header', $this->data);
-            $this->load->view('admin/logs/changelog/index', $this->data);
-            $this->load->view('structure/footer', $this->data);
+            \Nails\Admin\Helper::loadView('changelog/index');
         }
     }
 }

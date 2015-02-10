@@ -40,11 +40,6 @@
 
         </style>
     </noscript>
-    <!--    JS LOCALISATION -->
-    <script style="text/javascript">
-        window.NAILS.LANG.non_html5 = '<?=str_replace("'", "\'", lang('js_error_non_html5'))?>';
-        window.NAILS.LANG.no_save   = '<?=str_replace("'", "\'", lang('js_error_saving'))?>';
-    </script>
     <!--    ASSETS  -->
     <link href="//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700" rel="stylesheet" type="text/css">
     <?php

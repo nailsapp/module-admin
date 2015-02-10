@@ -33,13 +33,6 @@ $lang['admin_powered_by']      = 'Powered by <a href="%s">Nails</a>';
 
 // --------------------------------------------------------------------------
 
-//  JS Errors
-$lang['js_error_header']    = 'Oh no!';
-$lang['js_error_non_html5'] = 'You are using a non HTML5 browser. If you want me to remember your preferences, upgrade to Chrome, Safari or Firefox!';
-$lang['js_error_saving']    = 'Sorry, there was a problem storing the state of the header. It may be that you are out of memory.';
-
-// --------------------------------------------------------------------------
-
 //  Misc
 $lang['admin_login_as']             = 'Login As';
 $lang['admin_confirm_delete_title'] = 'Are you sure?';
