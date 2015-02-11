@@ -45,7 +45,7 @@
             {{lines}}
         </td>
         <td class="actions">
-            <a href="<?=site_url('admin/admin/logs/site_view/{{file}}')?>" class="awesome small green">
+            <a href="<?=site_url('admin/admin/logs/site/view/{{file}}')?>" class="awesome small green">
                 View
             </a>
         </td>

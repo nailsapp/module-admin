@@ -1,11 +1,11 @@
 <div class="group-logs browse changelog">
     <p>
-        Whenever an administrator makes a change to any data the change log is updated.
+        Where supported, changes made on site will be shown here.
     </p>
     <?php
 
         // $this->load->view('admin/logs/changelog/utilities/search');
-        echo \Nails\Admin\Helper::loadPagination($pagination->total_rows);
+        echo \Nails\Admin\Helper::loadPagination($pagination);
 
     ?>
     <div class="table-responsive">
@@ -100,7 +100,7 @@
     </div>
     <?php
 
-        echo \Nails\Admin\Helper::loadPagination($pagination->total_rows);
+        echo \Nails\Admin\Helper::loadPagination($pagination);
 
     ?>
 </div>

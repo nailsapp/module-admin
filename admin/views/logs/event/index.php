@@ -4,8 +4,8 @@
     </p>
     <?php
 
-        // $this->load->view('admin/logs/event/utilities/search');
-        echo \Nails\Admin\Helper::loadPagination($pagination->total_rows);
+        echo \Nails\Admin\Helper::loadSearch($search);
+        echo \Nails\Admin\Helper::loadPagination($pagination);
 
     ?>
     <div class="table-responsive">
@@ -33,7 +33,14 @@
                         // --------------------------------------------------------------------------
 
                         echo '<td class="event">';
-                            echo $event->type->label ? $event->type->label : title_case(str_replace('_', ' ', $event->type->slug));
+                            if (!empty($event->type->label)) {
+
+                                echo $event->type->label;
+
+                            } else {
+
+                                echo title_case(str_replace('_', ' ', $event->type->slug));
+                            }
                             echo '<small>' . $event->type->description . '</small>';
                         echo '</td>';
 
@@ -74,7 +81,7 @@
     </div>
     <?php
 
-        echo \Nails\Admin\Helper::loadPagination($pagination->total_rows);
+        echo \Nails\Admin\Helper::loadPagination($pagination);
 
     ?>
 </div>

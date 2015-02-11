@@ -42,11 +42,36 @@ class Logs extends \AdminController
 
     // --------------------------------------------------------------------------
 
+    public function site()
+    {
+        if (!userHasPermission('admin.logs:0.can_browse_site_logs')) {
+
+            unauthorised();
+        }
+
+        // --------------------------------------------------------------------------
+
+        $this->load->helper('string');
+        $method = $this->uri->segment(5) ? $this->uri->segment(5) : 'index';
+        $method = 'site' . underscore_to_camelcase(strtolower($method), false);
+
+        if (method_exists($this, $method)) {
+
+            $this->{$method}();
+
+        } else {
+
+            show_404();
+        }
+    }
+
+    // --------------------------------------------------------------------------
+
     /**
      * Browse site log files
      * @return void
      */
-    public function site()
+    protected function siteIndex()
     {
         if (!userHasPermission('admin.logs:0.can_browse_site_logs')) {
 
@@ -66,7 +91,7 @@ class Logs extends \AdminController
 
     // --------------------------------------------------------------------------
 
-    public function site_view()
+    protected function siteView()
     {
         if (!userHasPermission('admin.logs:0.can_browse_site_logs')) {
 
@@ -74,11 +99,16 @@ class Logs extends \AdminController
         }
 
         // --------------------------------------------------------------------------
-        $file = $this->uri->segment(5);
+        $file = $this->uri->segment(6);
         $this->data['page']->title = 'Browse Logs &rsaquo; ' . $file;
 
         $this->load->model('admin/admin_sitelog_model');
         $this->data['logs'] = $this->admin_sitelog_model->readLog($file);
+
+        if (!$this->data['logs']) {
+
+            show_404();
+        }
 
         \Nails\Admin\Helper::loadView('site/view');
     }
@@ -89,7 +119,7 @@ class Logs extends \AdminController
      * Browse Site Events
      * @return void
      */
-    public function event()
+    public function event2()
     {
         if (!userHasPermission('admin.logs:0.can_browse_event_logs')) {
 
@@ -202,6 +232,52 @@ class Logs extends \AdminController
             //  Load views
             \Nails\Admin\Helper::loadView('event/index');
         }
+    }
+
+    public function event()
+    {
+        //  Set method info
+        $this->data['page']->title = 'Browse Events';
+
+        // --------------------------------------------------------------------------
+
+        //  Get pagination and search/sort variables
+        $page      = $this->input->get('page')      ? $this->input->get('page')      : 0;
+        $perPage   = $this->input->get('perPage')   ? $this->input->get('perPage')   : 50;
+        $sortOn    = $this->input->get('sortOn')    ? $this->input->get('sortOn')    : 'e.created';
+        $sortOrder = $this->input->get('sortOrder') ? $this->input->get('sortOrder') : 'desc';
+        $keywords  = $this->input->get('keywords')  ? $this->input->get('keywords')  : '';
+
+        // --------------------------------------------------------------------------
+
+        //  Define the sortable columns
+        $sortColumns = array(
+            'e.created' => 'Created',
+            'e.type'    => 'Type'
+        );
+
+        // --------------------------------------------------------------------------
+
+        //  Define the $data variable for the queries
+        $data = array(
+            'sort'  => array(
+                'column' => $sortOn,
+                'order'  => $sortOrder
+            ),
+            'keywords' => $keywords
+        );
+
+        //  Get the items for the page
+        $totalRows           =  $this->event->count_all($data);
+        $this->data['events'] = $this->event->get_all($page, $perPage, $data);
+
+        //  Set Search and Pagination objects for the view
+        $this->data['search']     = \Nails\Admin\Helper::searchObject($sortColumns, $sortOn, $sortOrder, $perPage, $keywords);
+        $this->data['pagination'] = \Nails\Admin\Helper::paginationObject($page, $perPage, $totalRows);
+
+        // --------------------------------------------------------------------------
+
+        \Nails\Admin\Helper::loadView('event/index');
     }
 
     // --------------------------------------------------------------------------
