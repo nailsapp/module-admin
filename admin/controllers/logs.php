@@ -61,7 +61,7 @@ class Logs extends \AdminController
 
         } else {
 
-            show_404();
+            show_404('', true);
         }
     }
 
@@ -119,7 +119,7 @@ class Logs extends \AdminController
      * Browse Site Events
      * @return void
      */
-    public function event2()
+    public function event()
     {
         if (!userHasPermission('admin.logs:0.can_browse_event_logs')) {
 
@@ -133,118 +133,14 @@ class Logs extends \AdminController
 
         // --------------------------------------------------------------------------
 
-        //  Load event library
-        $this->load->library('event');
-
-        // --------------------------------------------------------------------------
-
-        /**
-         * Define limit and order
-         * A little messy but it's because the Event library doesn't follow the
-         * same standard as the models - it should. @TODO.
-         */
-
-        $per_page = $this->input->get('per_page') ? $this->input->get('per_page') : 50;
-        $page     = (int) $this->input->get('page');
-        $page--;
-        $page     = $page < 0 ? 0 : $page;
-        $offset   = $page * $per_page;
-        $limit    = array($per_page, $offset);
-        $order    = array(
-                        $this->input->get('sort') ? $this->input->get('sort') : 'e.created',
-                        $this->input->get('order') ? $this->input->get('order') : 'DESC'
-                    );
-
-        // --------------------------------------------------------------------------
-
-        //  Define the data user & type restriction and the date range
-        $where = array();
-
-        if ($this->input->get('date_from')) {
-
-            $where[] = '(e.created >= \'' . $this->input->get('date_from') . '\')';
-        }
-
-        if ($this->input->get('date_to')) {
-
-            $where[] = '(e.created <=\'' . $this->input->get('date_to') . '\')';
-        }
-
-        if ($this->input->get('user_id')) {
-
-            $where[] = 'e.created_by IN (' . implode(',', $this->input->get('user_id')) . ')';
-        }
-
-        if ($this->input->get('event_type')) {
-
-            $where[] = 'e.type IN ("' . implode('","', $this->input->get('event_type')) . '")';
-        }
-
-        $where = implode(' AND ', $where);
-
-        // --------------------------------------------------------------------------
-
-        //  Are we downloading? Or viewing?
-        if ($this->input->get('dl')) {
-
-            //  Downloading, fetch the complete dataset
-            //  =======================================
-
-            //  Fetch events
-            $this->data['events'] = new \stdClass();
-            $this->data['events'] = $this->event->get_all($order, null, $where);
-
-            // --------------------------------------------------------------------------
-
-            //  Send header
-            $this->output->set_content_type('application/octet-stream');
-            $this->output->set_header('Pragma: public');
-            $this->output->set_header('Expires: 0');
-            $this->output->set_header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-            $this->output->set_header('Cache-Control: private', false);
-            $this->output->set_header('Content-Disposition: attachment; filename=stats-export-' . date('Y-m-d_h-i-s') . '.csv;');
-            $this->output->set_header('Content-Transfer-Encoding: binary');
-
-            // --------------------------------------------------------------------------
-
-            //  Render view
-            \Nails\Admin\Helper::loadView('event/csv');
-
-        } else {
-
-            //  Viewing, make sure we paginate
-            //  =======================================
-
-            $this->data['pagination']             = new \stdClass();
-            $this->data['pagination']->page       = $this->input->get('page')     ? $this->input->get('page')     : 0;
-            $this->data['pagination']->per_page   = $this->input->get('per_page') ? $this->input->get('per_page') : 50;
-            $this->data['pagination']->total_rows = $this->event->count_all($where);
-
-            //  Fetch all the items for this page
-            $this->data['events'] = $this->event->get_all($order, $limit, $where);
-
-            // --------------------------------------------------------------------------
-
-            $this->data['types'] = $this->event->get_types_flat();
-
-            // --------------------------------------------------------------------------
-
-            //  Load views
-            \Nails\Admin\Helper::loadView('event/index');
-        }
-    }
-
-    public function event()
-    {
-        //  Set method info
-        $this->data['page']->title = 'Browse Events';
+        $tablePrefix = $this->event->getTablePrefix();
 
         // --------------------------------------------------------------------------
 
         //  Get pagination and search/sort variables
         $page      = $this->input->get('page')      ? $this->input->get('page')      : 0;
         $perPage   = $this->input->get('perPage')   ? $this->input->get('perPage')   : 50;
-        $sortOn    = $this->input->get('sortOn')    ? $this->input->get('sortOn')    : 'e.created';
+        $sortOn    = $this->input->get('sortOn')    ? $this->input->get('sortOn')    : $tablePrefix . '.created';
         $sortOrder = $this->input->get('sortOrder') ? $this->input->get('sortOrder') : 'desc';
         $keywords  = $this->input->get('keywords')  ? $this->input->get('keywords')  : '';
 
@@ -252,8 +148,8 @@ class Logs extends \AdminController
 
         //  Define the sortable columns
         $sortColumns = array(
-            'e.created' => 'Created',
-            'e.type'    => 'Type'
+            $tablePrefix . '.created' => 'Created',
+            $tablePrefix . '.type'    => 'Type'
         );
 
         // --------------------------------------------------------------------------
@@ -267,17 +163,44 @@ class Logs extends \AdminController
             'keywords' => $keywords
         );
 
-        //  Get the items for the page
-        $totalRows           =  $this->event->count_all($data);
-        $this->data['events'] = $this->event->get_all($page, $perPage, $data);
+        //  Are we downloading? Or viewing?
+        if ($this->input->get('dl') && userHasPermission('admin.logs:0.can_download_event_logs')) {
 
-        //  Set Search and Pagination objects for the view
-        $this->data['search']     = \Nails\Admin\Helper::searchObject($sortColumns, $sortOn, $sortOrder, $perPage, $keywords);
-        $this->data['pagination'] = \Nails\Admin\Helper::paginationObject($page, $perPage, $totalRows);
+            //  Get all items for the search, no need to paginate
+            $data['RETURN_QUERY_OBJECT'] = true;
 
-        // --------------------------------------------------------------------------
+            $events = $this->event->get_all(null, null, $data);
 
-        \Nails\Admin\Helper::loadView('event/index');
+            \Nails\Admin\Helper::loadCsv($events, 'export-events-' . toUserDatetime(null, 'Y-m-d_h-i-s') . '.csv');
+
+        } else {
+
+            //  Get the items for the page
+            $totalRows            =  $this->event->count_all($data);
+            $this->data['events'] = $this->event->get_all($page, $perPage, $data);
+
+            //  Set Search and Pagination objects for the view
+            $this->data['search']     = \Nails\Admin\Helper::searchObject(true, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords);
+            $this->data['pagination'] = \Nails\Admin\Helper::paginationObject($page, $perPage, $totalRows);
+
+            //  Add the header button for downloading
+            if (userHasPermission('admin.logs:0.can_download_event_logs')) {
+
+                //  Build the query string, so that the same search is applies
+                $params              = array();
+                $params['dl']        = true;
+                $params['sortOn']    = $this->input->get('sortOn');
+                $params['sortOrder'] = $this->input->get('sortOrder');
+                $params['keywords']  = $this->input->get('keywords');
+
+                $params = array_filter($params);
+                $params = http_build_query($params);
+
+                \Nails\Admin\Helper::addHeaderButton('admin/admin/logs/event?' . $params, 'Download As CSV', 'orange');
+            }
+
+            \Nails\Admin\Helper::loadView('event/index');
+        }
     }
 
     // --------------------------------------------------------------------------
@@ -288,7 +211,7 @@ class Logs extends \AdminController
      */
     public function changelog()
     {
-        if (!userHasPermission('admin.logs:0.can_browse_admin_logs')) {
+        if (!userHasPermission('admin.logs:0.can_browse_change_logs')) {
 
             unauthorised();
         }
@@ -296,79 +219,76 @@ class Logs extends \AdminController
         // --------------------------------------------------------------------------
 
         //  Set method info
-        $this->data['page']->title = 'Browse Admin Changelog';
+        $this->data['page']->title = 'Browse Changelog';
 
         // --------------------------------------------------------------------------
 
-        //  Define the $data variable, this'll be passed to the get_all() and count_all() methods
-        $data = array('where' => array());
+        $tablePrefix = $this->admin_changelog_model->getTablePrefix();
 
         // --------------------------------------------------------------------------
 
-        if ($this->input->get('date_from')) {
-
-            $data['where'][] = array(
-                'column' => 'acl.created >=',
-                'value'  => $this->input->get('date_from')
-            );
-        }
-
-        if ($this->input->get('date_to')) {
-
-            $data['where'][] = array(
-                'column' => 'acl.created <=',
-                'value'  => $this->input->get('date_to')
-            );
-        }
+        //  Get pagination and search/sort variables
+        $page      = $this->input->get('page')      ? $this->input->get('page')      : 0;
+        $perPage   = $this->input->get('perPage')   ? $this->input->get('perPage')   : 50;
+        $sortOn    = $this->input->get('sortOn')    ? $this->input->get('sortOn')    : $tablePrefix . '.created';
+        $sortOrder = $this->input->get('sortOrder') ? $this->input->get('sortOrder') : 'desc';
+        $keywords  = $this->input->get('keywords')  ? $this->input->get('keywords')  : '';
 
         // --------------------------------------------------------------------------
+
+        //  Define the sortable columns
+        $sortColumns = array(
+            $tablePrefix . '.created' => 'Created',
+            $tablePrefix . '.type'    => 'Type'
+        );
+
+        // --------------------------------------------------------------------------
+
+        //  Define the $data variable for the queries
+        $data = array(
+            'sort'  => array(
+                'column' => $sortOn,
+                'order'  => $sortOrder
+            ),
+            'keywords' => $keywords
+        );
 
         //  Are we downloading? Or viewing?
-        if ($this->input->get('dl')) {
+        if ($this->input->get('dl') && userHasPermission('admin.logs:0.can_download_change_logs')) {
 
-            //  Downloading, fetch the complete dataset
-            //  =======================================
+            //  Get all items for the search, no need to paginate
+            $data['RETURN_QUERY_OBJECT'] = true;
 
-            //  Fetch events
-            $this->data['items'] = new \stdClass();
-            $this->data['items'] = $this->admin_changelog_model->get_all(null, null, $data);
+            $changelog = $this->admin_changelog_model->get_all(null, null, $data);
 
-            // --------------------------------------------------------------------------
-
-            //  Send header
-            $this->output->set_content_type('application/octet-stream');
-            $this->output->set_header('Pragma: public');
-            $this->output->set_header('Expires: 0');
-            $this->output->set_header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-            $this->output->set_header('Cache-Control: private', false);
-            $this->output->set_header('Content-Disposition: attachment; filename=admin-changelog-export-' . date('Y-m-d_h-i-s') . '.csv;');
-            $this->output->set_header('Content-Transfer-Encoding: binary');
-
-            // --------------------------------------------------------------------------
-
-            //  Render view
-            \Nails\Admin\Helper::loadView('changelog/csv');
+            \Nails\Admin\Helper::loadCsv($changelog, 'export-changelog-' . toUserDatetime(null, 'Y-m-d_h-i-s') . '.csv');
 
         } else {
 
-            //  Viewing, make sure we paginate
-            //  =======================================
+            //  Get the items for the page
+            $totalRows            =  $this->admin_changelog_model->count_all($data);
+            $this->data['changelog'] = $this->admin_changelog_model->get_all($page, $perPage, $data);
 
-            //  Define and populate the pagination object
-            $page     = $this->input->get('page')     ? $this->input->get('page')     : 0;
-            $per_page = $this->input->get('per_page') ? $this->input->get('per_page') : 50;
+            //  Set Search and Pagination objects for the view
+            $this->data['search']     = \Nails\Admin\Helper::searchObject(false, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords);
+            $this->data['pagination'] = \Nails\Admin\Helper::paginationObject($page, $perPage, $totalRows);
 
-            $this->data['pagination']             = new \stdClass();
-            $this->data['pagination']->page       = $page;
-            $this->data['pagination']->per_page   = $per_page;
-            $this->data['pagination']->total_rows = $this->admin_changelog_model->count_all($data);
+            //  Add the header button for downloading
+            if (userHasPermission('admin.logs:0.can_download_change_logs')) {
 
-            //  Fetch all the items for this page
-            $this->data['items'] = $this->admin_changelog_model->get_all($page, $per_page, $data);
+                //  Build the query string, so that the same search is applies
+                $params              = array();
+                $params['dl']        = true;
+                $params['sortOn']    = $this->input->get('sortOn');
+                $params['sortOrder'] = $this->input->get('sortOrder');
+                $params['keywords']  = $this->input->get('keywords');
 
-            // --------------------------------------------------------------------------
+                $params = array_filter($params);
+                $params = http_build_query($params);
 
-            //  Load views
+                \Nails\Admin\Helper::addHeaderButton('admin/admin/logs/changelog?' . $params, 'Download As CSV', 'orange');
+            }
+
             \Nails\Admin\Helper::loadView('changelog/index');
         }
     }

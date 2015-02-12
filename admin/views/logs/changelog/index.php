@@ -4,7 +4,7 @@
     </p>
     <?php
 
-        // $this->load->view('admin/logs/changelog/utilities/search');
+        echo \Nails\Admin\Helper::loadSearch($search);
         echo \Nails\Admin\Helper::loadPagination($pagination);
 
     ?>
@@ -20,9 +20,9 @@
             <tbody>
             <?php
 
-                if ($items) {
+                if ($changelog) {
 
-                    foreach ($items as $item) {
+                    foreach ($changelog as $item) {
 
                         echo '<tr>';
 

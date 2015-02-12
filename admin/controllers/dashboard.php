@@ -35,16 +35,7 @@ class Dashboard extends \AdminController
     public function index()
     {
         //  Page Data
-        $this->data['page']->title = lang('dashboard_welcome_title');
-
-        // --------------------------------------------------------------------------
-
-        /**
-         * Fetch recent admin changelog events
-         * @TODO: widgitize this and use the API
-         */
-
-        $this->data['changelog'] = $this->admin_changelog_model->get_recent();
+        $this->data['page']->title = 'Welcome';
 
         // --------------------------------------------------------------------------
 

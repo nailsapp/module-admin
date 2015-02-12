@@ -33,7 +33,7 @@ class NAILS_Admin_changelog_model extends NAILS_Model
         // --------------------------------------------------------------------------
 
         //  Set defaults
-        $this->changes    = array();
+        $this->changes   = array();
         $this->batchSave = true;
 
         // --------------------------------------------------------------------------
@@ -70,7 +70,7 @@ class NAILS_Admin_changelog_model extends NAILS_Model
      * @param mixed   $newValue The new value
      * @param boolean $strict   whether or not to compare $oldValue and $newValue strictly
      */
-    public function add($verb, $article, $item, $itemId, $title, $url = NULL, $field = NULL, $oldValue = NULL, $newValue = NULL, $strict = true)
+    public function add($verb, $article, $item, $itemId, $title, $url = null, $field = null, $oldValue = null, $newValue = null, $strict = true)
     {
         /**
          * if the old_value and the new_value are the same then why are you logging
@@ -120,7 +120,7 @@ class NAILS_Admin_changelog_model extends NAILS_Model
         if (empty($this->changes[$key])) {
 
             $this->changes[$key]            = array();
-            $this->changes[$key]['user_id'] = active_user('id') ? active_user('id') : NULL;
+            $this->changes[$key]['user_id'] = active_user('id') ? active_user('id') : null;
             $this->changes[$key]['verb']    = $verb;
             $this->changes[$key]['article'] = $article;
             $this->changes[$key]['item']    = $item;
@@ -198,17 +198,18 @@ class NAILS_Admin_changelog_model extends NAILS_Model
         $this->changes = array();
     }
 
-    // --------------------------------------------------------------------------
-
     /**
-     * Get recent changes
-     * @param  integer $limit The number of changes to return
+     * Fetches all objects, optionally paginated.
+     * @param int    $page    The page number of the results, if null then no pagination
+     * @param int    $perPage How many items per page of paginated results
+     * @param mixed  $data    Any data to pass to _getcount_common()
+     * @param string $_caller Internal flag to pass to _getcount_common(), contains the calling method
      * @return array
-     */
-    public function get_recent($limit = 100)
+     **/
+    public function get_all($page = null, $perPage = null, $data = array(), $_caller = 'GET_ALL')
     {
-        $this->db->limit($limit);
-        return $this->get_all();
+        $this->db->select($this->_table_prefix . '.*, u.first_name, u.last_name, u.gender, u.profile_img, ue.email');
+        return parent::get_all($page, $perPage, $data, false, $_caller);
     }
 
     // --------------------------------------------------------------------------
@@ -219,25 +220,27 @@ class NAILS_Admin_changelog_model extends NAILS_Model
      * @param string $_caller The name of the calling method
      * @return void
      **/
-    protected function _getcount_common($data = NULL, $caller = NULL)
+    protected function _getcount_common($data = null, $caller = null)
     {
-        parent::_getcount_common($data);
-
-        // --------------------------------------------------------------------------
-
-        //  Set the select
-        if ($caller !== 'COUNT_ALL') {
-
-            $this->db->select($this->_table_prefix . '.*, u.first_name, u.last_name, u.gender, u.profile_img, ue.email');
-        }
-
         //  Join user tables
         $this->db->join(NAILS_DB_PREFIX . 'user u', 'u.id = ' . $this->_table_prefix . '.user_id', 'LEFT');
         $this->db->join(NAILS_DB_PREFIX . 'user_email ue', 'ue.user_id = ' . $this->_table_prefix . '.user_id AND ue.is_primary = 1', 'LEFT');
 
-        //  Set the order
-        $this->db->order_by($this->_table_prefix . '.created', 'DESC');
-        $this->db->order_by($this->_table_prefix . '.id', 'DESC');
+        //  Searching?
+        if (!empty($data['keywords'])) {
+
+            if (!isset($data['or_like'])) {
+
+                $data['or_like'] = array();
+            }
+
+            $toSlug = strtolower(str_replace(' ', '_', $data['keywords']));
+
+            $data['or_like'][] = array($this->_table_prefix . '.type', $toSlug);
+            $data['or_like'][] = array('ue.email', $data['keywords']);
+        }
+
+        parent::_getcount_common($data);
     }
 
     // --------------------------------------------------------------------------

@@ -99,6 +99,65 @@ class Helper
     // --------------------------------------------------------------------------
 
     /**
+     * Fenerates a CSV and sends to the browser, if a filename is given then it's
+     * sent as a download
+     * @param  mixed  $data     The data to render, either an array or a DB query object
+     * @param  string $filename The filename to give the file if downloading
+     * @return void
+     */
+    public static function loadCsv($data, $filename = '')
+    {
+        //  Determine what type of data has been supplied
+        if (is_array($data) || get_class($data) == 'CI_DB_mysqli_result') {
+
+            //  If filename has been specified then set some additional headers
+            if (!empty($filename)) {
+
+                $ci = get_instance();
+
+                //  Common headers
+                $ci->output->set_content_type('text/csv');
+                $ci->output->set_header('Content-Disposition: attachment; filename="' . $filename . '"');
+                $ci->output->set_header('Expires: 0');
+                $ci->output->set_header("Content-Transfer-Encoding: binary");
+
+                //  Handle IE, classic.
+                $userAgent = $ci->input->server('HTTP_USER_AGENT');
+
+                if (strpos($userAgent, "MSIE") !== false) {
+
+                    $ci->output->set_header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+                    $ci->output->set_header('Pragma: public');
+
+                } else {
+
+                    $ci->output->set_header('Pragma: no-cache');
+                }
+            }
+
+            //  Not using self::loadInlineView() as this may be called from many contexts
+            if (is_array($data)) {
+
+                return get_instance()->load->view('admin/_utilities/csv/array', array('data' => $data));
+
+            } elseif (get_class($data) == 'CI_DB_mysqli_result') {
+
+                return get_instance()->load->view('admin/_utilities/csv/dbResult', array('data' => $data));
+            }
+
+        } else {
+
+            $subject  = 'Unsupported object type passed to \Nails\Admin\Helper::loadCSV';
+            $message  = 'An unsupported object was passed to \Nails\Admin\Helper::loadCSV. A CSV ';
+            $message .= 'file could not be generated. Setails are show below:<br /><br />' . print_r($data, true);
+
+            showFatalError($subject, $message);
+        }
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
      * Load a single view taking into account the module being accessed.
      * @param  string  $viewFile   The view to load
      * @param  array   $viewData   The data to pass to the view
@@ -141,11 +200,13 @@ class Helper
     /**
      * Loads the admin "search" component
      * @param  stdClass $searchObject An object as created by self::searchObject();
-     * @return string
+     * @param  boolean  $returnView   Whether to return the view to the caller, or output to the browser
+     * @return mixed                  String when $retrunView is true, void otherwise
      */
-    public static function loadSearch($searchObject)
+    public static function loadSearch($searchObject, $returnView = false)
     {
         $data = array(
+            'searchable'  => isset($searchObject->searchable) ? $searchObject->searchable : true,
             'sortColumns' => isset($searchObject->sortColumns) ? $searchObject->sortColumns : array(),
             'sortOn'      => isset($searchObject->sortOn) ? $searchObject->sortOn : null,
             'sortOrder'   => isset($searchObject->sortOrder) ? $searchObject->sortOrder : null,
@@ -154,13 +215,15 @@ class Helper
             'filters'     => isset($searchObject->filters) ? $searchObject->filters : array()
         );
 
-        return get_instance()->load->view('admin/_utilities/search', $data, true);
+        //  Not using self::loadInlineView() as this may be called from many contexts
+        return get_instance()->load->view('admin/_utilities/search', $data, $returnView);
     }
 
     // --------------------------------------------------------------------------
 
     /**
      * Creates a standard object designed for use with self::loadSearch()
+     * @param  boolean  $searchable  Whether the result set is keyword searchable
      * @param  array    $sortColumns An array of columns to sort results by
      * @param  string   $sortOn      The column to sort on
      * @param  string   $sortOrder   The order to sort results in
@@ -169,9 +232,10 @@ class Helper
      * @param  array    $filters     An array of filters to filter the results by
      * @return stdClass
      */
-    public static function searchObject($sortColumns, $sortOn, $sortOrder, $perPage, $keywords = '', $filters = array())
+    public static function searchObject($searchable, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords = '', $filters = array())
     {
         $searchObject              = new \stdClass();
+        $searchObject->searchable  = $searchable;
         $searchObject->sortColumns = $sortColumns;
         $searchObject->sortOn      = $sortOn;
         $searchObject->sortOrder   = $sortOrder;
@@ -187,9 +251,10 @@ class Helper
     /**
      * Loads the admin "pagination" component
      * @param  stdClass $paginationObject An object as created by self::paginationObject();
-     * @return string
+     * @param  boolean  $returnView       Whether to return the view to the caller, or output to the browser
+     * @return mixed                      String when $retrunView is true, void otherwise
      */
-    public static function loadPagination($paginationObject)
+    public static function loadPagination($paginationObject, $returnView = false)
     {
         $data = array(
             'page'      => isset($paginationObject->page) ? $paginationObject->page : null,
@@ -197,7 +262,8 @@ class Helper
             'totalRows' => isset($paginationObject->totalRows) ? $paginationObject->totalRows : null
         );
 
-        return get_instance()->load->view('admin/_utilities/pagination', $data, true);
+        //  Not using self::loadInlineView() as this may be called from many contexts
+        return get_instance()->load->view('admin/_utilities/pagination', $data, $returnView);
     }
 
     // --------------------------------------------------------------------------

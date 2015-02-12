@@ -40,7 +40,7 @@ class Help extends \AdminController
     public function index()
     {
         //  Page Title
-        $this->data['page']->title = lang('dashboard_help_title');
+        $this->data['page']->title = 'Help Videos';
 
         // --------------------------------------------------------------------------
 

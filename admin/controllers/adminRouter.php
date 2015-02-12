@@ -75,18 +75,23 @@ class AdminRouter extends NAILS_Controller
      */
     public function index()
     {
-        //  Is there an AdminIP whitelist?
-        $whitelistIp = (array) app_setting('whitelist', 'admin');
+        //  When executing on the CLI we don't need to perform a few bit's of sense checking
+        if (!$this->input->is_cli_request()) {
 
-        if ($whitelistIp) {
-            if (!isIpInRange($this->input->ip_address(), $whitelistIp)) {
-                show_404();
+            //  Is there an AdminIP whitelist?
+            $whitelistIp = (array) app_setting('whitelist', 'admin');
+
+            if ($whitelistIp) {
+                if (!isIpInRange($this->input->ip_address(), $whitelistIp)) {
+                    show_404();
+                }
             }
-        }
 
-        //  Before we do anything, is the user an admin?
-        if (!$this->user_model->is_admin()) {
-            unauthorised();
+            //  Before we do anything, is the user an admin?
+            if (!$this->user_model->is_admin()) {
+
+                unauthorised();
+            }
         }
 
         //  Determine which admin controllers are available to the system
@@ -153,10 +158,11 @@ class AdminRouter extends NAILS_Controller
 
         /**
          * Ok! So we have all available AdminControllers and the classes are all loaded. Let's
-         * see which the user has permission to access.
+         * see which the user has permission to access. CLI users have full access.
          */
 
-        if (!$this->user_model->is_superuser()) {
+        if (!$this->input->is_cli_request() && !$this->user_model->is_superuser()) {
+
             dumpanddie('not a superuser, do the checks');
         }
     }
@@ -288,7 +294,7 @@ class AdminRouter extends NAILS_Controller
                         $adminControllersNav[md5($groupLabel)]->label    = $groupLabel;
                         $adminControllersNav[md5($groupLabel)]->sortable = true;
                         $adminControllersNav[md5($groupLabel)]->open     = true;
-                        $adminControllersNav[md5($groupLabel)]->methods  = array();
+                        $adminControllersNav[md5($groupLabel)]->actions  = array();
                     }
 
                     //  Group icon

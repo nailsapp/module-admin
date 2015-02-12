@@ -13,9 +13,11 @@ class NAILS_Logs extends NAILS_Admin_Controller
 
         // --------------------------------------------------------------------------
 
-        $permissions['can_browse_site_logs']  = 'Can browse site logs';
-        $permissions['can_browse_event_logs'] = 'Can browse event logs';
-        $permissions['can_browse_admin_logs'] = 'Can browse admin logs';
+        $permissions['can_browse_site_logs']    = 'Can browse site logs';
+        $permissions['can_browse_event_logs']   = 'Can browse event logs';
+        $permissions['can_download_event_logs'] = 'Can download event logs';
+        $permissions['can_browse_change_logs']   = 'Can browse change logs';
+        $permissions['can_download_change_logs'] = 'Can download change logs';
 
         // --------------------------------------------------------------------------
 

@@ -1,6 +1,7 @@
+<hr />
 <div class="search">
     <div class="mask">
-        <b class="fa fa-refresh fa-spin fa-2x"></b>
+        <b class="fa fa-refresh fa-2x"></b>
     </div>
     <?php
 
@@ -22,13 +23,16 @@
             echo form_hidden($key, $value);
         }
 
-        echo '<div class="search-text">';
-            echo form_input(
-                'keywords',
-                $keywords,
-                'autocomplete="off" placeholder="Type your search term and hit enter"'
-            );
-        echo '</div>';
+        if ($searchable) {
+
+            echo '<div class="search-text">';
+                echo form_input(
+                    'keywords',
+                    $keywords,
+                    'autocomplete="off" placeholder="Type your search term and hit enter"'
+                );
+            echo '</div>';
+        }
 
         // --------------------------------------------------------------------------
 
@@ -82,11 +86,15 @@
 
         // --------------------------------------------------------------------------
 
-        $resetUrl  = uri_string();
-        $resetUrl .= $query ? '?' . http_build_query($query) : '';
+        echo '<div class="actions">';
 
-        echo anchor($resetUrl, 'Reset', 'class="awesome small right"');
-        echo '<button type="submit" class="awesome small right">Search</button>';
+            $resetUrl  = uri_string();
+            $resetUrl .= $query ? '?' . http_build_query($query) : '';
+
+            echo anchor($resetUrl, 'Reset', 'class="awesome small grey"');
+            echo '<button type="submit" class="awesome small">Search</button>';
+
+        echo '</div>';
 
         // --------------------------------------------------------------------------
 
@@ -94,5 +102,3 @@
 
     ?>
 </div>
-
-<hr />

@@ -516,7 +516,7 @@ class Utilities extends \AdminController
      */
     protected function exportFormatPdf($data, $returnData = false)
     {
-        $html = $this->exportFormathtml($data, true);
+        $html = $this->exportFormatHtml($data, true);
 
         // --------------------------------------------------------------------------
 
@@ -527,19 +527,39 @@ class Utilities extends \AdminController
         //  Load view
         if (!$returnData) {
 
-            $this->pdf->download($data->filename . '.pdf');
+            if (!$this->pdf->download($data->filename . '.pdf')) {
+
+                $status  = 'error';
+                $message = 'Failed to render PDF. ';
+                $message .= $this->pdf->last_error() ? 'DOMPDF gave the following error: ' . $this->pdf->last_error() : '';
+
+                $this->session->set_flashdata($status, $message);
+                redirect('admin/shop/reports');
+            }
 
         } else {
 
-            $this->pdf->render();
+            try {
 
-            $out   = array();
-            $out[] = $data->filename . '.pdf';
-            $out[] = $this->pdf->output();
+                $this->pdf->render();
 
-            $this->pdf->reset();
+                $out   = array();
+                $out[] = $data->filename . '.pdf';
+                $out[] = $this->pdf->output();
 
-            return $out;
+                $this->pdf->reset();
+
+                return $out;
+
+            } catch (Exception $e) {
+
+                $status   = 'error';
+                $message  = 'Failed to render PDF. The following exception was raised: ';
+                $message .= $e->getMessage();
+
+                $this->session->set_flashdata($status, $message);
+                redirect('admin/shop/reports');
+            }
         }
     }
 
