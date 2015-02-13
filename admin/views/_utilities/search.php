@@ -1,5 +1,5 @@
 <hr />
-<div class="search">
+<div class="search clearfix">
     <div class="mask">
         <b class="fa fa-refresh fa-2x"></b>
     </div>
@@ -81,7 +81,24 @@
         //  Filters
         if (!empty($filters)) {
 
-            //  @TODO
+            echo '<hr />';
+            foreach ($filters as $filterColumn => $filterValues) {
+
+                echo '<span class="filterGroup">';
+                    echo '<span class="filterLabel">';
+                        echo $filterValues[0];
+                    echo '</span>';
+
+                    for ($i=1; $i < count($filterValues); $i++) {
+
+                        echo '<label class="filterOption">';
+                            echo '<input type="checkbox">';
+                            echo $filterValues[$i];
+                        echo '</label>';
+                    }
+
+                echo '</span>';
+            }
         }
 
         // --------------------------------------------------------------------------

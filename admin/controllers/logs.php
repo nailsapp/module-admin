@@ -176,7 +176,7 @@ class Logs extends \AdminController
         } else {
 
             //  Get the items for the page
-            $totalRows            =  $this->event->count_all($data);
+            $totalRows            = $this->event->count_all($data);
             $this->data['events'] = $this->event->get_all($page, $perPage, $data);
 
             //  Set Search and Pagination objects for the view
@@ -266,7 +266,7 @@ class Logs extends \AdminController
         } else {
 
             //  Get the items for the page
-            $totalRows            =  $this->admin_changelog_model->count_all($data);
+            $totalRows               = $this->admin_changelog_model->count_all($data);
             $this->data['changelog'] = $this->admin_changelog_model->get_all($page, $perPage, $data);
 
             //  Set Search and Pagination objects for the view
