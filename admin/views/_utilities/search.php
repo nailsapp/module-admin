@@ -11,6 +11,7 @@
         unset($query['sortOrder']);
         unset($query['perPage']);
         unset($query['page']);
+        unset($query['filter']);
 
         $formAttr = array(
             'method' => 'GET'
@@ -36,26 +37,28 @@
 
         // --------------------------------------------------------------------------
 
-        if (!empty($sortColumns)) {
+        echo '<span style="padding-right: 1em;">';
 
-            echo '<span style="padding-right: 1em;">';
+            if (!empty($sortColumns)) {
 
                 //  Sort Column
                 echo 'Sort results by';
                 echo form_dropdown('sortOn', $sortColumns, $sortOn);
 
-                // --------------------------------------------------------------------------
+            } else {
 
-                //  Sort order
-                $options = array(
-                    'asc'  => 'Ascending',
-                    'desc' => 'Descending'
-                );
+                echo 'Sort results';
+            }
 
-                echo form_dropdown('sortOrder', $options, $sortOrder);
+            //  Sort order
+            $options = array(
+                'asc'  => 'Ascending',
+                'desc' => 'Descending'
+            );
 
-            echo '</span>';
-        }
+            echo form_dropdown('sortOrder', $options, $sortOrder);
+
+        echo '</span>';
 
         // --------------------------------------------------------------------------
 
@@ -82,18 +85,30 @@
         if (!empty($filters)) {
 
             echo '<hr />';
-            foreach ($filters as $filterColumn => $filterValues) {
+            foreach ($filters as $filterIndex => $filter) {
 
                 echo '<span class="filterGroup">';
                     echo '<span class="filterLabel">';
-                        echo $filterValues[0];
+                        echo $filter->label;
                     echo '</span>';
 
-                    for ($i=1; $i < count($filterValues); $i++) {
+                    foreach ($filter->options as $optionIndex => $option) {
+
+                        //  Checked or not?
+                        if (!empty($_GET)) {
+
+                            $checked = !empty($_GET['filter'][$filterIndex][$optionIndex]);
+
+                        } else {
+
+                            $checked = false;
+                        }
+
+                        $checked = $checked ? 'checked="checked"' : '';
 
                         echo '<label class="filterOption">';
-                            echo '<input type="checkbox">';
-                            echo $filterValues[$i];
+                            echo '<input type="checkbox" name="filter[' . $filterIndex . '][' . $optionIndex . ']" ' . $checked . ' value="1">';
+                            echo $option->label;
                         echo '</label>';
                     }
 

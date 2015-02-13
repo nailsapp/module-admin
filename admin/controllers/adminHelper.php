@@ -248,6 +248,36 @@ class Helper
 
     // --------------------------------------------------------------------------
 
+    public static function searchFilterObject($column, $label, $options)
+    {
+        $filterObject          = new \stdClass();
+        $filterObject->column  = $column;
+        $filterObject->label   = $label;
+        $filterObject->options = array();
+
+        foreach ($options as $option) {
+
+            $temp = new \stdClass();
+
+            if (is_array($option)) {
+
+                $temp->label   = isset($option[0]) ? $option[0] : null;
+                $temp->value   = isset($option[1]) ? $option[1] : null;
+
+            } else {
+
+                $temp->label   = $option;
+                $temp->value   = $option;
+            }
+
+            $filterObject->options[] = $temp;
+        }
+
+        return $filterObject;
+    }
+
+    // --------------------------------------------------------------------------
+
     /**
      * Loads the admin "pagination" component
      * @param  stdClass $paginationObject An object as created by self::paginationObject();
