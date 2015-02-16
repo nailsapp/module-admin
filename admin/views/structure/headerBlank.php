@@ -95,6 +95,7 @@
 </head>
 <body class="blank">
 <?php
+
     //  Page title
     if (!empty($page->module->name) && !empty($page->title)) {
 
@@ -109,10 +110,35 @@
         $pageTitle = $page->module->name;
     }
 
-    if (!empty($pageTitle)) {
+    $headerButtons = \Nails\Admin\Helper::getHeaderButtons();
+
+    if (!empty($pageTitle) || !empty($headerButtons)) {
 
         echo '<div class="page-title">';
-            echo '<h1>' . $pageTitle . '</h1>';
+            echo '<h1>';
+                echo !empty($pageTitle) ? $pageTitle : '';
+
+                if (!empty($headerButtons)) {
+
+                    echo '<span class="headerButtons">';
+                    foreach ($headerButtons as $button) {
+
+                        $attr   = array();
+                        $attr[] = 'class="awesome small ' . $button['color'] . '"';
+                        $attr[] = $button['confirmTitle'] ? 'data-title="' . $button['confirmTitle'] . '"' : '';
+                        $attr[] = $button['confirmBody'] ? 'data-body="' . $button['confirmBody'] . '"' : '';
+
+                        $attr = array_filter($attr);
+
+                        echo anchor(
+                            $button['url'],
+                            $button['label'],
+                            implode(' ', $attr)
+                        );
+                    }
+                    echo '</span>';
+                }
+            echo '</h1>';
         echo '</div>';
     }
 
