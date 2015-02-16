@@ -101,7 +101,7 @@
 
                         } else {
 
-                            $checked = false;
+                            $checked = $option->checked;
                         }
 
                         $checked = $checked ? 'checked="checked"' : '';

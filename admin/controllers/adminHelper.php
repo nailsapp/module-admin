@@ -164,7 +164,7 @@ class Helper
      * @param  boolean $returnView Whether to return the view or send it to the Output class
      * @return mixed               String when $returnView is true, void otherwise
      */
-    public static function loadInlineView($viewFile, $viewData, $returnView = false)
+    public static function loadInlineView($viewFile, $viewData = array(), $returnView = false)
     {
         $controllerData =& getControllerData();
         $controllerPath = !empty($controllerData['currentRequest']['path']) ? $controllerData['currentRequest']['path'] : '';
@@ -263,11 +263,13 @@ class Helper
 
                 $temp->label   = isset($option[0]) ? $option[0] : null;
                 $temp->value   = isset($option[1]) ? $option[1] : null;
+                $temp->checked = isset($option[2]) ? $option[2] : false;
 
             } else {
 
                 $temp->label   = $option;
                 $temp->value   = $option;
+                $temp->checked = false;
             }
 
             $filterObject->options[] = $temp;
