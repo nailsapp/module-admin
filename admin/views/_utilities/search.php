@@ -6,12 +6,14 @@
     <?php
 
         parse_str($this->input->server('QUERY_STRING'), $query);
+
         unset($query['keywords']);
         unset($query['sortOn']);
         unset($query['sortOrder']);
         unset($query['perPage']);
         unset($query['page']);
-        unset($query['filter']);
+        unset($query['cbF']);
+        unset($query['ddF']);
 
         $formAttr = array(
             'method' => 'GET'
@@ -37,6 +39,90 @@
 
         // --------------------------------------------------------------------------
 
+        if (!empty($injectHtml)) {
+
+            echo '<div class="search-inject">';
+                echo $injectHtml;
+            echo '</div>';
+        }
+
+        // --------------------------------------------------------------------------
+
+        //  Filters
+        if (!empty($dropdownFilter)) {
+
+            echo '<hr />';
+            foreach ($dropdownFilter as $filterIndex => $filter) {
+
+                echo '<span class="filterGroup dropdown">';
+                    echo '<span class="filterLabel">';
+                        echo $filter->label;
+                    echo '</span>';
+
+                    echo '<span class="filterDropdown">';
+                        echo '<select name="ddF[' . $filterIndex . ']">';
+                        foreach ($filter->options as $optionIndex => $option) {
+
+                            //  Checked or not?
+                            if (!empty($_GET)) {
+
+                                $selected = isset($_GET['ddF'][$filterIndex]) && $_GET['ddF'][$filterIndex] == $optionIndex;
+
+                            } else {
+
+                                $selected = $option->selected;
+                            }
+
+                            $selected = $selected ? 'selected="selected"' : '';
+
+                            echo '<option value="' . $optionIndex . '" ' . $selected . '>';
+                                 echo $option->label;
+                            echo '</option>';
+                        }
+                        echo '</select>';
+                    echo '</span>';
+
+                echo '</span>';
+            }
+        }
+
+        if (!empty($checkboxFilter)) {
+
+            echo '<hr />';
+            foreach ($checkboxFilter as $filterIndex => $filter) {
+
+                echo '<span class="filterGroup">';
+                    echo '<span class="filterLabel">';
+                        echo $filter->label;
+                    echo '</span>';
+
+                    foreach ($filter->options as $optionIndex => $option) {
+
+                        //  Checked or not?
+                        if (!empty($_GET)) {
+
+                            $checked = !empty($_GET['cbF'][$filterIndex][$optionIndex]);
+
+                        } else {
+
+                            $checked = $option->checked;
+                        }
+
+                        $checked = $checked ? 'checked="checked"' : '';
+
+                        echo '<label class="filterOption">';
+                            echo '<input type="checkbox" name="cbF[' . $filterIndex . '][' . $optionIndex . ']" ' . $checked . ' value="1">';
+                            echo $option->label;
+                        echo '</label>';
+                    }
+
+                echo '</span>';
+            }
+        }
+
+        // --------------------------------------------------------------------------
+
+        echo '<hr />';
         echo '<span style="padding-right: 1em;">';
 
             if (!empty($sortColumns)) {
@@ -78,43 +164,6 @@
             echo 'results per page.';
 
         echo '</span>';
-
-        // --------------------------------------------------------------------------
-
-        //  Filters
-        if (!empty($filters)) {
-
-            echo '<hr />';
-            foreach ($filters as $filterIndex => $filter) {
-
-                echo '<span class="filterGroup">';
-                    echo '<span class="filterLabel">';
-                        echo $filter->label;
-                    echo '</span>';
-
-                    foreach ($filter->options as $optionIndex => $option) {
-
-                        //  Checked or not?
-                        if (!empty($_GET)) {
-
-                            $checked = !empty($_GET['filter'][$filterIndex][$optionIndex]);
-
-                        } else {
-
-                            $checked = $option->checked;
-                        }
-
-                        $checked = $checked ? 'checked="checked"' : '';
-
-                        echo '<label class="filterOption">';
-                            echo '<input type="checkbox" name="filter[' . $filterIndex . '][' . $optionIndex . ']" ' . $checked . ' value="1">';
-                            echo $option->label;
-                        echo '</label>';
-                    }
-
-                echo '</span>';
-            }
-        }
 
         // --------------------------------------------------------------------------
 

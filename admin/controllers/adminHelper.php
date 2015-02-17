@@ -206,13 +206,14 @@ class Helper
     public static function loadSearch($searchObject, $returnView = false)
     {
         $data = array(
-            'searchable'  => isset($searchObject->searchable) ? $searchObject->searchable : true,
-            'sortColumns' => isset($searchObject->sortColumns) ? $searchObject->sortColumns : array(),
-            'sortOn'      => isset($searchObject->sortOn) ? $searchObject->sortOn : null,
-            'sortOrder'   => isset($searchObject->sortOrder) ? $searchObject->sortOrder : null,
-            'perPage'     => isset($searchObject->perPage) ? $searchObject->perPage : 50,
-            'keywords'    => isset($searchObject->keywords) ? $searchObject->keywords : '',
-            'filters'     => isset($searchObject->filters) ? $searchObject->filters : array()
+            'searchable'     => isset($searchObject->searchable) ? $searchObject->searchable : true,
+            'sortColumns'    => isset($searchObject->sortColumns) ? $searchObject->sortColumns : array(),
+            'sortOn'         => isset($searchObject->sortOn) ? $searchObject->sortOn : null,
+            'sortOrder'      => isset($searchObject->sortOrder) ? $searchObject->sortOrder : null,
+            'perPage'        => isset($searchObject->perPage) ? $searchObject->perPage : 50,
+            'keywords'       => isset($searchObject->keywords) ? $searchObject->keywords : '',
+            'checkboxFilter' => isset($searchObject->checkboxFilter) ? $searchObject->checkboxFilter : array(),
+            'dropdownFilter' => isset($searchObject->dropdownFilter) ? $searchObject->dropdownFilter : array()
         );
 
         //  Not using self::loadInlineView() as this may be called from many contexts
@@ -223,31 +224,41 @@ class Helper
 
     /**
      * Creates a standard object designed for use with self::loadSearch()
-     * @param  boolean  $searchable  Whether the result set is keyword searchable
-     * @param  array    $sortColumns An array of columns to sort results by
-     * @param  string   $sortOn      The column to sort on
-     * @param  string   $sortOrder   The order to sort results in
-     * @param  integer  $perPage     The number of results to show per page
-     * @param  string   $keywords    Keywords to apply to the search result
-     * @param  array    $filters     An array of filters to filter the results by
+     * @param  boolean  $searchable     Whether the result set is keyword searchable
+     * @param  array    $sortColumns    An array of columns to sort results by
+     * @param  string   $sortOn         The column to sort on
+     * @param  string   $sortOrder      The order to sort results in
+     * @param  integer  $perPage        The number of results to show per page
+     * @param  string   $keywords       Keywords to apply to the search result
+     * @param  array    $checkboxFilter An array of filters to filter the results by, presented as checkboxes
+     * @param  array    $dropdownFilter An array of filters to filter the results by, presented as a dropdown
      * @return stdClass
      */
-    public static function searchObject($searchable, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords = '', $filters = array())
+    public static function searchObject($searchable, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords = '', $checkboxFilter = array(), $dropdownFilter = array())
     {
-        $searchObject              = new \stdClass();
-        $searchObject->searchable  = $searchable;
-        $searchObject->sortColumns = $sortColumns;
-        $searchObject->sortOn      = $sortOn;
-        $searchObject->sortOrder   = $sortOrder;
-        $searchObject->perPage     = $perPage;
-        $searchObject->keywords    = $keywords;
-        $searchObject->filters     = $filters;
+        $searchObject                 = new \stdClass();
+        $searchObject->searchable     = $searchable;
+        $searchObject->sortColumns    = $sortColumns;
+        $searchObject->sortOn         = $sortOn;
+        $searchObject->sortOrder      = $sortOrder;
+        $searchObject->perPage        = $perPage;
+        $searchObject->keywords       = $keywords;
+        $searchObject->checkboxFilter = $checkboxFilter;
+        $searchObject->dropdownFilter = $dropdownFilter;
 
         return $searchObject;
     }
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Creates a standard object designed for use with self::searchObject()'s
+     * $checkboxFilter and $dropdownFilter parameters
+     * @param  string $column  The name of the column to filter on, leave blank if you do not wish to use Nails's automatic filtering
+     * @param  string $label   The label to give the filter group
+     * @param  array  $options An array of options for the dropdown, either key => value pairs or a 3 element array: 0 = label, 1 = value, 2 = default check status
+     * @return void
+     */
     public static function searchFilterObject($column, $label, $options)
     {
         $filterObject          = new \stdClass();
@@ -255,7 +266,7 @@ class Helper
         $filterObject->label   = $label;
         $filterObject->options = array();
 
-        foreach ($options as $option) {
+        foreach ($options as $index => $option) {
 
             $temp = new \stdClass();
 
@@ -268,7 +279,7 @@ class Helper
             } else {
 
                 $temp->label   = $option;
-                $temp->value   = $option;
+                $temp->value   = $index;
                 $temp->checked = false;
             }
 
@@ -276,6 +287,19 @@ class Helper
         }
 
         return $filterObject;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns a value from a filter object at a specific key
+     * @param  stdClass $filterObject The filter object to search
+     * @param  integer  $key          The key to inspect
+     * @return mixed                  Mixed on success, null on failure
+     */
+    public static function searchFilterGetValueAtKey($filterObject, $key)
+    {
+        return isset($filterObject->options[$key]->value) ? $filterObject->options[$key]->value : null;
     }
 
     // --------------------------------------------------------------------------

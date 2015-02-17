@@ -42,6 +42,25 @@ class Logs extends \AdminController
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Returns an array of permissions which can be configured for the user
+     * @return array
+     */
+    public static function permissions()
+    {
+        $permissions = parent::permissions();
+
+        $permissions['browse:site']    = 'Can browse site logs';
+        $permissions['browse:event']   = 'Can browse event logs';
+        $permissions['download:event'] = 'Can download event logs';
+        $permissions['browse:change']   = 'Can browse change logs';
+        $permissions['download:change'] = 'Can download change logs';
+
+        return $permissions;
+    }
+
+    // --------------------------------------------------------------------------
+
     public function site()
     {
         if (!userHasPermission('admin.logs:0.can_browse_site_logs')) {

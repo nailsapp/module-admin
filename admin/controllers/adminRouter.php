@@ -15,6 +15,7 @@ class AdminRouter extends NAILS_Controller
     protected $adminControllers;
     protected $adminControllersNav;
     protected $admincontrollersNavNotSortable;
+    protected $adminControllersPermissions;
 
     // --------------------------------------------------------------------------
 
@@ -97,6 +98,8 @@ class AdminRouter extends NAILS_Controller
         //  Determine which admin controllers are available to the system
         $this->findAdminControllers();
 
+        // --------------------------------------------------------------------------
+
         /**
          * Sort the controllers into a view friendly array, taking into
          * consideration the user's order and state preferences.
@@ -108,6 +111,8 @@ class AdminRouter extends NAILS_Controller
         //  Save adminControllers to controller data so everyone can use it
         $this->data['adminControllers']    = $this->adminControllers;
         $this->data['adminControllersNav'] = $this->adminControllersNav;
+
+        // --------------------------------------------------------------------------
 
         //  Route the user's request
         $this->routeRequest();

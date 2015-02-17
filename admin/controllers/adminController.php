@@ -145,10 +145,9 @@ class AdminController extends MX_Controller
 
     /**
      * Returns an array of permissions which can be configured for the user
-     * @param  string $classIndex The classIndex value, used when multiple admin instances are available
      * @return array
      */
-    public static function permissions($classIndex = null)
+    public static function permissions()
     {
         return array();
     }
