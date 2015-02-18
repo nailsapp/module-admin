@@ -33,6 +33,25 @@ class Helper
         //  Get the CI super object
         $ci =& get_instance();
 
+        //  Are we in a modal?
+        if ($ci->input->get('isModal')) {
+
+            if (!isset($controllerData['headerOverride'])) {
+
+                $controllerData['isModal'] = true;
+            }
+
+            if (empty($controllerData['headerOverride'])) {
+
+                $controllerData['headerOverride'] = 'structure/headerBlank';
+            }
+
+            if (empty($controllerData['footerOverride'])) {
+
+                $controllerData['footerOverride'] = 'structure/footerBlank';
+            }
+        }
+
         //  Hey presto!
         if ($returnView) {
 

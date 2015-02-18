@@ -22,7 +22,7 @@ class Help extends \AdminController
     {
         get_instance()->load->model('admin_help_model');
 
-        if (get_instance()->admin_help_model->count_all()) {
+        if (userHasPermission('admin:admin:help:view') && get_instance()->admin_help_model->count_all()) {
 
             $navGroup = new \Nails\Admin\Nav('Dashboard');
             $navGroup->addMethod('Help Videos');
@@ -34,11 +34,33 @@ class Help extends \AdminController
     // --------------------------------------------------------------------------
 
     /**
+     * Returns an array of permissions which can be configured for the user
+     * @return array
+     */
+    public static function permissions()
+    {
+        $permissions = parent::permissions();
+
+        $permissions['view'] = 'Can view help videos';
+
+        return $permissions;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
      * Renders the admin help pagge
      * @return void
      */
     public function index()
     {
+        if (userHasPermission('admin:admin:help:view')) {
+
+            unauthorised();
+        }
+
+        // --------------------------------------------------------------------------
+
         //  Page Title
         $this->data['page']->title = 'Help Videos';
 

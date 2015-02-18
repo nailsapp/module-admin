@@ -26,11 +26,34 @@ class Utilities extends \AdminController
     public static function announce()
     {
         $navGroup = new \Nails\Admin\Nav('Utilities');
-        $navGroup
-            ->addMethod('Rewrite Routes', 'rewrite_routes')
-            ->addMethod('Export Data', 'export');
+
+        if (userHasPermission('admin:admin:utilities:rewriteRoutes')) {
+
+            $navGroup->addMethod('Rewrite Routes', 'rewrite_routes');
+        }
+
+        if (userHasPermission('admin:admin:utilities:export')) {
+
+            $navGroup->addMethod('Export Data', 'export');
+        }
 
         return $navGroup;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns an array of permissions which can be configured for the user
+     * @return array
+     */
+    public static function permissions()
+    {
+        $permissions = parent::permissions();
+
+        $permissions['rewriteRoutes'] = 'Can Rewrite Routes';
+        $permissions['export']        = 'Can Export Data';
+
+        return $permissions;
     }
 
     // --------------------------------------------------------------------------
@@ -147,6 +170,13 @@ class Utilities extends \AdminController
      */
     public function rewrite_routes()
     {
+        if (!userHasPermission('admin:admin:utilities:rewriteRoutes')) {
+
+            unauthorised();
+        }
+
+        // --------------------------------------------------------------------------
+
         if ($this->input->post('go')) {
 
             $this->load->model('routes_model');
@@ -176,6 +206,13 @@ class Utilities extends \AdminController
      */
     public function export()
     {
+        if (!userHasPermission('admin:admin:utilities:export')) {
+
+            unauthorised();
+        }
+
+        // --------------------------------------------------------------------------
+
         if ($this->input->post()) {
 
             //  Form validation and update

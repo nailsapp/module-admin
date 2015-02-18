@@ -40,7 +40,7 @@ class Notification extends \AdminController
     {
         $permissions = parent::permissions();
 
-        $permissions['manage'] = 'Can browe users';
+        $permissions['manage'] = 'Can manage notifications';
 
         return $permissions;
     }

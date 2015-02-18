@@ -21,11 +21,35 @@ class Settings extends \AdminController
     public static function announce()
     {
         $navGroup = new \Nails\Admin\Nav('Settings');
-        $navGroup
-            ->addMethod('Admin', 'admin')
-            ->addMethod('Site', 'site');
+
+        if (userHasPermission('admin:admin:settings:admin:.*')) {
+
+            $navGroup->addMethod('Admin', 'admin');
+        }
+
+        if (userHasPermission('admin:admin:settings:site:.*')) {
+
+            $navGroup->addMethod('Site', 'site');
+        }
 
         return $navGroup;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns an array of permissions which can be configured for the user
+     * @return array
+     */
+    public static function permissions()
+    {
+        $permissions = parent::permissions();
+
+        $permissions['admin:branding']  = 'Update Admin Branding';
+        $permissions['admin:whitelist'] = 'Update Admn Whitelist';
+        $permissions['site:analytics']  = 'Set site analytics';
+
+        return $permissions;
     }
 
     // --------------------------------------------------------------------------
@@ -36,8 +60,10 @@ class Settings extends \AdminController
      */
     public function admin()
     {
-        //  Set method info
-        $this->data['page']->title = 'Admin';
+        if (!userHasPermission('admin:admin:settings:admin:.*')) {
+
+            unauthorised();
+        }
 
         // --------------------------------------------------------------------------
 
@@ -63,9 +89,13 @@ class Settings extends \AdminController
 
         // --------------------------------------------------------------------------
 
-        $this->load->view('structure/header', $this->data);
-        $this->load->view('admin/settings/admin', $this->data);
-        $this->load->view('structure/footer', $this->data);
+        //  Set page title
+        $this->data['page']->title = 'Settings &rsaquo; Admin';
+
+        // --------------------------------------------------------------------------
+
+        //  Load views
+        \Nails\Admin\Helper::loadView('admin');
     }
 
     // --------------------------------------------------------------------------
@@ -107,7 +137,7 @@ class Settings extends \AdminController
         $whitelistRaw = $this->input->post('whitelist');
         $whitelistRaw = str_replace("\n\r", "\n", $whitelistRaw);
         $whitelistRaw = explode("\n", $whitelistRaw);
-        $whitelist     = array();
+        $whitelist    = array();
 
         foreach ($whitelistRaw as $line) {
 
@@ -144,8 +174,10 @@ class Settings extends \AdminController
      */
     public function site()
     {
-        //  Set method info
-        $this->data['page']->title = 'Site';
+        if (!userHasPermission('admin:admin:settings:site:.*')) {
+
+            unauthorised();
+        }
 
         // --------------------------------------------------------------------------
 
@@ -171,18 +203,13 @@ class Settings extends \AdminController
 
         // --------------------------------------------------------------------------
 
-        //  Load assets
-        $this->asset->load('nails.admin.site.settings.min.js', true);
-        $this->asset->inline('<script>_nails_settings = new NAILS_Admin_Site_Settings();</script>');
-
-        $this->load->library('auth/social_signon');
-        $this->data['providers'] = $this->social_signon->get_providers();
+        //  Set page title
+        $this->data['page']->title = 'Settings &rsaquo; Site';
 
         // --------------------------------------------------------------------------
 
-        $this->load->view('structure/header', $this->data);
-        $this->load->view('admin/settings/site', $this->data);
-        $this->load->view('structure/footer', $this->data);
+        //  Load views
+        \Nails\Admin\Helper::loadView('site');
     }
 
     // --------------------------------------------------------------------------
@@ -207,159 +234,6 @@ class Settings extends \AdminController
         } else {
 
             $this->data['error'] = 'There was a problem saving settings.';
-        }
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Set Site Auth settings
-     * @return void
-     */
-    protected function _site_update_auth()
-    {
-        $this->load->library('auth/social_signon');
-        $providers = $this->social_signon->get_providers();
-
-        // --------------------------------------------------------------------------
-
-        //  Prepare update
-        $settings            = array();
-        $settings_encrypted = array();
-
-        $settings['user_registration_enabled'] = $this->input->post('user_registration_enabled');
-
-        //  Disable social signon, if any providers are proeprly enabled it'll turn itself on again.
-        $settings['auth_social_signon_enabled'] = false;
-
-        foreach ($providers as $provider) {
-
-            $settings['auth_social_signon_' . $provider['slug'] . '_enabled'] = (bool) $this->input->post('auth_social_signon_' . $provider['slug'] . '_enabled');
-
-            if ($settings['auth_social_signon_' . $provider['slug'] . '_enabled']) {
-
-                //  null out each key
-                if ($provider['fields']) {
-
-                    foreach ($provider['fields'] as $key => $label) {
-
-                        if (is_array($label) && !isset($label['label'])) {
-
-                            foreach ($label as $key1 => $label1) {
-
-                                $value = $this->input->post('auth_social_signon_' . $provider['slug'] . '_' . $key . '_' . $key1);
-
-                                if (!empty($label1['required']) && empty($value)) {
-
-                                    $error = 'Provider "' . $provider['label'] . '" was enabled, but was missing required field "' . $label1['label'] . '".';
-                                    break 3;
-
-                                }
-
-                                if ( empty($label1['encrypted'])) {
-
-                                    $settings['auth_social_signon_' . $provider['slug'] . '_' . $key . '_' . $key1] = $value;
-
-                                } else {
-
-                                    $settings_encrypted['auth_social_signon_' . $provider['slug'] . '_' . $key . '_' . $key1] = $value;
-                                }
-                            }
-
-                        } else {
-
-                            $value = $this->input->post('auth_social_signon_' . $provider['slug'] . '_' . $key);
-
-                            if (!empty($label['required']) && empty($value)) {
-
-                                $error = 'Provider "' . $provider['label'] . '" was enabled, but was missing required field "' . $label['label'] . '".';
-                                break 2;
-                            }
-
-                            if ( empty($label['encrypted'])) {
-
-                                $settings['auth_social_signon_' . $provider['slug'] . '_' . $key] = $value;
-
-                            } else {
-
-                                $settings_encrypted['auth_social_signon_' . $provider['slug'] . '_' . $key] = $value;
-                            }
-                        }
-                    }
-                }
-
-                //  Turn on social signon
-                $settings['auth_social_signon_enabled'] = true;
-
-            } else {
-
-                //  null out each key
-                if ($provider['fields']) {
-
-                    foreach ($provider['fields'] as $key => $label) {
-
-                        /**
-                         * Secondary conditional detects an actual array fo fields rather than
-                         * just the label/required array. Design could probably be improved...
-                         **/
-
-                        if (is_array($label) && !isset($label['label'])) {
-
-                            foreach ($label as $key1 => $label1) {
-
-                                $settings['auth_social_signon_' . $provider['slug'] . '_' . $key . '_' . $key1] = null;
-                            }
-
-                        } else {
-
-                            $settings['auth_social_signon_' . $provider['slug'] . '_' . $key] = null;
-                        }
-                    }
-                }
-            }
-        }
-
-        // --------------------------------------------------------------------------
-
-        //  Save
-        if (empty($error)) {
-
-            $this->db->trans_begin();
-            $rollback = false;
-
-            if (!empty($settings)) {
-
-                if (!$this->app_setting_model->set($settings, 'app')) {
-
-                    $error    = $this->app_setting_model->last_error();
-                    $rollback = true;
-                }
-            }
-
-            if (!empty($settings_encrypted)) {
-
-                if (!$this->app_setting_model->set($settings_encrypted, 'app', null, true)) {
-
-                    $error    = $this->app_setting_model->last_error();
-                    $rollback = true;
-                }
-            }
-
-            if ($rollback) {
-
-                $this->db->trans_rollback();
-                $this->data['error'] = 'There was a problem saving authentication settings. ' . $error;
-
-            } else {
-
-                $this->db->trans_commit();
-                $this->data['success'] = 'Authentication settings were saved.';
-
-            }
-
-        } else {
-
-            $this->data['error'] = 'There was a problem saving authentication settings. ' . $error;
         }
     }
 
