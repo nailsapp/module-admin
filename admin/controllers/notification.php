@@ -21,9 +21,28 @@ class Notification extends \AdminController
     public static function announce()
     {
         $navGroup = new \Nails\Admin\Nav('Notifications');
-        $navGroup->addMethod('Manage Notifications');
+
+        if (userHasPermission('admin:admin:notification:manage')) {
+
+            $navGroup->addMethod('Manage Notifications');
+        }
 
         return $navGroup;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns an array of extra permissions for this controller
+     * @return array
+     */
+    public static function permissions()
+    {
+        $permissions = parent::permissions();
+
+        $permissions['manage'] = 'Can browe users';
+
+        return $permissions;
     }
 
     // --------------------------------------------------------------------------
@@ -48,6 +67,13 @@ class Notification extends \AdminController
      */
     public function index()
     {
+        if (!userHasPermission('admin:admin:notification:manage')) {
+
+            unauthorised();
+        }
+
+        // --------------------------------------------------------------------------
+
         //  Page Title
         $this->data['page']->title = 'Manage Notifications';
 

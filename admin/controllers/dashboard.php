@@ -47,9 +47,9 @@ class Dashboard extends \AdminController
         $phrases[] = 'You look nice!';
         $phrases[] = 'What are we doing today?';
 
-        if (active_user('first_name')) {
-            $phrases[] = 'Today is gonna be a good day, ' . active_user('first_name') . '.';
-            $phrases[] = 'Hey, ' . active_user('first_name') . '!';
+        if (activeUser('first_name')) {
+            $phrases[] = 'Today is gonna be a good day, ' . activeUser('first_name') . '.';
+            $phrases[] = 'Hey, ' . activeUser('first_name') . '!';
         } else {
             $phrases[] = 'Today is gonna be a good day.';
             $phrases[] = 'Hey!';

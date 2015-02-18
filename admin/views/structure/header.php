@@ -25,10 +25,10 @@
         window.NAILS.URL        = '<?=NAILS_ASSETS_URL?>';
         window.NAILS.LANG       = {};
         window.NAILS.USER       = {};
-        window.NAILS.USER.ID    = <?=active_user('id')?>;
-        window.NAILS.USER.FNAME = '<?=active_user('first_name')?>';
-        window.NAILS.USER.LNAME = '<?=active_user('last_name')?>';
-        window.NAILS.USER.EMAIL = '<?=active_user('email')?>';
+        window.NAILS.USER.ID    = <?=activeUser('id')?>;
+        window.NAILS.USER.FNAME = '<?=activeUser('first_name')?>';
+        window.NAILS.USER.LNAME = '<?=activeUser('last_name')?>';
+        window.NAILS.USER.EMAIL = '<?=activeUser('email')?>';
     </script>
     <noscript>
         <style type="text/css">
@@ -103,15 +103,15 @@
             </a>
         </div>
         <div class="user-shortcuts">
-            <div class="shortcut loggedin-as" rel="tipsy" title="Logged in as <?=active_user('first_name,last_name')?>">
+            <div class="shortcut loggedin-as" rel="tipsy" title="Logged in as <?=activeUser('first_name,last_name')?>">
             <?php
 
-                $url  = 'admin/accounts/edit/' . active_user('id');
+                $url  = 'admin/accounts/edit/' . activeUser('id');
                 $attr = 'class="fancybox admin-branding-text-primary" data-fancybox-type="iframe"';
 
-                if (active_user('profile_img')) {
+                if (activeUser('profile_img')) {
 
-                    $img = img(array('src' => cdn_thumb(active_user('profile_img'), 30, 30), 'class' => 'avatar'));
+                    $img = img(array('src' => cdn_thumb(activeUser('profile_img'), 30, 30), 'class' => 'avatar'));
 
                 } else {
 
@@ -120,7 +120,7 @@
 
                 echo anchor(
                     $url,
-                    '<span class="name">' . active_user('first_name,last_name') . '</span>' . $img,
+                    '<span class="name">' . activeUser('first_name,last_name') . '</span>' . $img,
                     $attr
                 );
 

@@ -26,7 +26,6 @@ class AdminRouter extends NAILS_Controller
     {
         parent::__construct();
 
-        //  An array of Nav groupings which shouldn't be sortable
 
         /**
          * Admin nav groupings are sortable by default, if you wish to make any
@@ -53,7 +52,7 @@ class AdminRouter extends NAILS_Controller
         );
 
         /**
-         * Load helps we'll need
+         * Load helpers we'll need
          */
 
         $this->load->helper('directory');
@@ -89,7 +88,7 @@ class AdminRouter extends NAILS_Controller
             }
 
             //  Before we do anything, is the user an admin?
-            if (!$this->user_model->is_admin()) {
+            if (!$this->user_model->isAdmin()) {
 
                 unauthorised();
             }
@@ -159,16 +158,6 @@ class AdminRouter extends NAILS_Controller
                 $module->path . 'admin/controllers/',
                 FCPATH . APPPATH . 'modules/' . $module->moduleName . '/admin/controllers/'
             );
-        }
-
-        /**
-         * Ok! So we have all available AdminControllers and the classes are all loaded. Let's
-         * see which the user has permission to access. CLI users have full access.
-         */
-
-        if (!$this->input->is_cli_request() && !$this->user_model->is_superuser()) {
-
-            dumpanddie('not a superuser, do the checks');
         }
     }
 
@@ -326,13 +315,27 @@ class AdminRouter extends NAILS_Controller
         //  Reset the indexes
         $adminControllersNav = array_values($adminControllersNav);
 
-        foreach ($adminControllersNav as $group) {
+        //  Remove navGroups with no actions and set as sortable
+        $numGroups = count($adminControllersNav);
+        for ($i=0; $i < $numGroups; $i++) {
+
+            //  Remove if empty
+            if (empty($adminControllersNav[$i]->actions)) {
+
+                $adminControllersNav[$i] = null;
+                continue;
+            }
 
             //  Set sortable
-            if (in_array($group->label, $this->admincontrollersNavSticky)) {
-                $group->sortable = false;
+            if (in_array($adminControllersNav[$i]->label, $this->admincontrollersNavSticky)) {
+
+                $adminControllersNav[$i]->sortable = false;
             }
         }
+
+        //  Filter and reset the indexes, again
+        $adminControllersNav = array_filter($adminControllersNav);
+        $adminControllersNav = array_values($adminControllersNav);
 
         //  Split the groups
         $stickyTop    = array();

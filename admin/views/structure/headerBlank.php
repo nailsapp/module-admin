@@ -25,10 +25,10 @@
         window.NAILS.URL        = '<?=NAILS_ASSETS_URL?>';
         window.NAILS.LANG       = {};
         window.NAILS.USER       = {};
-        window.NAILS.USER.ID    = <?=active_user('id')?>;
-        window.NAILS.USER.FNAME = '<?=active_user('first_name')?>';
-        window.NAILS.USER.LNAME = '<?=active_user('last_name')?>';
-        window.NAILS.USER.EMAIL = '<?=active_user('email')?>';
+        window.NAILS.USER.ID    = <?=activeUser('id')?>;
+        window.NAILS.USER.FNAME = '<?=activeUser('first_name')?>';
+        window.NAILS.USER.LNAME = '<?=activeUser('last_name')?>';
+        window.NAILS.USER.EMAIL = '<?=activeUser('email')?>';
     </script>
     <noscript>
         <style type="text/css">

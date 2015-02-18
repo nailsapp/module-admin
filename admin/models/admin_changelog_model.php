@@ -115,12 +115,12 @@ class NAILS_Admin_changelog_model extends NAILS_Model
          * items so we can group changes of the same item together.
          */
 
-        $key = md5(active_user('id') . '|' . $verb . '|' . $article . '|' . $item . '|' . $itemId . '|' . $title . '|' . $url);
+        $key = md5(activeUser('id') . '|' . $verb . '|' . $article . '|' . $item . '|' . $itemId . '|' . $title . '|' . $url);
 
         if (empty($this->changes[$key])) {
 
             $this->changes[$key]            = array();
-            $this->changes[$key]['user_id'] = active_user('id') ? active_user('id') : null;
+            $this->changes[$key]['user_id'] = activeUser('id') ? activeUser('id') : null;
             $this->changes[$key]['verb']    = $verb;
             $this->changes[$key]['article'] = $article;
             $this->changes[$key]['item']    = $item;
@@ -176,9 +176,9 @@ class NAILS_Admin_changelog_model extends NAILS_Model
                 $this->changes[$i]['changes']     = array_values($this->changes[$i]['changes']);
                 $this->changes[$i]['changes']     = serialize($this->changes[$i]['changes']);
                 $this->changes[$i]['created']     = date('Y-m-d H:i:s');
-                $this->changes[$i]['created_by']  = active_user('id');
+                $this->changes[$i]['created_by']  = activeUser('id');
                 $this->changes[$i]['modified']    = date('Y-m-d H:i:s');
-                $this->changes[$i]['modified_by'] = active_user('id');
+                $this->changes[$i]['modified_by'] = activeUser('id');
             }
 
             $this->db->insert_batch($this->_table, $this->changes);

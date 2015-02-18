@@ -175,7 +175,7 @@ class NAILS_Admin_Model extends NAILS_Model
     {
         if (is_null($userId)) {
 
-            $userId = active_user('id');
+            $userId = activeUser('id');
 
         } else {
 
