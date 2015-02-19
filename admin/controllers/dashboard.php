@@ -20,8 +20,8 @@ class Dashboard extends \AdminController
      */
     public static function announce()
     {
-        $navGroup = new \Nails\Admin\Nav('Dashboard');
-        $navGroup->addMethod('Site Overview');
+        $navGroup = new \Nails\Admin\Nav('Dashboard', 'fa-home');
+        $navGroup->addAction('Site Overview');
 
         return $navGroup;
     }

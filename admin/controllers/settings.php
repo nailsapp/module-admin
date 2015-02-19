@@ -20,16 +20,16 @@ class Settings extends \AdminController
      */
     public static function announce()
     {
-        $navGroup = new \Nails\Admin\Nav('Settings');
+        $navGroup = new \Nails\Admin\Nav('Settings', 'fa-wrench');
 
         if (userHasPermission('admin:admin:settings:admin:.*')) {
 
-            $navGroup->addMethod('Admin', 'admin');
+            $navGroup->addAction('Admin', 'admin');
         }
 
         if (userHasPermission('admin:admin:settings:site:.*')) {
 
-            $navGroup->addMethod('Site', 'site');
+            $navGroup->addAction('Site', 'site');
         }
 
         return $navGroup;
@@ -45,9 +45,10 @@ class Settings extends \AdminController
     {
         $permissions = parent::permissions();
 
-        $permissions['admin:branding']  = 'Update Admin Branding';
-        $permissions['admin:whitelist'] = 'Update Admn Whitelist';
-        $permissions['site:analytics']  = 'Set site analytics';
+        $permissions['admin:branding']   = 'Configure Admin Branding';
+        $permissions['admin:whitelist']  = 'Configure Admn Whitelist';
+        $permissions['site:analytics']   = 'Configure Site analytics';
+        $permissions['site:maintenance'] = 'Configure Maintenance Mode';
 
         return $permissions;
     }
@@ -67,18 +68,36 @@ class Settings extends \AdminController
 
         // --------------------------------------------------------------------------
 
-        //  Process POST
         if ($this->input->post()) {
 
-            $method =  $this->input->post('update');
+            $settings = array();
 
-            if (method_exists($this, '_admin_update_' . $method)) {
+            if (userHasPermission('admin:admin:settings:admin:branding')) {
 
-                $this->{'_admin_update_' . $method}();
+                $settings['primary_colour']   = $this->input->post('primary_colour');
+                $settings['secondary_colour'] = $this->input->post('secondary_colour');
+                $settings['highlight_colour'] = $this->input->post('highlight_colour');
+            }
+
+            if (userHasPermission('admin:admin:settings:admin:branding')) {
+
+                $settings['whitelist'] = $this->prepareWhitelist($this->input->post('whitelist'));
+            }
+
+            if (!empty($settings)) {
+
+                if ($this->app_setting_model->set($settings, 'admin')) {
+
+                    $this->data['success'] = 'Admin settings have been saved.';
+
+                } else {
+
+                    $this->data['error'] = 'There was a problem saving admin settings.';
+                }
 
             } else {
 
-                $this->data['error'] = 'I can\'t determine what type of update you are trying to perform.';
+                $this->data['message'] = 'No settings to save.';
             }
         }
 
@@ -94,76 +113,13 @@ class Settings extends \AdminController
 
         // --------------------------------------------------------------------------
 
+        //  Load assets
+        $this->asset->load('nails.admin.settings.min.js', 'NAILS');
+
+        // --------------------------------------------------------------------------
+
         //  Load views
         \Nails\Admin\Helper::loadView('admin');
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Set Admin branding settings
-     * @return void
-     */
-    protected function _admin_update_branding()
-    {
-        //  Prepare update
-        $settings                     = array();
-        $settings['primary_colour']   = $this->input->post('primary_colour');
-        $settings['secondary_colour'] = $this->input->post('secondary_colour');
-        $settings['highlight_colour'] = $this->input->post('highlight_colour');
-
-        // --------------------------------------------------------------------------
-
-        //  Save
-        if ($this->app_setting_model->set($settings, 'admin')) {
-
-            $this->data['success'] = 'Admin branding settings have been saved.';
-
-        } else {
-
-            $this->data['error'] = 'There was a problem saving admin branding settings.';
-        }
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Set Admin IP whitelist settings
-     * @return void
-     */
-    protected function _admin_update_whitelist()
-    {
-        //  Prepare the whitelist
-        $whitelistRaw = $this->input->post('whitelist');
-        $whitelistRaw = str_replace("\n\r", "\n", $whitelistRaw);
-        $whitelistRaw = explode("\n", $whitelistRaw);
-        $whitelist    = array();
-
-        foreach ($whitelistRaw as $line) {
-
-            $whitelist = array_merge(explode(',', $line), $whitelist);
-        }
-
-        $whitelist = array_unique($whitelist);
-        $whitelist = array_filter($whitelist);
-        $whitelist = array_map('trim', $whitelist);
-        $whitelist = array_values($whitelist);
-
-        //  Prepare update
-        $settings              = array();
-        $settings['whitelist'] = $whitelist;
-
-        // --------------------------------------------------------------------------
-
-        //  Save
-        if ($this->app_setting_model->set($settings, 'admin')) {
-
-            $this->data['success'] = 'Admin whitelist settings have been saved.';
-
-        } else {
-
-            $this->data['error'] = 'There was a problem saving admin whitelist settings.';
-        }
     }
 
     // --------------------------------------------------------------------------
@@ -181,18 +137,36 @@ class Settings extends \AdminController
 
         // --------------------------------------------------------------------------
 
-        //  Process POST
         if ($this->input->post()) {
 
-            $method =  $this->input->post('update');
+            $settings = array();
 
-            if (method_exists($this, '_site_update_' . $method)) {
+            if (userHasPermission('admin:admin:settings:site:analytics')) {
 
-                $this->{'_site_update_' . $method}();
+                $settings['google_analytics_account'] = $this->input->post('google_analytics_account');
+            }
+
+            if (userHasPermission('admin:admin:settings:site:analytics')) {
+
+                $rawIPs = $this->input->post('maintenance_mode_whitelist');
+                $settings['maintenance_mode_enabled']   = (bool) $this->input->post('maintenance_mode_enabled');
+                $settings['maintenance_mode_whitelist'] = $this->prepareWhitelist($rawIPs);
+            }
+
+            if (!empty($settings)) {
+
+                if ($this->app_setting_model->set($settings, 'site')) {
+
+                    $this->data['success'] = 'Site settings have been saved.';
+
+                } else {
+
+                    $this->data['error'] = 'There was a problem saving site settings.';
+                }
 
             } else {
 
-                $this->data['error'] = 'I can\'t determine what type of update you are trying to perform.';
+                $this->data['message'] = 'No settings to save.';
             }
         }
 
@@ -208,6 +182,11 @@ class Settings extends \AdminController
 
         // --------------------------------------------------------------------------
 
+        //  Load assets
+        $this->asset->load('nails.admin.settings.min.js', 'NAILS');
+
+        // --------------------------------------------------------------------------
+
         //  Load views
         \Nails\Admin\Helper::loadView('site');
     }
@@ -215,38 +194,13 @@ class Settings extends \AdminController
     // --------------------------------------------------------------------------
 
     /**
-     * Set Site Analytics settings
-     * @return void
+     * Takes a multi line input and converts it into an array
+     * @param  string $input The input string
+     * @return array
      */
-    protected function _site_update_analytics()
+    protected function prepareWhitelist($input)
     {
-        //  Prepare update
-        $settings                             = array();
-        $settings['google_analytics_account'] = $this->input->post('google_analytics_account');
-
-        // --------------------------------------------------------------------------
-
-        //  Save
-        if ($this->app_setting_model->set($settings, 'app')) {
-
-            $this->data['success'] = 'Site settings have been saved.';
-
-        } else {
-
-            $this->data['error'] = 'There was a problem saving settings.';
-        }
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Set Site Maintenance settings
-     * @return void
-     */
-    protected function _site_update_maintenance()
-    {
-        //  Prepare the whitelist
-        $whitelistRaw = $this->input->post('maintenance_mode_whitelist');
+        $whitelistRaw = $input;
         $whitelistRaw = str_replace("\n\r", "\n", $whitelistRaw);
         $whitelistRaw = explode("\n", $whitelistRaw);
         $whitelist    = array();
@@ -261,21 +215,6 @@ class Settings extends \AdminController
         $whitelist = array_map('trim', $whitelist);
         $whitelist = array_values($whitelist);
 
-        //  Prepare update
-        $settings                               = array();
-        $settings['maintenance_mode_enabled']   = (bool) $this->input->post('maintenance_mode_enabled');
-        $settings['maintenance_mode_whitelist'] = $whitelist;
-
-        // --------------------------------------------------------------------------
-
-        //  Save
-        if ($this->app_setting_model->set($settings, 'app')) {
-
-            $this->data['success'] = 'Maintenance settings have been saved.';
-
-        } else {
-
-            $this->data['error'] = 'There was a problem saving maintenance settings.';
-        }
+        return $whitelist;
     }
 }

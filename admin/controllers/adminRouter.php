@@ -286,27 +286,40 @@ class AdminRouter extends NAILS_Controller
                     if (!isset($adminControllersNav[md5($groupLabel)])) {
                         $adminControllersNav[md5($groupLabel)]           = new \stdClass();
                         $adminControllersNav[md5($groupLabel)]->label    = $groupLabel;
+                        $adminControllersNav[md5($groupLabel)]->icon     = array();
                         $adminControllersNav[md5($groupLabel)]->sortable = true;
                         $adminControllersNav[md5($groupLabel)]->open     = true;
                         $adminControllersNav[md5($groupLabel)]->actions  = array();
                     }
 
-                    //  Group icon
-                    $adminControllersNav[md5($groupLabel)]->icon = $grouping->getIcon();
+                    /**
+                     * Add the group icon to the icon array. Multiple calls to the same group
+                     * will add their own icon, the most common icon will be used. In the event
+                     * of a tie then the first icon defined will be used, unless one has been
+                     * marked as !important.
+                     */
 
-                    //  Group methods
-                    $groupMethods = $grouping->getMethods();
+                    $moduleIcon = $grouping->getIcon();
 
-                    foreach ($groupMethods as $methodUrl => $methodLabel) {
+                    if (!empty($moduleIcon)) {
+
+                        $adminControllersNav[md5($groupLabel)]->icon[] = $moduleIcon;
+                    }
+
+                    //  Group actions
+                    $groupActions = $grouping->getActions();
+
+                    foreach ($groupActions as $actionUrl => $actionDetails) {
 
                         $url  = $module . '/' . $controller;
-                        $url .= empty($methodUrl) ? '' : '/';
-                        $url .= $methodUrl;
+                        $url .= empty($actionUrl) ? '' : '/';
+                        $url .= $actionUrl;
 
-                        $adminControllersNav[md5($groupLabel)]->actions[$url]        = new \stdClass();
-                        $adminControllersNav[md5($groupLabel)]->actions[$url]->label = $methodLabel;
-                        $adminControllersNav[md5($groupLabel)]->actions[$url]->class = $controllerDetails['className'];
-                        $adminControllersNav[md5($groupLabel)]->actions[$url]->path  = $controllerDetails['path'];
+                        $adminControllersNav[md5($groupLabel)]->actions[$url]         = new \stdClass();
+                        $adminControllersNav[md5($groupLabel)]->actions[$url]->label  = $actionDetails->label;
+                        $adminControllersNav[md5($groupLabel)]->actions[$url]->alerts = $actionDetails->alerts;
+                        $adminControllersNav[md5($groupLabel)]->actions[$url]->class  = $controllerDetails['className'];
+                        $adminControllersNav[md5($groupLabel)]->actions[$url]->path   = $controllerDetails['path'];
                     }
                 }
             }

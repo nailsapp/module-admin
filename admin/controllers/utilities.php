@@ -25,16 +25,16 @@ class Utilities extends \AdminController
      */
     public static function announce()
     {
-        $navGroup = new \Nails\Admin\Nav('Utilities');
+        $navGroup = new \Nails\Admin\Nav('Utilities', 'fa-sliders');
 
         if (userHasPermission('admin:admin:utilities:rewriteRoutes')) {
 
-            $navGroup->addMethod('Rewrite Routes', 'rewrite_routes');
+            $navGroup->addAction('Rewrite Routes', 'rewrite_routes');
         }
 
         if (userHasPermission('admin:admin:utilities:export')) {
 
-            $navGroup->addMethod('Export Data', 'export');
+            $navGroup->addAction('Export Data', 'export');
         }
 
         return $navGroup;
@@ -96,7 +96,7 @@ class Utilities extends \AdminController
 
         $this->exportSources = array();
 
-        if (userHasPermission('admin.accounts:0')) {
+        if (userHasPermission('admin:auth:accounts:browse')) {
 
             $this->exportSources[] = array(
                 'Members: All',
@@ -309,7 +309,7 @@ class Utilities extends \AdminController
      */
     protected function exportSourceUsersAll($out = array())
     {
-        if (!userHasPermission('admin.accounts:0')) {
+        if (!userHasPermission('admin:auth:accounts:browse')) {
 
             return false;
         }
@@ -410,7 +410,7 @@ class Utilities extends \AdminController
      */
     protected function exportSourceUsersEmail($out = array())
     {
-        if (!userHasPermission('admin.accounts:0')) {
+        if (!userHasPermission('admin:auth:accounts:browse')) {
 
             return false;
         }

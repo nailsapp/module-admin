@@ -213,7 +213,30 @@
                                 }
 
                                 //  Icon
-                                echo  '<b class="fa fa-fw ' . $module->icon . '"></b>';
+                                if (empty($module->icon)) {
+
+                                    $icon = 'fa-cog';
+
+                                } else {
+
+                                    //  Check if any have been listed as !important
+
+                                    $importantIcons = preg_grep('/^(.*)!important$/', $module->icon);
+
+                                    if (!empty($importantIcons)) {
+
+                                        $icon = reset($importantIcons);
+                                        $icon = trim(rtrim($icon, '!important'));
+
+                                    } else {
+
+                                        //  No !important icons, use the most popular
+                                        $icons = array_count_values($module->icon);
+                                        $icons = array_keys($icons);
+                                        $icon  = reset($icons);
+                                    }
+                                }
+                                echo  '<b class="fa fa-fw ' . $icon . '"></b>';
 
                             ?>
                             </div>
@@ -238,10 +261,30 @@
                                 foreach ($module->actions as $url => $methodDetails) {
 
                                     echo '<li>';
-                                        echo anchor(
-                                            'admin/' . $url,
-                                            $methodDetails->label
-                                        );
+                                        echo '<a href="' . site_url('admin/' . $url) . '">';
+                                            echo $methodDetails->label;
+
+                                            if (!empty($methodDetails->alerts)) {
+
+                                                foreach ($methodDetails->alerts as $alert) {
+
+                                                    //  Skip empty alerts
+                                                    if (empty($alert->value)) {
+
+                                                        continue;
+                                                    }
+
+                                                    $label    = $alert->label ? $alert->label : '';
+                                                    $tipsy    = $alert->label ? 'rel="tipsy-right"' : '';
+                                                    $severity = $alert->severity;
+
+                                                    echo '<span class="indicator ' . $severity . '" ' . $tipsy . ' title="' . $label . '">';
+                                                        echo $alert->value;
+                                                    echo '</span>';
+                                                }
+                                            }
+
+                                        echo '</a>';
                                     echo '</li>';
                                 }
 

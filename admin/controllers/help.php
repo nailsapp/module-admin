@@ -24,8 +24,8 @@ class Help extends \AdminController
 
         if (userHasPermission('admin:admin:help:view') && get_instance()->admin_help_model->count_all()) {
 
-            $navGroup = new \Nails\Admin\Nav('Dashboard');
-            $navGroup->addMethod('Help Videos');
+            $navGroup = new \Nails\Admin\Nav('Dashboard', 'fa-home');
+            $navGroup->addAction('Help Videos');
 
             return $navGroup;
         }

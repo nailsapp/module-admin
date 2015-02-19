@@ -20,21 +20,21 @@ class Logs extends \AdminController
      */
     public static function announce()
     {
-        $navGroup = new \Nails\Admin\Nav('Logs');
+        $navGroup = new \Nails\Admin\Nav('Logs', 'fa-archive');
 
-        if (userHasPermission('admin.logs:0.can_browse_site_logs')) {
+        if (userHasPermission('admin:admin:logs:site:browse')) {
 
-            $navGroup->addMethod('Browse Site Logs', 'site');
+            $navGroup->addAction('Browse Site Logs', 'site');
         }
 
-        if (userHasPermission('admin.logs:0.can_browse_event_logs')) {
+        if (userHasPermission('admin:admin:logs:event:browse')) {
 
-            $navGroup->addMethod('Browse Event Logs', 'event');
+            $navGroup->addAction('Browse Event Logs', 'event');
         }
 
-        if (userHasPermission('admin.logs:0.can_browse_admin_logs')) {
+        if (userHasPermission('admin:admin:logs:change:browse')) {
 
-            $navGroup->addMethod('Browse Admin Logs', 'changelog');
+            $navGroup->addAction('Browse Admin Logs', 'changelog');
         }
 
         return $navGroup;
@@ -50,11 +50,11 @@ class Logs extends \AdminController
     {
         $permissions = parent::permissions();
 
-        $permissions['browse:site']    = 'Can browse site logs';
-        $permissions['browse:event']   = 'Can browse event logs';
-        $permissions['download:event'] = 'Can download event logs';
-        $permissions['browse:change']   = 'Can browse change logs';
-        $permissions['download:change'] = 'Can download change logs';
+        $permissions['site:browse']     = 'Can browse site logs';
+        $permissions['event:browse']    = 'Can browse event logs';
+        $permissions['event:download']  = 'Can download event logs';
+        $permissions['change:browse']   = 'Can browse change logs';
+        $permissions['change:download'] = 'Can download change logs';
 
         return $permissions;
     }
@@ -63,7 +63,7 @@ class Logs extends \AdminController
 
     public function site()
     {
-        if (!userHasPermission('admin.logs:0.can_browse_site_logs')) {
+        if (!userHasPermission('admin:admin:logs:site:browse')) {
 
             unauthorised();
         }
@@ -92,7 +92,7 @@ class Logs extends \AdminController
      */
     protected function siteIndex()
     {
-        if (!userHasPermission('admin.logs:0.can_browse_site_logs')) {
+        if (!userHasPermission('admin:admin:logs:site:browse')) {
 
             unauthorised();
         }
@@ -112,7 +112,7 @@ class Logs extends \AdminController
 
     protected function siteView()
     {
-        if (!userHasPermission('admin.logs:0.can_browse_site_logs')) {
+        if (!userHasPermission('admin:admin:logs:site:browse')) {
 
             unauthorised();
         }
@@ -140,7 +140,7 @@ class Logs extends \AdminController
      */
     public function event()
     {
-        if (!userHasPermission('admin.logs:0.can_browse_event_logs')) {
+        if (!userHasPermission('admin:admin:logs:event:browse')) {
 
             unauthorised();
         }
@@ -182,7 +182,7 @@ class Logs extends \AdminController
         );
 
         //  Are we downloading? Or viewing?
-        if ($this->input->get('dl') && userHasPermission('admin.logs:0.can_download_event_logs')) {
+        if ($this->input->get('dl') && userHasPermission('admin:admin:logs:event:download')) {
 
             //  Get all items for the search, no need to paginate
             $data['RETURN_QUERY_OBJECT'] = true;
@@ -202,7 +202,7 @@ class Logs extends \AdminController
             $this->data['pagination'] = \Nails\Admin\Helper::paginationObject($page, $perPage, $totalRows);
 
             //  Add the header button for downloading
-            if (userHasPermission('admin.logs:0.can_download_event_logs')) {
+            if (userHasPermission('admin:admin:logs:event:download')) {
 
                 //  Build the query string, so that the same search is applies
                 $params              = array();
@@ -229,7 +229,7 @@ class Logs extends \AdminController
      */
     public function changelog()
     {
-        if (!userHasPermission('admin.logs:0.can_browse_change_logs')) {
+        if (!userHasPermission('admin:admin:logs:change:browse')) {
 
             unauthorised();
         }
@@ -271,7 +271,7 @@ class Logs extends \AdminController
         );
 
         //  Are we downloading? Or viewing?
-        if ($this->input->get('dl') && userHasPermission('admin.logs:0.can_download_change_logs')) {
+        if ($this->input->get('dl') && userHasPermission('admin:admin:logs:change:download')) {
 
             //  Get all items for the search, no need to paginate
             $data['RETURN_QUERY_OBJECT'] = true;
@@ -291,7 +291,7 @@ class Logs extends \AdminController
             $this->data['pagination'] = \Nails\Admin\Helper::paginationObject($page, $perPage, $totalRows);
 
             //  Add the header button for downloading
-            if (userHasPermission('admin.logs:0.can_download_change_logs')) {
+            if (userHasPermission('admin:admin:logs:change:download')) {
 
                 //  Build the query string, so that the same search is applies
                 $params              = array();

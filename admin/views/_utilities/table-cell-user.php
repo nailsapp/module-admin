@@ -24,7 +24,7 @@ echo '<td class="' . $knownUser . ' user-cell">';
         $name .= isset($last_name) && $last_name ? $last_name . ' ' : '';
         $name  = $name ? $name : 'Unknown User';
 
-        if (isset($id) && $id && userHasPermission('admin.accoutns:0.can_edit_user')) {
+        if (isset($id) && $id && userHasPermission('admin:auth:accounts:editOthers')) {
 
             echo anchor('admin/auth/accounts/edit/' . $id, $name, 'class="fancybox" data-fancybox-type="iframe"');
 

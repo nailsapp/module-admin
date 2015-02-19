@@ -132,18 +132,6 @@ class AdminController extends MX_Controller
     // --------------------------------------------------------------------------
 
     /**
-     * Returns any notifications which the suer should know about
-     * @param  string $classIndex The classIndex value, used when multiple admin instances are available
-     * @return array
-     */
-    public static function notifications($classIndex = null)
-    {
-        return array();
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
      * Returns an array of permissions which can be configured for the user
      * @return array
      */

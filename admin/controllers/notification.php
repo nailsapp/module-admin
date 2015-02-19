@@ -20,11 +20,11 @@ class Notification extends \AdminController
      */
     public static function announce()
     {
-        $navGroup = new \Nails\Admin\Nav('Notifications');
+        $navGroup = new \Nails\Admin\Nav('Notifications', 'fa-dot-circle-o');
 
         if (userHasPermission('admin:admin:notification:manage')) {
 
-            $navGroup->addMethod('Manage Notifications');
+            $navGroup->addAction('Manage Notifications');
         }
 
         return $navGroup;
