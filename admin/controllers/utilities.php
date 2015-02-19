@@ -67,11 +67,6 @@ class Utilities extends \AdminController
 
         // --------------------------------------------------------------------------
 
-        //  Language
-        $this->lang->load('admin_utilities');
-
-        // --------------------------------------------------------------------------
-
         /**
          * Define the export sources
          *

@@ -54,7 +54,7 @@ class Help extends \AdminController
      */
     public function index()
     {
-        if (userHasPermission('admin:admin:help:view')) {
+        if (!userHasPermission('admin:admin:help:view')) {
 
             unauthorised();
         }

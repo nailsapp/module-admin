@@ -106,7 +106,7 @@
             <div class="shortcut loggedin-as" rel="tipsy" title="Logged in as <?=activeUser('first_name,last_name')?>">
             <?php
 
-                $url  = 'admin/accounts/edit/' . activeUser('id');
+                $url  = 'admin/auth/accounts/edit/' . activeUser('id');
                 $attr = 'class="fancybox admin-branding-text-primary" data-fancybox-type="iframe"';
 
                 if (activeUser('profile_img')) {
@@ -131,13 +131,13 @@
             </div>
             <?php
 
-                $adminRecovery = $this->session->userdata('admin_recovery');
+                if ($this->user_model->wasAdmin()) {
 
-                if ($this->session->userdata('admin_recovery')) {
+                    $adminRecovery = $this->user_model->getAdminRecoveryData();
 
                     echo '<div class="shortcut admin-recovery" rel="tipsy" title="Log back in as ' . $adminRecovery->name . '">';
                         echo anchor(
-                            'auth/override/login_as/' . $adminRecovery->id . '/' . $adminRecovery->hash,
+                            $adminRecovery->loginUrl,
                             '<span class="fa fa-sign-out"></span>',
                             'class="admin-branding-text-primary"'
                         );
