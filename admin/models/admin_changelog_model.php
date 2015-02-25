@@ -27,8 +27,8 @@ class NAILS_Admin_changelog_model extends NAILS_Model
         // --------------------------------------------------------------------------
 
         //  Define data structure
-        $this->_table        = NAILS_DB_PREFIX . 'admin_changelog';
-        $this->_table_prefix = 'acl';
+        $this->table        = NAILS_DB_PREFIX . 'admin_changelog';
+        $this->tablePrefix = 'acl';
 
         // --------------------------------------------------------------------------
 
@@ -181,7 +181,7 @@ class NAILS_Admin_changelog_model extends NAILS_Model
                 $this->changes[$i]['modified_by'] = activeUser('id');
             }
 
-            $this->db->insert_batch($this->_table, $this->changes);
+            $this->db->insert_batch($this->table, $this->changes);
         }
 
         $this->clear();
@@ -208,7 +208,7 @@ class NAILS_Admin_changelog_model extends NAILS_Model
      **/
     public function get_all($page = null, $perPage = null, $data = array(), $_caller = 'GET_ALL')
     {
-        $this->db->select($this->_table_prefix . '.*, u.first_name, u.last_name, u.gender, u.profile_img, ue.email');
+        $this->db->select($this->tablePrefix . '.*, u.first_name, u.last_name, u.gender, u.profile_img, ue.email');
         return parent::get_all($page, $perPage, $data, false, $_caller);
     }
 
@@ -223,8 +223,8 @@ class NAILS_Admin_changelog_model extends NAILS_Model
     protected function _getcount_common($data = null, $caller = null)
     {
         //  Join user tables
-        $this->db->join(NAILS_DB_PREFIX . 'user u', 'u.id = ' . $this->_table_prefix . '.user_id', 'LEFT');
-        $this->db->join(NAILS_DB_PREFIX . 'user_email ue', 'ue.user_id = ' . $this->_table_prefix . '.user_id AND ue.is_primary = 1', 'LEFT');
+        $this->db->join(NAILS_DB_PREFIX . 'user u', 'u.id = ' . $this->tablePrefix . '.user_id', 'LEFT');
+        $this->db->join(NAILS_DB_PREFIX . 'user_email ue', 'ue.user_id = ' . $this->tablePrefix . '.user_id AND ue.is_primary = 1', 'LEFT');
 
         //  Searching?
         if (!empty($data['keywords'])) {
@@ -237,7 +237,7 @@ class NAILS_Admin_changelog_model extends NAILS_Model
             $toSlug = strtolower(str_replace(' ', '_', $data['keywords']));
 
             $data['or_like'][] = array(
-                'column' => $this->_table_prefix . '.type',
+                'column' => $this->tablePrefix . '.type',
                 'value'  => $toSlug
             );
             $data['or_like'][] = array(
