@@ -159,6 +159,9 @@ class AdminRouter extends NAILS_Controller
                 FCPATH . APPPATH . 'modules/' . $module->moduleName . '/admin/controllers/'
             );
         }
+
+        //  Finally, look for app admin controllers
+        $this->loadAppAdminControllers();
     }
 
     // --------------------------------------------------------------------------
@@ -173,7 +176,7 @@ class AdminRouter extends NAILS_Controller
      */
     protected function loadAdminControllers($moduleName, $controllerPath, $appPath, $ignore = array())
     {
-        //  Does a path exist? don't pollute the array with empty modules
+        //  Does a path exist? Don't pollute the array with empty modules
         if (is_dir($controllerPath)) {
             //  Look for controllers
             $files = directory_map($controllerPath, 1);
@@ -184,6 +187,37 @@ class AdminRouter extends NAILS_Controller
                 }
 
                 $this->loadAdminController($file, $moduleName, $controllerPath, $appPath);
+            }
+        }
+    }
+
+    // --------------------------------------------------------------------------
+
+    protected function loadAppAdminControllers()
+    {
+        $appControllerPath = FCPATH . APPPATH . 'modules/admin/controllers/';
+
+        if (is_dir($appControllerPath)) {
+
+            //  Look for controllers
+            $files = directory_map($appControllerPath, 1);
+
+            foreach ($files as $file) {
+
+                //  Valid Admin file?
+                if (!$this->isValidAdminFile($file)) {
+                    continue;
+                }
+
+                $fileName = substr($file, 0, strpos($file, '.php'));
+
+                //  Valid file, load it up and define the full class path and name
+                require_once $appControllerPath . $file;
+                $classPath = $appControllerPath . $file;
+                $className = 'App\Admin\\App\\' . ucfirst($fileName);
+
+                //  Load and process the class
+                $this->loadAdminClass($fileName, $className, $classPath, 'app');
             }
         }
     }
@@ -203,7 +237,7 @@ class AdminRouter extends NAILS_Controller
         $fileName = substr($file, 0, strpos($file, '.php'));
 
         //  PHP file, no leading underscore
-        if (!preg_match('/^[^_][a-zA-Z_]+\.php$/', $file)) {
+        if (!$this->isValidAdminFile($file)) {
             return false;
         }
 
@@ -225,6 +259,37 @@ class AdminRouter extends NAILS_Controller
             }
         }
 
+        //  Load and process the class
+        $this->loadAdminClass($fileName, $className, $classPath, $moduleName);
+
+        return true;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Determines whether the file being loaded has an acceptable filename.
+     * @param  String  $file The filename to test
+     * @return boolean
+     */
+    protected function isValidAdminFile($file)
+    {
+        //  PHP file, no leading underscore
+        return preg_match('/^[^_][a-zA-Z_]+\.php$/', $file);
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Attempts to load an AdminClass
+     * @param  string  $fileName   The filename of the class being loaded
+     * @param  string  $className  The name of the class being loaded
+     * @param  string  $classPath  The path of the class being loaded
+     * @param  string  $moduleName The name of the module to which this class belongs
+     * @return boolean
+     */
+    protected function loadAdminClass($fileName, $className, $classPath, $moduleName)
+    {
         //  Does the expected class exist?
         if (!class_exists($className)) {
             return false;
