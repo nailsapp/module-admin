@@ -297,9 +297,11 @@
             }
         ?>
         </ul>
-        <p class="text-center" id="admin-nav-reset">
-            <a href="#">Reset Nav</a>
-        </p>
+        <div class="text-center" id="admin-nav-reset-buttons">
+            <a href="#" data-action="reset">Reset Nav</a>
+            <a href="#" data-action="open">Open All</a>
+            <a href="#" data-action="close">Close All</a>
+        </div>
         <div class="no-modules">
             <p class="system-alert error">
                 <strong>No modules available.</strong>
