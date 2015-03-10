@@ -381,6 +381,7 @@ class AdminRouter extends NAILS_Controller
                         $url .= $actionUrl;
 
                         $adminControllersNav[md5($groupLabel)]->actions[$url]         = new \stdClass();
+                        $adminControllersNav[md5($groupLabel)]->actions[$url]->order  = $actionDetails->order;
                         $adminControllersNav[md5($groupLabel)]->actions[$url]->label  = $actionDetails->label;
                         $adminControllersNav[md5($groupLabel)]->actions[$url]->alerts = $actionDetails->alerts;
                         $adminControllersNav[md5($groupLabel)]->actions[$url]->class  = $controllerDetails['className'];
@@ -510,7 +511,7 @@ class AdminRouter extends NAILS_Controller
 
         foreach ($this->adminControllersNav as $grouping) {
 
-            array_sort_multi($grouping->actions, 'label');
+            array_sort_multi($grouping->actions, 'order');
         }
     }
 

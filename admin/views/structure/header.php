@@ -19,6 +19,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <!--    NAILS JS GLOBALS    -->
     <script style="text/javascript">
+        /* jshint ignore:start */
         window.ENVIRONMENT      = '<?=strtoupper(ENVIRONMENT)?>';
         window.SITE_URL         = '<?=site_url('', isPageSecure())?>';
         window.NAILS            = {};
@@ -29,6 +30,7 @@
         window.NAILS.USER.FNAME = '<?=activeUser('first_name')?>';
         window.NAILS.USER.LNAME = '<?=activeUser('last_name')?>';
         window.NAILS.USER.EMAIL = '<?=activeUser('email')?>';
+        /* jshint ignore:end */
     </script>
     <noscript>
         <style type="text/css">
@@ -58,35 +60,25 @@
     ?>
     <style type="text/css">
 
-        .admin-branding-text-primary
-        {
+        .admin-branding-text-primary {
             color: <?=$brandColorPrimary?>;
         }
-        .admin-branding-background-primary
-        {
+        .admin-branding-background-primary {
             background: <?=$brandColorPrimary?>;
         }
-
-        .admin-branding-text-secondary
-        {
+        .admin-branding-text-secondary {
             color: <?=$brandColorSecondary?>;
         }
-        .admin-branding-background-secondary
-        {
+        .admin-branding-background-secondary {
             background: <?=$brandColorSecondary?>;
         }
-
-        .admin-branding-text-highlight
-        {
+        .admin-branding-text-highlight {
             color: <?=$brandColorHighlight?>;
         }
-        .admin-branding-background-highlight
-        {
+        .admin-branding-background-highlight {
             background: <?=$brandColorHighlight?>;
         }
-
-        table thead tr th
-        {
+        table thead tr th {
             background-color: <?=$brandColorPrimary?>;
         }
 
@@ -220,7 +212,6 @@
                                 } else {
 
                                     //  Check if any have been listed as !important
-
                                     $importantIcons = preg_grep('/^(.*)!important$/', $module->icon);
 
                                     if (!empty($importantIcons)) {

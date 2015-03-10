@@ -72,12 +72,22 @@ class Nav
      * @param string $label  The label to give the action
      * @param string $url    The url this action applies to
      * @param array  $alerts An array of alerts to have along side this action
+     * @param mixed  $order  An optional order index, used to push menu items up and down the group
      */
-    public function addAction($label, $url = 'index', $alerts = array())
+    public function addAction($label, $url = 'index', $alerts = array(), $order = null)
     {
         $this->actions[$url]         = new \stdClass();
         $this->actions[$url]->label  = $label;
         $this->actions[$url]->alerts = $alerts;
+
+        if (is_null($order)) {
+
+            $this->actions[$url]->order = count($this->actions);
+
+        } else {
+
+            $this->actions[$url]->order = $order;
+        }
 
         return $this;
     }
