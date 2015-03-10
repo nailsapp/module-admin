@@ -36,7 +36,7 @@ class Helper
         //  Are we in a modal?
         if ($ci->input->get('isModal')) {
 
-            if (!isset($controllerData['headerOverride'])) {
+            if (!isset($controllerData['headerOverride']) && !isset($controllerData['isModal'])) {
 
                 $controllerData['isModal'] = true;
             }
