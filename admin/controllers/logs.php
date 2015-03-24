@@ -72,7 +72,7 @@ class Logs extends \AdminController
 
         $this->load->helper('string');
         $method = $this->uri->segment(5) ? $this->uri->segment(5) : 'index';
-        $method = 'site' . underscore_to_camelcase(strtolower($method), false);
+        $method = 'site' . underscoreToCamelcase(strtolower($method), false);
 
         if (method_exists($this, $method)) {
 
