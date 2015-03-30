@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Api\Admin;
+namespace Nails\Api\Admin;
 
 /**
  * Admin API end points: logs
