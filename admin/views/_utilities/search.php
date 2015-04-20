@@ -70,7 +70,7 @@
 
                             } else {
 
-                                $selected = $option->selected;
+                                $selected = $option->checked;
                             }
 
                             $selected = $selected ? 'selected="selected"' : '';
