@@ -146,11 +146,13 @@ class Settings extends \AdminController
                 $settings['google_analytics_account'] = $this->input->post('google_analytics_account');
             }
 
-            if (userHasPermission('admin:admin:settings:site:analytics')) {
+            if (userHasPermission('admin:admin:settings:site:maintenance')) {
 
                 $rawIPs = $this->input->post('maintenance_mode_whitelist');
                 $settings['maintenance_mode_enabled']   = (bool) $this->input->post('maintenance_mode_enabled');
                 $settings['maintenance_mode_whitelist'] = $this->prepareWhitelist($rawIPs);
+                $settings['maintenance_mode_title']     = $this->input->post('maintenance_mode_title');
+                $settings['maintenance_mode_body']      = $this->input->post('maintenance_mode_body');
             }
 
             if (!empty($settings)) {
@@ -184,6 +186,7 @@ class Settings extends \AdminController
 
         //  Load assets
         $this->asset->load('nails.admin.settings.min.js', 'NAILS');
+        $this->asset->load('nails.admin.admin.settings.min.js', 'NAILS');
 
         // --------------------------------------------------------------------------
 

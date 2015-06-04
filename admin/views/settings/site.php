@@ -5,8 +5,8 @@
     <hr />
     <?php
 
-        echo form_open();
-        echo '<input type="hidden" name="activeTab" value="' . set_value('activeTab') . '" id="activeTab" />'
+        echo form_open(null, 'id="settings-form"');
+        echo '<input type="hidden" name="activeTab" value="' . set_value('activeTab') . '" id="activeTab" />';
 
     ?>
     <ul class="tabs">
@@ -36,7 +36,7 @@
 
         ?>
     </ul>
-    <section class="tabs pages">
+    <section class="tabs">
         <?php
 
         if (userHasPermission('admin:admin:settings:site:analytics')) {
@@ -44,7 +44,7 @@
             $display = $this->input->post('activeTab') == 'tab-analytics' || !$this->input->post('activeTab') ? 'active' : '';
 
             ?>
-            <div id="tab-analytics" class="tab page <?=$display?> analytics">
+            <div class="tab-page <?=$display?> tab-analytics">
                 <p>
                     Configure your analytics accounts. If field is left empty then that provider will not be used.
                 </p>
@@ -72,7 +72,7 @@
             $display = $this->input->post('activeTab') == 'tab-maintenance' ? 'active' : '';
 
             ?>
-            <div id="tab-maintenance" class="tab page <?=$display?> maintenance">
+            <div class="tab-page <?=$display?> tab-maintenance">
                 <p>
                     Maintenance mode disables disables access to the site with the exception
                     for those IP addresses listed in the whitelist.
@@ -89,22 +89,47 @@
                     <?php
 
                         $field            = array();
+                        $field['id']      = 'maintenance-mode-enabled';
                         $field['key']     = 'maintenance_mode_enabled';
                         $field['label']   = 'Enabled';
                         $field['default'] = app_setting($field['key'], 'site');
 
                         echo form_field_boolean($field);
 
-                        // --------------------------------------------------------------------------
+                        $display = $field['default'] ? 'block' : 'none';
 
-                        $field                = array();
-                        $field['key']         = 'maintenance_mode_whitelist';
-                        $field['label']       = 'Whitelist';
-                        $field['type']        = 'textarea';
-                        $field['default']     = trim(implode("\n", (array) app_setting($field['key'], 'site')));
-                        $field['placeholder'] = 'Specify IP addresses to whitelist either comma seperated or on new lines.';
+                        echo '<div id="maintenance-mode-extras" style="display:' . $display . '">';
 
-                        echo form_field($field);
+                            $field                = array();
+                            $field['key']         = 'maintenance_mode_whitelist';
+                            $field['label']       = 'Whitelist';
+                            $field['default']     = trim(implode("\n", (array) app_setting($field['key'], 'site')));
+                            $field['placeholder'] = 'Specify IP addresses to whitelist either comma seperated or on new lines.';
+                            $field['info']        = 'Your current IP address is: ' . $this->input->ip_address();
+
+                            echo form_field_textarea($field);
+
+                            // --------------------------------------------------------------------------
+
+                            $field                = array();
+                            $field['key']         = 'maintenance_mode_title';
+                            $field['label']       = 'Title';
+                            $field['default']     = app_setting($field['key'], 'site');
+                            $field['placeholder'] = 'Optionally specify a custom title for the maintenance page.';
+
+                            echo form_field($field);
+
+                            // --------------------------------------------------------------------------
+
+                            $field                = array();
+                            $field['key']         = 'maintenance_mode_body';
+                            $field['label']       = 'Body';
+                            $field['default']     = app_setting($field['key'], 'site');
+                            $field['placeholder'] = 'Optionally specify a custom body for the maintenance page.';
+
+                            echo form_field_wysiwyg($field);
+
+                        echo '</div>';
 
                     ?>
                 </fieldset>

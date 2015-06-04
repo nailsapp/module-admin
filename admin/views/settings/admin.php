@@ -6,7 +6,7 @@
     <?php
 
         echo form_open();
-        echo '<input type="hidden" name="activeTab" value="' . set_value('activeTab') . '" id="activeTab" />'
+        echo '<input type="hidden" name="activeTab" value="' . set_value('activeTab') . '" id="activeTab" />';
 
     ?>
     <ul class="tabs">
@@ -36,7 +36,7 @@
 
         ?>
     </ul>
-    <section class="tabs pages">
+    <section class="tabs">
         <?php
 
         if (userHasPermission('admin:admin:settings:admin:branding')) {
@@ -44,7 +44,7 @@
             $display = $this->input->post('activeTab') == 'tab-branding' || !$this->input->post('activeTab') ? 'active' : '';
 
             ?>
-            <div id="tab-branding" class="tab page <?=$display?> branding">
+            <div class="tab-page tab-branding <?=$display?>">
                 <p>
                     Give admin a lick of paint using your brand colours.
                 </p>
@@ -91,7 +91,7 @@
             $display = $this->input->post('activeTab') == 'tab-whitelist' ? 'active' : '';
 
             ?>
-            <div id="tab-whitelist" class="tab page <?=$display?> whitelist">
+            <div class="tab-page tab-whitelist <?=$display?>">
                 <p>
                     Specify which IP's can access admin. If no IP addresses are specified then
                     admin will be accessible from any IP address.
@@ -106,6 +106,7 @@
                     $field['type']        = 'textarea';
                     $field['default']     = trim(implode("\n", (array) app_setting($field['key'], 'admin')));
                     $field['placeholder'] = 'Specify IP addresses to whitelist either comma seperated or on new lines.';
+                    $field['help']        = 'Your current IP address is: ' . $this->input->ip_address();
 
                     echo form_field($field);
 
