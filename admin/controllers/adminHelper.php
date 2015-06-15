@@ -276,7 +276,7 @@ class Helper
      * @param  string $column  The name of the column to filter on, leave blank if you do not wish to use Nails's automatic filtering
      * @param  string $label   The label to give the filter group
      * @param  array  $options An array of options for the dropdown, either key => value pairs or a 3 element array: 0 = label, 1 = value, 2 = default check status
-     * @return void
+     * @return stdClass
      */
     public static function searchFilterObject($column, $label, $options)
     {
@@ -287,25 +287,42 @@ class Helper
 
         foreach ($options as $index => $option) {
 
-            $temp = new \stdClass();
-
             if (is_array($option)) {
 
-                $temp->label   = isset($option[0]) ? $option[0] : null;
-                $temp->value   = isset($option[1]) ? $option[1] : null;
-                $temp->checked = isset($option[2]) ? $option[2] : false;
+                $label   = isset($option[0]) ? $option[0] : null;
+                $value   = isset($option[1]) ? $option[1] : null;
+                $checked = isset($option[2]) ? $option[2] : false;
 
             } else {
 
-                $temp->label   = $option;
-                $temp->value   = $index;
-                $temp->checked = false;
+                $label   = $option;
+                $value   = $index;
+                $checked = false;
             }
 
-            $filterObject->options[] = $temp;
+            $filterObject->options[] = self::searchFilterObjectOption($label, $value, $checked);
         }
 
         return $filterObject;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Creates a starndard object which is an option for self::searchFilterObject()
+     * @param  string  $label   The label to give the option
+     * @param  string  $value   The value to give the option (filters self::searchFilterObject's $column parameter)
+     * @param  boolean $checked Whether the value si checked by default
+     * @return stdClass
+     */
+    public static function searchFilterObjectOption($label = '', $value = '', $checked = false)
+    {
+        $temp          = new \stdClass();
+        $temp->label   = $label;
+        $temp->value   = $value;
+        $temp->checked = $checked;
+
+        return $temp;
     }
 
     // --------------------------------------------------------------------------
