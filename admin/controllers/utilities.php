@@ -553,7 +553,7 @@ class Utilities extends \AdminController
         // --------------------------------------------------------------------------
 
         $this->load->library('pdf/pdf');
-        $this->pdf->set_paper_size('A4', 'landscape');
+        $this->pdf->setPaperSize('A4', 'landscape');
         $this->pdf->load_html($html[1]);
 
         //  Load view
