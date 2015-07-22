@@ -381,11 +381,38 @@ class Helper
 
     /**
      * Load the admin "user" table cell component
-     * @param  stdClass $user The user object
+     * @param  mixed $user The user object or the User's ID/email/username
      * @return string
      */
     public static function loadUserCell($user)
     {
+        if (is_numeric($user)) {
+
+            $oUser = get_instance()->user_model->get_by_id($user);
+            if ($oUser) {
+
+                $user = $oUser;
+            }
+
+        } else if (is_string($user)) {
+
+            $oUser = get_instance()->user_model->get_by_email($user);
+
+            if ($oUser) {
+
+                $user = $oUser;
+
+            } else {
+
+                $oUser = get_instance()->user_model->get_by_username($user);
+
+                if ($oUser) {
+
+                    $user = $oUser;
+                }
+            }
+        }
+
         return get_instance()->load->view('admin/_utilities/table-cell-user', $user, true);
     }
 
