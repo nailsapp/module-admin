@@ -1,12 +1,6 @@
 {
     "name": "nailsapp/module-admin",
-    "keywords":
-    [
-        "Nails",
-        "Shed Collective",
-        "CodeIgniter",
-        "Admin Module"
-    ],
+    "keywords": ["Nails", "Shed Collective", "CodeIgniter", "Admin Module"],
     "homepage": "http://nailsapp.co.uk/modules/admin",
     "description": "This is the \"Admin\" module for Nails.",
     "license": "MIT",
