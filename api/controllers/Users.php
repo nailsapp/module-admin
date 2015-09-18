@@ -50,7 +50,7 @@ class Users extends \ApiController
                 $temp->first_name  = $user->first_name;
                 $temp->last_name   = $user->last_name;
                 $temp->gender      = $user->gender;
-                $temp->profile_img = cdn_avatar($temp->id, $avatarSize, $avatarSize);
+                $temp->profile_img = cdnAvatar($temp->id, $avatarSize, $avatarSize);
 
                 $out['users'][] = $temp;
             }

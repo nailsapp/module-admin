@@ -103,11 +103,11 @@
 
                 if (activeUser('profile_img')) {
 
-                    $img = img(array('src' => cdn_thumb(activeUser('profile_img'), 30, 30), 'class' => 'avatar'));
+                    $img = img(array('src' => cdnCrop(activeUser('profile_img'), 30, 30), 'class' => 'avatar'));
 
                 } else {
 
-                    $img = img(array('src' => cdn_blank_avatar(30, 30), 'class' => 'avatar'));
+                    $img = img(array('src' => cdnBlankAvatar(30, 30), 'class' => 'avatar'));
                 }
 
                 echo anchor(

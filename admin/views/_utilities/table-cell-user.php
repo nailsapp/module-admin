@@ -6,12 +6,12 @@ echo '<td class="' . $knownUser . ' user-cell">';
     //  Profile image
     if (isset($profile_img) && $profile_img) {
 
-        echo anchor(cdn_serve($profile_img) ,img(cdn_thumb($profile_img, 36, 36)), 'class="fancybox"');
+        echo anchor(cdnServe($profile_img) ,img(cdnCrop($profile_img, 36, 36)), 'class="fancybox"');
 
     } else {
 
         $gender = isset($gender) ? $gender : 'undisclosed';
-        echo img(cdn_blank_avatar(36, 36, $gender));
+        echo img(cdnBlankAvatar(36, 36, $gender));
     }
 
     // --------------------------------------------------------------------------
