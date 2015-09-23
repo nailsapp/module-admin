@@ -46,8 +46,8 @@
     <link href="//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700" rel="stylesheet" type="text/css">
     <?php
 
-        echo $this->asset->output('CSS');
-        echo $this->asset->output('CSS-INLINE');
+        $this->asset->output('CSS');
+        $this->asset->output('CSS-INLINE');
 
     ?>
     <link rel="stylesheet" type="text/css" media="print" href="<?=NAILS_ASSETS_URL . 'css/nails.admin.print.css'?>" />
