@@ -32,6 +32,11 @@ class Settings extends \AdminController
             $navGroup->addAction('Site', 'site');
         }
 
+        if (userHasPermission('admin:admin:notification:manage')) {
+
+            $navGroup->addAction('Notifications', 'notifications');
+        }
+
         return $navGroup;
     }
 
@@ -45,10 +50,11 @@ class Settings extends \AdminController
     {
         $permissions = parent::permissions();
 
-        $permissions['admin:branding']   = 'Configure Admin Branding';
-        $permissions['admin:whitelist']  = 'Configure Admn Whitelist';
-        $permissions['site:analytics']   = 'Configure Site analytics';
-        $permissions['site:maintenance'] = 'Configure Maintenance Mode';
+        $permissions['admin:branding']     = 'Configure Admin Branding';
+        $permissions['admin:whitelist']    = 'Configure Admn Whitelist';
+        $permissions['site:analytics']     = 'Configure Site analytics';
+        $permissions['site:maintenance']   = 'Configure Maintenance Mode';
+        $permissions['notifications']      = 'Configure Notifications';
 
         return $permissions;
     }
@@ -192,6 +198,89 @@ class Settings extends \AdminController
 
         //  Load views
         \Nails\Admin\Helper::loadView('site');
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Manage notifications
+     * @return void
+     */
+    public function notifications()
+    {
+        if (!userHasPermission('admin:admin:notification:manage')) {
+
+            unauthorised();
+        }
+
+        // --------------------------------------------------------------------------
+
+        $this->load->model('app_notification_model');
+
+        // --------------------------------------------------------------------------
+
+        //  Page Title
+        $this->data['page']->title = 'Manage Notifications';
+
+        // --------------------------------------------------------------------------
+
+        if ($this->input->post()) {
+
+            $notification = $this->input->post('notification');
+
+            if (is_array($notification)) {
+
+                $set = array();
+
+                foreach ($notification as $grouping => $options) {
+
+                    $set[$grouping] = array();
+
+                    foreach ($options as $key => $emails) {
+
+                        $emails = explode(',', $emails);
+                        $emails = array_filter($emails);
+                        $emails = array_unique($emails);
+
+                        foreach ($emails as &$email) {
+
+                            $email = trim($email) ;
+
+                            if (!valid_email($email)) {
+
+                                $error = '"<strong>' . $email . '</strong>" is not a valid email.';
+                                break 3;
+                            }
+                        }
+
+                        $set[$grouping][$key] = $emails;
+                    }
+                }
+
+                if (empty($error)) {
+
+                    foreach ($set as $grouping => $options) {
+
+                        $this->app_notification_model->set($options, $grouping);
+                    }
+
+                    $this->data['success'] = 'Notifications were updated successfully.';
+
+                } else {
+
+                    $this->data['error'] = $error;
+                }
+            }
+        }
+
+        // --------------------------------------------------------------------------
+
+        $this->data['notifications'] = $this->app_notification_model->getDefinitions();
+
+        // --------------------------------------------------------------------------
+
+        //  Load views
+        \Nails\Admin\Helper::loadView('notifications');
     }
 
     // --------------------------------------------------------------------------
