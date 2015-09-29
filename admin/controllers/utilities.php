@@ -331,18 +331,10 @@ class Utilities extends \AdminController
         $out[$counter]->data     = array();
         $counter++;
 
-        //  useR_email
+        //  user_email
         $out[$counter]           = new \stdClass();
         $out[$counter]->label    = 'User Email';
         $out[$counter]->filename = NAILS_DB_PREFIX . 'user_email';
-        $out[$counter]->fields   = array();
-        $out[$counter]->data     = array();
-        $counter++;
-
-        //  user_meta
-        $out[$counter]           = new \stdClass();
-        $out[$counter]->label    = 'User Meta';
-        $out[$counter]->filename = NAILS_DB_PREFIX . 'user_meta';
         $out[$counter]->fields   = array();
         $out[$counter]->data     = array();
         $counter++;
