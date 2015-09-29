@@ -32,7 +32,7 @@ class Settings extends \AdminController
             $navGroup->addAction('Site', 'site');
         }
 
-        if (userHasPermission('admin:admin:notification:manage')) {
+        if (userHasPermission('admin:admin:settings:notifications')) {
 
             $navGroup->addAction('Notifications', 'notifications');
         }
@@ -208,7 +208,7 @@ class Settings extends \AdminController
      */
     public function notifications()
     {
-        if (!userHasPermission('admin:admin:notification:manage')) {
+        if (!userHasPermission('admin:admin:settings:notifications')) {
 
             unauthorised();
         }
