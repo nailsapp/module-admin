@@ -19,7 +19,7 @@ class NAILS_Admin_sitelog_model extends NAILS_Model
     public function __construct()
     {
         parent::__construct();
-        $this->load->helper('directory');
+        \Nails\Factory::helper('directory');
 
         // --------------------------------------------------------------------------
 

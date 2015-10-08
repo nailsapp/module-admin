@@ -55,7 +55,7 @@ class AdminRouter extends NAILS_Controller
          * Load helpers we'll need
          */
 
-        $this->load->helper('directory');
+        \Nails\Factory::helper('directory');
 
         /**
          * Fetch the base classes we'll be using
@@ -447,7 +447,7 @@ class AdminRouter extends NAILS_Controller
          */
 
         //  Sort alphabetically
-        $this->load->helper('array');
+        \Nails\Factory::helper('array');
         array_sort_multi($middle, 'label');
 
         //  Get user's prefs

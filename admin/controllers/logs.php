@@ -70,7 +70,7 @@ class Logs extends \AdminController
 
         // --------------------------------------------------------------------------
 
-        $this->load->helper('string');
+        \Nails\Factory::helper('string');
         $method = $this->uri->segment(5) ? $this->uri->segment(5) : 'index';
         $method = 'site' . underscoreToCamelcase(strtolower($method), false);
 

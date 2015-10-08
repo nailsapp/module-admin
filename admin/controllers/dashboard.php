@@ -40,7 +40,7 @@ class Dashboard extends \AdminController
         // --------------------------------------------------------------------------
 
         //  Choose a hello phrase
-        $this->load->helper('array');
+        \Nails\Factory::helper('array');
 
         $phrases   = array();
         $phrases[] = 'Be awesome.';
@@ -48,9 +48,12 @@ class Dashboard extends \AdminController
         $phrases[] = 'What are we doing today?';
 
         if (activeUser('first_name')) {
+
             $phrases[] = 'Today is gonna be a good day, ' . activeUser('first_name') . '.';
             $phrases[] = 'Hey, ' . activeUser('first_name') . '!';
+
         } else {
+
             $phrases[] = 'Today is gonna be a good day.';
             $phrases[] = 'Hey!';
         }
