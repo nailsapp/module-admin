@@ -48,7 +48,7 @@ class AdminController extends MX_Controller
         }
 
         //  Libraries
-        $this->load->library('cdn/cdn');
+        $this->cdn = \Nails\Factory::service('Cdn', 'nailsapp/module-cdn');
 
         //  Languages
         $this->lang->load('admin/admin_generic');
