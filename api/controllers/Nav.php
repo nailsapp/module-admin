@@ -1,7 +1,5 @@
 <?php
 
-namespace Nails\Api\Admin;
-
 /**
  * Admin API end points: Nav
  *
@@ -12,7 +10,9 @@ namespace Nails\Api\Admin;
  * @link
  */
 
-class Nav extends \ApiController
+namespace Nails\Api\Admin;
+
+class Nav extends \Nails\Api\Controllers\Base
 {
     public static $requiresAuthentication = true;
 
