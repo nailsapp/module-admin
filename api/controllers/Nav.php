@@ -23,9 +23,9 @@ class Nav extends \Nails\Api\Controllers\Base
 
     // --------------------------------------------------------------------------
 
-    public function __construct() {
+    public function __construct($apiRouter) {
 
-        parent::__construct();
+        parent::__construct($apiRouter);
 
         if (!$this->user_model->isAdmin()) {
 

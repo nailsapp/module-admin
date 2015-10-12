@@ -215,7 +215,7 @@ class Settings extends \AdminController
 
         // --------------------------------------------------------------------------
 
-        $this->load->model('app_notification_model');
+        $oAppNotificationModel = \Nails\Factory::model('AppNotification');
 
         // --------------------------------------------------------------------------
 
@@ -261,7 +261,7 @@ class Settings extends \AdminController
 
                     foreach ($set as $grouping => $options) {
 
-                        $this->app_notification_model->set($options, $grouping);
+                        $oAppNotificationModel->set($options, $grouping);
                     }
 
                     $this->data['success'] = 'Notifications were updated successfully.';
@@ -275,7 +275,7 @@ class Settings extends \AdminController
 
         // --------------------------------------------------------------------------
 
-        $this->data['notifications'] = $this->app_notification_model->getDefinitions();
+        $this->data['notifications'] = $oAppNotificationModel->getDefinitions();
 
         // --------------------------------------------------------------------------
 
