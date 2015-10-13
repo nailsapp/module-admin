@@ -2,9 +2,19 @@
                     <small rel="tooltip-r" title="<?=lang('admin_rendered_in_tip')?>">
                         <?=lang('admin_rendered_in', '{elapsed_time}')?>
                     </small>
-                    <small class="right">
-                        <?=lang('admin_powered_by', 'http://nailsapp.co.uk')?>
-                    </small>
+                    <?php
+
+                    if (NAILS_BRANDING) {
+
+                        ?>
+                        <small class="right">
+                            <?=lang('admin_powered_by', 'http://nailsapp.co.uk')?>
+                        </small>
+                        <?php
+
+                    }
+
+                    ?>
                 </footer>
             </div><!--  /.content_inner -->
         </div>
