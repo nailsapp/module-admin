@@ -12,7 +12,9 @@
 
 namespace Nails\Admin\Admin;
 
-class Dashboard extends \AdminController
+use Nails\Admin\Controller\Base;
+
+class Dashboard extends Base
 {
     /**
      * Announces this controller's navGroups
@@ -29,7 +31,7 @@ class Dashboard extends \AdminController
     // --------------------------------------------------------------------------
 
     /**
-     * The admin homepage/dashbaord
+     * The admin homepage/dashboard
      * @return void
      */
     public function index()

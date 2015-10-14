@@ -12,7 +12,9 @@
 
 namespace Nails\Admin\Admin;
 
-class Help extends \AdminController
+use Nails\Admin\Controller\Base;
+
+class Help extends Base
 {
     /**
      * Announces this controller's navGroups

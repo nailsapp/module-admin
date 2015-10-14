@@ -56,15 +56,6 @@ class AdminRouter extends NAILS_Controller
          */
 
         \Nails\Factory::helper('directory');
-
-        /**
-         * Fetch the base classes we'll be using
-         * @todo: autoload these
-         */
-
-        require_once NAILS_PATH . 'module-admin/admin/controllers/adminController.php';
-        require_once NAILS_PATH . 'module-admin/admin/controllers/adminHelper.php';
-        require_once NAILS_PATH . 'module-admin/admin/controllers/adminNav.php';
     }
 
     // --------------------------------------------------------------------------
@@ -132,8 +123,6 @@ class AdminRouter extends NAILS_Controller
             NAILS_PATH . 'module-admin/admin/controllers/',
             FCPATH . APPPATH . 'modules/admin/controllers/',
             array(
-                'adminController.php',
-                'adminHelper.php',
                 'adminRouter.php'
             )
         );

@@ -12,7 +12,9 @@
 
 namespace Nails\Admin\Admin;
 
-class Utilities extends \AdminController
+use Nails\Admin\Controller\Base;
+
+class Utilities extends Base
 {
     protected $exportSources;
     protected $exportFormats;

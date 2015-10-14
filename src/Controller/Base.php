@@ -11,7 +11,9 @@
  * @link
  */
 
-class AdminController extends MX_Controller
+namespace Nails\Admin\Controller;
+
+class Base extends \MX_Controller
 {
     protected $data;
 

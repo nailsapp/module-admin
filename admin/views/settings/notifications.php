@@ -1,4 +1,4 @@
-<div class="group-notification overview">
+<div class="group-settings notification overview">
     <p>
         Configure who gets email notifications when certain events happen on site.
         Separate multiple email addresses using a comma; leaving blank will disable

@@ -12,7 +12,7 @@ namespace Nails\Api\Admin;
  * @link
  */
 
-class Logs extends \Nails\Api\Controllers\Base
+class Logs extends \Nails\Api\Controller\Base
 {
     public static $requiresAuthentication = true;
 

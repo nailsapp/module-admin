@@ -12,7 +12,7 @@
 
 namespace Nails\Api\Admin;
 
-class Nav extends \Nails\Api\Controllers\Base
+class Nav extends \Nails\Api\Controller\Base
 {
     public static $requiresAuthentication = true;
 

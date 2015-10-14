@@ -12,7 +12,9 @@
 
 namespace Nails\Admin\Admin;
 
-class Logs extends \AdminController
+use Nails\Admin\Controller\Base;
+
+class Logs extends Base
 {
     /**
      * Announces this controller's navGroups
