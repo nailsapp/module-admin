@@ -1,38 +1,38 @@
 <div class="group-dashboard">
     <?php
 
-        if ($adminControllers) {
+    if ($adminControllers) {
 
-            ?>
-           <p>
-                Welcome to <?=APP_NAME?>'s Administration pages. From here you can control aspects of
-                the site.
+        ?>
+       <p>
+            Welcome to <?=APP_NAME?>'s Administration pages. From here you can control aspects of
+            the site.
+        </p>
+        <p>
+            Get started by choosing an option from the left.
+        </p>
+        <div class="welcome">
+            <p class="icon">
+                <span class="fa fa-smile-o">
             </p>
-            <p>
-                Get started by choosing an option from the left.
+            <p class="text">
+                <?=$phrase?>
             </p>
-            <div class="welcome">
-                <p class="icon">
-                    <span class="fa fa-smile-o">
-                </p>
-                <p class="text">
-                    <?=$phrase?>
-                </p>
-            </div>
-            <?php
+        </div>
+        <?php
 
-        } else {
+    } else {
 
-            ?>
-            <p class="system-alert message">
-                <strong>How very strange...</strong>
-                <br />
-                You don't have permission to access any of the administration features for this site. This is most
-                likely a misconfiguration of your account; please see the site administrator for assistance, or send
-                an email to <a href="mailto:<?=APP_DEVELOPER_EMAIL?>"><?=APP_DEVELOPER_EMAIL?></a>.
-            </p>
-            <?php
-        }
+        ?>
+        <p class="system-alert message">
+            <strong>How very strange...</strong>
+            <br />
+            You don't have permission to access any of the administration features for this site. This is most
+            likely a misconfiguration of your account; please see the site administrator for assistance, or send
+            an email to <a href="mailto:<?=APP_DEVELOPER_EMAIL?>"><?=APP_DEVELOPER_EMAIL?></a>.
+        </p>
+        <?php
+    }
 
     ?>
 </div>
