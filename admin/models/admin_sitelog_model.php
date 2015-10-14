@@ -10,6 +10,8 @@
  * @link
  */
 
+use Nails\Factory;
+
 class NAILS_Admin_sitelog_model extends NAILS_Model
 {
     protected $logPath;
@@ -19,7 +21,7 @@ class NAILS_Admin_sitelog_model extends NAILS_Model
     public function __construct()
     {
         parent::__construct();
-        \Nails\Factory::helper('directory');
+        Factory::helper('directory');
 
         // --------------------------------------------------------------------------
 

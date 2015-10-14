@@ -12,6 +12,7 @@
 
 namespace Nails\Admin\Admin;
 
+use Nails\Factory;
 use Nails\Admin\Controller\Base;
 
 class Settings extends Base
@@ -217,7 +218,7 @@ class Settings extends Base
 
         // --------------------------------------------------------------------------
 
-        $oAppNotificationModel = \Nails\Factory::model('AppNotification');
+        $oAppNotificationModel = Factory::model('AppNotification');
 
         // --------------------------------------------------------------------------
 

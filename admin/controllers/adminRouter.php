@@ -10,6 +10,8 @@
  * @link
  */
 
+use Nails\Factory;
+
 class AdminRouter extends NAILS_Controller
 {
     protected $adminControllers;
@@ -55,7 +57,7 @@ class AdminRouter extends NAILS_Controller
          * Load helpers we'll need
          */
 
-        \Nails\Factory::helper('directory');
+        Factory::helper('directory');
     }
 
     // --------------------------------------------------------------------------
@@ -436,7 +438,7 @@ class AdminRouter extends NAILS_Controller
          */
 
         //  Sort alphabetically
-        \Nails\Factory::helper('array');
+        Factory::helper('array');
         array_sort_multi($middle, 'label');
 
         //  Get user's prefs

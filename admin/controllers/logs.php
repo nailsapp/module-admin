@@ -12,6 +12,7 @@
 
 namespace Nails\Admin\Admin;
 
+use Nails\Factory;
 use Nails\Admin\Controller\Base;
 
 class Logs extends Base
@@ -72,7 +73,7 @@ class Logs extends Base
 
         // --------------------------------------------------------------------------
 
-        \Nails\Factory::helper('string');
+        Factory::helper('string');
         $method = $this->uri->segment(5) ? $this->uri->segment(5) : 'index';
         $method = 'site' . underscoreToCamelcase(strtolower($method), false);
 

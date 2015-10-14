@@ -1,7 +1,5 @@
 <?php
 
-namespace Nails\Api\Admin;
-
 /**
  * Admin API end points: Users
  *
@@ -11,6 +9,8 @@ namespace Nails\Api\Admin;
  * @author      Nails Dev Team
  * @link
  */
+
+namespace Nails\Api\Admin;
 
 class Users extends \Nails\Api\Controller\Base
 {

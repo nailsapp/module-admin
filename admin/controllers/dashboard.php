@@ -14,6 +14,8 @@ namespace Nails\Admin\Admin;
 
 use Nails\Admin\Controller\Base;
 
+use Nails\Factory;
+
 class Dashboard extends Base
 {
     /**
@@ -42,7 +44,7 @@ class Dashboard extends Base
         // --------------------------------------------------------------------------
 
         //  Choose a hello phrase
-        \Nails\Factory::helper('array');
+        Factory::helper('array');
 
         $phrases   = array();
         $phrases[] = 'Be awesome.';

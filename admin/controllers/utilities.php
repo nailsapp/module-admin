@@ -176,8 +176,6 @@ class Utilities extends Base
 
         if ($this->input->post('go')) {
 
-            $this->load->model('routes_model');
-
             if ($this->routes_model->update()) {
 
                 $this->data['success'] = 'Routes rewritten successfully.';

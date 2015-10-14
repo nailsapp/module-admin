@@ -13,9 +13,12 @@
 
 namespace Nails\Admin\Controller;
 
+use Nails\Factory;
+
 class Base extends \MX_Controller
 {
     protected $data;
+    protected $cdn;
 
     // --------------------------------------------------------------------------
 
@@ -49,8 +52,11 @@ class Base extends \MX_Controller
             }
         }
 
+        //  Models
+        $this->routes_model = Factory::model('Routes');
+
         //  Libraries
-        $this->cdn = \Nails\Factory::service('Cdn', 'nailsapp/module-cdn');
+        $this->cdn = Factory::service('Cdn', 'nailsapp/module-cdn');
 
         //  Languages
         $this->lang->load('admin/admin_generic');

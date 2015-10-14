@@ -1,7 +1,5 @@
 <?php
 
-namespace Nails\Routes\Admin;
-
 /**
  * Generates admin routes
  *
@@ -11,6 +9,8 @@ namespace Nails\Routes\Admin;
  * @author      Nails Dev Team
  * @link
  */
+
+namespace Nails\Routes\Admin;
 
 class Routes
 {
