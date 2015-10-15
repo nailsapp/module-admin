@@ -25,11 +25,23 @@ class Nav
      * @param string $label The label to give the navGroup
      * @param string $icon  The icon to give the navGroup
      */
-    public function __construct($label, $icon = '')
+    public function __construct($label = '', $icon = '')
     {
-        $this->label   = $label;
-        $this->icon    = $icon;
+        $this->setLabel($label);
+        $this->setIcon($icon);
         $this->actions = array();
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Set the navGroup's label
+     * @return $this
+     */
+    public function setLabel($label = '')
+    {
+        $this->label = $label;
+        return $this;
     }
 
     // --------------------------------------------------------------------------
@@ -52,6 +64,18 @@ class Nav
     public function getIcon()
     {
         return $this->icon;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Set the navGroup's icon
+     * @return string
+     */
+    public function setIcon($icon)
+    {
+        $this->icon = $icon;
+        return $this;
     }
 
     // --------------------------------------------------------------------------
