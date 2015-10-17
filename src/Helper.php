@@ -474,21 +474,16 @@ class Helper
 
     /**
      * Adds a button to Admin's header area
-     * @param string $url   The button's URL
-     * @param string $label The button's label
-     * @param string $class The class(es) to apply to the button
+     * @param string $url     The button's URL
+     * @param string $label   The button's label
+     * @param string $context The button's context
      */
-    public static function addHeaderButton($url, $label, $color = 'green', $confirmTitle = '', $confirmBody = '')
+    public static function addHeaderButton($url, $label, $context = 'primary', $confirmTitle = '', $confirmBody = '')
     {
-        if ($confirmTitle || $confirmBody) {
-
-            $color .= ' confirm';
-        }
-
         self::$headerButtons[] = array(
             'url'          => $url,
             'label'        => $label,
-            'color'        => $color,
+            'context'      => $context,
             'confirmTitle' => $confirmTitle,
             'confirmBody'  => $confirmBody
         );

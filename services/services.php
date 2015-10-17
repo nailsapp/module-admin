@@ -3,7 +3,11 @@
 return array(
     'factories' => array(
         'Nav' => function () {
-            return new \Nails\Admin\Nav();
+            if (class_exists('\App\Admin\Nav')) {
+                return new \App\Admin\Nav();
+            } else {
+                return new \Nails\Admin\Nav();
+            }
         }
     )
 );
