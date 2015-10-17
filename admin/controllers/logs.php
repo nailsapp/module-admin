@@ -13,6 +13,7 @@
 namespace Nails\Admin\Admin;
 
 use Nails\Factory;
+use Nails\Admin\Helper;
 use Nails\Admin\Controller\Base;
 
 class Logs extends Base
@@ -108,7 +109,7 @@ class Logs extends Base
         $this->asset->load('nails.admin.logs.site.min.js', 'NAILS');
         $this->asset->inline('logsSite = new NAILS_Admin_Logs_Site();','JS');
 
-        \Nails\Admin\Helper::loadView('site/index');
+        Helper::loadView('site/index');
     }
 
     // --------------------------------------------------------------------------
@@ -132,7 +133,7 @@ class Logs extends Base
             show_404();
         }
 
-        \Nails\Admin\Helper::loadView('site/view');
+        Helper::loadView('site/view');
     }
 
     // --------------------------------------------------------------------------
@@ -192,7 +193,7 @@ class Logs extends Base
 
             $events = $this->event->get_all(null, null, $data);
 
-            \Nails\Admin\Helper::loadCsv($events, 'export-events-' . toUserDatetime(null, 'Y-m-d_h-i-s') . '.csv');
+            Helper::loadCsv($events, 'export-events-' . toUserDatetime(null, 'Y-m-d_h-i-s') . '.csv');
 
         } else {
 
@@ -201,8 +202,8 @@ class Logs extends Base
             $this->data['events'] = $this->event->get_all($page, $perPage, $data);
 
             //  Set Search and Pagination objects for the view
-            $this->data['search']     = \Nails\Admin\Helper::searchObject(true, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords);
-            $this->data['pagination'] = \Nails\Admin\Helper::paginationObject($page, $perPage, $totalRows);
+            $this->data['search']     = Helper::searchObject(true, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords);
+            $this->data['pagination'] = Helper::paginationObject($page, $perPage, $totalRows);
 
             //  Add the header button for downloading
             if (userHasPermission('admin:admin:logs:event:download')) {
@@ -217,10 +218,10 @@ class Logs extends Base
                 $params = array_filter($params);
                 $params = http_build_query($params);
 
-                \Nails\Admin\Helper::addHeaderButton('admin/admin/logs/event?' . $params, 'Download As CSV', 'orange');
+                Helper::addHeaderButton('admin/admin/logs/event?' . $params, 'Download As CSV', 'orange');
             }
 
-            \Nails\Admin\Helper::loadView('event/index');
+            Helper::loadView('event/index');
         }
     }
 
@@ -281,7 +282,7 @@ class Logs extends Base
 
             $changelog = $this->admin_changelog_model->get_all(null, null, $data);
 
-            \Nails\Admin\Helper::loadCsv($changelog, 'export-changelog-' . toUserDatetime(null, 'Y-m-d_h-i-s') . '.csv');
+            Helper::loadCsv($changelog, 'export-changelog-' . toUserDatetime(null, 'Y-m-d_h-i-s') . '.csv');
 
         } else {
 
@@ -290,8 +291,8 @@ class Logs extends Base
             $this->data['changelog'] = $this->admin_changelog_model->get_all($page, $perPage, $data);
 
             //  Set Search and Pagination objects for the view
-            $this->data['search']     = \Nails\Admin\Helper::searchObject(false, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords);
-            $this->data['pagination'] = \Nails\Admin\Helper::paginationObject($page, $perPage, $totalRows);
+            $this->data['search']     = Helper::searchObject(false, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords);
+            $this->data['pagination'] = Helper::paginationObject($page, $perPage, $totalRows);
 
             //  Add the header button for downloading
             if (userHasPermission('admin:admin:logs:change:download')) {
@@ -306,10 +307,10 @@ class Logs extends Base
                 $params = array_filter($params);
                 $params = http_build_query($params);
 
-                \Nails\Admin\Helper::addHeaderButton('admin/admin/logs/changelog?' . $params, 'Download As CSV', 'orange');
+                Helper::addHeaderButton('admin/admin/logs/changelog?' . $params, 'Download As CSV', 'orange');
             }
 
-            \Nails\Admin\Helper::loadView('changelog/index');
+            Helper::loadView('changelog/index');
         }
     }
 }

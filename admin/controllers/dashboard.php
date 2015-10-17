@@ -12,9 +12,9 @@
 
 namespace Nails\Admin\Admin;
 
-use Nails\Admin\Controller\Base;
-
 use Nails\Factory;
+use Nails\Admin\Controller\Base;
+use Nails\Admin\Helper;
 
 class Dashboard extends Base
 {
@@ -72,6 +72,6 @@ class Dashboard extends Base
         // --------------------------------------------------------------------------
 
         //  Load views
-        \Nails\Admin\Helper::loadView('index');
+        Helper::loadView('index');
     }
 }

@@ -13,6 +13,7 @@
 namespace Nails\Admin\Admin;
 
 use Nails\Factory;
+use Nails\Admin\Helper;
 use Nails\Admin\Controller\Base;
 
 class Settings extends Base
@@ -128,7 +129,7 @@ class Settings extends Base
         // --------------------------------------------------------------------------
 
         //  Load views
-        \Nails\Admin\Helper::loadView('admin');
+        Helper::loadView('admin');
     }
 
     // --------------------------------------------------------------------------
@@ -200,7 +201,7 @@ class Settings extends Base
         // --------------------------------------------------------------------------
 
         //  Load views
-        \Nails\Admin\Helper::loadView('site');
+        Helper::loadView('site');
     }
 
     // --------------------------------------------------------------------------
@@ -283,7 +284,7 @@ class Settings extends Base
         // --------------------------------------------------------------------------
 
         //  Load views
-        \Nails\Admin\Helper::loadView('notifications');
+        Helper::loadView('notifications');
     }
 
     // --------------------------------------------------------------------------

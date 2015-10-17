@@ -12,6 +12,7 @@
 
 namespace Nails\Admin\Admin;
 
+use Nails\Admin\Helper;
 use Nails\Admin\Controller\Base;
 
 class Utilities extends Base
@@ -190,7 +191,7 @@ class Utilities extends Base
         // --------------------------------------------------------------------------
 
         //  Load views
-        \Nails\Admin\Helper::loadView('rewriteRoutes');
+        Helper::loadView('rewriteRoutes');
     }
 
     // --------------------------------------------------------------------------
@@ -292,7 +293,7 @@ class Utilities extends Base
         // --------------------------------------------------------------------------
 
         //  Load views
-        \Nails\Admin\Helper::loadView('export/index');
+        Helper::loadView('export/index');
     }
 
     // --------------------------------------------------------------------------
@@ -472,13 +473,13 @@ class Utilities extends Base
             //  Load view
         if (!$returnData) {
 
-            \Nails\Admin\Helper::loadView('export/csv', false);
+            Helper::loadView('export/csv', false);
 
         } else {
 
             $out   = array();
             $out[] = $data->filename . '.csv';
-            $out[] = \Nails\Admin\Helper::loadView('export/csv', false, true);
+            $out[] = Helper::loadView('export/csv', false, true);
 
             return $out;
         }
@@ -518,13 +519,13 @@ class Utilities extends Base
         //  Load view
         if (!$returnData) {
 
-            \Nails\Admin\Helper::loadView('export/html', false);
+            Helper::loadView('export/html', false);
 
         } else {
 
             $out    = array();
             $out[]  = $data->filename . '.html';
-            $out[] = \Nails\Admin\Helper::loadView('export/html', false, true);
+            $out[] = Helper::loadView('export/html', false, true);
 
             return $out;
         }
@@ -619,13 +620,13 @@ class Utilities extends Base
         //  Load view
         if (!$returnData) {
 
-            \Nails\Admin\Helper::loadView('export/serialize', false);
+            Helper::loadView('export/serialize', false);
 
         } else {
 
             $out   = array();
             $out[] = $data->filename . '.txt';
-            $out[] = \Nails\Admin\Helper::loadView('export/serialize', false, true);
+            $out[] = Helper::loadView('export/serialize', false, true);
 
             return $out;
         }
@@ -663,13 +664,13 @@ class Utilities extends Base
         //  Load view
         if (!$returnData) {
 
-            \Nails\Admin\Helper::loadView('export/json', false);
+            Helper::loadView('export/json', false);
 
         } else {
 
             $out   = array();
             $out[] = $data->filename . '.json';
-            $out[] = \Nails\Admin\Helper::loadView('export/json', false, true);
+            $out[] = Helper::loadView('export/json', false, true);
 
             return $out;
         }

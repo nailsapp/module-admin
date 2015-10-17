@@ -12,6 +12,7 @@
 
 namespace Nails\Admin\Admin;
 
+use Nails\Admin\Helper;
 use Nails\Admin\Controller\Base;
 
 class Help extends Base
@@ -74,6 +75,6 @@ class Help extends Base
         // --------------------------------------------------------------------------
 
         //  Load views
-        \Nails\Admin\Helper::loadView('index');
+        Helper::loadView('index');
     }
 }
