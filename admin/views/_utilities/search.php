@@ -5,181 +5,181 @@
     </div>
     <?php
 
-        parse_str($this->input->server('QUERY_STRING'), $query);
+    parse_str($this->input->server('QUERY_STRING'), $query);
 
-        unset($query['keywords']);
-        unset($query['sortOn']);
-        unset($query['sortOrder']);
-        unset($query['perPage']);
-        unset($query['page']);
-        unset($query['cbF']);
-        unset($query['ddF']);
+    unset($query['keywords']);
+    unset($query['sortOn']);
+    unset($query['sortOrder']);
+    unset($query['perPage']);
+    unset($query['page']);
+    unset($query['cbF']);
+    unset($query['ddF']);
 
-        $formAttr = array(
-            'method' => 'GET'
-        );
+    $formAttr = array(
+        'method' => 'GET'
+    );
 
-        echo form_open(null, $formAttr);
+    echo form_open(null, $formAttr);
 
-        foreach ($query as $key => $value) {
+    foreach ($query as $key => $value) {
 
-            echo form_hidden($key, $value);
-        }
+        echo form_hidden($key, $value);
+    }
 
-        if ($searchable) {
+    if ($searchable) {
 
-            echo '<div class="search-text">';
-                echo form_input(
-                    'keywords',
-                    $keywords,
-                    'autocomplete="off" placeholder="Type your search term and hit enter"'
-                );
-            echo '</div>';
-        }
+        echo '<div class="search-text">';
+            echo form_input(
+                'keywords',
+                $keywords,
+                'autocomplete="off" placeholder="Type your search term and hit enter"'
+            );
+        echo '</div>';
+    }
 
-        // --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-        if (!empty($injectHtml)) {
+    if (!empty($injectHtml)) {
 
-            echo '<div class="search-inject">';
-                echo $injectHtml;
-            echo '</div>';
-        }
+        echo '<div class="search-inject">';
+            echo $injectHtml;
+        echo '</div>';
+    }
 
-        // --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-        //  Filters
-        if (!empty($dropdownFilter)) {
+    //  Filters
+    if (!empty($dropdownFilter)) {
 
-            echo '<hr />';
-            foreach ($dropdownFilter as $filterIndex => $filter) {
+        echo '<hr />';
+        foreach ($dropdownFilter as $filterIndex => $filter) {
 
-                echo '<span class="filterGroup dropdown">';
-                    echo '<span class="filterLabel">';
-                        echo $filter->label;
-                    echo '</span>';
-
-                    echo '<span class="filterDropdown">';
-                        echo '<select name="ddF[' . $filterIndex . ']">';
-                        foreach ($filter->options as $optionIndex => $option) {
-
-                            //  Checked or not?
-                            if (!empty($_GET)) {
-
-                                $selected = isset($_GET['ddF'][$filterIndex]) && $_GET['ddF'][$filterIndex] == $optionIndex;
-
-                            } else {
-
-                                $selected = $option->checked;
-                            }
-
-                            $selected = $selected ? 'selected="selected"' : '';
-
-                            echo '<option value="' . $optionIndex . '" ' . $selected . '>';
-                                 echo $option->label;
-                            echo '</option>';
-                        }
-                        echo '</select>';
-                    echo '</span>';
-
+            echo '<span class="filterGroup dropdown">';
+                echo '<span class="filterLabel">';
+                    echo $filter->label;
                 echo '</span>';
-            }
-        }
 
-        if (!empty($checkboxFilter)) {
-
-            echo '<hr />';
-            foreach ($checkboxFilter as $filterIndex => $filter) {
-
-                echo '<span class="filterGroup">';
-                    echo '<span class="filterLabel">';
-                        echo $filter->label;
-                    echo '</span>';
-
+                echo '<span class="filterDropdown">';
+                    echo '<select name="ddF[' . $filterIndex . ']">';
                     foreach ($filter->options as $optionIndex => $option) {
 
                         //  Checked or not?
                         if (!empty($_GET)) {
 
-                            $checked = !empty($_GET['cbF'][$filterIndex][$optionIndex]);
+                            $selected = isset($_GET['ddF'][$filterIndex]) && $_GET['ddF'][$filterIndex] == $optionIndex;
 
                         } else {
 
-                            $checked = $option->checked;
+                            $selected = $option->checked;
                         }
 
-                        $checked = $checked ? 'checked="checked"' : '';
+                        $selected = $selected ? 'selected="selected"' : '';
 
-                        echo '<label class="filterOption">';
-                            echo '<input type="checkbox" name="cbF[' . $filterIndex . '][' . $optionIndex . ']" ' . $checked . ' value="1">';
-                            echo $option->label;
-                        echo '</label>';
+                        echo '<option value="' . $optionIndex . '" ' . $selected . '>';
+                             echo $option->label;
+                        echo '</option>';
                     }
-
+                    echo '</select>';
                 echo '</span>';
-            }
-        }
 
-        // --------------------------------------------------------------------------
+            echo '</span>';
+        }
+    }
+
+    if (!empty($checkboxFilter)) {
 
         echo '<hr />';
-        echo '<span style="padding-right: 1em;">';
+        foreach ($checkboxFilter as $filterIndex => $filter) {
 
-            if (!empty($sortColumns)) {
+            echo '<span class="filterGroup">';
+                echo '<span class="filterLabel">';
+                    echo $filter->label;
+                echo '</span>';
 
-                //  Sort Column
-                echo 'Sort results by';
-                echo form_dropdown('sortOn', $sortColumns, $sortOn);
+                foreach ($filter->options as $optionIndex => $option) {
 
-            } else {
+                    //  Checked or not?
+                    if (!empty($_GET)) {
 
-                echo 'Sort results';
-            }
+                        $checked = !empty($_GET['cbF'][$filterIndex][$optionIndex]);
 
-            //  Sort order
-            $options = array(
-                'asc'  => 'Ascending',
-                'desc' => 'Descending'
-            );
+                    } else {
 
-            echo form_dropdown('sortOrder', $options, $sortOrder);
+                        $checked = $option->checked;
+                    }
 
-        echo '</span>';
+                    $checked = $checked ? 'checked="checked"' : '';
 
-        // --------------------------------------------------------------------------
+                    echo '<label class="filterOption">';
+                        echo '<input type="checkbox" name="cbF[' . $filterIndex . '][' . $optionIndex . ']" ' . $checked . ' value="1">';
+                        echo $option->label;
+                    echo '</label>';
+                }
 
-        echo '<span style="padding-right: 1em;">';
+            echo '</span>';
+        }
+    }
 
-            //  Results per page
-            $options = array(
-                10  => 10,
-                25  => 25,
-                50  => 50,
-                75  => 75,
-                100 => 100
-            );
+    // --------------------------------------------------------------------------
 
-            echo 'Show';
-            echo form_dropdown('perPage', $options, $perPage);
-            echo 'results per page.';
+    echo '<hr />';
+    echo '<span style="padding-right: 1em;">';
 
-        echo '</span>';
+        if (!empty($sortColumns)) {
 
-        // --------------------------------------------------------------------------
+            //  Sort Column
+            echo 'Sort results by';
+            echo form_dropdown('sortOn', $sortColumns, $sortOn);
 
-        echo '<div class="actions">';
+        } else {
 
-            $resetUrl  = uri_string();
-            $resetUrl .= $query ? '?' . http_build_query($query) : '';
+            echo 'Sort results';
+        }
 
-            echo anchor($resetUrl, 'Reset', 'class="awesome small grey"');
-            echo '<button type="submit" class="awesome small">Search</button>';
+        //  Sort order
+        $options = array(
+            'asc'  => 'Ascending',
+            'desc' => 'Descending'
+        );
 
-        echo '</div>';
+        echo form_dropdown('sortOrder', $options, $sortOrder);
 
-        // --------------------------------------------------------------------------
+    echo '</span>';
 
-        echo form_close();
+    // --------------------------------------------------------------------------
+
+    echo '<span style="padding-right: 1em;">';
+
+        //  Results per page
+        $options = array(
+            10  => 10,
+            25  => 25,
+            50  => 50,
+            75  => 75,
+            100 => 100
+        );
+
+        echo 'Show';
+        echo form_dropdown('perPage', $options, $perPage);
+        echo 'results per page.';
+
+    echo '</span>';
+
+    // --------------------------------------------------------------------------
+
+    echo '<div class="actions">';
+
+        $resetUrl  = uri_string();
+        $resetUrl .= $query ? '?' . http_build_query($query) : '';
+
+        echo '<button type="submit" class="btn btn-xs btn-primary">Search</button> ';
+        echo anchor($resetUrl, 'Reset', 'class="btn btn-xs btn-default"');
+
+    echo '</div>';
+
+    // --------------------------------------------------------------------------
+
+    echo form_close();
 
     ?>
 </div>

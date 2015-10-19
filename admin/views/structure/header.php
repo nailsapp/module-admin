@@ -359,36 +359,52 @@
 
                 if (!empty($error)) {
 
-                    echo '<div class="system-alert error">';
-                        echo '<p><strong>';
-                            echo '<b class="alert-icon fa fa-times-circle"></b>';
-                            echo 'Sorry, something went wrong.';
-                        echo '</strong></p>';
-                        echo '<p>' . $error . '</p>';
-                    echo '</div>';
+                    ?>
+                    <div class="alert alert-danger">
+                        <p>
+                            <strong>
+                                <b class="alert-icon fa fa-times-circle"></b>
+                                Sorry, something went wrong.
+                            </strong>
+                        </p>
+                        <p><?=$error?></p>
+                    </div>
+                    <?php
+
                 }
 
                 if (!empty($success)) {
 
-                    echo '<div class="system-alert success">';
-                        echo '<p><strong>';
-                            echo '<b class="alert-icon fa fa-check-circle"></b>';
-                            echo 'Success!';
-                        echo '</strong></p>';
-                        echo '<p>' . $success . '</p>';
-                    echo '</div>';
+                    ?>
+                    <div class="alert alert-success">
+                        <p>
+                            <strong>
+                                <b class="alert-icon fa fa-check-circle"></b>
+                                Success!
+                            </strong>
+                        </p>
+                        <p><?=$success?></p>
+                    </div>
+                    <?php
+
                 }
 
                 if (!empty($message)) {
 
-                    echo '<div class="system-alert message">';
-                        echo '<p>' . $message . '</p>';
-                    echo '</div>';
+                    ?>
+                    <div class="alert alert-warning">
+                        <p><?=$message?></p>
+                    </div>
+                    <?php
+
                 }
 
                 if (!empty($notice)) {
 
-                    echo '<div class="system-alert notice">';
-                        echo '<p>' . $notice . '</p>';
-                    echo '</div>';
+                    ?>
+                    <div class="alert alert-info">
+                        <p><?=$notice?></p>
+                    </div>
+                    <?php
+
                 }
