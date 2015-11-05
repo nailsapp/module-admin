@@ -10,6 +10,8 @@
  * @link
  */
 
+use Nails\Factory;
+
 class NAILS_Admin_changelog_model extends NAILS_Model
 {
     protected $changes;
@@ -170,14 +172,15 @@ class NAILS_Admin_changelog_model extends NAILS_Model
         if ($this->changes) {
 
             $this->changes = array_values($this->changes);
+            $oDate         = Factory::factory('DateTime');
 
             for ($i = 0; $i < count($this->changes); $i++) {
 
                 $this->changes[$i]['changes']     = array_values($this->changes[$i]['changes']);
                 $this->changes[$i]['changes']     = serialize($this->changes[$i]['changes']);
-                $this->changes[$i]['created']     = date('Y-m-d H:i:s');
+                $this->changes[$i]['created']     = $oDate->format('Y-m-d H:i:s');
                 $this->changes[$i]['created_by']  = activeUser('id');
-                $this->changes[$i]['modified']    = date('Y-m-d H:i:s');
+                $this->changes[$i]['modified']    = $oDate->format('Y-m-d H:i:s');
                 $this->changes[$i]['modified_by'] = activeUser('id');
             }
 
