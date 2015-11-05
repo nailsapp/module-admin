@@ -93,9 +93,26 @@ class Base extends \MX_Controller
         $this->asset->load('nails.forms.min.js', 'NAILS');
         $this->asset->load('nails.api.min.js', 'NAILS');
 
-        //  Look for any Admin styles provided by the app
-        if (file_exists(FCPATH . 'assets/css/admin.css')) {
-            $this->asset->load('admin.css');
+        //  Load admin CSS & JS if it's there
+        $sAdminCssPath = defined('APP_ADMIN_CSS_PATH') ? APP_ADMIN_CSS_PATH : FCPATH . 'assets/css/admin.css';
+        $sAdminCssUrl  = defined('APP_ADMIN_CSS_URL') ? APP_ADMIN_CSS_URL : 'admin.css';
+        if (file_exists($sAdminCssPath)) {
+            $this->asset->load($sAdminCssUrl);
+        }
+
+        $sAdminJsPath = defined('APP_ADMIN_JS_PATH') ? APP_ADMIN_JS_PATH : FCPATH . 'assets/js/admin.min.js';
+        $sAdminJsUrl  = defined('APP_ADMIN_JS_URL') ? APP_ADMIN_JS_URL : 'admin.min.js';
+        if (file_exists($sAdminJsPath)) {
+            $this->asset->load($sAdminJsUrl);
+        }
+
+        //  Load any additional admin assets
+        $sAdminAssets = defined('APP_ADMIN_ASSETS') ? APP_ADMIN_ASSETS : '[]';
+        $aAdminAssets = json_decode($sAdminAssets);
+        if (!empty($aAdminAssets)) {
+            foreach ($aAdminAssets as $sAsset) {
+                $this->asset->load($sAsset);
+            }
         }
 
         //  Inline assets
