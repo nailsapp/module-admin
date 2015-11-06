@@ -10,8 +10,25 @@
  * @link
  */
 
+use Nails\Factory;
+
 class NAILS_Admin_Model extends NAILS_Model
 {
+    protected $oUserMeta;
+    protected $aJsonFields;
+
+    // --------------------------------------------------------------------------
+
+    public function __construct()
+    {
+        $this->oUserMeta   = Factory::model('UserMeta', 'nailsapp/module-auth');
+        $this->aJsonFields = array(
+            'nav_state'
+        );
+    }
+
+    // --------------------------------------------------------------------------
+
     /**
      * Sets a piece of admin data
      * @param  string  $key    The key to set
@@ -58,6 +75,9 @@ class NAILS_Admin_Model extends NAILS_Model
         if ($set) {
 
             //  Set the new key
+            if (in_array($key, $this->aJsonFields)) {
+                $value = json_encode($value);
+            }
             $existing[$key] = $value;
 
         } else {
@@ -67,17 +87,11 @@ class NAILS_Admin_Model extends NAILS_Model
         }
 
         //  Save to the DB
-        $data = array('admin_data' => serialize($existing));
-        if ($this->user_model->update($userId, $data)) {
-
-            //  Save to the cache
-            $this->_set_cache('admin-data-' . $userId, $existing);
-            return true;
-
-        } else {
-
-            return false;
-        }
+        $bResult = $this->oUserMeta->update(
+            NAILS_DB_PREFIX . 'user_meta_admin',
+            $userId,
+            $existing
+        );
     }
 
     // --------------------------------------------------------------------------
@@ -103,17 +117,22 @@ class NAILS_Admin_Model extends NAILS_Model
 
         } else {
 
-            $this->db->select('admin_data');
-            $this->db->where('id', $userId);
-            $result = $this->db->get(NAILS_DB_PREFIX . 'user')->row();
 
-            if (!isset($result->admin_data)) {
+            $oRow = $this->oUserMeta->get(NAILS_DB_PREFIX . 'user_meta_admin', $userId);
 
-                $data = array();
+            if (!empty($oRow)) {
+
+                foreach ($oRow as $sKey => &$mValue) {
+                    //  Hat-tip: http://stackoverflow.com/a/6041773
+                    if (in_array($sKey, $this->aJsonFields)) {
+                        $mValue = json_decode($mValue);
+                    }
+                }
+                $data = (array) $oRow;
 
             } else {
 
-                $data = unserialize($result->admin_data);
+                $data = array();
             }
 
             $this->_set_cache($cacheKey, $data);
@@ -152,16 +171,19 @@ class NAILS_Admin_Model extends NAILS_Model
         //  Get the user ID
         $userId = $this->adminDataGetUserId($userId);
 
-        $data = array('admin_data' => null);
-        if ($this->user_model->update($userId, $data)) {
+        $bResult = $this->oUserMeta->update(
+            NAILS_DB_PREFIX . 'user_meta_admin',
+            $userId,
+            array(
+                'nav_state' => null
+            )
+        );
 
+        if ($bResult) {
             $this->_unset_cache('admin-data-' . $userId);
-            return true;
-
-        } else {
-
-            return false;
         }
+
+        return $bResult;
     }
 
     // --------------------------------------------------------------------------

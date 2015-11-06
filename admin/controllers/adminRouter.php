@@ -442,7 +442,7 @@ class AdminRouter extends NAILS_Controller
         array_sort_multi($middle, 'label');
 
         //  Get user's prefs
-        $userNavPref = $this->admin_model->getAdminData('nav');
+        $userNavPref = $this->admin_model->getAdminData('nav_state');
 
         if (!empty($userNavPref)) {
 

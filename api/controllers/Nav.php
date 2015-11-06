@@ -65,7 +65,7 @@ class Nav extends \Nails\Api\Controller\Base
             }
 
             $this->load->model('admin/admin_model');
-            $this->admin_model->setAdminData('nav', $pref);
+            $this->admin_model->setAdminData('nav_state', $pref);
 
             return array();
         }
@@ -89,7 +89,7 @@ class Nav extends \Nails\Api\Controller\Base
         } else {
 
             $this->load->model('admin/admin_model');
-            $this->admin_model->unsetAdminData('nav');
+            $this->admin_model->unsetAdminData('nav_state');
 
             return array();
         }
