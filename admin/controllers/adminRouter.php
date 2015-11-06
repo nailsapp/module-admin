@@ -97,7 +97,6 @@ class AdminRouter extends NAILS_Controller
          * consideration the user's order and state preferences.
          */
 
-        $this->load->model('admin_model');
         $this->prepAdminControllersNav();
 
         //  Save adminControllers to controller data so everyone can use it
@@ -442,7 +441,8 @@ class AdminRouter extends NAILS_Controller
         array_sort_multi($middle, 'label');
 
         //  Get user's prefs
-        $userNavPref = $this->admin_model->getAdminData('nav_state');
+        $oAdminModel = Factory::model('Admin', 'nailsapp/module-admin');
+        $userNavPref = $oAdminModel->getAdminData('nav_state');
 
         if (!empty($userNavPref)) {
 

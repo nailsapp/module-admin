@@ -136,11 +136,6 @@ class Base extends \MX_Controller
 
 
         $this->asset->inline($js, 'JS');
-
-        // --------------------------------------------------------------------------
-
-        //  Initialise the admin models
-        $this->load->model('admin_changelog_model');
     }
 
     // --------------------------------------------------------------------------

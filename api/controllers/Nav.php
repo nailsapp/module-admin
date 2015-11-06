@@ -12,6 +12,8 @@
 
 namespace Nails\Api\Admin;
 
+use Nails\Factory;
+
 class Nav extends \Nails\Api\Controller\Base
 {
     public static $requiresAuthentication = true;
@@ -64,8 +66,8 @@ class Nav extends \Nails\Api\Controller\Base
                 $pref->{$module}->open = stringToBoolean($options['open']);
             }
 
-            $this->load->model('admin/admin_model');
-            $this->admin_model->setAdminData('nav_state', $pref);
+            $oAdminModel = Factory::model('Admin', 'nailsapp/module-admin');
+            $oAdminModel->setAdminData('nav_state', $pref);
 
             return array();
         }
@@ -88,8 +90,8 @@ class Nav extends \Nails\Api\Controller\Base
 
         } else {
 
-            $this->load->model('admin/admin_model');
-            $this->admin_model->unsetAdminData('nav_state');
+            $oAdminModel = Factory::model('Admin', 'nailsapp/module-admin');
+            $oAdminModel->unsetAdminData('nav_state');
 
             return array();
         }

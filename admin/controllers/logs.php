@@ -125,8 +125,8 @@ class Logs extends Base
         $file = $this->uri->segment(6);
         $this->data['page']->title = 'Browse Logs &rsaquo; ' . $file;
 
-        $this->load->model('admin/admin_sitelog_model');
-        $this->data['logs'] = $this->admin_sitelog_model->readLog($file);
+        $oSiteLogModel = Factory::model('SiteLog', 'nailsapp/module-admin');
+        $this->data['logs'] = $oSiteLogModel->readLog($file);
 
         if (!$this->data['logs']) {
 
@@ -218,7 +218,7 @@ class Logs extends Base
                 $params = array_filter($params);
                 $params = http_build_query($params);
 
-                Helper::addHeaderButton('admin/admin/logs/event?' . $params, 'Download As CSV', 'orange');
+                Helper::addHeaderButton('admin/admin/logs/event?' . $params, 'Download As CSV');
             }
 
             Helper::loadView('event/index');
@@ -245,7 +245,8 @@ class Logs extends Base
 
         // --------------------------------------------------------------------------
 
-        $tablePrefix = $this->admin_changelog_model->getTablePrefix();
+        $oChangeLogModel = Factory::model('ChangeLog', 'nailsapp/module-admin');
+        $tablePrefix     = $oChangeLogModel->getTablePrefix();
 
         // --------------------------------------------------------------------------
 
@@ -280,15 +281,15 @@ class Logs extends Base
             //  Get all items for the search, no need to paginate
             $data['RETURN_QUERY_OBJECT'] = true;
 
-            $changelog = $this->admin_changelog_model->get_all(null, null, $data);
+            $changelog = $oChangeLogModel->get_all(null, null, $data);
 
             Helper::loadCsv($changelog, 'export-changelog-' . toUserDatetime(null, 'Y-m-d_h-i-s') . '.csv');
 
         } else {
 
             //  Get the items for the page
-            $totalRows               = $this->admin_changelog_model->count_all($data);
-            $this->data['changelog'] = $this->admin_changelog_model->get_all($page, $perPage, $data);
+            $totalRows               = $oChangeLogModel->count_all($data);
+            $this->data['changelog'] = $oChangeLogModel->get_all($page, $perPage, $data);
 
             //  Set Search and Pagination objects for the view
             $this->data['search']     = Helper::searchObject(false, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords);
@@ -307,7 +308,7 @@ class Logs extends Base
                 $params = array_filter($params);
                 $params = http_build_query($params);
 
-                Helper::addHeaderButton('admin/admin/logs/changelog?' . $params, 'Download As CSV', 'orange');
+                Helper::addHeaderButton('admin/admin/logs/changelog?' . $params, 'Download As CSV');
             }
 
             Helper::loadView('changelog/index');

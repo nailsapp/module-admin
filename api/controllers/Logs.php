@@ -12,6 +12,8 @@
 
 namespace Nails\Api\Admin;
 
+use Nails\Factory;
+
 class Logs extends \Nails\Api\Controller\Base
 {
     public static $requiresAuthentication = true;
@@ -35,11 +37,8 @@ class Logs extends \Nails\Api\Controller\Base
 
         } else {
 
-            $this->load->model('admin/admin_sitelog_model');
-
-            // --------------------------------------------------------------------------
-
-            $out['logs'] = $this->admin_sitelog_model->getAll();
+            $oSiteLogModel = Factory::model('SiteLog', 'nailsapp/module-admin');
+            $out['logs']   = $oSiteLogModel->getAll();
         }
 
         return $out;

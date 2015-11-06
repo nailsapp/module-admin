@@ -12,6 +12,7 @@
 
 namespace Nails\Admin\Admin;
 
+use Nails\Factory;
 use Nails\Admin\Helper;
 use Nails\Admin\Controller\Base;
 
@@ -23,9 +24,9 @@ class Help extends Base
      */
     public static function announce()
     {
-        get_instance()->load->model('admin_help_model');
+        $oHelpModel = Factory::model('Help', 'nailsapp/module-admin');
 
-        if (userHasPermission('admin:admin:help:view') && get_instance()->admin_help_model->count_all()) {
+        if (userHasPermission('admin:admin:help:view') && $oHelpModel->count_all()) {
 
             $navGroup = new \Nails\Admin\Nav('Dashboard', 'fa-home');
             $navGroup->addAction('Help Videos');
@@ -70,7 +71,8 @@ class Help extends Base
         // --------------------------------------------------------------------------
 
         //  Get data
-        $this->data['videos'] = $this->admin_help_model->get_all();
+        $oHelpModel = Factory::model('Help', 'nailsapp/module-admin');
+        $this->data['videos'] = $oHelpModel->get_all();
 
         // --------------------------------------------------------------------------
 
