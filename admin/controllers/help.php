@@ -71,8 +71,47 @@ class Help extends Base
         // --------------------------------------------------------------------------
 
         //  Get data
-        $oHelpModel = Factory::model('Help', 'nailsapp/module-admin');
-        $this->data['videos'] = $oHelpModel->get_all();
+        $oHelpModel   = Factory::model('Help', 'nailsapp/module-admin');
+        $sTablePrefix = $oHelpModel->getTablePrefix();
+
+        //  Get pagination and search/sort variables
+        $page      = $this->input->get('page')      ? $this->input->get('page')      : 0;
+        $perPage   = $this->input->get('perPage')   ? $this->input->get('perPage')   : 50;
+        $sortOn    = $this->input->get('sortOn')    ? $this->input->get('sortOn')    : $sTablePrefix . '.label';
+        $sortOrder = $this->input->get('sortOrder') ? $this->input->get('sortOrder') : 'asc';
+        $keywords  = $this->input->get('keywords')  ? $this->input->get('keywords')  : '';
+
+        // --------------------------------------------------------------------------
+
+        //  Define the sortable columns
+        $sortColumns = array(
+            $sTablePrefix . '.label'    => 'Label',
+            $sTablePrefix . '.duration' => 'Duration',
+            $sTablePrefix . '.created'  => 'Added',
+            $sTablePrefix . '.modified' => 'Modified'
+        );
+
+        // --------------------------------------------------------------------------
+
+        //  Define the $data variable for the queries
+        $data = array(
+            'sort' => array(
+                array($sortOn, $sortOrder)
+            ),
+            'keywords' => $keywords
+        );
+
+        //  Get the items for the page
+        $totalRows            = $oHelpModel->count_all($data);
+        $this->data['videos'] = $oHelpModel->get_all($page, $perPage, $data);
+
+        //  Set Search and Pagination objects for the view
+        $this->data['search']     = Helper::searchObject(true, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords);
+        $this->data['pagination'] = Helper::paginationObject($page, $perPage, $totalRows);
+
+        // --------------------------------------------------------------------------
+
+        $this->asset->inline('$(\'a.video-button\').fancybox({ type : \'iframe\' });', 'JS');
 
         // --------------------------------------------------------------------------
 

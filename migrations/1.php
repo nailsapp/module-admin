@@ -25,12 +25,19 @@ class Migration_1 extends Base {
     public function execute()
     {
         $this->query("
-            CREATE TABLE `nails_user_meta_admin` (
+            CREATE TABLE `{{NAILS_DB_PREFIX}}user_meta_admin` (
                 `user_id` int(11) unsigned NOT NULL,
                 `nav_state` text,
                 PRIMARY KEY (`user_id`),
-                CONSTRAINT `nails_user_meta_admin_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `nails_user` (`id`) ON DELETE CASCADE
+                CONSTRAINT `{{NAILS_DB_PREFIX}}user_meta_admin_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `{{NAILS_DB_PREFIX}}user` (`id`) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
         ");
+        $this->query("ALTER TABLE `{{NAILS_DB_PREFIX}}admin_help_video` ADD `duration` INT(11)  UNSIGNED  NOT NULL  AFTER `vimeo_id`;");
+        $this->query("ALTER TABLE `{{NAILS_DB_PREFIX}}admin_help_video` ADD `created` DATETIME  NOT NULL  AFTER `duration`;");
+        $this->query("ALTER TABLE `{{NAILS_DB_PREFIX}}admin_help_video` ADD `created_by` INT(11)  UNSIGNED  NULL  DEFAULT NULL  AFTER `created`;");
+        $this->query("ALTER TABLE `{{NAILS_DB_PREFIX}}admin_help_video` ADD `modified` DATETIME  NOT NULL  AFTER `created_by`;");
+        $this->query("ALTER TABLE `{{NAILS_DB_PREFIX}}admin_help_video` ADD `modified_by` INT(11)  UNSIGNED  NULL  DEFAULT NULL  AFTER `modified`;");
+        $this->query("ALTER TABLE `{{NAILS_DB_PREFIX}}admin_help_video` ADD FOREIGN KEY (`created_by`) REFERENCES `{{NAILS_DB_PREFIX}}user` (`id`) ON DELETE SET NULL;");
+        $this->query("ALTER TABLE `{{NAILS_DB_PREFIX}}admin_help_video` ADD FOREIGN KEY (`modified_by`) REFERENCES `{{NAILS_DB_PREFIX}}admin_changelog` (`id`) ON DELETE SET NULL;");
     }
 }

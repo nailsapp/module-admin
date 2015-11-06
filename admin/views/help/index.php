@@ -2,49 +2,75 @@
     <p>
         The following videos are available to you.
     </p>
-    <hr />
-    <table>
-        <thead>
-            <tr>
-                <th class="id">ID</th>
-                <th class="name-desc">Name &amp; Description</th>
-                <th class="actions">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        <?php
+    <?php
+
+        echo \Nails\Admin\Helper::loadSearch($search);
+        echo \Nails\Admin\Helper::loadPagination($pagination);
+
+    ?>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th class="name-desc">Name &amp; Description</th>
+                    <th class="duration">Duration</th>
+                    <th class="datetime">Added</th>
+                    <th class="datetime">Modified</th>
+                    <th class="actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php
 
             if ($videos) {
 
                 foreach ($videos as $v) {
-                    echo '<tr>';
-                        echo '<td class="id">' . $v->id . '</td>';
-                        echo '<td class="name-desc">';
-                            echo $v->title;
-                            echo '<small>' . $v->description . '</small>';
-                        echo '</td>';
-                        echo '<td class="actions">';
-                            $vimeoUrl = 'http://player.vimeo.com/video/' . $v->vimeo_id . '?autoplay=true';
-                            echo anchor($vimeoUrl, lang('action_view'), 'class="awesome small video-button"');
-                        echo '</td>';
-                    echo '</tr>';
+
+                    ?>
+                    <tr>
+                        <td class="name-desc">
+                            <?=$v->label?>
+                            <small><?=$v->description?></small>
+                        </td>
+                        <td class="duration">
+                            <?=gmdate('H:i:s', $v->duration)?>
+                        </td>
+                        <?=\Nails\Admin\Helper::loadDatetimeCell($v->created);?>
+                        <?=\Nails\Admin\Helper::loadDatetimeCell($v->modified);?>
+                        <td class="actions">
+                            <?php
+
+                            echo anchor(
+                                'http://player.vimeo.com/video/' . $v->vimeo_id . '?autoplay=true',
+                                lang('action_view'),
+                                'class="btn btn-xs btn-primary video-button"'
+                            );
+
+                            ?>
+                        </td>
+                    </tr>
+                    <?php
+
                 }
 
             } else {
 
-                echo '<tr>';
-                echo '<td id="no_records" colspan="3"><p>' . lang('no_records_found') . '</p></td>';
-                echo '</tr>';
+                ?>
+                <tr>
+                    <td colspan="2" class="no-data">
+                        <?=lang('no_records_found')?>
+                    </td>
+                </tr>
+                <?php
             }
 
-        ?>
-        </tbody>
-    </table>
-    <script style="text/javascript">
+            ?>
+            </tbody>
+        </table>
+    </div>
+    <?php
 
-        $(function(){
-            $('a.video-button').fancybox({ type : 'iframe' });
-        });
+        echo \Nails\Admin\Helper::loadPagination($pagination);
 
-    </script>
+    ?>
 </div>
