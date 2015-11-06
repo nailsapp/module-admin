@@ -44,16 +44,16 @@
     <link href="//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700" rel="stylesheet" type="text/css">
     <?php
 
-        echo $this->asset->output('CSS');
-        echo $this->asset->output('CSS-INLINE');
+        $this->asset->output('CSS');
+        $this->asset->output('CSS-INLINE');
 
     ?>
     <link rel="stylesheet" type="text/css" media="print" href="<?=NAILS_ASSETS_URL . 'css/nails.admin.print.css'?>" />
     <?php
 
-        $_primary   = app_setting('primary_colour', 'admin')        ? app_setting('primary_colour', 'admin')        : '#171D20';
-        $_secondary = app_setting('secondary_colour', 'admin')  ? app_setting('secondary_colour', 'admin')  : '#515557';
-        $_highlight = app_setting('highlight_colour', 'admin')  ? app_setting('highlight_colour', 'admin')  : '#F09634';
+        $_primary   = app_setting('primary_colour', 'admin')   ? app_setting('primary_colour', 'admin')   : '#171D20';
+        $_secondary = app_setting('secondary_colour', 'admin') ? app_setting('secondary_colour', 'admin') : '#515557';
+        $_highlight = app_setting('highlight_colour', 'admin') ? app_setting('highlight_colour', 'admin') : '#F09634';
 
     ?>
     <style type="text/css">
@@ -143,28 +143,54 @@
 
     if (!empty($error)) {
 
-        echo '<div class="system-alert error">';
+        echo '<div class="alert alert-danger">';
+            echo '<p>';
+                echo '<strong>';
+                    echo '<b class="alert-icon fa fa-times-circle"></b>';
+                    echo 'Sorry, something went wrong.';
+                echo '</strong>';
+            echo '</p>';
             echo '<p>' . $error . '</p>';
+        echo '</div>';
+    }
+
+    if (!empty($negative)) {
+
+        echo '<div class="alert alert-danger">';
+            echo '<p>' . $negative . '</p>';
         echo '</div>';
     }
 
     if (!empty($success)) {
 
-        echo '<div class="system-alert success">';
+        echo '<div class="alert alert-success">';
+            echo '<p>';
+                echo '<strong>';
+                    echo '<b class="alert-icon fa fa-check-circle"></b>';
+                    echo 'Success!';
+                echo '</strong>';
+            echo '</p>';
             echo '<p>' . $success . '</p>';
+        echo '</div>';
+    }
+
+    if (!empty($positive)) {
+
+        echo '<div class="alert alert-success">';
+            echo '<p>' . $positive . '</p>';
         echo '</div>';
     }
 
     if (!empty($message)) {
 
-        echo '<div class="system-alert message">';
+        echo '<div class="alert alert-warning">';
             echo '<p>' . $message . '</p>';
         echo '</div>';
     }
 
     if (!empty($notice)) {
 
-        echo '<div class="system-alert notice">';
+        echo '<div class="alert alert-info">';
             echo '<p>' . $notice . '</p>';
         echo '</div>';
     }

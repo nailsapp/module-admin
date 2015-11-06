@@ -373,6 +373,16 @@
 
                 }
 
+                if (!empty($negative)) {
+
+                    ?>
+                    <div class="alert alert-danger">
+                        <p><?=$negative?></p>
+                    </div>
+                    <?php
+
+                }
+
                 if (!empty($success)) {
 
                     ?>
@@ -384,6 +394,16 @@
                             </strong>
                         </p>
                         <p><?=$success?></p>
+                    </div>
+                    <?php
+
+                }
+
+                if (!empty($positive)) {
+
+                    ?>
+                    <div class="alert alert-success">
+                        <p><?=$positive?></p>
                     </div>
                     <?php
 

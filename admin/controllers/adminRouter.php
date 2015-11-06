@@ -539,6 +539,7 @@ class AdminRouter extends NAILS_Controller
 
         if (empty($module)) {
 
+            $this->session->keep_flashdata();
             redirect('admin/admin/dashboard');
 
         } elseif (isset($this->adminControllers[$module]->controllers[$controller])) {
