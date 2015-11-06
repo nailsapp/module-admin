@@ -32,6 +32,7 @@ class Migration_1 extends Base {
                 CONSTRAINT `{{NAILS_DB_PREFIX}}user_meta_admin_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `{{NAILS_DB_PREFIX}}user` (`id`) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
         ");
+        $this->query("ALTER TABLE `{{NAILS_DB_PREFIX}}admin_help_video` CHANGE `title` `label` VARCHAR(150)  CHARACTER SET utf8  COLLATE utf8_general_ci  NOT NULL  DEFAULT '';");
         $this->query("ALTER TABLE `{{NAILS_DB_PREFIX}}admin_help_video` ADD `duration` INT(11)  UNSIGNED  NOT NULL  AFTER `vimeo_id`;");
         $this->query("ALTER TABLE `{{NAILS_DB_PREFIX}}admin_help_video` ADD `created` DATETIME  NOT NULL  AFTER `duration`;");
         $this->query("ALTER TABLE `{{NAILS_DB_PREFIX}}admin_help_video` ADD `created_by` INT(11)  UNSIGNED  NULL  DEFAULT NULL  AFTER `created`;");
