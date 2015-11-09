@@ -122,18 +122,24 @@
                     echo '<span class="headerButtons">';
                     foreach ($headerButtons as $button) {
 
+                        $sConfirmClass = $button['confirmTitle'] || $button['confirmBody'] ? ' confirm' : '';
+
                         $attr   = array();
-                        $attr[] = 'class="awesome small ' . $button['color'] . '"';
+                        $attr[] = 'class="btn btn-xs btn-' . $button['context'] . $sConfirmClass . '"';
                         $attr[] = $button['confirmTitle'] ? 'data-title="' . $button['confirmTitle'] . '"' : '';
                         $attr[] = $button['confirmBody'] ? 'data-body="' . $button['confirmBody'] . '"' : '';
 
                         $attr = array_filter($attr);
 
+                        if ($button['context'] === 'danger') {
+                            $button['label'] = '<i class="fa fa-exclamation-triangle"></i>' . $button['label'];
+                        }
+
                         echo anchor(
                             $button['url'],
                             $button['label'],
                             implode(' ', $attr)
-                        );
+                        ) . ' ';
                     }
                     echo '</span>';
                 }
