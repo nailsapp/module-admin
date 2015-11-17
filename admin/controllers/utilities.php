@@ -213,17 +213,17 @@ class Utilities extends Base
         if ($this->input->post()) {
 
             //  Form validation and update
-            $this->load->library('form_validation');
+            $oFormValidation = Factory::service('FormValidation');
 
             //  Define rules
-            $this->form_validation->set_rules('source', '', 'xss_clean|required');
-            $this->form_validation->set_rules('format', '', 'xss_clean|required');
+            $oFormValidation->set_rules('source', '', 'xss_clean|required');
+            $oFormValidation->set_rules('format', '', 'xss_clean|required');
 
             //  Set Messages
-            $this->form_validation->set_message('required', lang('fv_required'));
+            $oFormValidation->set_message('required', lang('fv_required'));
 
             //  Execute
-            if ($this->form_validation->run() && isset($this->exportSources[$this->input->post('source')]) && isset($this->exportFormats[$this->input->post('format')])) {
+            if ($oFormValidation->run() && isset($this->exportSources[$this->input->post('source')]) && isset($this->exportFormats[$this->input->post('format')])) {
 
                 $source = $this->exportSources[$this->input->post('source')];
                 $format = $this->exportFormats[$this->input->post('format')];
