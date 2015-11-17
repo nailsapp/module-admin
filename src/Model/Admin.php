@@ -86,7 +86,7 @@ class Admin extends Base
         } else {
 
             //  Unset the existing key
-            unset($existing[$key]);
+            $existing[$key] = null;
         }
 
         //  Save to the DB
