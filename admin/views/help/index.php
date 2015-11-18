@@ -4,8 +4,8 @@
     </p>
     <?php
 
-        echo \Nails\Admin\Helper::loadSearch($search);
-        echo \Nails\Admin\Helper::loadPagination($pagination);
+        echo adminHelper('loadSearch', $search);
+        echo adminHelper('loadPagination', $pagination);
 
     ?>
     <div class="table-responsive">
@@ -35,8 +35,8 @@
                         <td class="duration">
                             <?=gmdate('H:i:s', $v->duration)?>
                         </td>
-                        <?=\Nails\Admin\Helper::loadDatetimeCell($v->created);?>
-                        <?=\Nails\Admin\Helper::loadDatetimeCell($v->modified);?>
+                        <?=adminHelper('loadDatetimeCell', $v->created);?>
+                        <?=adminHelper('loadDatetimeCell', $v->modified);?>
                         <td class="actions">
                             <?php
 
@@ -70,7 +70,7 @@
     </div>
     <?php
 
-        echo \Nails\Admin\Helper::loadPagination($pagination);
+        echo adminHelper('loadPagination', $pagination);
 
     ?>
 </div>

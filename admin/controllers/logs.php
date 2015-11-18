@@ -24,7 +24,9 @@ class Logs extends Base
      */
     public static function announce()
     {
-        $navGroup = new \Nails\Admin\Nav('Logs', 'fa-archive');
+        $navGroup = Factory::factory('Nav', 'nailsapp/module-admin');
+        $navGroup->setLabel('Logs');
+        $navGroup->setIcon('fa-archive');
 
         if (userHasPermission('admin:admin:logs:site:browse')) {
 

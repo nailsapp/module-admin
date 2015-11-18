@@ -15,7 +15,7 @@
 
                 echo '<fieldset>';
                     echo $noti->label ? '<legend>' . $noti->label . '</legend>' : '';
-                    echo $noti->description ? '<p>' . $noti->description . '</p><hr />' : '';
+                    echo $noti->description ? '<p>' . $noti->description . '</p>' : '';
 
                     echo '<table>';
                         echo '<thead>';
@@ -26,7 +26,7 @@
                         echo '<thead>';
                         echo '<tbody>';
 
-                        $oAppNotificationModel = \Nails\Factory::model('AppNotification');
+                        $oAppNotificationModel = nailsFactory('model', 'AppNotification');
 
                         foreach ($noti->options as $key => $data) {
 
@@ -58,7 +58,7 @@
             }
 
             echo '<p>';
-                echo form_submit('submit', lang('action_save_changes'), 'class="awesome"');
+                echo form_submit('submit', lang('action_save_changes'), 'class="btn btn-primary"');
             echo '</p>';
 
             echo form_close();

@@ -58,6 +58,9 @@ class Base extends \MX_Controller
         //  Libraries
         $this->cdn = Factory::service('Cdn', 'nailsapp/module-cdn');
 
+        //  Helpers
+        Factory::helper('admin', 'nailsapp/module-admin');
+
         //  Languages
         $this->lang->load('admin/admin_generic');
 

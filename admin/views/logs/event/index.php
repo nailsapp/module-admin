@@ -4,8 +4,8 @@
     </p>
     <?php
 
-        echo \Nails\Admin\Helper::loadSearch($search);
-        echo \Nails\Admin\Helper::loadPagination($pagination);
+        echo adminHelper('loadSearch', $search);
+        echo adminHelper('loadPagination', $pagination);
 
     ?>
     <div class="table-responsive">
@@ -27,8 +27,8 @@
 
                         echo '<tr class="event">';
 
-                        echo \Nails\Admin\Helper::loadDatetimeCell($event->created);
-                        echo \Nails\Admin\Helper::loadUserCell($event->user);
+                        echo adminHelper('loadDatetimeCell', $event->created);
+                        echo adminHelper('loadUserCell', $event->user);
 
                         // --------------------------------------------------------------------------
 
@@ -81,7 +81,7 @@
     </div>
     <?php
 
-        echo \Nails\Admin\Helper::loadPagination($pagination);
+        echo adminHelper('loadPagination', $pagination);
 
     ?>
 </div>

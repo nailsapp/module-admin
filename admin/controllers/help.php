@@ -28,7 +28,9 @@ class Help extends Base
 
         if (userHasPermission('admin:admin:help:view') && $oHelpModel->count_all()) {
 
-            $navGroup = new \Nails\Admin\Nav('Dashboard', 'fa-home');
+            $navGroup = Factory::factory('Nav', 'nailsapp/module-admin');
+            $navGroup->setLabel('Dashboard');
+            $navGroup->setIcon('fa-home');
             $navGroup->addAction('Help Videos');
 
             return $navGroup;

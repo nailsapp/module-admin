@@ -29,7 +29,9 @@ class Utilities extends Base
      */
     public static function announce()
     {
-        $navGroup = new \Nails\Admin\Nav('Utilities', 'fa-sliders');
+        $navGroup = Factory::factory('Nav', 'nailsapp/module-admin');
+        $navGroup->setLabel('Utilities');
+        $navGroup->setIcon('fa-sliders');
 
         if (userHasPermission('admin:admin:utilities:rewriteRoutes')) {
 

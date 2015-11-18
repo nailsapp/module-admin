@@ -109,7 +109,7 @@
         $pageTitle = $page->module->name;
     }
 
-    $headerButtons = \Nails\Admin\Helper::getHeaderButtons();
+    $headerButtons = adminHelper('getHeaderButtons');
 
     if (!empty($pageTitle) || !empty($headerButtons)) {
 

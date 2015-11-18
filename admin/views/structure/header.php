@@ -260,17 +260,17 @@
                                                 foreach ($methodDetails->alerts as $alert) {
 
                                                     //  Skip empty alerts
-                                                    if (empty($alert->value)) {
-
+                                                    $sValue = $alert->getValue();
+                                                    if (empty($sValue)) {
                                                         continue;
                                                     }
 
-                                                    $label    = $alert->label ? $alert->label : '';
-                                                    $tipsy    = $alert->label ? 'rel="tipsy-right"' : '';
-                                                    $severity = $alert->severity;
+                                                    $sLabel    = $alert->getLabel() ?: '';
+                                                    $sTipsy    = $sLabel ? 'rel="tipsy-right"' : '';
+                                                    $sSeverity = $alert->getSeverity();
 
-                                                    echo '<span class="indicator ' . $severity . '" ' . $tipsy . ' title="' . $label . '">';
-                                                        echo $alert->value;
+                                                    echo '<span class="indicator ' . $sSeverity . '" ' . $sTipsy . ' title="' . $sLabel . '">';
+                                                        echo $sValue;
                                                     echo '</span>';
                                                 }
                                             }
@@ -319,7 +319,7 @@
                     $pageTitle = $page->module->name;
                 }
 
-                $headerButtons = \Nails\Admin\Helper::getHeaderButtons();
+                $headerButtons = adminHelper('getHeaderButtons');
 
                 if (!empty($pageTitle) || !empty($headerButtons)) {
 

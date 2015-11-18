@@ -166,8 +166,8 @@ class Helper
 
         } else {
 
-            $subject  = 'Unsupported object type passed to \Nails\Admin\Helper::loadCSV';
-            $message  = 'An unsupported object was passed to \Nails\Admin\Helper::loadCSV. A CSV ';
+            $subject  = 'Unsupported object type passed to ' . get_class() . '::loadCSV';
+            $message  = 'An unsupported object was passed to ' . get_class() . '::loadCSV. A CSV ';
             $message .= 'file could not be generated. Details are shown below:<br /><br />' . print_r($data, true);
 
             showFatalError($subject, $message);

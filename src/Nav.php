@@ -58,17 +58,6 @@ class Nav
     // --------------------------------------------------------------------------
 
     /**
-     * Returns the navGroup's icon
-     * @return string
-     */
-    public function getIcon()
-    {
-        return $this->icon;
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
      * Set the navGroup's icon
      * @return string
      */
@@ -76,6 +65,17 @@ class Nav
     {
         $this->icon = $icon;
         return $this;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the navGroup's icon
+     * @return string
+     */
+    public function getIcon()
+    {
+        return $this->icon;
     }
 
     // --------------------------------------------------------------------------
@@ -128,24 +128,5 @@ class Nav
         unset($this->actions[$url]);
 
         return $this;
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Creates an alert object
-     * @param  mixed  $value    The value of the alert, i.e., what's shown to the user
-     * @param  string $severity The severty of the alert
-     * @param  string $label    The label to give the alert, shown on hover
-     * @return stdClass
-     */
-    public static function alertObject($value, $severity = 'info', $label = '')
-    {
-        $temp           = new \stdClass();
-        $temp->value    = $value;
-        $temp->severity = $severity;
-        $temp->label    = $label;
-
-        return $temp;
     }
 }

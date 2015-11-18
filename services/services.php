@@ -8,6 +8,13 @@ return array(
             } else {
                 return new \Nails\Admin\Nav();
             }
+        },
+        'NavAlert' => function () {
+            if (class_exists('\App\Admin\NavAlert')) {
+                return new \App\Admin\NavAlert();
+            } else {
+                return new \Nails\Admin\NavAlert();
+            }
         }
     ),
     'models' => array(
