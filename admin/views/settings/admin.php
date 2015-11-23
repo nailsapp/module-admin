@@ -55,7 +55,7 @@
                     $field                = array();
                     $field['key']         = 'primary_colour';
                     $field['label']       = 'Primary Colour';
-                    $field['default']     = app_setting($field['key'], 'admin');
+                    $field['default']     = appSetting($field['key'], 'admin');
                     $field['placeholder'] = 'Specify a valid CSS colour value, i.e a hex code or rgb()';
 
                     echo form_field($field);
@@ -65,7 +65,7 @@
                     $field                = array();
                     $field['key']         = 'secondary_colour';
                     $field['label']       = 'Secondary Colour';
-                    $field['default']     = app_setting($field['key'], 'admin');
+                    $field['default']     = appSetting($field['key'], 'admin');
                     $field['placeholder'] = 'Specify a valid CSS colour value, i.e a hex code or rgb()';
 
                     echo form_field($field);
@@ -75,7 +75,7 @@
                     $field                = array();
                     $field['key']         = 'highlight_colour';
                     $field['label']       = 'Highlight Colour';
-                    $field['default']     = app_setting($field['key'], 'admin');
+                    $field['default']     = appSetting($field['key'], 'admin');
                     $field['placeholder'] = 'Specify a valid CSS colour value, i.e a hex code or rgb()';
 
                     echo form_field($field);
@@ -104,7 +104,7 @@
                     $field['key']         = 'whitelist';
                     $field['label']       = 'Whitelist';
                     $field['type']        = 'textarea';
-                    $field['default']     = trim(implode("\n", (array) app_setting($field['key'], 'admin')));
+                    $field['default']     = trim(implode("\n", (array) appSetting($field['key'], 'admin')));
                     $field['placeholder'] = 'Specify IP addresses to whitelist either comma seperated or on new lines.';
                     $field['help']        = 'Your current IP address is: ' . $this->input->ip_address();
 

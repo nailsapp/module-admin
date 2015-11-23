@@ -56,7 +56,7 @@
                         $field                = array();
                         $field['key']         = 'google_analytics_account';
                         $field['label']       = 'Profile ID';
-                        $field['default']     = app_setting($field['key']);
+                        $field['default']     = appSetting($field['key']);
                         $field['placeholder'] = 'UA-XXXXX-YY';
 
                         echo form_field($field);
@@ -92,7 +92,7 @@
                         $field['id']      = 'maintenance-mode-enabled';
                         $field['key']     = 'maintenance_mode_enabled';
                         $field['label']   = 'Enabled';
-                        $field['default'] = app_setting($field['key'], 'site');
+                        $field['default'] = appSetting($field['key'], 'site');
 
                         echo form_field_boolean($field);
 
@@ -103,7 +103,7 @@
                             $field                = array();
                             $field['key']         = 'maintenance_mode_whitelist';
                             $field['label']       = 'Whitelist';
-                            $field['default']     = trim(implode("\n", (array) app_setting($field['key'], 'site')));
+                            $field['default']     = trim(implode("\n", (array) appSetting($field['key'], 'site')));
                             $field['placeholder'] = 'Specify IP addresses to whitelist either comma seperated or on new lines.';
                             $field['info']        = 'Your current IP address is: ' . $this->input->ip_address();
 
@@ -114,7 +114,7 @@
                             $field                = array();
                             $field['key']         = 'maintenance_mode_title';
                             $field['label']       = 'Title';
-                            $field['default']     = app_setting($field['key'], 'site');
+                            $field['default']     = appSetting($field['key'], 'site');
                             $field['placeholder'] = 'Optionally specify a custom title for the maintenance page.';
 
                             echo form_field($field);
@@ -124,7 +124,7 @@
                             $field                = array();
                             $field['key']         = 'maintenance_mode_body';
                             $field['label']       = 'Body';
-                            $field['default']     = app_setting($field['key'], 'site');
+                            $field['default']     = appSetting($field['key'], 'site');
                             $field['placeholder'] = 'Optionally specify a custom body for the maintenance page.';
 
                             echo form_field_wysiwyg($field);

@@ -72,7 +72,7 @@ class AdminRouter extends NAILS_Controller
         if (!$this->input->is_cli_request()) {
 
             //  Is there an AdminIP whitelist?
-            $whitelistIp = (array) app_setting('whitelist', 'admin');
+            $whitelistIp = (array) appSetting('whitelist', 'admin');
 
             if ($whitelistIp) {
                 if (!isIpInRange($this->input->ip_address(), $whitelistIp)) {
