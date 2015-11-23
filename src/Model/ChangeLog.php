@@ -209,24 +209,22 @@ class ChangeLog extends Base
      * @param int    $page    The page number of the results, if null then no pagination
      * @param int    $perPage How many items per page of paginated results
      * @param mixed  $data    Any data to pass to _getcount_common()
-     * @param string $_caller Internal flag to pass to _getcount_common(), contains the calling method
      * @return array
      **/
-    public function get_all($page = null, $perPage = null, $data = array(), $_caller = 'GET_ALL')
+    public function get_all($page = null, $perPage = null, $data = array())
     {
         $this->db->select($this->tablePrefix . '.*, u.first_name, u.last_name, u.gender, u.profile_img, ue.email');
-        return parent::get_all($page, $perPage, $data, false, $_caller);
+        return parent::get_all($page, $perPage, $data, false);
     }
 
     // --------------------------------------------------------------------------
 
     /**
      * Applies common conditionals
-     * @param string $data    Data passed from the calling method
-     * @param string $_caller The name of the calling method
+     * @param string $data Data passed from the calling method
      * @return void
      **/
-    protected function _getcount_common($data = null, $caller = null)
+    protected function _getcount_common($data = null)
     {
         //  Join user tables
         $this->db->join(NAILS_DB_PREFIX . 'user u', 'u.id = ' . $this->tablePrefix . '.user_id', 'LEFT');
