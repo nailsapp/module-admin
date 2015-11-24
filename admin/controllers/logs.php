@@ -109,7 +109,7 @@ class Logs extends Base
 
         $this->asset->load('mustache.js/mustache.js', 'NAILS-BOWER');
         $this->asset->load('nails.admin.logs.site.min.js', 'NAILS');
-        $this->asset->inline('logsSite = new NAILS_Admin_Logs_Site();','JS');
+        $this->asset->inline('logsSite = new NAILS_Admin_Logs_Site();', 'JS');
 
         Helper::loadView('site/index');
     }
@@ -193,15 +193,15 @@ class Logs extends Base
             //  Get all items for the search, no need to paginate
             $data['RETURN_QUERY_OBJECT'] = true;
 
-            $events = $this->event->get_all(null, null, $data);
+            $events = $this->event->getAll(null, null, $data);
 
             Helper::loadCsv($events, 'export-events-' . toUserDatetime(null, 'Y-m-d_h-i-s') . '.csv');
 
         } else {
 
             //  Get the items for the page
-            $totalRows            = $this->event->count_all($data);
-            $this->data['events'] = $this->event->get_all($page, $perPage, $data);
+            $totalRows            = $this->event->countAll($data);
+            $this->data['events'] = $this->event->getAll($page, $perPage, $data);
 
             //  Set Search and Pagination objects for the view
             $this->data['search']     = Helper::searchObject(true, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords);
@@ -283,15 +283,15 @@ class Logs extends Base
             //  Get all items for the search, no need to paginate
             $data['RETURN_QUERY_OBJECT'] = true;
 
-            $changelog = $oChangeLogModel->get_all(null, null, $data);
+            $changelog = $oChangeLogModel->getAll(null, null, $data);
 
             Helper::loadCsv($changelog, 'export-changelog-' . toUserDatetime(null, 'Y-m-d_h-i-s') . '.csv');
 
         } else {
 
             //  Get the items for the page
-            $totalRows               = $oChangeLogModel->count_all($data);
-            $this->data['changelog'] = $oChangeLogModel->get_all($page, $perPage, $data);
+            $totalRows               = $oChangeLogModel->countAll($data);
+            $this->data['changelog'] = $oChangeLogModel->getAll($page, $perPage, $data);
 
             //  Set Search and Pagination objects for the view
             $this->data['search']     = Helper::searchObject(false, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords);

@@ -208,13 +208,13 @@ class ChangeLog extends Base
      * Fetches all objects, optionally paginated.
      * @param int    $page    The page number of the results, if null then no pagination
      * @param int    $perPage How many items per page of paginated results
-     * @param mixed  $data    Any data to pass to _getcount_common()
+     * @param mixed  $data    Any data to pass to getCountCommon()
      * @return array
      **/
-    public function get_all($page = null, $perPage = null, $data = array())
+    public function getAll($page = null, $perPage = null, $data = array())
     {
         $this->db->select($this->tablePrefix . '.*, u.first_name, u.last_name, u.gender, u.profile_img, ue.email');
-        return parent::get_all($page, $perPage, $data, false);
+        return parent::getAll($page, $perPage, $data, false);
     }
 
     // --------------------------------------------------------------------------
@@ -224,7 +224,7 @@ class ChangeLog extends Base
      * @param string $data Data passed from the calling method
      * @return void
      **/
-    protected function _getcount_common($data = null)
+    protected function getCountCommon($data = null)
     {
         //  Join user tables
         $this->db->join(NAILS_DB_PREFIX . 'user u', 'u.id = ' . $this->tablePrefix . '.user_id', 'LEFT');
@@ -250,7 +250,7 @@ class ChangeLog extends Base
             );
         }
 
-        parent::_getcount_common($data);
+        parent::getCountCommon($data);
     }
 
     // --------------------------------------------------------------------------
@@ -260,9 +260,9 @@ class ChangeLog extends Base
      * @param  stdClass &$obj The object to format
      * @return void
      */
-    protected function _format_object(&$obj)
+    protected function formatObject(&$obj)
     {
-        parent::_format_object($obj);
+        parent::formatObject($obj);
 
         if (!empty($obj->item_id)) {
 

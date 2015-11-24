@@ -26,7 +26,7 @@ class Help extends Base
     {
         $oHelpModel = Factory::model('Help', 'nailsapp/module-admin');
 
-        if (userHasPermission('admin:admin:help:view') && $oHelpModel->count_all()) {
+        if (userHasPermission('admin:admin:help:view') && $oHelpModel->countAll()) {
 
             $navGroup = Factory::factory('Nav', 'nailsapp/module-admin');
             $navGroup->setLabel('Dashboard');
@@ -104,8 +104,8 @@ class Help extends Base
         );
 
         //  Get the items for the page
-        $totalRows            = $oHelpModel->count_all($data);
-        $this->data['videos'] = $oHelpModel->get_all($page, $perPage, $data);
+        $totalRows            = $oHelpModel->countAll($data);
+        $this->data['videos'] = $oHelpModel->getAll($page, $perPage, $data);
 
         //  Set Search and Pagination objects for the view
         $this->data['search']     = Helper::searchObject(true, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords);

@@ -388,7 +388,7 @@ class Helper
     {
         if (is_numeric($user)) {
 
-            $oUser = get_instance()->user_model->get_by_id($user);
+            $oUser = get_instance()->user_model->getById($user);
             if ($oUser) {
 
                 $user = $oUser;
@@ -396,7 +396,7 @@ class Helper
 
         } else if (is_string($user)) {
 
-            $oUser = get_instance()->user_model->get_by_email($user);
+            $oUser = get_instance()->user_model->getByEmail($user);
 
             if ($oUser) {
 
@@ -404,7 +404,7 @@ class Helper
 
             } else {
 
-                $oUser = get_instance()->user_model->get_by_username($user);
+                $oUser = get_instance()->user_model->getByUsername($user);
 
                 if ($oUser) {
 

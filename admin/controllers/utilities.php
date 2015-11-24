@@ -413,7 +413,7 @@ class Utilities extends Base
         $out = $out;
 
         //  Fetch all users via the user_model
-        $users = $this->user_model->get_all();
+        $users = $this->user_model->getAll();
 
         //  Set column headings
         $out           = new \stdClass();

@@ -39,7 +39,7 @@ class Users extends \Nails\Api\Controller\Base
                 'keywords' => $this->input->get('term')
             );
 
-            $users = $this->user_model->get_all(1, 50, $data);
+            $users = $this->user_model->getAll(1, 50, $data);
             $out   = array('users' => array());
 
             foreach ($users as $user) {

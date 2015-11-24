@@ -35,7 +35,7 @@ class Help extends Base
      * @param array  $data Data passed from the calling method
      * @return void
      **/
-    protected function _getcount_common($data = array())
+    protected function getCountCommon($data = array())
     {
         if (!empty($data['keywords'])) {
 
@@ -54,6 +54,6 @@ class Help extends Base
             );
         }
 
-        parent::_getcount_common($data);
+        parent::getCountCommon($data);
     }
 }
