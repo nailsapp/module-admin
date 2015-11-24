@@ -187,7 +187,7 @@ class Utilities extends Base
             } else {
 
                 $this->data['error']  = 'There was a problem writing the routes. ';
-                $this->data['error'] .= $this->routes_model->last_error();
+                $this->data['error'] .= $this->routes_model->lastError();
             }
         }
 
@@ -564,7 +564,7 @@ class Utilities extends Base
 
                 $status  = 'error';
                 $message = 'Failed to render PDF. ';
-                $message .= $this->pdf->last_error() ? 'DOMPDF gave the following error: ' . $this->pdf->last_error() : '';
+                $message .= $this->pdf->lastError() ? 'DOMPDF gave the following error: ' . $this->pdf->lastError() : '';
 
                 $this->session->set_flashdata($status, $message);
                 redirect('admin/shop/reports');

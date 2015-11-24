@@ -112,7 +112,7 @@ class Admin extends Base
 
         //  Check if data is already in the cache
         $cacheKey = 'admin-data-' . $userId;
-        $cache    = $this->_get_cache($cacheKey);
+        $cache    = $this->getCache($cacheKey);
 
         if ($cache) {
 
@@ -138,7 +138,7 @@ class Admin extends Base
                 $data = array();
             }
 
-            $this->_set_cache($cacheKey, $data);
+            $this->setCache($cacheKey, $data);
         }
 
         // --------------------------------------------------------------------------
@@ -183,7 +183,7 @@ class Admin extends Base
         );
 
         if ($bResult) {
-            $this->_unset_cache('admin-data-' . $userId);
+            $this->unsetCache('admin-data-' . $userId);
         }
 
         return $bResult;

@@ -76,7 +76,7 @@ class SiteLog extends Base
     {
         if (!is_file($this->logPath . $file)) {
 
-            $this->_set_error('Not a valid log file.');
+            $this->setError('Not a valid log file.');
             return false;
         }
 
