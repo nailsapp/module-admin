@@ -102,7 +102,7 @@ class Nav
     {
         $this->actions[$url]         = new \stdClass();
         $this->actions[$url]->label  = $label;
-        $this->actions[$url]->alerts = $alerts;
+        $this->actions[$url]->alerts = !is_array($alerts) ? array($alerts) : $alerts;
 
         if (is_null($order)) {
 
