@@ -336,15 +336,15 @@ class AdminRouter extends NAILS_Controller
                 foreach ($controllerDetails['groupings'] as $grouping) {
 
                     //  Begin by defining which group this action belongs in
-                    $groupLabel = $grouping->getLabel();
+                    $sGroupLabel = $grouping->getLabel();
 
-                    if (!isset($adminControllersNav[md5($groupLabel)])) {
-                        $adminControllersNav[md5($groupLabel)]           = new \stdClass();
-                        $adminControllersNav[md5($groupLabel)]->label    = $groupLabel;
-                        $adminControllersNav[md5($groupLabel)]->icon     = array();
-                        $adminControllersNav[md5($groupLabel)]->sortable = true;
-                        $adminControllersNav[md5($groupLabel)]->open     = true;
-                        $adminControllersNav[md5($groupLabel)]->actions  = array();
+                    if (!isset($adminControllersNav[md5($sGroupLabel)])) {
+                        $adminControllersNav[md5($sGroupLabel)]           = new \stdClass();
+                        $adminControllersNav[md5($sGroupLabel)]->label    = $sGroupLabel;
+                        $adminControllersNav[md5($sGroupLabel)]->icon     = array();
+                        $adminControllersNav[md5($sGroupLabel)]->sortable = true;
+                        $adminControllersNav[md5($sGroupLabel)]->open     = true;
+                        $adminControllersNav[md5($sGroupLabel)]->actions  = array();
                     }
 
                     /**
@@ -358,7 +358,7 @@ class AdminRouter extends NAILS_Controller
 
                     if (!empty($moduleIcon)) {
 
-                        $adminControllersNav[md5($groupLabel)]->icon[] = $moduleIcon;
+                        $adminControllersNav[md5($sGroupLabel)]->icon[] = $moduleIcon;
                     }
 
                     //  Group actions
@@ -370,12 +370,12 @@ class AdminRouter extends NAILS_Controller
                         $url .= empty($actionUrl) ? '' : '/';
                         $url .= $actionUrl;
 
-                        $adminControllersNav[md5($groupLabel)]->actions[$url]         = new \stdClass();
-                        $adminControllersNav[md5($groupLabel)]->actions[$url]->order  = $actionDetails->order;
-                        $adminControllersNav[md5($groupLabel)]->actions[$url]->label  = $actionDetails->label;
-                        $adminControllersNav[md5($groupLabel)]->actions[$url]->alerts = $actionDetails->alerts;
-                        $adminControllersNav[md5($groupLabel)]->actions[$url]->class  = $controllerDetails['className'];
-                        $adminControllersNav[md5($groupLabel)]->actions[$url]->path   = $controllerDetails['path'];
+                        $adminControllersNav[md5($sGroupLabel)]->actions[$url]         = new \stdClass();
+                        $adminControllersNav[md5($sGroupLabel)]->actions[$url]->order  = $actionDetails->order;
+                        $adminControllersNav[md5($sGroupLabel)]->actions[$url]->label  = $actionDetails->label;
+                        $adminControllersNav[md5($sGroupLabel)]->actions[$url]->alerts = $actionDetails->alerts;
+                        $adminControllersNav[md5($sGroupLabel)]->actions[$url]->class  = $controllerDetails['className'];
+                        $adminControllersNav[md5($sGroupLabel)]->actions[$url]->path   = $controllerDetails['path'];
                     }
                 }
             }
