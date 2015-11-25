@@ -296,9 +296,9 @@ class AdminRouter extends NAILS_Controller
             $this->adminControllers[$moduleName]->controllers = array();
         }
 
-        $navGroupings = $className::announce();
+        $aNavGroupings = $className::announce();
 
-        if (!empty($navGroupings) && !is_array($navGroupings) && !($navGroupings instanceof \Nails\Admin\Nav)) {
+        if (!empty($aNavGroupings) && !is_array($aNavGroupings) && !($aNavGroupings instanceof \Nails\Admin\Nav)) {
 
             /**
              * @todo Use an admin specific exception class, and autoload it.
@@ -306,15 +306,15 @@ class AdminRouter extends NAILS_Controller
 
             throw new Exception('Admin Nav groupings returned by ' . $className . '::announce() were invalid', 1);
 
-        } elseif (!is_array($navGroupings)) {
+        } elseif (!is_array($aNavGroupings)) {
 
-            $navGroupings = array_filter(array($navGroupings));
+            $aNavGroupings = array_filter(array($aNavGroupings));
         }
 
         $this->adminControllers[$moduleName]->controllers[$fileName] = array(
             'className' => (string) $className,
             'path'      => (string) $classPath,
-            'groupings' => $navGroupings
+            'groupings' => $aNavGroupings
         );
 
         return true;

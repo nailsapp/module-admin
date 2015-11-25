@@ -28,12 +28,12 @@ class Help extends Base
 
         if (userHasPermission('admin:admin:help:view') && $oHelpModel->countAll()) {
 
-            $navGroup = Factory::factory('Nav', 'nailsapp/module-admin');
-            $navGroup->setLabel('Dashboard');
-            $navGroup->setIcon('fa-home');
-            $navGroup->addAction('Help Videos');
+            $oNavGroup = Factory::factory('Nav', 'nailsapp/module-admin');
+            $oNavGroup->setLabel('Dashboard');
+            $oNavGroup->setIcon('fa-home');
+            $oNavGroup->addAction('Help Videos');
 
-            return $navGroup;
+            return $oNavGroup;
         }
     }
 

@@ -24,26 +24,26 @@ class Logs extends Base
      */
     public static function announce()
     {
-        $navGroup = Factory::factory('Nav', 'nailsapp/module-admin');
-        $navGroup->setLabel('Logs');
-        $navGroup->setIcon('fa-archive');
+        $oNavGroup = Factory::factory('Nav', 'nailsapp/module-admin');
+        $oNavGroup->setLabel('Logs');
+        $oNavGroup->setIcon('fa-archive');
 
         if (userHasPermission('admin:admin:logs:site:browse')) {
 
-            $navGroup->addAction('Browse Site Logs', 'site');
+            $oNavGroup->addAction('Browse Site Logs', 'site');
         }
 
         if (userHasPermission('admin:admin:logs:event:browse')) {
 
-            $navGroup->addAction('Browse Event Logs', 'event');
+            $oNavGroup->addAction('Browse Event Logs', 'event');
         }
 
         if (userHasPermission('admin:admin:logs:change:browse')) {
 
-            $navGroup->addAction('Browse Admin Logs', 'changelog');
+            $oNavGroup->addAction('Browse Admin Logs', 'changelog');
         }
 
-        return $navGroup;
+        return $oNavGroup;
     }
 
     // --------------------------------------------------------------------------

@@ -24,12 +24,12 @@ class Dashboard extends Base
      */
     public static function announce()
     {
-        $navGroup = Factory::factory('Nav', 'nailsapp/module-admin');
-        $navGroup->setLabel('Dashboard');
-        $navGroup->setIcon('fa-home');
-        $navGroup->addAction('Site Overview');
+        $oNavGroup = Factory::factory('Nav', 'nailsapp/module-admin');
+        $oNavGroup->setLabel('Dashboard');
+        $oNavGroup->setIcon('fa-home');
+        $oNavGroup->addAction('Site Overview');
 
-        return $navGroup;
+        return $oNavGroup;
     }
 
     // --------------------------------------------------------------------------

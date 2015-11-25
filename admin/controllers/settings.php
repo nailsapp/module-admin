@@ -24,26 +24,26 @@ class Settings extends Base
      */
     public static function announce()
     {
-        $navGroup = Factory::factory('Nav', 'nailsapp/module-admin');
-        $navGroup->setLabel('Settings');
-        $navGroup->setIcon('fa-wrench');
+        $oNavGroup = Factory::factory('Nav', 'nailsapp/module-admin');
+        $oNavGroup->setLabel('Settings');
+        $oNavGroup->setIcon('fa-wrench');
 
         if (userHasPermission('admin:admin:settings:admin:.*')) {
 
-            $navGroup->addAction('Admin', 'admin');
+            $oNavGroup->addAction('Admin', 'admin');
         }
 
         if (userHasPermission('admin:admin:settings:site:.*')) {
 
-            $navGroup->addAction('Site', 'site');
+            $oNavGroup->addAction('Site', 'site');
         }
 
         if (userHasPermission('admin:admin:settings:notifications')) {
 
-            $navGroup->addAction('Notifications', 'notifications');
+            $oNavGroup->addAction('Notifications', 'notifications');
         }
 
-        return $navGroup;
+        return $oNavGroup;
     }
 
     // --------------------------------------------------------------------------

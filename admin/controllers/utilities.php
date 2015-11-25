@@ -29,21 +29,21 @@ class Utilities extends Base
      */
     public static function announce()
     {
-        $navGroup = Factory::factory('Nav', 'nailsapp/module-admin');
-        $navGroup->setLabel('Utilities');
-        $navGroup->setIcon('fa-sliders');
+        $oNavGroup = Factory::factory('Nav', 'nailsapp/module-admin');
+        $oNavGroup->setLabel('Utilities');
+        $oNavGroup->setIcon('fa-sliders');
 
         if (userHasPermission('admin:admin:utilities:rewriteRoutes')) {
 
-            $navGroup->addAction('Rewrite Routes', 'rewrite_routes');
+            $oNavGroup->addAction('Rewrite Routes', 'rewrite_routes');
         }
 
         if (userHasPermission('admin:admin:utilities:export')) {
 
-            $navGroup->addAction('Export Data', 'export');
+            $oNavGroup->addAction('Export Data', 'export');
         }
 
-        return $navGroup;
+        return $oNavGroup;
     }
 
     // --------------------------------------------------------------------------
