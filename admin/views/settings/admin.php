@@ -106,7 +106,7 @@
                     $field['type']        = 'textarea';
                     $field['default']     = trim(implode("\n", (array) appSetting($field['key'], 'admin')));
                     $field['placeholder'] = 'Specify IP addresses to whitelist either comma seperated or on new lines.';
-                    $field['help']        = 'Your current IP address is: ' . $this->input->ip_address();
+                    $field['help']        = 'Your current IP address is: ' . $this->input->ipAddress();
 
                     echo form_field($field);
 

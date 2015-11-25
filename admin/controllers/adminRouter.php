@@ -75,7 +75,7 @@ class AdminRouter extends NAILS_Controller
             $whitelistIp = (array) appSetting('whitelist', 'admin');
 
             if ($whitelistIp) {
-                if (!isIpInRange($this->input->ip_address(), $whitelistIp)) {
+                if (!isIpInRange($this->input->ipAddress(), $whitelistIp)) {
                     show_404();
                 }
             }
