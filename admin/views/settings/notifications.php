@@ -65,7 +65,7 @@
 
         } else {
 
-            echo '<p class="system-alert">';
+            echo '<p class="alert alert-danger">';
                 echo 'Sorry, there are no configurable notifications.';
             echo '</p>';
         }

@@ -24,7 +24,7 @@
     } else {
 
         ?>
-        <p class="system-alert message">
+        <p class="alert alert-warning">
             <strong>How very strange...</strong>
             <br />
             You don't have permission to access any of the administration features for this site. This is most

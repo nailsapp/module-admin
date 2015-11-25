@@ -4,7 +4,7 @@
         notifications which might be useful for debugging, however they are
         not nessecarily complete as the actual extent of logging can vary.
     </p>
-    <p class="system-alert message" id="pleaseNote">
+    <p class="alert alert-warning" id="pleaseNote">
         <strong>Please note:</strong>
         It may take a while to fetch log files on busy, or old, sites.
     </p>
@@ -45,7 +45,7 @@
             {{lines}}
         </td>
         <td class="actions">
-            <a href="<?=site_url('admin/admin/logs/site/view/{{file}}')?>" class="awesome small green">
+            <a href="<?=site_url('admin/admin/logs/site/view/{{file}}')?>" class="btn btn-xs btn-success">
                 View
             </a>
         </td>

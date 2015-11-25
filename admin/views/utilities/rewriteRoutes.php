@@ -10,7 +10,7 @@
 	<?php
 
 		echo form_open();
-		echo '<p>' . form_submit( 'go', 'Rewrite Routes', 'class="awesome green"' ) . '</p>';
+		echo '<p>' . form_submit( 'go', 'Rewrite Routes', 'class="btn btn-success"' ) . '</p>';
 		echo form_close();
 
 	?>

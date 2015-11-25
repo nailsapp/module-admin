@@ -43,7 +43,7 @@
                             echo anchor(
                                 'http://player.vimeo.com/video/' . $v->vimeo_id . '?autoplay=true',
                                 lang('action_view'),
-                                'class="btn btn-xs btn-primary video-button"'
+                                'class="btn btn-xs btn-default video-button"'
                             );
 
                             ?>

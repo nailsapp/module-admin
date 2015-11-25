@@ -119,7 +119,7 @@
         ?>
     </section>
     <p>
-        <?=form_submit('submit', lang('action_save_changes'), 'class="awesome"')?>
+        <?=form_submit('submit', lang('action_save_changes'), 'class="btn btn-primary"')?>
     </p>
     <?=form_close()?>
 </div>

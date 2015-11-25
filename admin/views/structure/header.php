@@ -294,7 +294,7 @@
             <a href="#" data-action="close">Close All</a>
         </div>
         <div class="no-modules">
-            <p class="system-alert error">
+            <p class="alert alert-danger">
                 <strong>No modules available.</strong>
                 </br>
                 This is a configuration error and should be reported to the app developers.

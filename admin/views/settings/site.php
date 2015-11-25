@@ -77,7 +77,7 @@
                     Maintenance mode disables disables access to the site with the exception
                     for those IP addresses listed in the whitelist.
                 </p>
-                <p class="system-alert message">
+                <p class="alert alert-warning">
                     <strong>Note:</strong> Maintenance mode can be enabled via this setting,
                     or by placing a file entitled <code>.MAINTENANCE</code> at the site's root.
                     If the <code>.MAINTENANCE</code> file is found then the site will forcibly
@@ -140,7 +140,7 @@
         ?>
     </section>
     <p>
-        <?=form_submit('submit', lang('action_save_changes'), 'class="awesome"')?>
+        <?=form_submit('submit', lang('action_save_changes'), 'class="btn btn-primary"')?>
     </p>
     <?=form_close()?>
 </div>

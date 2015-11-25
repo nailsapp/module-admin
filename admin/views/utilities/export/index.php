@@ -2,7 +2,7 @@
     <p>
         Export data stored in the site\'s database in a variety of formats.
     </p>
-    <p class="system-alert message">
+    <p class="alert alert-warning">
         <strong>Please note:</strong> Exporting may take some time when executing on large databases. Please be patient.
     </p>
     <?=form_open()?>
@@ -49,7 +49,7 @@
         ?>
     </fieldset>
     <p>
-        <?=form_submit('submit', 'Export', 'class="awesome"')?>
+        <?=form_submit('submit', 'Export', 'class="btn btn-primary"')?>
     </p>
     <?=form_close()?>
 </div>
