@@ -370,7 +370,6 @@
                         <p><?=$error?></p>
                     </div>
                     <?php
-
                 }
 
                 if (!empty($negative)) {
@@ -380,7 +379,6 @@
                         <p><?=$negative?></p>
                     </div>
                     <?php
-
                 }
 
                 if (!empty($success)) {
@@ -396,7 +394,6 @@
                         <p><?=$success?></p>
                     </div>
                     <?php
-
                 }
 
                 if (!empty($positive)) {
@@ -406,7 +403,24 @@
                         <p><?=$positive?></p>
                     </div>
                     <?php
+                }
 
+                if (!empty($info)) {
+
+                    ?>
+                    <div class="alert alert-info">
+                        <p><?=$info?></p>
+                    </div>
+                    <?php
+                }
+
+                if (!empty($warning)) {
+
+                    ?>
+                    <div class="alert alert-warning">
+                        <p><?=$warning?></p>
+                    </div>
+                    <?php
                 }
 
                 if (!empty($message)) {
@@ -416,7 +430,6 @@
                         <p><?=$message?></p>
                     </div>
                     <?php
-
                 }
 
                 if (!empty($notice)) {
@@ -426,5 +439,4 @@
                         <p><?=$notice?></p>
                     </div>
                     <?php
-
                 }
