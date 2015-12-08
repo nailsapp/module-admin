@@ -180,7 +180,7 @@ class ChangeLog extends Base
             for ($i = 0; $i < count($this->changes); $i++) {
 
                 $this->changes[$i]['changes']     = array_values($this->changes[$i]['changes']);
-                $this->changes[$i]['changes']     = serialize($this->changes[$i]['changes']);
+                $this->changes[$i]['changes']     = json_encode($this->changes[$i]['changes']);
                 $this->changes[$i]['created']     = $oDate->format('Y-m-d H:i:s');
                 $this->changes[$i]['created_by']  = activeUser('id');
                 $this->changes[$i]['modified']    = $oDate->format('Y-m-d H:i:s');
@@ -269,7 +269,7 @@ class ChangeLog extends Base
             $obj->item_id = (int) $obj->item_id;
         }
 
-        $obj->changes = @unserialize($obj->changes);
+        $obj->changes = @json_decode($obj->changes);
 
         $obj->user              = new \stdClass();
         $obj->user->id          = $obj->user_id;

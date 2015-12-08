@@ -315,4 +315,197 @@ class Settings extends Base
 
         return $whitelist;
     }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Configure modules which have settings described in their composer.json/config.json file
+     * @return void
+     */
+    public function module()
+    {
+        $this->component('Module');
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Configure skins which have settings described in their composer.json/config.json file
+     * @return void
+     */
+    public function skin()
+    {
+        $this->component('Skin');
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Configure drivers which have settings described in their composer.json/config.json file
+     * @return void
+     */
+    public function driver()
+    {
+        $this->component('Driver');
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Configure components which have settings described in their composer.json/config.json file
+     * @return void
+     */
+    protected function component($sType = 'component')
+    {
+        $this->data['slug'] = $this->input->get('slug');
+        if (empty($this->data['slug'])) {
+            $this->data['slug'] = $this->input->post('slug');
+        }
+        $oComponent = _NAILS_GET_COMPONENTS_BY_SLUG($this->data['slug']);
+
+        if (empty($oComponent->data->settings)) {
+            show_404();
+        }
+
+        //  Move all the settings which aren't already in fieldsets/groups into groups
+        $this->data['fieldsets'] = array();
+        $this->fields            = array();
+        $this->extractFieldsets($oComponent->slug, $oComponent->data->settings);
+        $this->data['fieldsets'] = array_values($this->data['fieldsets']);
+
+        if ($this->input->post()) {
+
+            //  Validate
+            $oFormValidation = Factory::service('FormValidation');
+            $aRules          = array();
+
+            foreach ($this->fields as $oField) {
+
+                $aFieldRule   = array();
+                $aFieldRule[] = !empty($oField->required) ? 'required' : '';
+
+                if (!empty($oField->validation_rules)) {
+                    $aFieldRule = array_merge($aFieldRule, explode('|', $oField->validation_rules));
+                }
+
+                $aFieldRule = array_filter($aFieldRule);
+                $aFieldRule = array_unique($aFieldRule);
+
+                $aRules[] = array(
+                    'field' => $oField->key,
+                    'label' => $oField->label,
+                    'rules' => implode('|', $aFieldRule)
+                );
+            }
+
+            $oFormValidation->set_rules($aRules);
+
+            if ($oFormValidation->run()) {
+
+                $aSettings          = array();
+                $aSettingsEncrypted = array();
+
+                foreach ($this->fields as $oField) {
+
+                    //  @todo respect data types
+
+                    //  Encrypted or not?
+                    if (!empty($oField->encrypted)) {
+
+                        $aSettingsEncrypted[$oField->key] = $this->input->post($oField->key);
+
+                    } else {
+
+                        $aSettings[$oField->key] = $this->input->post($oField->key);
+                    }
+                }
+
+                //  Begin transaction
+                $oAppSettingModel = Factory::model('AppSetting');
+                $this->db->trans_begin();
+                $bRollback = false;
+
+                //  Normal settings
+                if (!$oAppSettingModel->set($aSettings, $oComponent->slug)) {
+
+                    $sError    = $oAppSettingModel->lastError();
+                    $bRollback = true;
+                }
+
+                //  Encrypted settings
+                if (!$oAppSettingModel->set($aSettingsEncrypted, $oComponent->slug, null, true)) {
+
+                    $sError    = $oAppSettingModel->lastError();
+                    $bRollback = true;
+                }
+
+                if (empty($bRollback)) {
+
+                    $this->db->trans_commit();
+                    $this->data['success'] = $sType . ' settings were saved.';
+
+                } else {
+
+                    $this->db->trans_rollback();
+                    $this->data['error'] = 'There was a problem saving shop settings. ' . $sError;
+                }
+
+            } else {
+
+                $this->data['error'] = lang('fv_there_were_errors');
+            }
+        }
+
+        // --------------------------------------------------------------------------
+
+        $this->data['page']->title = 'Configure ' . $sType . ' &rsaquo; ' . $oComponent->name;
+
+        // --------------------------------------------------------------------------
+
+        Helper::loadView('component');
+    }
+
+
+    /**
+     * Recursively gets all the settings from the settings array
+     * @param  array $aSettings The array of fieldsets and/or settings
+     * @return array
+     */
+    protected function extractFieldsets($sComponentSlug, $aSettings, $fieldSetIndex = 0)
+    {
+        foreach ($aSettings as $oSetting) {
+
+            //  If the object contains a `fields` property then consider this a fieldset and inception
+            if (isset($oSetting->fields)) {
+
+                $fieldSetIndex++;
+
+                if (!isset($this->data['fieldsets'][$fieldSetIndex])) {
+                    $this->data['fieldsets'][$fieldSetIndex] = array(
+                        'legend' => $oSetting->legend,
+                        'fields' => array()
+                    );
+                }
+
+                $this->extractFieldsets($sComponentSlug, $oSetting->fields, $fieldSetIndex);
+
+            } else {
+
+                $sValue = appSetting($oSetting->key, $sComponentSlug);
+                if(!is_null($sValue)) {
+                    $oSetting->default = $sValue;
+                }
+
+                if (!isset($this->data['fieldsets'][$fieldSetIndex])) {
+                    $this->data['fieldsets'][$fieldSetIndex] = array(
+                        'legend' => '',
+                        'fields' => array()
+                    );
+                }
+
+                $this->data['fieldsets'][$fieldSetIndex]['fields'][] = $oSetting;
+                $this->fields[] = $oSetting;
+            }
+        }
+    }
 }

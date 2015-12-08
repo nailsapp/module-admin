@@ -118,7 +118,7 @@ class Helper
     // --------------------------------------------------------------------------
 
     /**
-     * Fenerates a CSV and sends to the browser, if a filename is given then it's
+     * Generates a CSV and sends to the browser, if a filename is given then it's
      * sent as a download
      * @param  mixed  $data     The data to render, either an array or a DB query object
      * @param  string $filename The filename to give the file if downloading
