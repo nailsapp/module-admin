@@ -458,6 +458,11 @@ class Settings extends Base
 
         // --------------------------------------------------------------------------
 
+        //  Get all the settings for this component
+        $this->data['settings'] = appSetting(null, $oComponent->slug);
+
+        // --------------------------------------------------------------------------
+
         $this->data['page']->title = 'Configure ' . $sType . ' &rsaquo; ' . $oComponent->name;
 
         // --------------------------------------------------------------------------

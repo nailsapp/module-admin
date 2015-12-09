@@ -11,9 +11,40 @@
         echo $aFieldset['legend'] ?: 'Generic Settings';
         echo '</legend>';
 
-        foreach ($aFieldset['fields'] as $aField) {
+        foreach ($aFieldset['fields'] as $oField) {
 
-            echo form_field((array) $aField);
+            $aField = (array) $oField;
+
+            if (empty($aField['type'])) {
+                $aField['type'] = 'text';
+            }
+
+            if (array_key_exists($aField['key'], $settings)) {
+                $aField['default'] = $settings[$aField['key']];
+            }
+
+            switch ($aField['type']) {
+
+                case 'bool':
+                case 'boolean':
+
+                    echo form_field_boolean($aField);
+                    break;
+
+                case 'dropdown':
+                case 'select':
+                    $aField['class'] = 'select2';
+                    echo form_field_dropdown($aField, (array) $aField['options']);
+                    break;
+
+                case 'wysiwyg':
+                    echo form_field_wysiwyg($aField);
+                    break;
+
+                default:
+                    echo form_field($aField);
+                    break;
+            }
         }
 
         echo '</fieldset>';
