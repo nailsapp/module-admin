@@ -52,9 +52,6 @@ class Base extends \MX_Controller
             }
         }
 
-        //  Models
-        $this->routes_model = Factory::model('Routes');
-
         //  Libraries
         $this->cdn = Factory::service('Cdn', 'nailsapp/module-cdn');
 
@@ -67,46 +64,121 @@ class Base extends \MX_Controller
         // --------------------------------------------------------------------------
 
         //  Unload any previously loaded assets, admin handles its own assets
-        $this->asset->clear();
+        $oAssetModel = Factory::service('Asset');
+        $oAssetModel->clear();
 
         //  Bower assets
-        $this->asset->load('jquery/dist/jquery.min.js', 'NAILS-BOWER');
-        $this->asset->load('fancybox/source/jquery.fancybox.css', 'NAILS-BOWER');
-        $this->asset->load('fancybox/source/jquery.fancybox.pack.js', 'NAILS-BOWER');
-        $this->asset->load('jquery-toggles/css/toggles.css', 'NAILS-BOWER');
-        $this->asset->load('jquery-toggles/css/themes/toggles-modern.css', 'NAILS-BOWER');
-        $this->asset->load('jquery-toggles/toggles.min.js', 'NAILS-BOWER');
-        $this->asset->load('tipsy/src/stylesheets/tipsy.css', 'NAILS-BOWER');
-        $this->asset->load('tipsy/src/javascripts/jquery.tipsy.js', 'NAILS-BOWER');
-        $this->asset->load('fontawesome/css/font-awesome.min.css', 'NAILS-BOWER');
-        $this->asset->load('jquery.scrollTo/jquery.scrollTo.min.js', 'NAILS-BOWER');
-        $this->asset->load('jquery-cookie/jquery.cookie.js', 'NAILS-BOWER');
-        $this->asset->load('retina.js/dist/retina.min.js', 'NAILS-BOWER');
+        $oAssetModel->load('jquery/dist/jquery.min.js', 'NAILS-BOWER');
+        $oAssetModel->load('fancybox/source/jquery.fancybox.css', 'NAILS-BOWER');
+        $oAssetModel->load('fancybox/source/jquery.fancybox.pack.js', 'NAILS-BOWER');
+        $oAssetModel->load('jquery-toggles/css/toggles.css', 'NAILS-BOWER');
+        $oAssetModel->load('jquery-toggles/css/themes/toggles-modern.css', 'NAILS-BOWER');
+        $oAssetModel->load('jquery-toggles/toggles.min.js', 'NAILS-BOWER');
+        $oAssetModel->load('tipsy/src/stylesheets/tipsy.css', 'NAILS-BOWER');
+        $oAssetModel->load('tipsy/src/javascripts/jquery.tipsy.js', 'NAILS-BOWER');
+        $oAssetModel->load('fontawesome/css/font-awesome.min.css', 'NAILS-BOWER');
+        $oAssetModel->load('jquery.scrollTo/jquery.scrollTo.min.js', 'NAILS-BOWER');
+        $oAssetModel->load('jquery-cookie/jquery.cookie.js', 'NAILS-BOWER');
+        $oAssetModel->load('retina.js/dist/retina.min.js', 'NAILS-BOWER');
 
         //  Libraries
-        $this->asset->library('jqueryui');
-        $this->asset->library('select2');
-        $this->asset->library('ckeditor');
-        $this->asset->library('uploadify');
+        $oAssetModel->library('jqueryui');
+        $oAssetModel->library('select2');
+        $oAssetModel->library('ckeditor');
+        $oAssetModel->library('uploadify');
 
         //  Local assets
-        $this->asset->load('nails.admin.css', 'NAILS');
-        $this->asset->load('nails.default.min.js', 'NAILS');
-        $this->asset->load('nails.admin.min.js', 'NAILS');
-        $this->asset->load('nails.forms.min.js', 'NAILS');
-        $this->asset->load('nails.api.min.js', 'NAILS');
+        $oAssetModel->load('nails.admin.css', 'NAILS');
+        $oAssetModel->load('nails.default.min.js', 'NAILS');
+        $oAssetModel->load('nails.admin.min.js', 'NAILS');
+        $oAssetModel->load('nails.forms.min.js', 'NAILS');
+        $oAssetModel->load('nails.api.min.js', 'NAILS');
 
-        //  Load admin CSS & JS if it's there
+        //  See if installed components want to autoload anything
+        $aComponents = _NAILS_GET_COMPONENTS();
+        foreach ($aComponents as $oComponent) {
+            if (!empty($oComponent->data->adminAutoLoad)) {
+
+                $oAutoLoad = $oComponent->data->adminAutoLoad;
+
+                //  Libraries
+                //  @todo: maybe?
+
+                //  Models
+                //  @todo: maybe?
+
+                //  Helpers
+                if (!empty($oAutoLoad->helpers)) {
+                    foreach ($oAutoLoad->helpers as $sHelper) {
+                        Factory::helper($sHelper, $oComponent->slug);
+                    }
+                }
+
+                //  JS
+                if (!empty($oAutoLoad->js)) {
+                    foreach ($oAutoLoad->js as $mAsset) {
+
+                        if (is_string($mAsset)) {
+
+                            $sAsset    = $mAsset;
+                            $sLocation = null;
+
+                        } else {
+
+                            $sAsset    = !empty($mAsset[0]) ? $mAsset[0] : null;
+                            $sLocation = !empty($mAsset[1]) ? $mAsset[1] : null;
+                        }
+
+                        $oAssetModel->load($sAsset, $sLocation, 'JS');
+                    }
+                }
+
+                //  JS Inline
+                if (!empty($oAutoLoad->jsInline)) {
+                    foreach ($oAutoLoad->jsInline as $sAsset) {
+                        $oAssetModel->inline($sAsset, 'JS');
+                    }
+                }
+
+                //  CSS
+                if (!empty($oAutoLoad->css)) {
+                    foreach ($oAutoLoad->css as $mAsset) {
+
+                        if (is_string($mAsset)) {
+
+                            $sAsset    = $mAsset;
+                            $sLocation = null;
+
+                        } else {
+
+                            $sAsset    = !empty($mAsset[0]) ? $mAsset[0] : null;
+                            $sLocation = !empty($mAsset[1]) ? $mAsset[1] : null;
+                        }
+
+                        $oAssetModel->load($sAsset, $sLocation, 'CSS');
+                    }
+                }
+
+                //  CSS Inline
+                if (!empty($oAutoLoad->cssInline)) {
+                    foreach ($oAutoLoad->cssInline as $sAsset) {
+                        $oAssetModel->inline($sAsset, 'CSS');
+                    }
+                }
+            }
+        }
+
+        //  Load app admin CSS & JS if it's there
         $sAdminCssPath = defined('APP_ADMIN_CSS_PATH') ? APP_ADMIN_CSS_PATH : FCPATH . 'assets/css/admin.css';
         $sAdminCssUrl  = defined('APP_ADMIN_CSS_URL') ? APP_ADMIN_CSS_URL : 'admin.css';
         if (file_exists($sAdminCssPath)) {
-            $this->asset->load($sAdminCssUrl);
+            $oAssetModel->load($sAdminCssUrl);
         }
 
         $sAdminJsPath = defined('APP_ADMIN_JS_PATH') ? APP_ADMIN_JS_PATH : FCPATH . 'assets/js/admin.min.js';
         $sAdminJsUrl  = defined('APP_ADMIN_JS_URL') ? APP_ADMIN_JS_URL : 'admin.min.js';
         if (file_exists($sAdminJsPath)) {
-            $this->asset->load($sAdminJsUrl);
+            $oAssetModel->load($sAdminJsUrl);
         }
 
         //  Load any additional admin assets
@@ -114,7 +186,7 @@ class Base extends \MX_Controller
         $aAdminAssets = json_decode($sAdminAssets);
         if (!empty($aAdminAssets)) {
             foreach ($aAdminAssets as $sAsset) {
-                $this->asset->load($sAsset);
+                $oAssetModel->load($sAsset);
             }
         }
 
@@ -138,7 +210,7 @@ class Base extends \MX_Controller
         $js .= '}';
 
 
-        $this->asset->inline($js, 'JS');
+        $oAssetModel->inline($js, 'JS');
     }
 
     // --------------------------------------------------------------------------

@@ -107,7 +107,7 @@ class Logs extends Base
 
         $this->data['page']->title = 'Browse Logs';
 
-        $this->asset->load('mustache.js/mustache.js', 'NAILS-BOWER');
+        $this->asset->library('MUSTACHE');
         $this->asset->load('nails.admin.logs.site.min.js', 'NAILS');
         $this->asset->inline('logsSite = new NAILS_Admin_Logs_Site();', 'JS');
 
