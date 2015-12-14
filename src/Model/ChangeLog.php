@@ -221,10 +221,10 @@ class ChangeLog extends Base
 
     /**
      * Applies common conditionals
-     * @param string $data Data passed from the calling method
+     * @param array $data Data passed from the calling method
      * @return void
      **/
-    protected function getCountCommon($data = null)
+    protected function getCountCommon($data = array())
     {
         //  Join user tables
         $this->db->join(NAILS_DB_PREFIX . 'user u', 'u.id = ' . $this->tablePrefix . '.user_id', 'LEFT');
