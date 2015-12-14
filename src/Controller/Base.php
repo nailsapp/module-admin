@@ -191,7 +191,7 @@ class Base extends \MX_Controller
         }
 
         //  Inline assets
-        $js  = 'var _nails,_nails_admin,_nails_forms,_nails_api;';
+        $js  = 'var _nails,_nails_admin,_nails_api, _nails_forms;';
 
         $js .= 'if (typeof(NAILS_JS) === \'function\'){';
         $js .= '_nails = new NAILS_JS();';
@@ -201,14 +201,13 @@ class Base extends \MX_Controller
         $js .= '_nails_admin = new NAILS_Admin();';
         $js .= '}';
 
-        $js .= 'if (typeof(NAILS_Forms) === \'function\'){';
-        $js .= '_nails_forms = new NAILS_Forms();';
-        $js .= '}';
-
         $js .= 'if (typeof(NAILS_API) === \'function\'){';
         $js .= '_nails_api = new NAILS_API();';
         $js .= '}';
 
+        $js .= 'if (typeof(NAILS_Forms) === \'function\'){';
+        $js .= '_nails_forms = new NAILS_Forms();';
+        $js .= '}';
 
         $oAssetModel->inline($js, 'JS');
     }
