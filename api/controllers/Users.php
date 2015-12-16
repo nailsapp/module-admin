@@ -35,14 +35,10 @@ class Users extends \Nails\Api\Controller\Base
 
             $avatarSize = $this->input->get('avatarSize') ? $this->input->get('avatarSize') : 50;
 
-            $data = array(
-                'keywords' => $this->input->get('term')
-            );
-
-            $users = $this->user_model->getAll(1, 50, $data);
+            $users = $this->user_model->search($this->input->get('term'), 1, 50);
             $out   = array('users' => array());
 
-            foreach ($users as $user) {
+            foreach ($users->data as $user) {
 
                 $temp              = new \stdClass();
                 $temp->id          = $user->id;
