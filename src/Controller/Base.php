@@ -97,9 +97,9 @@ class Base extends \MX_Controller
         //  See if installed components want to autoload anything
         $aComponents = _NAILS_GET_COMPONENTS();
         foreach ($aComponents as $oComponent) {
-            if (!empty($oComponent->data->adminAutoLoad)) {
+            if (!empty($oComponent->data->{'nailsapp/module-admin'}->autoload)) {
 
-                $oAutoLoad = $oComponent->data->adminAutoLoad;
+                $oAutoLoad = $oComponent->data->{'nailsapp/module-admin'}->autoload;
 
                 //  Libraries
                 //  @todo: maybe?
@@ -115,8 +115,8 @@ class Base extends \MX_Controller
                 }
 
                 //  JS
-                if (!empty($oAutoLoad->js)) {
-                    foreach ($oAutoLoad->js as $mAsset) {
+                if (!empty($oAutoLoad->assets->js)) {
+                    foreach ($oAutoLoad->assets->js as $mAsset) {
 
                         if (is_string($mAsset)) {
 
@@ -134,15 +134,15 @@ class Base extends \MX_Controller
                 }
 
                 //  JS Inline
-                if (!empty($oAutoLoad->jsInline)) {
-                    foreach ($oAutoLoad->jsInline as $sAsset) {
+                if (!empty($oAutoLoad->assets->jsInline)) {
+                    foreach ($oAutoLoad->assets->jsInline as $sAsset) {
                         $oAssetModel->inline($sAsset, 'JS');
                     }
                 }
 
                 //  CSS
-                if (!empty($oAutoLoad->css)) {
-                    foreach ($oAutoLoad->css as $mAsset) {
+                if (!empty($oAutoLoad->assets->css)) {
+                    foreach ($oAutoLoad->assets->css as $mAsset) {
 
                         if (is_string($mAsset)) {
 
@@ -160,8 +160,8 @@ class Base extends \MX_Controller
                 }
 
                 //  CSS Inline
-                if (!empty($oAutoLoad->cssInline)) {
-                    foreach ($oAutoLoad->cssInline as $sAsset) {
+                if (!empty($oAutoLoad->assets->cssInline)) {
+                    foreach ($oAutoLoad->assets->cssInline as $sAsset) {
                         $oAssetModel->inline($sAsset, 'CSS');
                     }
                 }
