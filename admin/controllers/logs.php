@@ -190,10 +190,8 @@ class Logs extends Base
         //  Are we downloading? Or viewing?
         if ($this->input->get('dl') && userHasPermission('admin:admin:logs:event:download')) {
 
-            //  Get all items for the search, no need to paginate
-            $data['RETURN_QUERY_OBJECT'] = true;
-
-            $events = $this->event->getAll(null, null, $data);
+            //  Get all items for the search, the view will iterate over the resultset
+            $events = $this->event->getAllRawQuery(null, null, $data);
 
             Helper::loadCsv($events, 'export-events-' . toUserDatetime(null, 'Y-m-d_h-i-s') . '.csv');
 
@@ -280,10 +278,8 @@ class Logs extends Base
         //  Are we downloading? Or viewing?
         if ($this->input->get('dl') && userHasPermission('admin:admin:logs:change:download')) {
 
-            //  Get all items for the search, no need to paginate
-            $data['RETURN_QUERY_OBJECT'] = true;
-
-            $changelog = $oChangeLogModel->getAll(null, null, $data);
+            //  Get all items for the search, the view will iterate over the resultset
+            $changelog = $oChangeLogModel->getAllRawQuery(null, null, $data);
 
             Helper::loadCsv($changelog, 'export-changelog-' . toUserDatetime(null, 'Y-m-d_h-i-s') . '.csv');
 
