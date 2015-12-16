@@ -23,7 +23,7 @@
 
     } else {
 
-        echo '<td class="boolean error">';
+        echo '<td class="boolean danger">';
             echo '<b class="fa fa-times-circle fa-lg"></b>';
         echo '</td>';
     }
