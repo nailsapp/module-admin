@@ -14,7 +14,10 @@ namespace Nails\Api\Admin;
 
 class Users extends \Nails\Api\Controller\Base
 {
-    public static $requiresAuthentication = true;
+    /**
+     * Require the user be authenticated to use any endpoint
+     */
+    const REQUIRE_AUTH = true;
 
     // --------------------------------------------------------------------------
 

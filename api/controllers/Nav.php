@@ -16,7 +16,10 @@ use Nails\Factory;
 
 class Nav extends \Nails\Api\Controller\Base
 {
-    public static $requiresAuthentication = true;
+    /**
+     * Require the user be authenticated to use any endpoint
+     */
+    const REQUIRE_AUTH = true;
 
     // --------------------------------------------------------------------------
 
@@ -25,7 +28,8 @@ class Nav extends \Nails\Api\Controller\Base
 
     // --------------------------------------------------------------------------
 
-    public function __construct($apiRouter) {
+    public function __construct($apiRouter)
+    {
 
         parent::__construct($apiRouter);
 
