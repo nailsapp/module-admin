@@ -1,39 +1,49 @@
 <?php
 
-$knownUser = isset($id) && $id ? '' : 'no-data';
-echo '<td class="' . $knownUser . ' user-cell">';
+$sNoDataClass = isset($id) && $id ? '' : 'no-data';
+
+?>
+<td class="user-cell <?=$sNoDataClass?>">
+    <?php
 
     //  Profile image
     if (isset($profile_img) && $profile_img) {
 
-        echo anchor(cdnServe($profile_img) ,img(cdnCrop($profile_img, 36, 36)), 'class="fancybox"');
+        echo anchor(
+            cdnServe($profile_img),
+            img(cdnCrop($profile_img, 36, 36)),
+            'class="fancybox"'
+        );
 
     } else {
 
-        $gender = isset($gender) ? $gender : 'undisclosed';
-        echo img(cdnBlankAvatar(36, 36, $gender));
+        $sGender = !empty($gender) ? $gender : 'undisclosed';
+        echo img(cdnBlankAvatar(36, 36, $sGender));
     }
 
-    // --------------------------------------------------------------------------
+    ?>
+    <span class="user-data">
+        <?php
 
-    //  User details
-    echo '<span class="user-data">';
+        $sName  = '';
+        $sName .= !empty($first_name) ? $first_name . ' ' : '';
+        $sName .= !empty($last_name) ? $last_name . ' ' : '';
+        $sName  = $sName ? $sName : 'Unknown User';
 
-        $name  = '';
-        $name .= isset($first_name) && $first_name ? $first_name . ' ' : '';
-        $name .= isset($last_name) && $last_name ? $last_name . ' ' : '';
-        $name  = $name ? $name : 'Unknown User';
+        if (!empty($id) && userHasPermission('admin:auth:accounts:editOthers')) {
 
-        if (isset($id) && $id && userHasPermission('admin:auth:accounts:editOthers')) {
-
-            echo anchor('admin/auth/accounts/edit/' . $id, $name, 'class="fancybox" data-fancybox-type="iframe"');
+            echo anchor(
+                'admin/auth/accounts/edit/' . $id,
+                $sName,
+                'class="fancybox" data-fancybox-type="iframe"'
+            );
 
         } else {
 
-            echo $name;
+            echo $sName;
         }
 
-        if (isset($email) && $email) {
+        if (!empty($email)) {
 
             echo '<small>' . mailto($email) . '</small>';
 
@@ -42,6 +52,6 @@ echo '<td class="' . $knownUser . ' user-cell">';
             echo '<small>No email address</small>';
         }
 
-    echo '</span>';
-
-echo '</td>';
+        ?>
+    </span>
+</td>

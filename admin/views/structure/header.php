@@ -9,8 +9,8 @@
     <?php
 
         echo lang('admin_word_short') . ' - ';
-        echo !empty($page->module->name) ? $page->module->name . ' - ' : NULL;
-        echo !empty($page->title) ? $page->title . ' - ' : NULL;
+        echo !empty($page->module->name) ? $page->module->name . ' - ' : null;
+        echo !empty($page->title) ? $page->title . ' - ' : null;
         echo APP_NAME;
 
     ?></title>
@@ -100,15 +100,12 @@
 
                 $url  = 'admin/auth/accounts/edit/' . activeUser('id');
                 $attr = 'class="fancybox admin-branding-text-primary" data-fancybox-type="iframe"';
-
-                if (activeUser('profile_img')) {
-
-                    $img = img(array('src' => cdnCrop(activeUser('profile_img'), 30, 30), 'class' => 'avatar'));
-
-                } else {
-
-                    $img = img(array('src' => cdnBlankAvatar(30, 30), 'class' => 'avatar'));
-                }
+                $img  = img(
+                    array(
+                        'src' => cdnavatar(activeUser('profile_img'), 30, 30),
+                        'class' => 'avatar'
+                    )
+                );
 
                 echo anchor(
                     $url,
@@ -123,18 +120,24 @@
             </div>
             <?php
 
-                if ($this->user_model->wasAdmin()) {
+            if ($this->user_model->wasAdmin()) {
 
-                    $adminRecovery = $this->user_model->getAdminRecoveryData();
+                $adminRecovery = $this->user_model->getAdminRecoveryData();
 
-                    echo '<div class="shortcut admin-recovery" rel="tipsy" title="Log back in as ' . $adminRecovery->name . '">';
-                        echo anchor(
-                            $adminRecovery->loginUrl,
-                            '<span class="fa fa-sign-out"></span>',
-                            'class="admin-branding-text-primary"'
-                        );
-                    echo '</div>';
-                }
+                ?>
+                <div class="shortcut admin-recovery" rel="tipsy" title="Log back in as <?=$adminRecovery->name?>">
+                    <?php
+
+                    echo anchor(
+                        $adminRecovery->loginUrl,
+                        '<span class="fa fa-sign-out"></span>',
+                        'class="admin-branding-text-primary"'
+                    );
+
+                    ?>
+                </div>
+                <?php
+            }
 
             ?>
             <div class="shortcut logout" rel="tipsy" title="Log out">
@@ -153,28 +156,31 @@
             <ul class="menuItems">
             <?php
 
-                foreach ($adminControllersNav as $module) {
+            foreach ($adminControllersNav as $module) {
 
-                    echo '<li>';
-                        echo '<span class="moduleName">';
-                            echo $module->label;
-                        echo '</span>';
+                ?>
+                <li>
+                    <span class="moduleName">
+                        <?=$module->label?>
+                    </span>
+                    <ul>
+                        <?php
 
-                        echo '<ul>';
                         foreach ($module->actions as $url => $methodDetails) {
 
                             echo '<li>';
-                                echo anchor(
-                                    'admin/' . $url,
-                                    $methodDetails->label
-                                );
+                            echo anchor(
+                                'admin/' . $url,
+                                $methodDetails->label
+                            );
                             echo '</li>';
                         }
-                        echo '</ul>';
 
-                    echo '</li>';
-                }
-
+                        ?>
+                    </ul>
+                </li>
+                <?php
+            }
 
             ?>
             </ul>
@@ -187,105 +193,111 @@
         <ul class="modules">
         <?php
 
-            foreach ($adminControllersNav as $module) {
+        foreach ($adminControllersNav as $module) {
 
-                $sortableClass = $module->sortable ? 'sortable' : 'not-sortable';
-                $openState     = $module->open ? 'open' : 'closed';
+            $sortableClass = $module->sortable ? 'sortable' : 'not-sortable';
+            $openState     = $module->open ? 'open' : 'closed';
 
-                ?>
-                <li class="module admin-branding-background-primary <?=$sortableClass?>" data-grouping="<?=md5($module->label)?>" data-initial-state="<?=$openState?>">
-                    <div class="box <?=$openState?>">
-                        <h2>
-                            <div class="icon admin-branding-text-highlight">
-                            <?php
+            ?>
+            <li class="module admin-branding-background-primary <?=$sortableClass?>" data-grouping="<?=md5($module->label)?>" data-initial-state="<?=$openState?>">
+                <div class="box <?=$openState?>">
+                    <h2>
+                        <div class="icon admin-branding-text-highlight">
+                        <?php
 
-                                //  Sorting handle
-                                if ($module->sortable) {
-                                    echo '<span class="handle admin-branding-background-primary fa fa-navicon"></span>';
-                                }
+                        //  Sorting handle
+                        if ($module->sortable) {
+                            echo '<span class="handle admin-branding-background-primary fa fa-navicon"></span>';
+                        }
 
-                                //  Icon
-                                if (empty($module->icon)) {
+                        //  Icon
+                        if (empty($module->icon)) {
 
-                                    $icon = 'fa-cog';
+                            $icon = 'fa-cog';
 
-                                } else {
+                        } else {
 
-                                    //  Check if any have been listed as !important
-                                    $importantIcons = preg_grep('/^(.*)!important$/', $module->icon);
+                            //  Check if any have been listed as !important
+                            $importantIcons = preg_grep('/^(.*)!important$/', $module->icon);
 
-                                    if (!empty($importantIcons)) {
+                            if (!empty($importantIcons)) {
 
-                                        $icon = reset($importantIcons);
-                                        $icon = trim(rtrim($icon, '!important'));
+                                $icon = reset($importantIcons);
+                                $icon = trim(rtrim($icon, '!important'));
 
-                                    } else {
+                            } else {
 
-                                        //  No !important icons, use the most popular
-                                        $icons = array_count_values($module->icon);
-                                        $icons = array_keys($icons);
-                                        $icon  = reset($icons);
-                                    }
-                                }
-                                echo  '<b class="fa fa-fw ' . $icon . '"></b>';
+                                //  No !important icons, use the most popular
+                                $icons = array_count_values($module->icon);
+                                $icons = array_keys($icons);
+                                $icon  = reset($icons);
+                            }
+                        }
+                        echo  '<b class="fa fa-fw ' . $icon . '"></b>';
+
+                        ?>
+                        </div>
+                        <span class="module-name">
+                            <?=$module->label?>
+                        </span>
+                        <a href="#" class="toggle">
+                            <span class="toggler">
+                                <span class="close">
+                                    <b class="fa fa-minus"></b>
+                                </span>
+                                <span class="open">
+                                    <b class="fa fa-plus"></b>
+                                </span>
+                            </span>
+                        </a>
+                    </h2>
+                    <div class="box-container">
+                        <ul>
+                        <?php
+
+                        foreach ($module->actions as $url => $methodDetails) {
 
                             ?>
-                            </div>
-                            <span class="module-name">
-                                <?=$module->label?>
-                            </span>
-                            <a href="#" class="toggle">
-                                <span class="toggler">
-                                    <span class="close">
-                                        <b class="fa fa-minus"></b>
-                                    </span>
-                                    <span class="open">
-                                        <b class="fa fa-plus"></b>
-                                    </span>
-                                </span>
-                            </a>
-                        </h2>
-                        <div class="box-container">
-                            <ul>
-                            <?php
+                            <li>
+                                <a href="<?=site_url('admin/' . $url)?>">
+                                    <?php
 
-                                foreach ($module->actions as $url => $methodDetails) {
+                                    echo $methodDetails->label;
 
-                                    echo '<li>';
-                                        echo '<a href="' . site_url('admin/' . $url) . '">';
-                                            echo $methodDetails->label;
+                                    if (!empty($methodDetails->alerts)) {
 
-                                            if (!empty($methodDetails->alerts)) {
+                                        foreach ($methodDetails->alerts as $alert) {
 
-                                                foreach ($methodDetails->alerts as $alert) {
-
-                                                    //  Skip empty alerts
-                                                    $sValue = $alert->getValue();
-                                                    if (empty($sValue)) {
-                                                        continue;
-                                                    }
-
-                                                    $sLabel    = $alert->getLabel() ?: '';
-                                                    $sTipsy    = $sLabel ? 'rel="tipsy-right"' : '';
-                                                    $sSeverity = $alert->getSeverity();
-
-                                                    echo '<span class="indicator ' . $sSeverity . '" ' . $sTipsy . ' title="' . $sLabel . '">';
-                                                        echo $sValue;
-                                                    echo '</span>';
-                                                }
+                                            //  Skip empty alerts
+                                            $sValue = $alert->getValue();
+                                            if (empty($sValue)) {
+                                                continue;
                                             }
 
-                                        echo '</a>';
-                                    echo '</li>';
-                                }
+                                            $sLabel    = $alert->getLabel() ?: '';
+                                            $sTipsy    = $sLabel ? 'rel="tipsy-right"' : '';
+                                            $sSeverity = $alert->getSeverity();
 
-                            ?>
-                            </ul>
-                        </div>
+                                            echo '<span class="indicator ' . $sSeverity . '" ' . $sTipsy . ' title="' . $sLabel . '">';
+                                                echo $sValue;
+                                            echo '</span>';
+                                        }
+                                    }
+
+                                    ?>
+                                </a>
+                            </li>
+                            <?php
+                        }
+
+                        ?>
+                        </ul>
                     </div>
-                </li>
-                <?php
-            }
+                </div>
+            </li>
+            <?php
+        }
+
         ?>
         </ul>
         <div class="text-center" id="admin-nav-reset-buttons">
@@ -305,138 +317,144 @@
         <div class="content_inner">
             <?php
 
-                //  Page title
-                if (!empty($page->module->name) && !empty($page->title)) {
+            //  Page title
+            if (!empty($page->module->name) && !empty($page->title)) {
 
-                    $pageTitle = $page->module->name . ' &rsaquo; ' . $page->title;
+                $pageTitle = $page->module->name . ' &rsaquo; ' . $page->title;
 
-                } elseif (empty($page->module->name) && !empty($page->title)) {
+            } elseif (empty($page->module->name) && !empty($page->title)) {
 
-                    $pageTitle = $page->title;
+                $pageTitle = $page->title;
 
-                } elseif (!empty($page->module->name)) {
+            } elseif (!empty($page->module->name)) {
 
-                    $pageTitle = $page->module->name;
-                }
+                $pageTitle = $page->module->name;
+            }
 
-                $headerButtons = adminHelper('getHeaderButtons');
+            $headerButtons = adminHelper('getHeaderButtons');
 
-                if (!empty($pageTitle) || !empty($headerButtons)) {
+            if (!empty($pageTitle) || !empty($headerButtons)) {
 
-                    echo '<div class="page-title">';
-                        echo '<h1>';
-                            echo !empty($pageTitle) ? $pageTitle : '';
+                ?>
+                <div class="page-title">
+                    <h1>
+                        <?php
 
-                            if (!empty($headerButtons)) {
+                        echo !empty($pageTitle) ? $pageTitle : '';
 
-                                echo '<span class="header-buttons">';
-                                foreach ($headerButtons as $button) {
+                        if (!empty($headerButtons)) {
 
-                                    $sConfirmClass = $button['confirmTitle'] || $button['confirmBody'] ? ' confirm' : '';
+                            echo '<span class="header-buttons">';
+                            foreach ($headerButtons as $button) {
 
-                                    $attr   = array();
-                                    $attr[] = 'class="btn btn-xs btn-' . $button['context'] . $sConfirmClass . '"';
-                                    $attr[] = $button['confirmTitle'] ? 'data-title="' . $button['confirmTitle'] . '"' : '';
-                                    $attr[] = $button['confirmBody'] ? 'data-body="' . $button['confirmBody'] . '"' : '';
+                                $sConfirmClass = $button['confirmTitle'] || $button['confirmBody'] ? ' confirm' : '';
 
-                                    $attr = array_filter($attr);
+                                $attr   = array();
+                                $attr[] = 'class="btn btn-xs btn-' . $button['context'] . $sConfirmClass . '"';
+                                $attr[] = $button['confirmTitle'] ? 'data-title="' . $button['confirmTitle'] . '"' : '';
+                                $attr[] = $button['confirmBody'] ? 'data-body="' . $button['confirmBody'] . '"' : '';
 
-                                    if ($button['context'] === 'danger') {
-                                        $button['label'] = '<i class="fa fa-exclamation-triangle"></i>' . $button['label'];
-                                    }
+                                $attr = array_filter($attr);
 
-                                    echo anchor(
-                                        $button['url'],
-                                        $button['label'],
-                                        implode(' ', $attr)
-                                    ) . ' ';
+                                if ($button['context'] === 'danger') {
+                                    $button['label'] = '<i class="fa fa-exclamation-triangle"></i>' . $button['label'];
                                 }
-                                echo '</span>';
+
+                                echo anchor(
+                                    $button['url'],
+                                    $button['label'],
+                                    implode(' ', $attr)
+                                ) . ' ';
                             }
-                        echo '</h1>';
-                    echo '</div>';
-                }
+                            echo '</span>';
+                        }
 
-                if (!empty($error)) {
+                        ?>
+                    </h1>
+                </div>
+                <?php
+            }
 
-                    ?>
-                    <div class="alert alert-danger">
-                        <p>
-                            <strong>
-                                <b class="alert-icon fa fa-times-circle"></b>
-                                Sorry, something went wrong.
-                            </strong>
-                        </p>
-                        <p><?=$error?></p>
-                    </div>
-                    <?php
-                }
+            if (!empty($error)) {
 
-                if (!empty($negative)) {
+                ?>
+                <div class="alert alert-danger">
+                    <p>
+                        <strong>
+                            <b class="alert-icon fa fa-times-circle"></b>
+                            Sorry, something went wrong.
+                        </strong>
+                    </p>
+                    <p><?=$error?></p>
+                </div>
+                <?php
+            }
 
-                    ?>
-                    <div class="alert alert-danger">
-                        <p><?=$negative?></p>
-                    </div>
-                    <?php
-                }
+            if (!empty($negative)) {
 
-                if (!empty($success)) {
+                ?>
+                <div class="alert alert-danger">
+                    <p><?=$negative?></p>
+                </div>
+                <?php
+            }
 
-                    ?>
-                    <div class="alert alert-success">
-                        <p>
-                            <strong>
-                                <b class="alert-icon fa fa-check-circle"></b>
-                                Success!
-                            </strong>
-                        </p>
-                        <p><?=$success?></p>
-                    </div>
-                    <?php
-                }
+            if (!empty($success)) {
 
-                if (!empty($positive)) {
+                ?>
+                <div class="alert alert-success">
+                    <p>
+                        <strong>
+                            <b class="alert-icon fa fa-check-circle"></b>
+                            Success!
+                        </strong>
+                    </p>
+                    <p><?=$success?></p>
+                </div>
+                <?php
+            }
 
-                    ?>
-                    <div class="alert alert-success">
-                        <p><?=$positive?></p>
-                    </div>
-                    <?php
-                }
+            if (!empty($positive)) {
 
-                if (!empty($info)) {
+                ?>
+                <div class="alert alert-success">
+                    <p><?=$positive?></p>
+                </div>
+                <?php
+            }
 
-                    ?>
-                    <div class="alert alert-info">
-                        <p><?=$info?></p>
-                    </div>
-                    <?php
-                }
+            if (!empty($info)) {
 
-                if (!empty($warning)) {
+                ?>
+                <div class="alert alert-info">
+                    <p><?=$info?></p>
+                </div>
+                <?php
+            }
 
-                    ?>
-                    <div class="alert alert-warning">
-                        <p><?=$warning?></p>
-                    </div>
-                    <?php
-                }
+            if (!empty($warning)) {
 
-                if (!empty($message)) {
+                ?>
+                <div class="alert alert-warning">
+                    <p><?=$warning?></p>
+                </div>
+                <?php
+            }
 
-                    ?>
-                    <div class="alert alert-warning">
-                        <p><?=$message?></p>
-                    </div>
-                    <?php
-                }
+            if (!empty($message)) {
 
-                if (!empty($notice)) {
+                ?>
+                <div class="alert alert-warning">
+                    <p><?=$message?></p>
+                </div>
+                <?php
+            }
 
-                    ?>
-                    <div class="alert alert-info">
-                        <p><?=$notice?></p>
-                    </div>
-                    <?php
-                }
+            if (!empty($notice)) {
+
+                ?>
+                <div class="alert alert-info">
+                    <p><?=$notice?></p>
+                </div>
+                <?php
+            }
