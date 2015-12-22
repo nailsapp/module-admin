@@ -58,6 +58,7 @@ class Settings extends Base
 
         $permissions['admin:branding']     = 'Configure Admin Branding';
         $permissions['admin:whitelist']    = 'Configure Admn Whitelist';
+        $permissions['site:customjscss']   = 'Configure Site Custom JS and CSS';
         $permissions['site:analytics']     = 'Configure Site analytics';
         $permissions['site:maintenance']   = 'Configure Maintenance Mode';
         $permissions['notifications']      = 'Configure Notifications';
@@ -152,6 +153,12 @@ class Settings extends Base
         if ($this->input->post()) {
 
             $settings = array();
+
+            if (userHasPermission('admin:admin:settings:site:customjscss')) {
+
+                $settings['site_custom_js']  = $this->input->post('site_custom_js');
+                $settings['site_custom_css'] = $this->input->post('site_custom_css');
+            }
 
             if (userHasPermission('admin:admin:settings:site:analytics')) {
 
@@ -497,7 +504,7 @@ class Settings extends Base
             } else {
 
                 $sValue = appSetting($oSetting->key, $sComponentSlug);
-                if(!is_null($sValue)) {
+                if (!is_null($sValue)) {
                     $oSetting->default = $sValue;
                 }
 

@@ -12,9 +12,20 @@
     <ul class="tabs">
         <?php
 
+        if (userHasPermission('admin:admin:settings:site:customjscss')) {
+
+            $active = $this->input->post('activeTab') == 'tab-customjscss' || !$this->input->post('activeTab') ? 'active' : '';
+
+            ?>
+            <li class="tab <?=$active?>">
+                <a href="#" data-tab="tab-customjscss">Custom JS &amp; CSS</a>
+            </li>
+            <?php
+        }
+
         if (userHasPermission('admin:admin:settings:site:analytics')) {
 
-            $active = $this->input->post('activeTab') == 'tab-analytics' || !$this->input->post('activeTab') ? 'active' : '';
+            $active = $this->input->post('activeTab') == 'tab-analytics' ? 'active' : '';
 
             ?>
             <li class="tab <?=$active?>">
@@ -39,9 +50,48 @@
     <section class="tabs">
         <?php
 
+        if (userHasPermission('admin:admin:settings:site:customjscss')) {
+
+            $display = $this->input->post('activeTab') == 'tab-customjscss' || !$this->input->post('activeTab') ? 'active' : '';
+
+            ?>
+            <div class="tab-page <?=$display?> tab-customjscss">
+                <fieldset>
+                    <legend>
+                        Custom JS &amp; CSS
+                    </legend>
+                    <?php
+
+                    $aField                = array();
+                    $aField['key']         = 'site_custom_js';
+                    $aField['label']       = 'JavaScript';
+                    $aField['default']     = appSetting($aField['key'], 'site');
+                    $aField['placeholder'] = 'Specify any custom JS to include at the foot of the page.';
+                    $aField['info']        = 'You should <strong>not</strong> wrap this in &lt;script&gt; tags.';
+
+                    echo form_field_textarea($aField);
+
+                    // --------------------------------------------------------------------------
+
+                    $aField                = array();
+                    $aField['key']         = 'site_custom_css';
+                    $aField['label']       = 'CSS';
+                    $aField['default']     = appSetting($aField['key'], 'site');
+                    $aField['placeholder'] = 'Specify any custom CSS to include at the head of the page.';
+                    $aField['info']        = 'You should <strong>not</strong> wrap this in &lt;style&gt; tags.';
+
+                    echo form_field_textarea($aField);
+
+                    ?>
+                </fieldset>
+            </div>
+            <?php
+
+        }
+
         if (userHasPermission('admin:admin:settings:site:analytics')) {
 
-            $display = $this->input->post('activeTab') == 'tab-analytics' || !$this->input->post('activeTab') ? 'active' : '';
+            $display = $this->input->post('activeTab') == 'tab-analytics' ? 'active' : '';
 
             ?>
             <div class="tab-page <?=$display?> tab-analytics">
@@ -53,13 +103,13 @@
                     <legend>Google Analytics</legend>
                     <?php
 
-                        $field                = array();
-                        $field['key']         = 'google_analytics_account';
-                        $field['label']       = 'Profile ID';
-                        $field['default']     = appSetting($field['key']);
-                        $field['placeholder'] = 'UA-XXXXX-YY';
+                    $aField                = array();
+                    $aField['key']         = 'google_analytics_account';
+                    $aField['label']       = 'Profile ID';
+                    $aField['default']     = appSetting($aField['key']);
+                    $aField['placeholder'] = 'UA-XXXXX-YY';
 
-                        echo form_field($field);
+                    echo form_field($aField);
 
                     ?>
                 </fieldset>
@@ -88,50 +138,51 @@
                     <legend>Maintenance Mode</legend>
                     <?php
 
-                        $field            = array();
-                        $field['id']      = 'maintenance-mode-enabled';
-                        $field['key']     = 'maintenance_mode_enabled';
-                        $field['label']   = 'Enabled';
-                        $field['default'] = appSetting($field['key'], 'site');
+                    $aField            = array();
+                    $aField['id']      = 'maintenance-mode-enabled';
+                    $aField['key']     = 'maintenance_mode_enabled';
+                    $aField['label']   = 'Enabled';
+                    $aField['default'] = appSetting($aField['key'], 'site');
 
-                        echo form_field_boolean($field);
+                    echo form_field_boolean($aField);
 
-                        $display = $field['default'] ? 'block' : 'none';
-
-                        echo '<div id="maintenance-mode-extras" style="display:' . $display . '">';
-
-                            $field                = array();
-                            $field['key']         = 'maintenance_mode_whitelist';
-                            $field['label']       = 'Whitelist';
-                            $field['default']     = trim(implode("\n", (array) appSetting($field['key'], 'site')));
-                            $field['placeholder'] = 'Specify IP addresses to whitelist either comma seperated or on new lines.';
-                            $field['info']        = 'Your current IP address is: ' . $this->input->ipAddress();
-
-                            echo form_field_textarea($field);
-
-                            // --------------------------------------------------------------------------
-
-                            $field                = array();
-                            $field['key']         = 'maintenance_mode_title';
-                            $field['label']       = 'Title';
-                            $field['default']     = appSetting($field['key'], 'site');
-                            $field['placeholder'] = 'Optionally specify a custom title for the maintenance page.';
-
-                            echo form_field($field);
-
-                            // --------------------------------------------------------------------------
-
-                            $field                = array();
-                            $field['key']         = 'maintenance_mode_body';
-                            $field['label']       = 'Body';
-                            $field['default']     = appSetting($field['key'], 'site');
-                            $field['placeholder'] = 'Optionally specify a custom body for the maintenance page.';
-
-                            echo form_field_wysiwyg($field);
-
-                        echo '</div>';
+                    $display = $aField['default'] ? 'block' : 'none';
 
                     ?>
+                    <div id="maintenance-mode-extras" style="display:<?=$display?>">
+                        <?php
+
+                        $aField                = array();
+                        $aField['key']         = 'maintenance_mode_whitelist';
+                        $aField['label']       = 'Whitelist';
+                        $aField['default']     = trim(implode("\n", (array) appSetting($aField['key'], 'site')));
+                        $aField['placeholder'] = 'Specify IP addresses to whitelist either comma seperated or on new lines.';
+                        $aField['info']        = 'Your current IP address is: ' . $this->input->ipAddress();
+
+                        echo form_field_textarea($aField);
+
+                        // --------------------------------------------------------------------------
+
+                        $aField                = array();
+                        $aField['key']         = 'maintenance_mode_title';
+                        $aField['label']       = 'Title';
+                        $aField['default']     = appSetting($aField['key'], 'site');
+                        $aField['placeholder'] = 'Optionally specify a custom title for the maintenance page.';
+
+                        echo form_field($aField);
+
+                        // --------------------------------------------------------------------------
+
+                        $aField                = array();
+                        $aField['key']         = 'maintenance_mode_body';
+                        $aField['label']       = 'Body';
+                        $aField['default']     = appSetting($aField['key'], 'site');
+                        $aField['placeholder'] = 'Optionally specify a custom body for the maintenance page.';
+
+                        echo form_field_wysiwyg($aField);
+
+                        ?>
+                    </div>
                 </fieldset>
             </div>
             <?php
