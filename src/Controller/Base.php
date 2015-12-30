@@ -86,6 +86,8 @@ class Base extends \MX_Controller
         $oAssetModel->library('select2');
         $oAssetModel->library('ckeditor');
         $oAssetModel->library('uploadify');
+        $oAssetModel->library('knockout');
+        $oAssetModel->library('mustache');
 
         //  Local assets
         $oAssetModel->load('nails.admin.css', 'NAILS');
