@@ -1,7 +1,9 @@
 <div class="group-settings component">
     <?php
 
-    echo form_open();
+    $sUrl = current_url() . '?slug=' . $slug . '&isModal=' . $this->input->get('isModal');
+
+    echo form_open($sUrl);
     echo form_hidden('slug', $slug);
 
     foreach ($fieldsets as $aFieldset) {
@@ -27,7 +29,6 @@
 
                 case 'bool':
                 case 'boolean':
-
                     echo form_field_boolean($aField);
                     break;
 

@@ -365,9 +365,7 @@ class Settings extends Base
     protected function component($sType = 'component')
     {
         $this->data['slug'] = $this->input->get('slug');
-        if (empty($this->data['slug'])) {
-            $this->data['slug'] = $this->input->post('slug');
-        }
+
         $oComponent = _NAILS_GET_COMPONENTS_BY_SLUG($this->data['slug']);
 
         if (empty($oComponent->data->settings)) {
