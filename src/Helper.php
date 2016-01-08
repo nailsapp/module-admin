@@ -157,11 +157,11 @@ class Helper
             //  Not using self::loadInlineView() as this may be called from many contexts
             if (is_array($data)) {
 
-                return get_instance()->load->view('admin/_utilities/csv/array', array('data' => $data));
+                return get_instance()->load->view('admin/_components/csv/array', array('data' => $data));
 
             } elseif (get_class($data) == 'CI_DB_mysqli_result') {
 
-                return get_instance()->load->view('admin/_utilities/csv/dbResult', array('data' => $data));
+                return get_instance()->load->view('admin/_components/csv/dbResult', array('data' => $data));
             }
 
         } else {
@@ -236,7 +236,7 @@ class Helper
         );
 
         //  Not using self::loadInlineView() as this may be called from many contexts
-        return get_instance()->load->view('admin/_utilities/search', $data, $returnView);
+        return get_instance()->load->view('admin/_components/search', $data, $returnView);
     }
 
     // --------------------------------------------------------------------------
@@ -355,7 +355,7 @@ class Helper
         );
 
         //  Not using self::loadInlineView() as this may be called from many contexts
-        return get_instance()->load->view('admin/_utilities/pagination', $data, $returnView);
+        return get_instance()->load->view('admin/_components/pagination', $data, $returnView);
     }
 
     // --------------------------------------------------------------------------
@@ -413,7 +413,7 @@ class Helper
             }
         }
 
-        return get_instance()->load->view('admin/_utilities/table-cell-user', $user, true);
+        return get_instance()->load->view('admin/_components/table-cell-user', $user, true);
     }
 
     // --------------------------------------------------------------------------
@@ -431,7 +431,7 @@ class Helper
             'noData' => $noData
         );
 
-        return get_instance()->load->view('admin/_utilities/table-cell-date', $data, true);
+        return get_instance()->load->view('admin/_components/table-cell-date', $data, true);
     }
 
     // --------------------------------------------------------------------------
@@ -449,7 +449,7 @@ class Helper
             'noData'   => $noData
         );
 
-        return get_instance()->load->view('admin/_utilities/table-cell-datetime', $data, true);
+        return get_instance()->load->view('admin/_components/table-cell-datetime', $data, true);
     }
 
     // --------------------------------------------------------------------------
@@ -467,7 +467,29 @@ class Helper
             'dateTime' => $dateTime
         );
 
-        return get_instance()->load->view('admin/_utilities/table-cell-boolean', $data, true);
+        return get_instance()->load->view('admin/_components/table-cell-boolean', $data, true);
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Load the admin "settings driver table" component
+     * @param  string $sKey               The key to give the field
+     * @param  array  $aDrivers           The drivers to load
+     * @param  array  $aEnabled           The drivers to mark as enabled
+     * @param  string $bCanSelectMultiple Whether multiple drivers can be enabled
+     * @return string
+     */
+    public static function loadSettingsDriverTable($sKey, $aDrivers, $aEnabled, $bCanSelectMultiple = true)
+    {
+        $data = array(
+            'key'               => $sKey,
+            'drivers'           => $aDrivers,
+            'enabled'           => $aEnabled,
+            'canSelectMultiple' => $bCanSelectMultiple
+        );
+
+        return get_instance()->load->view('admin/_components/settings-driver-table', $data, true);
     }
 
     // --------------------------------------------------------------------------

@@ -46,6 +46,7 @@
 
         $this->asset->output('CSS');
         $this->asset->output('CSS-INLINE');
+        $this->asset->output('JS-INLINE-HEADER');
 
     ?>
     <link rel="stylesheet" type="text/css" media="print" href="<?=NAILS_ASSETS_URL . 'css/nails.admin.print.css'?>" />

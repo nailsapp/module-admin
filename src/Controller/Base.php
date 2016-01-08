@@ -87,6 +87,7 @@ class Base extends \MX_Controller
         $oAssetModel->library('ckeditor');
         $oAssetModel->library('uploadify');
         $oAssetModel->library('knockout');
+        $oAssetModel->library('moment');
         $oAssetModel->library('mustache');
 
         //  Local assets
