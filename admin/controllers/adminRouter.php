@@ -28,7 +28,6 @@ class AdminRouter extends NAILS_Controller
     {
         parent::__construct();
 
-
         /**
          * Admin nav groupings are sortable by default, if you wish to make any
          * "sticky" then define them here. The order here will be respected i.e.,
@@ -82,7 +81,6 @@ class AdminRouter extends NAILS_Controller
 
             //  Before we do anything, is the user an admin?
             if (!$this->user_model->isAdmin()) {
-
                 unauthorised();
             }
         }
