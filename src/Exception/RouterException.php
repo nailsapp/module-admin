@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Helper Exception
+ * Router Exception
  *
  * @package     Nails
  * @subpackage  module-admin
@@ -14,6 +14,6 @@ namespace Nails\Admin\Exception;
 
 use Nails\Common\Exception\NailsException;
 
-class HelperException extends NailsException
+class RouterException extends NailsException
 {
 }

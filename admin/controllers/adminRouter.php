@@ -11,6 +11,7 @@
  */
 
 use Nails\Factory;
+use Nails\Admin\Exception\RouterException;
 
 class AdminRouter extends NAILS_Controller
 {
@@ -302,7 +303,7 @@ class AdminRouter extends NAILS_Controller
              * @todo Use an admin specific exception class, and autoload it.
              */
 
-            throw new Exception('Admin Nav groupings returned by ' . $className . '::announce() were invalid', 1);
+            throw new RouterException('Admin Nav groupings returned by ' . $className . '::announce() were invalid', 1);
 
         } elseif (!is_array($aNavGroupings)) {
 
