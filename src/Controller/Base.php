@@ -41,14 +41,15 @@ class Base extends \MX_Controller
          */
 
         //  Configs
-        $paths = array(
+        $oConfig = Factory::service('Config');
+        $paths   = array(
             FCPATH . APPPATH . 'config/admin.php',
             FCPATH . APPPATH . 'modules/admin/config/admin.php'
         );
 
         foreach ($paths as $path) {
             if (file_exists($path)) {
-                $this->config->load($path);
+                $oConfig->load($path);
             }
         }
 
