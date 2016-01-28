@@ -180,14 +180,16 @@ class Utilities extends Base
 
         if ($this->input->post('go')) {
 
-            if ($this->routes_model->update()) {
+            $oRoutesModel = Factory::model('Routes');
+
+            if ($oRoutesModel->update()) {
 
                 $this->data['success'] = 'Routes rewritten successfully.';
 
             } else {
 
                 $this->data['error']  = 'There was a problem writing the routes. ';
-                $this->data['error'] .= $this->routes_model->lastError();
+                $this->data['error'] .= $oRoutesModel->lastError();
             }
         }
 

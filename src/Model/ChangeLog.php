@@ -256,34 +256,48 @@ class ChangeLog extends Base
     // --------------------------------------------------------------------------
 
     /**
-     * Format a changelog object
-     * @param  stdClass &$obj The object to format
+     * Formats a single object
+     *
+     * The getAll() method iterates over each returned item with this method so as to
+     * correctly format the output. Use this to cast integers and booleans and/or organise data into objects.
+     *
+     * @param  object $oObj      A reference to the object being formatted.
+     * @param  array  $aData     The same data array which is passed to _getcount_common, for reference if needed
+     * @param  array  $aIntegers Fields which should be cast as integers if numerical and not null
+     * @param  array  $aBools    Fields which should be cast as booleans if not null
+     * @param  array  $aFloats   Fields which should be cast as floats if not null
      * @return void
      */
-    protected function formatObject(&$obj)
-    {
-        parent::formatObject($obj);
+    protected function formatObject(
+        &$oObj,
+        $aData = array(),
+        $aIntegers = array(),
+        $aBools = array(),
+        $aFloats = array()
+    ) {
 
-        if (!empty($obj->item_id)) {
+        parent::formatObject($oObj, $aData, $aIntegers, $aBools, $aFloats);
 
-            $obj->item_id = (int) $obj->item_id;
+        if (!empty($oObj->item_id)) {
+
+            $oObj->item_id = (int) $oObj->item_id;
         }
 
-        $obj->changes = @json_decode($obj->changes);
+        $oObj->changes = @json_decode($oObj->changes);
 
-        $obj->user              = new \stdClass();
-        $obj->user->id          = $obj->user_id;
-        $obj->user->first_name  = $obj->first_name;
-        $obj->user->last_name   = $obj->last_name;
-        $obj->user->gender      = $obj->gender;
-        $obj->user->profile_img = $obj->profile_img;
-        $obj->user->email       = $obj->email;
+        $oObj->user              = new \stdClass();
+        $oObj->user->id          = $oObj->user_id;
+        $oObj->user->first_name  = $oObj->first_name;
+        $oObj->user->last_name   = $oObj->last_name;
+        $oObj->user->gender      = $oObj->gender;
+        $oObj->user->profile_img = $oObj->profile_img;
+        $oObj->user->email       = $oObj->email;
 
-        unset($obj->user_id);
-        unset($obj->first_name);
-        unset($obj->last_name);
-        unset($obj->gender);
-        unset($obj->profile_img);
-        unset($obj->email);
+        unset($oObj->user_id);
+        unset($oObj->first_name);
+        unset($oObj->last_name);
+        unset($oObj->gender);
+        unset($oObj->profile_img);
+        unset($oObj->email);
     }
 }

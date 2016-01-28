@@ -99,7 +99,8 @@ class Settings extends Base
 
             if (!empty($settings)) {
 
-                if ($this->app_setting_model->set($settings, 'admin')) {
+                $oAppSettingModel = Factory::model('AppSetting');
+                if ($oAppSettingModel->set($settings, 'admin')) {
 
                     $this->data['success'] = 'Admin settings have been saved.';
 
@@ -176,7 +177,8 @@ class Settings extends Base
 
             if (!empty($settings)) {
 
-                if ($this->app_setting_model->set($settings, 'site')) {
+                $oAppSettingModel = Factory::model('AppSetting');
+                if ($oAppSettingModel->set($settings, 'site')) {
 
                     $this->data['success'] = 'Site settings have been saved.';
 
