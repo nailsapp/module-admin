@@ -473,23 +473,61 @@ class Helper
     // --------------------------------------------------------------------------
 
     /**
-     * Load the admin "settings driver table" component
+     * Load the admin "settings component table" component
      * @param  string $sKey               The key to give the field
-     * @param  array  $aDrivers           The drivers to load
+     * @param  array  $aComponents        The available components to load
+     * @param  array  $aEnabled           The components to mark as enabled
+     * @param  string $bCanSelectMultiple Whether multiple components can be enabled
+     * @param  string $sComponentType     The type component of component being loaded
+     * @return string
+     */
+    public static function loadSettingsComponentTable(
+        $sKey,
+        $aComponents,
+        $aEnabled,
+        $bCanSelectMultiple = true,
+        $sComponentType = null
+    )
+    {
+        $aData = array(
+            'key'               => $sKey,
+            'components'        => $aComponents,
+            'enabled'           => $aEnabled,
+            'canSelectMultiple' => $bCanSelectMultiple,
+            'componentType'     => $sComponentType
+        );
+
+        return get_instance()->load->view('admin/_components/settings-component-table', $aData, true);
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Alias to loadSettingsComponentTable()
+     * @param  string $sKey               The key to give the field
+     * @param  array  $aDrivers           The available drivers to load
      * @param  array  $aEnabled           The drivers to mark as enabled
      * @param  string $bCanSelectMultiple Whether multiple drivers can be enabled
      * @return string
      */
     public static function loadSettingsDriverTable($sKey, $aDrivers, $aEnabled, $bCanSelectMultiple = true)
     {
-        $data = array(
-            'key'               => $sKey,
-            'drivers'           => $aDrivers,
-            'enabled'           => $aEnabled,
-            'canSelectMultiple' => $bCanSelectMultiple
-        );
+        self::loadSettingsComponentTable($sKey, $aDrivers, $aEnabled, $bCanSelectMultiple, 'driver');
+    }
 
-        return get_instance()->load->view('admin/_components/settings-driver-table', $data, true);
+    // --------------------------------------------------------------------------
+
+    /**
+     * Alias to loadSettingsComponentTable()
+     * @param  string $sKey               The key to give the field
+     * @param  array  $aSkins            The available skins to load
+     * @param  array  $aEnabled           The skins to mark as enabled
+     * @param  string $bCanSelectMultiple Whether multiple skins can be enabled
+     * @return string
+     */
+    public static function loadSettingsSkinTable($sKey, $aSkins, $aEnabled, $bCanSelectMultiple = true)
+    {
+        self::loadSettingsComponentTable($sKey, $aSkins, $aEnabled, $bCanSelectMultiple, 'skin');
     }
 
     // --------------------------------------------------------------------------

@@ -1,16 +1,16 @@
 <?php
 
-$aDrivers           = !empty($drivers) ? $drivers : array();
+$aComponents        = !empty($components) ? $components : array();
 $aEnabled           = !empty($enabled) ? $enabled : array();
-$sKey               = !empty($key) ? $key : 'enabled_drivers';
+$sKey               = !empty($key) ? $key : 'enabled_components';
 $bCanSelectMultiple = !empty($canSelectMultiple) ? true : false;
 
-if (!empty($aDrivers)) {
+if (!empty($aComponents)) {
 
     ?>
     <div class="table-responsive">
         <table>
-            <thead class="drivers">
+            <thead class="components">
                 <tr>
                     <th width="80" class="selected text-center">Enabled</th>
                     <th width="*" class="label">Label</th>
@@ -20,15 +20,15 @@ if (!empty($aDrivers)) {
             <tbody>
                 <?php
 
-                foreach ($aDrivers as $oDriver) {
+                foreach ($aComponents as $oComponent) {
 
                     if ($this->input->post($sKey)) {
 
-                        $bEnabled = in_array($oDriver->slug, $this->input->post($sKey));
+                        $bEnabled = in_array($oComponent->slug, $this->input->post($sKey));
 
                     } else {
 
-                        $bEnabled = in_array($oDriver->slug, $aEnabled);
+                        $bEnabled = in_array($oComponent->slug, $aEnabled);
                     }
 
                     ?>
@@ -37,9 +37,9 @@ if (!empty($aDrivers)) {
                             <?php
 
                             if ($bCanSelectMultiple) {
-                                echo form_checkbox($sKey . '[]', $oDriver->slug, $bEnabled);
+                                echo form_checkbox($sKey . '[]', $oComponent->slug, $bEnabled);
                             } else {
-                                echo form_radio($sKey, $oDriver->slug, $bEnabled);
+                                echo form_radio($sKey, $oComponent->slug, $bEnabled);
                             }
 
                             ?>
@@ -47,11 +47,11 @@ if (!empty($aDrivers)) {
                         <td class="label">
                             <?php
 
-                            echo $oDriver->name;
-                            if (!empty($oDriver->description)) {
+                            echo $oComponent->name;
+                            if (!empty($oComponent->description)) {
 
                                 echo '<small>';
-                                echo $oDriver->description;
+                                echo $oComponent->description;
                                 echo '</small>';
                             }
 
@@ -60,10 +60,10 @@ if (!empty($aDrivers)) {
                         <td class="configure text-center">
                             <?php
 
-                            if (!empty($oDriver->data->settings)) {
+                            if (!empty($oComponent->data->settings)) {
 
                                 echo anchor(
-                                    'admin/admin/settings/driver?slug=' . $oDriver->slug,
+                                    'admin/admin/settings/component?slug=' . $oComponent->slug,
                                     'Configure',
                                     'data-fancybox-type="iframe" class="fancybox btn btn-xs btn-primary"'
                                 );
