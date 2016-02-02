@@ -512,7 +512,7 @@ class Helper
      */
     public static function loadSettingsDriverTable($sKey, $aDrivers, $aEnabled, $bCanSelectMultiple = true)
     {
-        self::loadSettingsComponentTable($sKey, $aDrivers, $aEnabled, $bCanSelectMultiple, 'driver');
+        return self::loadSettingsComponentTable($sKey, $aDrivers, $aEnabled, $bCanSelectMultiple, 'driver');
     }
 
     // --------------------------------------------------------------------------
@@ -527,7 +527,7 @@ class Helper
      */
     public static function loadSettingsSkinTable($sKey, $aSkins, $aEnabled, $bCanSelectMultiple = true)
     {
-        self::loadSettingsComponentTable($sKey, $aSkins, $aEnabled, $bCanSelectMultiple, 'skin');
+        return self::loadSettingsComponentTable($sKey, $aSkins, $aEnabled, $bCanSelectMultiple, 'skin');
     }
 
     // --------------------------------------------------------------------------

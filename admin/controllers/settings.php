@@ -364,7 +364,7 @@ class Settings extends Base
      * Configure components which have settings described in their composer.json/config.json file
      * @return void
      */
-    protected function component($sType = 'component')
+    public function component($sType = 'component')
     {
         $this->data['slug'] = $this->input->get('slug');
 

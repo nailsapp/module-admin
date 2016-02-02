@@ -4,6 +4,7 @@ $aComponents        = !empty($components) ? $components : array();
 $aEnabled           = !empty($enabled) ? $enabled : array();
 $sKey               = !empty($key) ? $key : 'enabled_components';
 $bCanSelectMultiple = !empty($canSelectMultiple) ? true : false;
+$sComponentType     = !empty($componentType) ? $componentType : 'component';
 
 if (!empty($aComponents)) {
 
@@ -63,7 +64,7 @@ if (!empty($aComponents)) {
                             if (!empty($oComponent->data->settings)) {
 
                                 echo anchor(
-                                    'admin/admin/settings/component?slug=' . $oComponent->slug,
+                                    'admin/admin/settings/' . $sComponentType . '?slug=' . $oComponent->slug,
                                     'Configure',
                                     'data-fancybox-type="iframe" class="fancybox btn btn-xs btn-primary"'
                                 );
