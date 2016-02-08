@@ -342,7 +342,7 @@ class AdminRouter extends NAILS_Controller
                         $adminControllersNav[md5($sGroupLabel)]->label    = $sGroupLabel;
                         $adminControllersNav[md5($sGroupLabel)]->icon     = array();
                         $adminControllersNav[md5($sGroupLabel)]->sortable = true;
-                        $adminControllersNav[md5($sGroupLabel)]->open     = true;
+                        $adminControllersNav[md5($sGroupLabel)]->open     = false;
                         $adminControllersNav[md5($sGroupLabel)]->actions  = array();
                     }
 
