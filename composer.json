@@ -46,7 +46,8 @@
         "nails" :
         {
             "moduleName": "admin",
-            "type": "module"
+            "type": "module",
+            "namespace": "Nails\\Admin\\"
         }
     }
 }
