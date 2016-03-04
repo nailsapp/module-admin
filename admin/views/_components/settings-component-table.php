@@ -1,10 +1,10 @@
 <?php
 
-$aComponents        = !empty($components) ? $components : array();
-$aEnabled           = !empty($enabled) ? $enabled : array();
-$sKey               = !empty($key) ? $key : 'enabled_components';
-$bCanSelectMultiple = !empty($canSelectMultiple) ? true : false;
-$sComponentType     = !empty($componentType) ? $componentType : 'component';
+$aComponents        = $components;
+$aEnabled           = $enabled;
+$sKey               = $key;
+$bCanSelectMultiple = $canSelectMultiple;
+$sComponentType     = $componentType;
 
 if (!empty($aComponents)) {
 

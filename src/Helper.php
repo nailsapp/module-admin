@@ -12,6 +12,8 @@
 
 namespace Nails\Admin;
 
+use Nails\Factory;
+
 class Helper
 {
     protected static $headerButtons = array();
@@ -474,26 +476,24 @@ class Helper
 
     /**
      * Load the admin "settings component table" component
-     * @param  string $sKey               The key to give the field
-     * @param  array  $aComponents        The available components to load
-     * @param  array  $aEnabled           The components to mark as enabled
-     * @param  string $bCanSelectMultiple Whether multiple components can be enabled
-     * @param  string $sComponentType     The type component of component being loaded
+     * @param  string $sModel         The model to use
+     * @param  array  $sProvider      The model provider
+     * @param  string $sComponentType The type of component being loaded
      * @return string
      */
-    public static function loadSettingsComponentTable(
-        $sKey,
-        $aComponents,
-        $aEnabled,
-        $bCanSelectMultiple = true,
-        $sComponentType = null
-    )
+    public static function loadSettingsComponentTable($sModel, $sProvider, $sComponentType = 'component')
     {
+        $oModel          = Factory::model($sModel, $sProvider);
+        $sKey            = $oModel->getSettingKey();
+        $aComponents     = $oModel->getAll();
+        $aEnabled        = (array) $oModel->getEnabledSlug();
+        $bEnableMultiple = $oModel->isMultiple();
+
         $aData = array(
             'key'               => $sKey,
             'components'        => $aComponents,
             'enabled'           => $aEnabled,
-            'canSelectMultiple' => $bCanSelectMultiple,
+            'canSelectMultiple' => $bEnableMultiple,
             'componentType'     => $sComponentType
         );
 
@@ -504,30 +504,26 @@ class Helper
 
     /**
      * Alias to loadSettingsComponentTable()
-     * @param  string $sKey               The key to give the field
-     * @param  array  $aDrivers           The available drivers to load
-     * @param  array  $aEnabled           The drivers to mark as enabled
-     * @param  string $bCanSelectMultiple Whether multiple drivers can be enabled
+     * @param  string $sModel    The model to use
+     * @param  array  $sProvider The model provider
      * @return string
      */
-    public static function loadSettingsDriverTable($sKey, $aDrivers, $aEnabled, $bCanSelectMultiple = true)
+    public static function loadSettingsDriverTable($sModel, $sProvider)
     {
-        return self::loadSettingsComponentTable($sKey, $aDrivers, $aEnabled, $bCanSelectMultiple, 'driver');
+        return self::loadSettingsComponentTable($sModel, $sProvider, 'driver');
     }
 
     // --------------------------------------------------------------------------
 
     /**
      * Alias to loadSettingsComponentTable()
-     * @param  string $sKey               The key to give the field
-     * @param  array  $aSkins            The available skins to load
-     * @param  array  $aEnabled           The skins to mark as enabled
-     * @param  string $bCanSelectMultiple Whether multiple skins can be enabled
+     * @param  string $sModel    The model to use
+     * @param  array  $sProvider The model provider
      * @return string
      */
-    public static function loadSettingsSkinTable($sKey, $aSkins, $aEnabled, $bCanSelectMultiple = true)
+    public static function loadSettingsSkinTable($sModel, $sProvider)
     {
-        return self::loadSettingsComponentTable($sKey, $aSkins, $aEnabled, $bCanSelectMultiple, 'skin');
+        return self::loadSettingsComponentTable($sModel, $sProvider, 'skin');
     }
 
     // --------------------------------------------------------------------------
