@@ -26,9 +26,9 @@
         window.NAILS.LANG       = {};
         window.NAILS.USER       = {};
         window.NAILS.USER.ID    = <?=activeUser('id')?>;
-        window.NAILS.USER.FNAME = '<?=activeUser('first_name')?>';
-        window.NAILS.USER.LNAME = '<?=activeUser('last_name')?>';
-        window.NAILS.USER.EMAIL = '<?=activeUser('email')?>';
+        window.NAILS.USER.FNAME = '<?=addslashes(activeUser('first_name'))?>';
+        window.NAILS.USER.LNAME = '<?=addslashes(activeUser('last_name'))?>';
+        window.NAILS.USER.EMAIL = '<?=addslashes(activeUser('email'))?>';
     </script>
     <noscript>
         <style type="text/css">
