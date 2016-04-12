@@ -25,7 +25,14 @@ if (!empty($aComponents)) {
 
                     if ($this->input->post($sKey)) {
 
-                        $bEnabled = in_array($oComponent->slug, $this->input->post($sKey));
+                        if ($bCanSelectMultiple) {
+
+                            $bEnabled = in_array($oComponent->slug, $this->input->post($sKey));
+
+                        } else {
+
+                            $bEnabled = $oComponent->slug == $this->input->post($sKey);
+                        }
 
                     } else {
 
