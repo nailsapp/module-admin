@@ -81,6 +81,7 @@ class Base extends \MX_Controller
         $oAssetModel->load('jquery.scrollTo/jquery.scrollTo.min.js', 'NAILS-BOWER');
         $oAssetModel->load('jquery-cookie/jquery.cookie.js', 'NAILS-BOWER');
         $oAssetModel->load('retina.js/dist/retina.min.js', 'NAILS-BOWER');
+        $oAssetModel->load('bootstrap/js/dropdown.js', 'NAILS-BOWER');
 
         //  Libraries
         $oAssetModel->library('jqueryui');
