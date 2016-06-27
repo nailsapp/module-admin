@@ -383,39 +383,37 @@ class Helper
 
     /**
      * Load the admin "user" table cell component
-     * @param  mixed $user The user object or the User's ID/email/username
+     * @param  mixed $mUser The user object or the User's ID/email/username
      * @return string
      */
-    public static function loadUserCell($user)
+    public static function loadUserCell($mUser)
     {
-        if (is_numeric($user)) {
+        if (is_numeric($mUser)) {
 
-            $oUser = get_instance()->user_model->getById($user);
-            if ($oUser) {
+            $oUser = get_instance()->user_model->getById($mUser);
 
-                $user = $oUser;
+        } else if (is_string($mUser)) {
+
+            $oUser = get_instance()->user_model->getByEmail($mUser);
+
+            if (empty($oUser)) {
+                $oUser = get_instance()->user_model->getByUsername($mUser);
             }
 
-        } else if (is_string($user)) {
-
-            $oUser = get_instance()->user_model->getByEmail($user);
-
-            if ($oUser) {
-
-                $user = $oUser;
-
-            } else {
-
-                $oUser = get_instance()->user_model->getByUsername($user);
-
-                if ($oUser) {
-
-                    $user = $oUser;
-                }
-            }
+        } else {
+            $oUser = $mUser;
         }
 
-        return get_instance()->load->view('admin/_components/table-cell-user', $user, true);
+        $aUser = array(
+            'id'          => !empty($oUser->id) ? $oUser->id : null,
+            'profile_img' => !empty($oUser->profile_img) ? $oUser->profile_img : null,
+            'gender'      => !empty($oUser->gender) ? $oUser->gender : null,
+            'first_name'  => !empty($oUser->first_name) ? $oUser->first_name : null,
+            'last_name'   => !empty($oUser->last_name) ? $oUser->last_name : null,
+            'email'       => !empty($oUser->email) ? $oUser->email : null
+        );
+
+        return get_instance()->load->view('admin/_components/table-cell-user', $aUser, true);
     }
 
     // --------------------------------------------------------------------------
