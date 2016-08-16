@@ -37,7 +37,8 @@ class NavAlert
 
     /**
      * Sets the value
-     * @param object
+     * @param  string $sValue The value for the indicator
+     * @return $this
      */
     public function setValue($sValue)
     {
@@ -60,7 +61,8 @@ class NavAlert
 
     /**
      * Sets the severity
-     * @param object
+     * @param  string $sSeverity The severity for the indicator [info|danger|success|warning]
+     * @return $this
      */
     public function setSeverity($sSeverity)
     {
@@ -83,7 +85,8 @@ class NavAlert
 
     /**
      * Sets the label
-     * @param object
+     * @param  string $sLabel The label for the indicator
+     * @return $this
      */
     public function setLabel($sLabel)
     {
