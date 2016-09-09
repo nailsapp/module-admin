@@ -24,7 +24,7 @@ class Help extends Base
     {
         parent::__construct();
         $this->table       = NAILS_DB_PREFIX . 'admin_help_video';
-        $this->tablePrefix = 'hv';
+        $this->tableAlias = 'hv';
     }
 
     // --------------------------------------------------------------------------
@@ -45,11 +45,11 @@ class Help extends Base
             }
 
             $data['or_like'][] = array(
-                'column' => $this->tablePrefix . '.label',
+                'column' => $this->tableAlias . '.label',
                 'value'  => $data['keywords']
             );
             $data['or_like'][] = array(
-                'column' => $this->tablePrefix . '.description',
+                'column' => $this->tableAlias . '.description',
                 'value'  => $data['keywords']
             );
         }

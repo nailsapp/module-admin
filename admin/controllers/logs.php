@@ -158,14 +158,14 @@ class Logs extends Base
 
         // --------------------------------------------------------------------------
 
-        $tablePrefix = $this->event->getTableAlias();
+        $tableAlias = $this->event->getTableAlias();
 
         // --------------------------------------------------------------------------
 
         //  Get pagination and search/sort variables
         $page      = $this->input->get('page')      ? $this->input->get('page')      : 0;
         $perPage   = $this->input->get('perPage')   ? $this->input->get('perPage')   : 50;
-        $sortOn    = $this->input->get('sortOn')    ? $this->input->get('sortOn')    : $tablePrefix . '.created';
+        $sortOn    = $this->input->get('sortOn')    ? $this->input->get('sortOn')    : $tableAlias . '.created';
         $sortOrder = $this->input->get('sortOrder') ? $this->input->get('sortOrder') : 'desc';
         $keywords  = $this->input->get('keywords')  ? $this->input->get('keywords')  : '';
 
@@ -173,8 +173,8 @@ class Logs extends Base
 
         //  Define the sortable columns
         $sortColumns = array(
-            $tablePrefix . '.created' => 'Created',
-            $tablePrefix . '.type'    => 'Type'
+            $tableAlias . '.created' => 'Created',
+            $tableAlias . '.type'    => 'Type'
         );
 
         // --------------------------------------------------------------------------
@@ -246,14 +246,14 @@ class Logs extends Base
         // --------------------------------------------------------------------------
 
         $oChangeLogModel = Factory::model('ChangeLog', 'nailsapp/module-admin');
-        $tablePrefix     = $oChangeLogModel->getTableAlias();
+        $tableAlias     = $oChangeLogModel->getTableAlias();
 
         // --------------------------------------------------------------------------
 
         //  Get pagination and search/sort variables
         $page      = $this->input->get('page')      ? $this->input->get('page')      : 0;
         $perPage   = $this->input->get('perPage')   ? $this->input->get('perPage')   : 50;
-        $sortOn    = $this->input->get('sortOn')    ? $this->input->get('sortOn')    : $tablePrefix . '.created';
+        $sortOn    = $this->input->get('sortOn')    ? $this->input->get('sortOn')    : $tableAlias . '.created';
         $sortOrder = $this->input->get('sortOrder') ? $this->input->get('sortOrder') : 'desc';
         $keywords  = $this->input->get('keywords')  ? $this->input->get('keywords')  : '';
 
@@ -261,8 +261,8 @@ class Logs extends Base
 
         //  Define the sortable columns
         $sortColumns = array(
-            $tablePrefix . '.created' => 'Created',
-            $tablePrefix . '.type'    => 'Type'
+            $tableAlias . '.created' => 'Created',
+            $tableAlias . '.type'    => 'Type'
         );
 
         // --------------------------------------------------------------------------

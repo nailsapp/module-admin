@@ -33,7 +33,7 @@ class ChangeLog extends Base
 
         //  Define data structure
         $this->table        = NAILS_DB_PREFIX . 'admin_changelog';
-        $this->tablePrefix = 'acl';
+        $this->tableAlias = 'acl';
 
         // --------------------------------------------------------------------------
 
@@ -213,7 +213,7 @@ class ChangeLog extends Base
      **/
     public function getAll($page = null, $perPage = null, $data = array())
     {
-        $this->db->select($this->tablePrefix . '.*, u.first_name, u.last_name, u.gender, u.profile_img, ue.email');
+        $this->db->select($this->tableAlias . '.*, u.first_name, u.last_name, u.gender, u.profile_img, ue.email');
         return parent::getAll($page, $perPage, $data, false);
     }
 
@@ -227,8 +227,8 @@ class ChangeLog extends Base
     protected function getCountCommon($data = array())
     {
         //  Join user tables
-        $this->db->join(NAILS_DB_PREFIX . 'user u', 'u.id = ' . $this->tablePrefix . '.user_id', 'LEFT');
-        $this->db->join(NAILS_DB_PREFIX . 'user_email ue', 'ue.user_id = ' . $this->tablePrefix . '.user_id AND ue.is_primary = 1', 'LEFT');
+        $this->db->join(NAILS_DB_PREFIX . 'user u', 'u.id = ' . $this->tableAlias . '.user_id', 'LEFT');
+        $this->db->join(NAILS_DB_PREFIX . 'user_email ue', 'ue.user_id = ' . $this->tableAlias . '.user_id AND ue.is_primary = 1', 'LEFT');
 
         //  Searching?
         if (!empty($data['keywords'])) {
@@ -241,7 +241,7 @@ class ChangeLog extends Base
             $toSlug = strtolower(str_replace(' ', '_', $data['keywords']));
 
             $data['or_like'][] = array(
-                'column' => $this->tablePrefix . '.type',
+                'column' => $this->tableAlias . '.type',
                 'value'  => $toSlug
             );
             $data['or_like'][] = array(

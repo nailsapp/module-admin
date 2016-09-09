@@ -74,12 +74,12 @@ class Help extends Base
 
         //  Get data
         $oHelpModel   = Factory::model('Help', 'nailsapp/module-admin');
-        $sTablePrefix = $oHelpModel->getTableAlias();
+        $sTableAlias = $oHelpModel->getTableAlias();
 
         //  Get pagination and search/sort variables
         $page      = $this->input->get('page')      ? $this->input->get('page')      : 0;
         $perPage   = $this->input->get('perPage')   ? $this->input->get('perPage')   : 50;
-        $sortOn    = $this->input->get('sortOn')    ? $this->input->get('sortOn')    : $sTablePrefix . '.label';
+        $sortOn    = $this->input->get('sortOn')    ? $this->input->get('sortOn')    : $sTableAlias . '.label';
         $sortOrder = $this->input->get('sortOrder') ? $this->input->get('sortOrder') : 'asc';
         $keywords  = $this->input->get('keywords')  ? $this->input->get('keywords')  : '';
 
@@ -87,10 +87,10 @@ class Help extends Base
 
         //  Define the sortable columns
         $sortColumns = array(
-            $sTablePrefix . '.label'    => 'Label',
-            $sTablePrefix . '.duration' => 'Duration',
-            $sTablePrefix . '.created'  => 'Added',
-            $sTablePrefix . '.modified' => 'Modified'
+            $sTableAlias . '.label'    => 'Label',
+            $sTableAlias . '.duration' => 'Duration',
+            $sTableAlias . '.created'  => 'Added',
+            $sTableAlias . '.modified' => 'Modified'
         );
 
         // --------------------------------------------------------------------------
