@@ -158,7 +158,7 @@ class Logs extends Base
 
         // --------------------------------------------------------------------------
 
-        $tablePrefix = $this->event->getTablePrefix();
+        $tablePrefix = $this->event->getTableAlias();
 
         // --------------------------------------------------------------------------
 
@@ -246,7 +246,7 @@ class Logs extends Base
         // --------------------------------------------------------------------------
 
         $oChangeLogModel = Factory::model('ChangeLog', 'nailsapp/module-admin');
-        $tablePrefix     = $oChangeLogModel->getTablePrefix();
+        $tablePrefix     = $oChangeLogModel->getTableAlias();
 
         // --------------------------------------------------------------------------
 

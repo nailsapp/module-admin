@@ -74,7 +74,7 @@ class Help extends Base
 
         //  Get data
         $oHelpModel   = Factory::model('Help', 'nailsapp/module-admin');
-        $sTablePrefix = $oHelpModel->getTablePrefix();
+        $sTablePrefix = $oHelpModel->getTableAlias();
 
         //  Get pagination and search/sort variables
         $page      = $this->input->get('page')      ? $this->input->get('page')      : 0;
