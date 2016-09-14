@@ -180,65 +180,47 @@ class Helper
 
     /**
      * Load a single view taking into account the module being accessed.
-     * @param  string  $viewFile   The view to load
-     * @param  array   $viewData   The data to pass to the view
-     * @param  boolean $returnView Whether to return the view or send it to the Output class
-     * @return mixed               String when $returnView is true, void otherwise
+     * @param  string  $sViewFile   The view to load
+     * @param  array   $aViewData   The data to pass to the view
+     * @param  boolean $bReturnView Whether to return the view or send it to the Output class
+     * @return mixed               String when $bReturnView is true, void otherwise
      */
-    public static function loadInlineView($viewFile, $viewData = array(), $returnView = false)
+    public static function loadInlineView($sViewFile, $aViewData = array(), $bReturnView = false)
     {
-        $controllerData =& getControllerData();
-        $controllerPath = !empty($controllerData['currentRequest']['path']) ? $controllerData['currentRequest']['path'] : '';
-
-        //  Work out where the controller's view folder is
-        $viewPath  = dirname($controllerPath);
-        $viewPath .= '/../views/';
-
-        //  And get the directory name which is the same as the controller's filename
-        $basename  = basename($controllerPath);
-        $basename  = substr($basename, 0, strrpos($basename, '.'));
-        $viewPath .= $basename . '/';
-
-        //  Glue the requested view onto the end and add .php
-        $viewPath .= $viewFile . '.php';
+        $aCtrlData =& getControllerData();
+        $sCtrlPath = !empty($aCtrlData['currentRequest']['path']) ? $aCtrlData['currentRequest']['path'] : '';
+        $viewPath  = basename($sCtrlPath, '.php') . '/' . $sViewFile;
 
         //  Get the CI super object
         $ci =& get_instance();
 
         //  Hey presto!
-        if ($returnView) {
-
-            return $ci->load->view($viewPath, $viewData, true);
-
-        } else {
-
-            $ci->load->view($viewPath, $viewData);
-        }
+        return $ci->load->view($viewPath, $aViewData, $bReturnView);
     }
 
     // --------------------------------------------------------------------------
 
     /**
      * Loads the admin "search" component
-     * @param  stdClass $searchObject An object as created by self::searchObject();
-     * @param  boolean  $returnView   Whether to return the view to the caller, or output to the browser
-     * @return mixed                  String when $retrunView is true, void otherwise
+     * @param  \stdClass $oSearchObj  An object as created by self::searchObject();
+     * @param  boolean   $bReturnView Whether to return the view to the caller, or output to the browser
+     * @return mixed                  String when $bReturnView is true, void otherwise
      */
-    public static function loadSearch($searchObject, $returnView = false)
+    public static function loadSearch($oSearchObj, $bReturnView = false)
     {
         $data = array(
-            'searchable'     => isset($searchObject->searchable) ? $searchObject->searchable : true,
-            'sortColumns'    => isset($searchObject->sortColumns) ? $searchObject->sortColumns : array(),
-            'sortOn'         => isset($searchObject->sortOn) ? $searchObject->sortOn : null,
-            'sortOrder'      => isset($searchObject->sortOrder) ? $searchObject->sortOrder : null,
-            'perPage'        => isset($searchObject->perPage) ? $searchObject->perPage : 50,
-            'keywords'       => isset($searchObject->keywords) ? $searchObject->keywords : '',
-            'checkboxFilter' => isset($searchObject->checkboxFilter) ? $searchObject->checkboxFilter : array(),
-            'dropdownFilter' => isset($searchObject->dropdownFilter) ? $searchObject->dropdownFilter : array()
+            'searchable'     => isset($oSearchObj->searchable)       ? $oSearchObj->searchable     : true,
+            'sortColumns'    => isset($oSearchObj->sortColumns)      ? $oSearchObj->sortColumns    : array(),
+            'sortOn'         => isset($oSearchObj->sortOn)           ? $oSearchObj->sortOn         : null,
+            'sortOrder'      => isset($oSearchObj->sortOrder)        ? $oSearchObj->sortOrder      : null,
+            'perPage'        => isset($oSearchObj->perPage)          ? $oSearchObj->perPage        : 50,
+            'keywords'       => isset($oSearchObj->keywords)         ? $oSearchObj->keywords       : '',
+            'checkboxFilter' => isset($oSearchObj->checkboxFilter)   ? $oSearchObj->checkboxFilter : array(),
+            'dropdownFilter' => isset($oSearchObj->dropdownFilter)   ? $oSearchObj->dropdownFilter : array()
         );
 
         //  Not using self::loadInlineView() as this may be called from many contexts
-        return get_instance()->load->view('admin/_components/search', $data, $returnView);
+        return get_instance()->load->view('admin/_components/search', $data, $bReturnView);
     }
 
     // --------------------------------------------------------------------------
