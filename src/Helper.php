@@ -13,6 +13,7 @@
 namespace Nails\Admin;
 
 use Nails\Factory;
+use Nails\Common\Exception\NailsException;
 
 class Helper
 {
@@ -39,17 +40,14 @@ class Helper
         if ($ci->input->get('isModal')) {
 
             if (!isset($controllerData['headerOverride']) && !isset($controllerData['isModal'])) {
-
                 $controllerData['isModal'] = true;
             }
 
             if (empty($controllerData['headerOverride'])) {
-
                 $controllerData['headerOverride'] = 'structure/headerBlank';
             }
 
             if (empty($controllerData['footerOverride'])) {
-
                 $controllerData['footerOverride'] = 'structure/footerBlank';
             }
         }
@@ -62,11 +60,8 @@ class Helper
             if ($loadStructure) {
 
                 if (!empty($controllerData['headerOverride'])) {
-
                     $return .= $ci->load->view($controllerData['headerOverride'], $controllerData, true);
-
                 } else {
-
                     $return .= $ci->load->view('structure/header', $controllerData, true);
                 }
             }
@@ -76,11 +71,8 @@ class Helper
             if ($loadStructure) {
 
                 if (!empty($controllerData['footerOverride'])) {
-
                     $return .= $ci->load->view($controllerData['footerOverride'], $controllerData, true);
-
                 } else {
-
                     $return .= $ci->load->view('structure/footer', $controllerData, true);
                 }
             }
@@ -90,13 +82,9 @@ class Helper
         } else {
 
             if ($loadStructure) {
-
                 if (!empty($controllerData['headerOverride'])) {
-
                     $ci->load->view($controllerData['headerOverride'], $controllerData);
-
                 } else {
-
                     $ci->load->view('structure/header', $controllerData);
                 }
             }
@@ -104,13 +92,9 @@ class Helper
             self::loadInlineView($viewFile, $controllerData);
 
             if ($loadStructure) {
-
                 if (!empty($controllerData['footerOverride'])) {
-
                     $ci->load->view($controllerData['footerOverride'], $controllerData);
-
                 } else {
-
                     $ci->load->view('structure/footer', $controllerData);
                 }
             }
@@ -183,19 +167,32 @@ class Helper
      * @param  string  $sViewFile   The view to load
      * @param  array   $aViewData   The data to pass to the view
      * @param  boolean $bReturnView Whether to return the view or send it to the Output class
+     * @throws \Nails\Common\Exception\NailsException
      * @return mixed               String when $bReturnView is true, void otherwise
      */
     public static function loadInlineView($sViewFile, $aViewData = array(), $bReturnView = false)
     {
         $aCtrlData =& getControllerData();
         $sCtrlPath = !empty($aCtrlData['currentRequest']['path']) ? $aCtrlData['currentRequest']['path'] : '';
-        $viewPath  = basename($sCtrlPath, '.php') . '/' . $sViewFile;
+        $sViewPath  = basename($sCtrlPath, '.php') . '/' . $sViewFile;
 
         //  Get the CI super object
-        $ci =& get_instance();
+        $oCi =& get_instance();
 
         //  Hey presto!
-        return $ci->load->view($viewPath, $aViewData, $bReturnView);
+        try {
+            $sOut = $oCi->load->view($sViewPath, $aViewData, $bReturnView);
+        } catch (\Exception $e) {
+            //  Is the controller a DefaultController? If so fallback to those views
+            if (is_subclass_of($aCtrlData['currentRequest']['className'], 'Nails\Admin\Controller\DefaultController')) {
+                $sOut = $oCi->load->view('admin/defaultcontroller/' . $sViewFile, $aViewData, $bReturnView);
+            } else {
+                throw new NailsException($e->getMessage(), $e->getCode());
+            }
+        }
+
+
+        return $sOut;
     }
 
     // --------------------------------------------------------------------------
