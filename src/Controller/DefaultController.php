@@ -10,8 +10,9 @@
  * @link
  */
 
-//  @todo Handle models which are/are not able to be restored
-//  @todo Populate fields
+//  @todo - Ensure search still works
+//  @todo - Ensure sorting stillworks
+//  @todo - Render fields properly
 
 namespace Nails\Admin\Controller;
 
@@ -24,14 +25,71 @@ class DefaultController extends Base
     /**
      * The following constants are used to build the controller
      */
-    const CONFIG_MODEL_NAME        = '';
-    const CONFIG_MODEL_PROVIDER    = '';
-    const CONFIG_TITLE_SINGLE      = '';
-    const CONFIG_TITLE_PLURAL      = '';
-    const CONFIG_SIDEBAR_GROUP     = '';
-    const CONFIG_PERMISSION        = '';
-    const CONFIG_BASE_URL          = '';
-    const CONFIG_SORT_OPTIONS      = '';
+
+    /**
+     * The model to use for this admin view (and which module provides it)
+     */
+    const CONFIG_MODEL_NAME     = '';
+    const CONFIG_MODEL_PROVIDER = '';
+
+    /**
+     * The permission string to use when checking permissions; if not provided then no permissions required
+     */
+    const CONFIG_PERMISSION = '';
+
+    /**
+     * The singular and plural name of the item being managed; defaults to the model name
+     */
+    const CONFIG_TITLE_SINGLE = '';
+    const CONFIG_TITLE_PLURAL = '';
+
+    /**
+     * Where to display this controller in the admin sidebar; defaults to CONFIG_TITLE_PLURAL
+     */
+    const CONFIG_SIDEBAR_GROUP = '';
+
+    /**
+     * the base URL for this controller
+     */
+    const CONFIG_BASE_URL = '';
+
+    /**
+     * The sorting options to give the user on the index view
+     */
+    const CONFIG_SORT_OPTIONS   = array(
+        'label'    => 'Label',
+        'created'  => 'Created',
+        'modified' => 'Modified'
+    );
+
+    /**
+     * The fields to show on the index view.
+     */
+    const CONFIG_INDEX_FIELDS  = array(
+        'label'    => 'Label',
+        'modified' => 'Modified'
+    );
+
+    /**
+     * The fields to ignore on the create/edit view
+     */
+    const CONFIG_EDIT_IGNORE_FIELDS = array(
+        'id',
+        'slug',
+        'is_deleted',
+        'created',
+        'created_by',
+        'modified',
+        'modified_by'
+    );
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Contains the configs for this controller
+     * @var array
+     */
+    protected $aConfig;
 
     // --------------------------------------------------------------------------
 
@@ -43,16 +101,32 @@ class DefaultController extends Base
     {
         parent::__construct();
 
+        $this->aConfig = static::getConfig();
+
+        // --------------------------------------------------------------------------
+
+        //  Model specific fields
+        $oItemModel = Factory::model(
+            $this->aConfig['MODEL_NAME'],
+            $this->aConfig['MODEL_PROVIDER']
+        );
+
+        $this->aConfig['CAN_RESTORE'] = !$oItemModel->isDestructiveDelete();
+        $this->aConfig['FIELDS']      = $oItemModel->describeFields();
+
+        $this->data['CONFIG'] = $this->aConfig;
+
+        // --------------------------------------------------------------------------
+    }
+
+    // --------------------------------------------------------------------------
+
+    public static function getConfig()
+    {
         //  Ensure required constants are set
         $aConstants = array(
             'CONFIG_MODEL_NAME',
-            'CONFIG_MODEL_PROVIDER',
-            'CONFIG_TITLE_SINGLE',
-            'CONFIG_TITLE_PLURAL',
-            'CONFIG_SIDEBAR_GROUP',
-            'CONFIG_PERMISSION',
-            'CONFIG_BASE_URL',
-            'CONFIG_SORT_OPTIONS'
+            'CONFIG_MODEL_PROVIDER'
         );
         foreach ($aConstants as $sConstant) {
             if (empty(constant('static::' . $sConstant))) {
@@ -62,15 +136,44 @@ class DefaultController extends Base
             }
         }
 
-        //  And for the views
-        $this->data['CONFIG_MODEL_NAME']     = static::CONFIG_MODEL_NAME;
-        $this->data['CONFIG_MODEL_PROVIDER'] = static::CONFIG_MODEL_PROVIDER;
-        $this->data['CONFIG_TITLE_SINGLE']   = static::CONFIG_TITLE_SINGLE;
-        $this->data['CONFIG_TITLE_PLURAL']   = static::CONFIG_TITLE_PLURAL;
-        $this->data['CONFIG_SIDEBAR_GROUP']  = static::CONFIG_SIDEBAR_GROUP;
-        $this->data['CONFIG_PERMISSION']     = static::CONFIG_PERMISSION;
-        $this->data['CONFIG_BASE_URL']       = static::CONFIG_BASE_URL;
-        $this->data['CONFIG_SORT_OPTIONS']   = static::CONFIG_SORT_OPTIONS;
+        //  Build the config array
+        $aConfig = array();
+        $aConfig['MODEL_NAME']     = static::CONFIG_MODEL_NAME;
+        $aConfig['MODEL_PROVIDER'] = static::CONFIG_MODEL_PROVIDER;
+
+        //  Define remaining "constants"
+        $aConfig['PERMISSION']         = static::CONFIG_PERMISSION;
+        $aConfig['TITLE_SINGLE']       = static::CONFIG_TITLE_SINGLE;
+        $aConfig['TITLE_PLURAL']       = static::CONFIG_TITLE_PLURAL;
+        $aConfig['SIDEBAR_GROUP']      = static::CONFIG_SIDEBAR_GROUP;
+        $aConfig['BASE_URL']           = static::CONFIG_BASE_URL;
+        $aConfig['SORT_OPTIONS']       = static::CONFIG_SORT_OPTIONS;
+        $aConfig['INDEX_FIELDS']       = static::CONFIG_INDEX_FIELDS;
+        $aConfig['EDIT_IGNORE_FIELDS'] = static::CONFIG_EDIT_IGNORE_FIELDS;
+
+        //  Set defaults where appropriate
+        if (empty($aConfig['TITLE_SINGLE'])) {
+            $aConfig['TITLE_SINGLE'] = preg_replace('/([a-z])([A-Z])/', '$1 $2', static::CONFIG_MODEL_NAME);
+            $aConfig['TITLE_SINGLE'] = strtolower($aConfig['TITLE_SINGLE']);
+            $aConfig['TITLE_SINGLE'] = ucwords($aConfig['TITLE_SINGLE']);
+        }
+
+        if (empty($aConfig['TITLE_PLURAL'])) {
+            Factory::helper('inflector');
+            $aConfig['TITLE_PLURAL'] = pluralise(2, $aConfig['TITLE_SINGLE']);
+        }
+
+        if (empty($aConfig['SIDEBAR_GROUP'])) {
+            $aConfig['SIDEBAR_GROUP'] = $aConfig['TITLE_PLURAL'];
+        }
+
+        if (empty($aConfig['BASE_URL'])) {
+            $aBits = explode('\\', get_called_class());
+            $aConfig['BASE_URL'] = 'admin/' . $aBits[count($aBits) - 2] . '/' . $aBits[count($aBits) - 1];
+            $aConfig['BASE_URL'] = strtolower($aConfig['BASE_URL']);
+        }
+
+        return $aConfig;
     }
 
     // --------------------------------------------------------------------------
@@ -81,31 +184,18 @@ class DefaultController extends Base
      */
     public static function announce()
     {
-        $sSidebarGroup  = static::CONFIG_SIDEBAR_GROUP;
-        $sPermissionStr = static::CONFIG_PERMISSION;
-        $sTitlePlural   = static::CONFIG_TITLE_PLURAL;
+        $aConfig = static::getConfig();
 
-        if (empty($sSidebarGroup)) {
-            throw new NailsException('Child controller must define static::CONFIG_SIDEBAR_GROUP.');
-        }
-
-        if (empty($sPermissionStr)) {
-            throw new NailsException('Child controller must define static::CONFIG_PERMISSION.');
-        }
-
-        if (empty($sSidebarGroup)) {
-            throw new NailsException('Child controller must define static::CONFIG_TITLE_PLURAL.');
-        }
-        
         // --------------------------------------------------------------------------
-        
-        $navGroup = Factory::factory('Nav', 'nailsapp/module-admin');
-        $navGroup->setLabel($sSidebarGroup);
-        if (userHasPermission('admin:' . $sPermissionStr . ':browse')) {
-            $navGroup->addAction('Manage ' . $sTitlePlural, 'index');
+
+        $oNavGroup = Factory::factory('Nav', 'nailsapp/module-admin');
+        $oNavGroup->setLabel($aConfig['SIDEBAR_GROUP']);
+
+        if (empty($aConfig['PERMISSION']) || userHasPermission('admin:' . $aConfig['PERMISSION'] . ':browse')) {
+            $oNavGroup->addAction('Manage ' . $aConfig['TITLE_PLURAL'], 'index');
         }
 
-        return $navGroup;
+        return $oNavGroup;
     }
 
     // --------------------------------------------------------------------------
@@ -117,12 +207,15 @@ class DefaultController extends Base
     public static function permissions()
     {
         $aPermissions = parent::permissions();
+        $aConfig      = static::getConfig();
 
-        $aPermissions['browse']  = 'Can browse items';
-        $aPermissions['create']  = 'Can create items';
-        $aPermissions['edit']    = 'Can edit items';
-        $aPermissions['delete']  = 'Can delete items';
-        $aPermissions['restore'] = 'Can restore items';
+        if (!empty($aConfig['PERMISSION'])) {
+            $aPermissions['browse'] = 'Can browse items';
+            $aPermissions['create'] = 'Can create items';
+            $aPermissions['edit'] = 'Can edit items';
+            $aPermissions['delete'] = 'Can delete items';
+            $aPermissions['restore'] = 'Can restore items';
+        }
 
         return $aPermissions;
     }
@@ -135,25 +228,26 @@ class DefaultController extends Base
      */
     public function index()
     {
-        if (!userHasPermission('admin:' . static::CONFIG_PERMISSION . ':browse')) {
+        $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':browse';
+        if (!empty($this->aConfig['PERMISSION']) && !userHasPermission($sPermissionStr)) {
             unauthorised();
         }
 
         $oInput     = Factory::service('Input');
         $oItemModel = Factory::model(
-            static::CONFIG_MODEL_NAME,
-            static::CONFIG_MODEL_PROVIDER
+            $this->aConfig['MODEL_NAME'],
+            $this->aConfig['MODEL_PROVIDER']
         );
 
-        $sAlias     = $oItemModel->getTableAlias();
-        $iPage      = $oInput->get('page')      ? $oInput->get('page')      : 0;
-        $iPerPage   = $oInput->get('perPage')   ? $oInput->get('perPage')   : 50;
-        $sSortOn    = $oInput->get('sortOn')    ? $oInput->get('sortOn')    : $sAlias . '.label';
-        $sSortOrder = $oInput->get('sortOrder') ? $oInput->get('sortOrder') : 'asc';
-        $sKeywords  = $oInput->get('keywords');
+        $sAlias      = $oItemModel->getTableAlias();
+        $aSortConfig = $this->aConfig['SORT_OPTIONS'];
 
-        $aSortCol     = array();
-        $aSortConfig  = json_decode(static::CONFIG_SORT_OPTIONS) ?: array();
+        //  Get the first key (i.e the default sort)
+        reset($aSortConfig);
+        $sFirstKey = key($aSortConfig);
+
+        //  Prepare the sort options so they have the appropriate table alias
+        $aSortCol  = array();
         foreach ($aSortConfig as $sColumn => $sLabel) {
             if (strpos($sColumn, '.') === false) {
                 $aSortCol[$sAlias . '.' . $sColumn] = $sLabel;
@@ -161,6 +255,13 @@ class DefaultController extends Base
                 $aSortCol[$sColumn] = $sLabel;
             }
         }
+
+        //  Other parameters
+        $iPage      = $oInput->get('page')      ? $oInput->get('page')      : 0;
+        $iPerPage   = $oInput->get('perPage')   ? $oInput->get('perPage')   : 50;
+        $sSortOn    = $oInput->get('sortOn')    ? $oInput->get('sortOn')    : $sAlias . '.' . $sFirstKey;
+        $sSortOrder = $oInput->get('sortOrder') ? $oInput->get('sortOrder') : 'asc';
+        $sKeywords  = $oInput->get('keywords');
 
         $aData = array(
             'sort' => array(
@@ -178,13 +279,14 @@ class DefaultController extends Base
 
         // --------------------------------------------------------------------------
 
-        if (userHasPermission('admin:' . static::CONFIG_PERMISSION . ':create')) {
-            Helper::addHeaderButton('admin/' . static::CONFIG_BASE_URL . '/create', 'Create');
+        $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':create';
+        if (empty($this->aConfig['PERMISSION']) || userHasPermission($sPermissionStr)) {
+            Helper::addHeaderButton($this->aConfig['BASE_URL'] . '/create', 'Create');
         }
 
         // --------------------------------------------------------------------------
 
-        $this->data['page']->title = static::CONFIG_TITLE_PLURAL . ' &rsaquo; Manage';
+        $this->data['page']->title = $this->aConfig['TITLE_PLURAL'] . ' &rsaquo; Manage';
         Helper::loadView('index');
     }
 
@@ -196,15 +298,16 @@ class DefaultController extends Base
      */
     public function create()
     {
-        if (!userHasPermission('admin:' . static::CONFIG_PERMISSION . ':create')) {
+        $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':create';
+        if (!empty($this->aConfig['PERMISSION']) && !userHasPermission($sPermissionStr)) {
             unauthorised();
         }
 
         $oDb        = Factory::service('Database');
         $oInput     = Factory::service('Input');
         $oItemModel = Factory::model(
-            static::CONFIG_MODEL_NAME,
-            static::CONFIG_MODEL_PROVIDER
+            $this->aConfig['MODEL_NAME'],
+            $this->aConfig['MODEL_PROVIDER']
         );
 
         if ($oInput->post()) {
@@ -218,7 +321,7 @@ class DefaultController extends Base
                     $oDb->trans_commit();
                     $oSession = Factory::service('Session', 'nailsapp/module-auth');
                     $oSession->set_flashdata('success', 'Item created successfully.');
-                    redirect('admin/' . static::CONFIG_BASE_URL);
+                    redirect($this->aConfig['BASE_URL']);
 
                 } catch (\Exception $e) {
                     $oDb->trans_rollback();
@@ -233,7 +336,7 @@ class DefaultController extends Base
         //  View Data & Assets
         $this->loadEditViewData();
 
-        $this->data['page']->title = static::CONFIG_TITLE_SINGLE . ' &rsaquo; Create';
+        $this->data['page']->title = $this->aConfig['TITLE_SINGLE'] . ' &rsaquo; Create';
         Helper::loadView('edit');
     }
 
@@ -245,7 +348,8 @@ class DefaultController extends Base
      */
     public function edit()
     {
-        if (!userHasPermission('admin:' . static::CONFIG_PERMISSION . ':edit')) {
+        $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':edit';
+        if (!empty($this->aConfig['PERMISSION']) && !userHasPermission($sPermissionStr)) {
             unauthorised();
         }
 
@@ -253,8 +357,8 @@ class DefaultController extends Base
         $oUri       = Factory::service('Uri');
         $oInput     = Factory::service('Input');
         $oItemModel = Factory::model(
-            static::CONFIG_MODEL_NAME,
-            static::CONFIG_MODEL_PROVIDER
+            $this->aConfig['MODEL_NAME'],
+            $this->aConfig['MODEL_PROVIDER']
         );
         $iItemId    = (int) $oUri->segment(5);
         $oItem      = $oItemModel->getById($iItemId);
@@ -276,7 +380,7 @@ class DefaultController extends Base
                     $oDb->trans_commit();
                     $oSession = Factory::service('Session', 'nailsapp/module-auth');
                     $oSession->set_flashdata('success', 'Item updated successfully.');
-                    redirect('admin/' . static::CONFIG_BASE_URL);
+                    redirect($this->aConfig['BASE_URL']);
 
                 } catch (\Exception $e) {
                     $oDb->trans_rollback();
@@ -291,7 +395,7 @@ class DefaultController extends Base
         //  View Data & Assets
         $this->loadEditViewData($oItem);
 
-        $this->data['page']->title = static::CONFIG_TITLE_SINGLE . ' &rsaquo; Edit';
+        $this->data['page']->title = $this->aConfig['TITLE_SINGLE'] . ' &rsaquo; Edit';
         Helper::loadView('edit');
     }
 
@@ -303,23 +407,17 @@ class DefaultController extends Base
      */
     private function runFormValidation()
     {
-        $oFormValidation = Factory::service('FormValidation');
-
-        $aRules = array(
-            'label' => 'xss_clean|required'
-        );
-
+        $oFormValidation      = Factory::service('FormValidation');
         $aRulesFormValidation = array();
-        foreach ($aRules as $sKey => $sRules) {
+        foreach ($this->aConfig['FIELDS'] as $oField) {
             $aRulesFormValidation[] = array(
-                'field' => $sKey,
-                'label' => '',
-                'rules' => $sRules
+                'field' => $oField->key,
+                'label' => $oField->label,
+                'rules' => $oField->validation
             );
         }
 
         $oFormValidation->set_rules($aRulesFormValidation);
-
         $oFormValidation->set_message('required', lang('fv_required'));
 
         return $oFormValidation->run();
@@ -346,9 +444,20 @@ class DefaultController extends Base
     private function getPostObject()
     {
         $oInput = Factory::service('Input');
-        return array(
-            'label' => $oInput->post('label'),
-        );
+        $aOut   = array();
+
+        foreach ($this->aConfig['FIELDS'] as $oField) {
+            if (in_array($oField->key, $this->aConfig['EDIT_IGNORE_FIELDS'])) {
+                continue;
+            }
+            $aOut[$oField->key] = $oInput->post($oField->key);
+
+            if ($oField->allow_null && empty($aOut[$oField->key])) {
+                $aOut[$oField->key] = null;
+            }
+        }
+
+        return $aOut;
     }
 
     // --------------------------------------------------------------------------
@@ -359,34 +468,40 @@ class DefaultController extends Base
      */
     public function delete()
     {
-        if (!userHasPermission('admin:' . static::CONFIG_PERMISSION . ':delete')) {
+        $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':delete';
+        if (!empty($this->aConfig['PERMISSION']) && !userHasPermission($sPermissionStr)) {
             unauthorised();
         }
 
         $oDb        = Factory::service('Database');
         $oUri       = Factory::service('Uri');
         $oItemModel = Factory::model(
-            static::CONFIG_MODEL_NAME,
-            static::CONFIG_MODEL_PROVIDER
+            $this->aConfig['MODEL_NAME'],
+            $this->aConfig['MODEL_PROVIDER']
         );
-        $iItemId    = (int) $oUri->segment(5);
-        $oItem      = $oItemModel->getById($iItemId);
+        $iItemId = (int) $oUri->segment(5);
+        $oItem   = $oItemModel->getById($iItemId);
 
         if (empty($oItem)) {
             show_404();
         }
 
         try {
+
             if (!$oItemModel->delete($iItemId)) {
                 throw new NailsException('Failed to delete item.' . $oItemModel->lastError());
             }
 
-            $sRestoreLink = anchor('admin/' . static::CONFIG_BASE_URL . '/restore/' . $iItemId, 'Restore?');
+            if ($this->aConfig['CAN_RESTORE']) {
+                $sRestoreLink = anchor($this->aConfig['BASE_URL'] . '/restore/' . $iItemId, 'Restore?');
+            } else {
+                $sRestoreLink = '';
+            }
 
             $oDb->trans_commit();
             $oSession = Factory::service('Session', 'nailsapp/module-auth');
             $oSession->set_flashdata('success', 'Item deleted successfully. ' . $sRestoreLink);
-            redirect('admin/' . static::CONFIG_BASE_URL);
+            redirect($this->aConfig['BASE_URL']);
 
         } catch (\Exception $e) {
             $oDb->trans_rollback();
@@ -402,15 +517,20 @@ class DefaultController extends Base
      */
     public function restore()
     {
-        if (!userHasPermission('admin:' . static::CONFIG_PERMISSION . ':restore')) {
+        if (!$this->aConfig['CAN_RESTORE']) {
+            show_404();
+        }
+
+        $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':restore';
+        if (!empty($this->aConfig['PERMISSION']) && !userHasPermission($sPermissionStr)) {
             unauthorised();
         }
 
         $oUri       = Factory::service('Uri');
         $oDb        = Factory::service('Database');
         $oItemModel = Factory::model(
-            static::CONFIG_MODEL_NAME,
-            static::CONFIG_MODEL_PROVIDER
+            $this->aConfig['MODEL_NAME'],
+            $this->aConfig['MODEL_PROVIDER']
         );
         $iItemId    = (int) $oUri->segment(5);
         $oItem      = $oItemModel->getAll(
@@ -438,7 +558,7 @@ class DefaultController extends Base
             $oDb->trans_commit();
             $oSession = Factory::service('Session', 'nailsapp/module-auth');
             $oSession->set_flashdata('success', 'Item restored successfully.');
-            redirect('admin/' . static::CONFIG_BASE_URL);
+            redirect($this->aConfig['BASE_URL']);
 
         } catch (\Exception $e) {
             $oDb->trans_rollback();

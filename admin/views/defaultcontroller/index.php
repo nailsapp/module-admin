@@ -1,6 +1,6 @@
 <div class="group-defaultcontroller browse">
     <p>
-        Manage <?=$CONFIG_TITLE_PLURAL?>.
+        Manage <?=$CONFIG['TITLE_PLURAL']?>.
     </p>
     <?=adminHelper('loadSearch', $search)?>
     <?=adminHelper('loadPagination', $pagination)?>
@@ -8,9 +8,13 @@
         <table>
             <thead>
                 <tr>
-                    <th>Label</th>
-                    <th>Last modified by</th>
-                    <th>Last modified date</th>
+                    <?php
+
+                    foreach ($CONFIG['INDEX_FIELDS'] as $sField => $sLabel) {
+                        echo '<th class="field field--' . $sField . '">' . $sLabel . '</th>';
+                    }
+
+                    ?>
                     <th class="actions" style="width:130px;">Actions</th>
                 </tr>
             </thead>
@@ -18,38 +22,50 @@
                 <?php
 
                 if (!empty($items)) {
+
                     foreach ($items as $oItem) {
-                        ?>
-                        <tr>
-                            <td>
-                                <?=$oItem->label?>
-                            </td>
-                            <?=adminHelper('loadUserCell', $oItem->modified_by);?>
-                            <?=adminHelper('loadDateCell', $oItem->modified);?>
-                            <td class="actions">
-                                <?php
 
-                                if (userHasPermission('admin:' . $CONFIG_PERMISSION . ':edit')) {
-                                    echo anchor(
-                                        'admin/' . $CONFIG_BASE_URL . '/edit/' . $oItem->id,
-                                        lang('action_edit'),
-                                        'class="btn btn-xs btn-primary"'
-                                    );
-                                }
+                        echo '<tr>';
+                        foreach ($CONFIG['INDEX_FIELDS'] as $sField => $sLabel) {
+                            echo '<td class="field field--' . $sField . '">';
+                            //  @todo - handle expanded objects
+                            //  @todo - handle different field types
+                            if (property_exists($oItem, $sField)) {
+                                echo $oItem->{$sField};
+                            } else {
+                                echo $sField;
+                            }
+                            echo '</td>';
+                        }
 
-                                if (userHasPermission('admin:' . $CONFIG_PERMISSION . ':delete')) {
-                                    echo anchor(
-                                        'admin/' . $CONFIG_BASE_URL . '/delete/' . $oItem->id,
-                                        lang('action_delete'),
-                                        'class="btn btn-xs btn-danger confirm" data-body="You can undo this action."'
-                                    );
-                                }
+                        echo '<td class="actions">';
 
-                                ?>
-                            </td>
-                        </tr>
-                        <?php
+                        if (empty($CONFIG['PERMISSION']) || userHasPermission('admin:' . $CONFIG['PERMISSION'] . ':edit')) {
+                            echo anchor(
+                                $CONFIG['BASE_URL'] . '/edit/' . $oItem->id,
+                                lang('action_edit'),
+                                'class="btn btn-xs btn-primary"'
+                            );
+                        }
+
+                        if (empty($CONFIG['PERMISSION']) || userHasPermission('admin:' . $CONFIG['PERMISSION'] . ':delete')) {
+
+                            if ($CONFIG['CAN_RESTORE']) {
+                                $sConfirm = 'You <strong>can</strong> undo this action.';
+                            } else {
+                                $sConfirm = 'You <strong>cannot</strong> undo this action.';
+                            }
+                            echo anchor(
+                                $CONFIG['BASE_URL'] . '/delete/' . $oItem->id,
+                                lang('action_delete'),
+                                'class="btn btn-xs btn-danger confirm" data-body="' . $sConfirm . '"'
+                            );
+                        }
+
+                        echo '</td>';
+                        echo '</tr>';
                     }
+
                 } else {
                     ?>
                     <tr>
