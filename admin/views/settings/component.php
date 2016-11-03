@@ -42,6 +42,10 @@
                     echo form_field_wysiwyg($aField);
                     break;
 
+                case 'cms_widgets':
+                    echo form_field_cms_widgets($aField);
+                    break;
+
                 case 'file':
                 case 'image':
                     echo form_field_cdn_object_picker($aField);
