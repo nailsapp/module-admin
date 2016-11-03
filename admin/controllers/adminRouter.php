@@ -514,24 +514,6 @@ class AdminRouter extends Base
      */
     protected function routeRequest()
     {
-        //  Check that admin is running on the SECURE_BASE_URL url
-        if (APP_SSL_ROUTING) {
-            $host1 = $this->input->server('HTTP_HOST');
-            $host2 = parse_url(SECURE_BASE_URL);
-
-            if (!empty($host2['host']) && $host2['host'] != $host1) {
-                //  Not on the secure URL, redirect with message
-                $redirect = $this->input->server('REQUEST_URI');
-
-                if ($redirect) {
-                    $this->session->set_flashdata('message', lang('admin_not_secure'));
-                    redirect($redirect);
-                }
-            }
-        }
-
-        // --------------------------------------------------------------------------
-
         //  What are we trying to access?
         $module     = $this->uri->rsegment(3) ? $this->uri->rsegment(3) : '';
         $controller = $this->uri->rsegment(4) ? $this->uri->rsegment(4) : $module;
