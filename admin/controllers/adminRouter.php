@@ -12,8 +12,9 @@
 
 use Nails\Factory;
 use Nails\Admin\Exception\RouterException;
+use App\Controller\Base;
 
-class AdminRouter extends NAILS_Controller
+class AdminRouter extends Base
 {
     protected $adminControllers;
     protected $adminControllersNav;
