@@ -16,16 +16,16 @@ use Nails\Factory;
 
 class Helper
 {
-    protected static $headerButtons = array();
+    protected static $headerButtons = [];
 
     // --------------------------------------------------------------------------
 
     /**
      * Loads a view in admin taking into account the module being accessed. Passes controller
      * data and optionally loads the header and footer views.
-     * @param  string  $viewFile      The view to load
+     * @param  string $viewFile The view to load
      * @param  boolean $loadStructure Whether or not to include the header and footers in the output
-     * @param  boolean $returnView    Whether to return the view or send it to the Output class
+     * @param  boolean $returnView Whether to return the view or send it to the Output class
      * @return mixed                  String when $returnView is true, void otherwise
      */
     public static function loadView($viewFile, $loadStructure = true, $returnView = false)
@@ -39,17 +39,14 @@ class Helper
         if ($ci->input->get('isModal')) {
 
             if (!isset($controllerData['headerOverride']) && !isset($controllerData['isModal'])) {
-
                 $controllerData['isModal'] = true;
             }
 
             if (empty($controllerData['headerOverride'])) {
-
                 $controllerData['headerOverride'] = 'structure/headerBlank';
             }
 
             if (empty($controllerData['footerOverride'])) {
-
                 $controllerData['footerOverride'] = 'structure/footerBlank';
             }
         }
@@ -60,13 +57,9 @@ class Helper
             $return = '';
 
             if ($loadStructure) {
-
                 if (!empty($controllerData['headerOverride'])) {
-
                     $return .= $ci->load->view($controllerData['headerOverride'], $controllerData, true);
-
                 } else {
-
                     $return .= $ci->load->view('structure/header', $controllerData, true);
                 }
             }
@@ -74,13 +67,9 @@ class Helper
             $return .= self::loadInlineView($viewFile, $controllerData, true);
 
             if ($loadStructure) {
-
                 if (!empty($controllerData['footerOverride'])) {
-
                     $return .= $ci->load->view($controllerData['footerOverride'], $controllerData, true);
-
                 } else {
-
                     $return .= $ci->load->view('structure/footer', $controllerData, true);
                 }
             }
@@ -90,13 +79,9 @@ class Helper
         } else {
 
             if ($loadStructure) {
-
                 if (!empty($controllerData['headerOverride'])) {
-
                     $ci->load->view($controllerData['headerOverride'], $controllerData);
-
                 } else {
-
                     $ci->load->view('structure/header', $controllerData);
                 }
             }
@@ -104,13 +89,9 @@ class Helper
             self::loadInlineView($viewFile, $controllerData);
 
             if ($loadStructure) {
-
                 if (!empty($controllerData['footerOverride'])) {
-
                     $ci->load->view($controllerData['footerOverride'], $controllerData);
-
                 } else {
-
                     $ci->load->view('structure/footer', $controllerData);
                 }
             }
@@ -122,7 +103,7 @@ class Helper
     /**
      * Generates a CSV and sends to the browser, if a filename is given then it's
      * sent as a download
-     * @param  mixed  $data     The data to render, either an array or a DB query object
+     * @param  mixed $data The data to render, either an array or a DB query object
      * @param  string $filename The filename to give the file if downloading
      * @return void
      */
@@ -159,17 +140,17 @@ class Helper
             //  Not using self::loadInlineView() as this may be called from many contexts
             if (is_array($data)) {
 
-                return get_instance()->load->view('admin/_components/csv/array', array('data' => $data));
+                return get_instance()->load->view('admin/_components/csv/array', ['data' => $data]);
 
             } elseif (get_class($data) == 'CI_DB_mysqli_result') {
 
-                return get_instance()->load->view('admin/_components/csv/dbResult', array('data' => $data));
+                return get_instance()->load->view('admin/_components/csv/dbResult', ['data' => $data]);
             }
 
         } else {
 
-            $subject  = 'Unsupported object type passed to ' . get_class() . '::loadCSV';
-            $message  = 'An unsupported object was passed to ' . get_class() . '::loadCSV. A CSV ';
+            $subject = 'Unsupported object type passed to ' . get_class() . '::loadCSV';
+            $message = 'An unsupported object was passed to ' . get_class() . '::loadCSV. A CSV ';
             $message .= 'file could not be generated. Details are shown below:<br /><br />' . print_r($data, true);
 
             showFatalError($subject, $message);
@@ -180,18 +161,18 @@ class Helper
 
     /**
      * Load a single view taking into account the module being accessed.
-     * @param  string  $sViewFile   The view to load
-     * @param  array   $aViewData   The data to pass to the view
+     * @param  string $sViewFile The view to load
+     * @param  array $aViewData The data to pass to the view
      * @param  boolean $bReturnView Whether to return the view or send it to the Output class
      * @return mixed               String when $bReturnView is true, void otherwise
      */
-    public static function loadInlineView($sViewFile, $aViewData = array(), $bReturnView = false)
+    public static function loadInlineView($sViewFile, $aViewData = [], $bReturnView = false)
     {
-        $aCtrlData =& getControllerData();
-        $sCtrlPath = !empty($aCtrlData['currentRequest']['path']) ? $aCtrlData['currentRequest']['path'] : '';
+        $aCtrlData   =& getControllerData();
+        $sCtrlPath   = !empty($aCtrlData['currentRequest']['path']) ? $aCtrlData['currentRequest']['path'] : '';
         $sCtrlName   = basename($sCtrlPath, '.php');
         $aCtrlPath   = explode(DIRECTORY_SEPARATOR, $sCtrlPath);
-        $aCtrlPath   = array_splice($aCtrlPath, 0, count($aCtrlPath)-2);
+        $aCtrlPath   = array_splice($aCtrlPath, 0, count($aCtrlPath) - 2);
         $aCtrlPath[] = 'views';
         $aCtrlPath[] = $sCtrlName;
         $aCtrlPath[] = $sViewFile;
@@ -208,22 +189,22 @@ class Helper
 
     /**
      * Loads the admin "search" component
-     * @param  \stdClass $oSearchObj  An object as created by self::searchObject();
-     * @param  boolean   $bReturnView Whether to return the view to the caller, or output to the browser
+     * @param  \stdClass $oSearchObj An object as created by self::searchObject();
+     * @param  boolean $bReturnView Whether to return the view to the caller, or output to the browser
      * @return mixed                  String when $bReturnView is true, void otherwise
      */
     public static function loadSearch($oSearchObj, $bReturnView = false)
     {
-        $data = array(
-            'searchable'     => isset($oSearchObj->searchable)       ? $oSearchObj->searchable     : true,
-            'sortColumns'    => isset($oSearchObj->sortColumns)      ? $oSearchObj->sortColumns    : array(),
-            'sortOn'         => isset($oSearchObj->sortOn)           ? $oSearchObj->sortOn         : null,
-            'sortOrder'      => isset($oSearchObj->sortOrder)        ? $oSearchObj->sortOrder      : null,
-            'perPage'        => isset($oSearchObj->perPage)          ? $oSearchObj->perPage        : 50,
-            'keywords'       => isset($oSearchObj->keywords)         ? $oSearchObj->keywords       : '',
-            'checkboxFilter' => isset($oSearchObj->checkboxFilter)   ? $oSearchObj->checkboxFilter : array(),
-            'dropdownFilter' => isset($oSearchObj->dropdownFilter)   ? $oSearchObj->dropdownFilter : array()
-        );
+        $data = [
+            'searchable'     => isset($oSearchObj->searchable) ? $oSearchObj->searchable : true,
+            'sortColumns'    => isset($oSearchObj->sortColumns) ? $oSearchObj->sortColumns : [],
+            'sortOn'         => isset($oSearchObj->sortOn) ? $oSearchObj->sortOn : null,
+            'sortOrder'      => isset($oSearchObj->sortOrder) ? $oSearchObj->sortOrder : null,
+            'perPage'        => isset($oSearchObj->perPage) ? $oSearchObj->perPage : 50,
+            'keywords'       => isset($oSearchObj->keywords) ? $oSearchObj->keywords : '',
+            'checkboxFilter' => isset($oSearchObj->checkboxFilter) ? $oSearchObj->checkboxFilter : [],
+            'dropdownFilter' => isset($oSearchObj->dropdownFilter) ? $oSearchObj->dropdownFilter : [],
+        ];
 
         //  Not using self::loadInlineView() as this may be called from many contexts
         return get_instance()->load->view('admin/_components/search', $data, $bReturnView);
@@ -233,17 +214,17 @@ class Helper
 
     /**
      * Creates a standard object designed for use with self::loadSearch()
-     * @param  boolean  $searchable     Whether the result set is keyword searchable
-     * @param  array    $sortColumns    An array of columns to sort results by
-     * @param  string   $sortOn         The column to sort on
-     * @param  string   $sortOrder      The order to sort results in
-     * @param  integer  $perPage        The number of results to show per page
-     * @param  string   $keywords       Keywords to apply to the search result
-     * @param  array    $checkboxFilter An array of filters to filter the results by, presented as checkboxes
-     * @param  array    $dropdownFilter An array of filters to filter the results by, presented as a dropdown
-     * @return stdClass
+     * @param  boolean $searchable Whether the result set is keyword searchable
+     * @param  array $sortColumns An array of columns to sort results by
+     * @param  string $sortOn The column to sort on
+     * @param  string $sortOrder The order to sort results in
+     * @param  integer $perPage The number of results to show per page
+     * @param  string $keywords Keywords to apply to the search result
+     * @param  array $checkboxFilter An array of filters to filter the results by, presented as checkboxes
+     * @param  array $dropdownFilter An array of filters to filter the results by, presented as a dropdown
+     * @return \stdClass
      */
-    public static function searchObject($searchable, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords = '', $checkboxFilter = array(), $dropdownFilter = array())
+    public static function searchObject($searchable, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords = '', $checkboxFilter = [], $dropdownFilter = [])
     {
         $searchObject                 = new \stdClass();
         $searchObject->searchable     = $searchable;
@@ -263,17 +244,17 @@ class Helper
     /**
      * Creates a standard object designed for use with self::searchObject()'s
      * $checkboxFilter and $dropdownFilter parameters
-     * @param  string $column  The name of the column to filter on, leave blank if you do not wish to use Nails's automatic filtering
-     * @param  string $label   The label to give the filter group
-     * @param  array  $options An array of options for the dropdown, either key => value pairs or a 3 element array: 0 = label, 1 = value, 2 = default check status
-     * @return stdClass
+     * @param  string $column The name of the column to filter on, leave blank if you do not wish to use Nails's automatic filtering
+     * @param  string $label The label to give the filter group
+     * @param  array $options An array of options for the dropdown, either key => value pairs or a 3 element array: 0 = label, 1 = value, 2 = default check status
+     * @return \stdClass
      */
     public static function searchFilterObject($column, $label, $options)
     {
         $filterObject          = new \stdClass();
         $filterObject->column  = $column;
         $filterObject->label   = $label;
-        $filterObject->options = array();
+        $filterObject->options = [];
 
         foreach ($options as $index => $option) {
 
@@ -300,10 +281,10 @@ class Helper
 
     /**
      * Creates a starndard object which is an option for self::searchFilterObject()
-     * @param  string  $label   The label to give the option
-     * @param  string  $value   The value to give the option (filters self::searchFilterObject's $column parameter)
+     * @param  string $label The label to give the option
+     * @param  string $value The value to give the option (filters self::searchFilterObject's $column parameter)
      * @param  boolean $checked Whether the value si checked by default
-     * @return stdClass
+     * @return \stdClass
      */
     public static function searchFilterObjectOption($label = '', $value = '', $checked = false)
     {
@@ -319,8 +300,8 @@ class Helper
 
     /**
      * Returns a value from a filter object at a specific key
-     * @param  stdClass $filterObject The filter object to search
-     * @param  integer  $key          The key to inspect
+     * @param  \stdClass $filterObject The filter object to search
+     * @param  integer $key The key to inspect
      * @return mixed                  Mixed on success, null on failure
      */
     public static function searchFilterGetValueAtKey($filterObject, $key)
@@ -332,17 +313,17 @@ class Helper
 
     /**
      * Loads the admin "pagination" component
-     * @param  stdClass $paginationObject An object as created by self::paginationObject();
-     * @param  boolean  $returnView       Whether to return the view to the caller, or output to the browser
-     * @return mixed                      String when $retrunView is true, void otherwise
+     * @param  \stdClass $paginationObject An object as created by self::paginationObject();
+     * @param  boolean $returnView Whether to return the view to the caller, or output to the browser
+     * @return mixed                      String when $returnView is true, void otherwise
      */
     public static function loadPagination($paginationObject, $returnView = false)
     {
-        $data = array(
+        $data = [
             'page'      => isset($paginationObject->page) ? $paginationObject->page : null,
             'perPage'   => isset($paginationObject->perPage) ? $paginationObject->perPage : null,
-            'totalRows' => isset($paginationObject->totalRows) ? $paginationObject->totalRows : null
-        );
+            'totalRows' => isset($paginationObject->totalRows) ? $paginationObject->totalRows : null,
+        ];
 
         //  Not using self::loadInlineView() as this may be called from many contexts
         return get_instance()->load->view('admin/_components/pagination', $data, $returnView);
@@ -352,10 +333,10 @@ class Helper
 
     /**
      * Creates a standard object designed for use with self::loadPagination();
-     * @param  integer $page      The current page number
-     * @param  integer $perPage   The number of results per page
+     * @param  integer $page The current page number
+     * @param  integer $perPage The number of results per page
      * @param  integer $totalRows The total number of results in the result set
-     * @return stdClass
+     * @return \stdClass
      */
     public static function paginationObject($page, $perPage, $totalRows)
     {
@@ -392,14 +373,14 @@ class Helper
             $oUser = $mUser;
         }
 
-        $aUser = array(
+        $aUser = [
             'id'          => !empty($oUser->id) ? $oUser->id : null,
             'profile_img' => !empty($oUser->profile_img) ? $oUser->profile_img : null,
             'gender'      => !empty($oUser->gender) ? $oUser->gender : null,
             'first_name'  => !empty($oUser->first_name) ? $oUser->first_name : null,
             'last_name'   => !empty($oUser->last_name) ? $oUser->last_name : null,
-            'email'       => !empty($oUser->email) ? $oUser->email : null
-        );
+            'email'       => !empty($oUser->email) ? $oUser->email : null,
+        ];
 
         return get_instance()->load->view('admin/_components/table-cell-user', $aUser, true);
     }
@@ -408,16 +389,16 @@ class Helper
 
     /**
      * Load the admin "date" table cell component
-     * @param  string $date   The date to render
+     * @param  string $date The date to render
      * @param  string $noData What to render if the date is invalid or empty
      * @return string
      */
     public static function loadDateCell($date, $noData = '&mdash;')
     {
-        $data = array(
+        $data = [
             'date'   => $date,
-            'noData' => $noData
-        );
+            'noData' => $noData,
+        ];
 
         return get_instance()->load->view('admin/_components/table-cell-date', $data, true);
     }
@@ -427,15 +408,15 @@ class Helper
     /**
      * Load the admin "dateTime" table cell component
      * @param  string $dateTime The dateTime to render
-     * @param  string $noData   What to render if the datetime is invalid or empty
+     * @param  string $noData What to render if the datetime is invalid or empty
      * @return string
      */
     public static function loadDateTimeCell($dateTime, $noData = '&mdash;')
     {
-        $data = array(
+        $data = [
             'dateTime' => $dateTime,
-            'noData'   => $noData
-        );
+            'noData'   => $noData,
+        ];
 
         return get_instance()->load->view('admin/_components/table-cell-datetime', $data, true);
     }
@@ -444,16 +425,16 @@ class Helper
 
     /**
      * Load the admin "boolean" table cell component
-     * @param  string $value    The value to 'truthy' test
+     * @param  string $value The value to 'truthy' test
      * @param  string $dateTime A datetime to show (for truthy values only)
      * @return string
      */
     public static function loadBoolCell($value, $dateTime = null)
     {
-        $data = array(
+        $data = [
             'value'    => $value,
-            'dateTime' => $dateTime
-        );
+            'dateTime' => $dateTime,
+        ];
 
         return get_instance()->load->view('admin/_components/table-cell-boolean', $data, true);
     }
@@ -462,8 +443,8 @@ class Helper
 
     /**
      * Load the admin "settings component table" component
-     * @param  string $sModel         The model to use
-     * @param  array  $sProvider      The model provider
+     * @param  string $sModel The model to use
+     * @param  array $sProvider The model provider
      * @param  string $sComponentType The type of component being loaded
      * @return string
      */
@@ -475,13 +456,13 @@ class Helper
         $aEnabled        = (array) $oModel->getEnabledSlug();
         $bEnableMultiple = $oModel->isMultiple();
 
-        $aData = array(
+        $aData = [
             'key'               => $sKey,
             'components'        => $aComponents,
             'enabled'           => $aEnabled,
             'canSelectMultiple' => $bEnableMultiple,
-            'componentType'     => $sComponentType
-        );
+            'componentType'     => $sComponentType,
+        ];
 
         return get_instance()->load->view('admin/_components/settings-component-table', $aData, true);
     }
@@ -490,8 +471,8 @@ class Helper
 
     /**
      * Alias to loadSettingsComponentTable()
-     * @param  string $sModel    The model to use
-     * @param  array  $sProvider The model provider
+     * @param  string $sModel The model to use
+     * @param  array $sProvider The model provider
      * @return string
      */
     public static function loadSettingsDriverTable($sModel, $sProvider)
@@ -503,8 +484,8 @@ class Helper
 
     /**
      * Alias to loadSettingsComponentTable()
-     * @param  string $sModel    The model to use
-     * @param  array  $sProvider The model provider
+     * @param  string $sModel The model to use
+     * @param  array $sProvider The model provider
      * @return string
      */
     public static function loadSettingsSkinTable($sModel, $sProvider)
@@ -513,28 +494,30 @@ class Helper
     }
 
     // --------------------------------------------------------------------------
-
+    
     /**
      * Adds a button to Admin's header area
-     * @param string $url     The button's URL
-     * @param string $label   The button's label
+     * @param string $url The button's URL
+     * @param string $label The button's label
      * @param string $context The button's context
+     * @param string $confirmTitle If a confirmation is required, the title to use
+     * @param string $confirmBody If a confirmation is required, the body to use
      */
     public static function addHeaderButton($url, $label, $context = 'primary', $confirmTitle = '', $confirmBody = '')
     {
-        self::$headerButtons[] = array(
+        self::$headerButtons[] = [
             'url'          => $url,
             'label'        => $label,
             'context'      => $context,
             'confirmTitle' => $confirmTitle,
-            'confirmBody'  => $confirmBody
-        );
+            'confirmBody'  => $confirmBody,
+        ];
     }
 
     // --------------------------------------------------------------------------
 
     /**
-     * Returns the admin header bttons
+     * Returns the admin header buttons
      * @return array
      */
     public static function getHeaderButtons()

@@ -16,9 +16,9 @@
 
 namespace Nails\Admin\Controller;
 
-use Nails\Factory;
 use Nails\Admin\Helper;
 use Nails\Common\Exception\NailsException;
+use Nails\Factory;
 
 class DefaultController extends Base
 {
@@ -56,32 +56,32 @@ class DefaultController extends Base
     /**
      * The sorting options to give the user on the index view
      */
-    const CONFIG_SORT_OPTIONS   = array(
+    const CONFIG_SORT_OPTIONS = [
         'label'    => 'Label',
         'created'  => 'Created',
-        'modified' => 'Modified'
-    );
+        'modified' => 'Modified',
+    ];
 
     /**
      * The fields to show on the index view.
      */
-    const CONFIG_INDEX_FIELDS  = array(
+    const CONFIG_INDEX_FIELDS = [
         'label'    => 'Label',
-        'modified' => 'Modified'
-    );
+        'modified' => 'Modified',
+    ];
 
     /**
      * The fields to ignore on the create/edit view
      */
-    const CONFIG_EDIT_IGNORE_FIELDS = array(
+    const CONFIG_EDIT_IGNORE_FIELDS = [
         'id',
         'slug',
         'is_deleted',
         'created',
         'created_by',
         'modified',
-        'modified_by'
-    );
+        'modified_by',
+    ];
 
     // --------------------------------------------------------------------------
 
@@ -124,10 +124,10 @@ class DefaultController extends Base
     public static function getConfig()
     {
         //  Ensure required constants are set
-        $aConstants = array(
+        $aConstants = [
             'CONFIG_MODEL_NAME',
-            'CONFIG_MODEL_PROVIDER'
-        );
+            'CONFIG_MODEL_PROVIDER',
+        ];
         foreach ($aConstants as $sConstant) {
             if (empty(constant('static::' . $sConstant))) {
                 throw new NailsException(
@@ -137,7 +137,7 @@ class DefaultController extends Base
         }
 
         //  Build the config array
-        $aConfig = array();
+        $aConfig                   = [];
         $aConfig['MODEL_NAME']     = static::CONFIG_MODEL_NAME;
         $aConfig['MODEL_PROVIDER'] = static::CONFIG_MODEL_PROVIDER;
 
@@ -168,7 +168,7 @@ class DefaultController extends Base
         }
 
         if (empty($aConfig['BASE_URL'])) {
-            $aBits = explode('\\', get_called_class());
+            $aBits               = explode('\\', get_called_class());
             $aConfig['BASE_URL'] = 'admin/' . $aBits[count($aBits) - 2] . '/' . $aBits[count($aBits) - 1];
             $aConfig['BASE_URL'] = strtolower($aConfig['BASE_URL']);
         }
@@ -210,10 +210,10 @@ class DefaultController extends Base
         $aConfig      = static::getConfig();
 
         if (!empty($aConfig['PERMISSION'])) {
-            $aPermissions['browse'] = 'Can browse items';
-            $aPermissions['create'] = 'Can create items';
-            $aPermissions['edit'] = 'Can edit items';
-            $aPermissions['delete'] = 'Can delete items';
+            $aPermissions['browse']  = 'Can browse items';
+            $aPermissions['create']  = 'Can create items';
+            $aPermissions['edit']    = 'Can edit items';
+            $aPermissions['delete']  = 'Can delete items';
             $aPermissions['restore'] = 'Can restore items';
         }
 
@@ -247,7 +247,7 @@ class DefaultController extends Base
         $sFirstKey = key($aSortConfig);
 
         //  Prepare the sort options so they have the appropriate table alias
-        $aSortCol  = array();
+        $aSortCol = [];
         foreach ($aSortConfig as $sColumn => $sLabel) {
             if (strpos($sColumn, '.') === false) {
                 $aSortCol[$sAlias . '.' . $sColumn] = $sLabel;
@@ -257,18 +257,18 @@ class DefaultController extends Base
         }
 
         //  Other parameters
-        $iPage      = $oInput->get('page')      ? $oInput->get('page')      : 0;
-        $iPerPage   = $oInput->get('perPage')   ? $oInput->get('perPage')   : 50;
-        $sSortOn    = $oInput->get('sortOn')    ? $oInput->get('sortOn')    : $sAlias . '.' . $sFirstKey;
+        $iPage      = $oInput->get('page') ? $oInput->get('page') : 0;
+        $iPerPage   = $oInput->get('perPage') ? $oInput->get('perPage') : 50;
+        $sSortOn    = $oInput->get('sortOn') ? $oInput->get('sortOn') : $sAlias . '.' . $sFirstKey;
         $sSortOrder = $oInput->get('sortOrder') ? $oInput->get('sortOrder') : 'asc';
         $sKeywords  = $oInput->get('keywords');
 
-        $aData = array(
-            'sort' => array(
-                array($sSortOn, $sSortOrder)
-            ),
-            'keywords' => $sKeywords
-        );
+        $aData = [
+            'sort'     => [
+                [$sSortOn, $sSortOrder],
+            ],
+            'keywords' => $sKeywords,
+        ];
 
         // --------------------------------------------------------------------------
 
@@ -408,13 +408,13 @@ class DefaultController extends Base
     private function runFormValidation()
     {
         $oFormValidation      = Factory::service('FormValidation');
-        $aRulesFormValidation = array();
+        $aRulesFormValidation = [];
         foreach ($this->aConfig['FIELDS'] as $oField) {
-            $aRulesFormValidation[] = array(
+            $aRulesFormValidation[] = [
                 'field' => $oField->key,
                 'label' => $oField->label,
-                'rules' => $oField->validation
-            );
+                'rules' => $oField->validation,
+            ];
         }
 
         $oFormValidation->set_rules($aRulesFormValidation);
@@ -444,7 +444,7 @@ class DefaultController extends Base
     private function getPostObject()
     {
         $oInput = Factory::service('Input');
-        $aOut   = array();
+        $aOut   = [];
 
         foreach ($this->aConfig['FIELDS'] as $oField) {
             if (in_array($oField->key, $this->aConfig['EDIT_IGNORE_FIELDS'])) {
@@ -479,8 +479,8 @@ class DefaultController extends Base
             $this->aConfig['MODEL_NAME'],
             $this->aConfig['MODEL_PROVIDER']
         );
-        $iItemId = (int) $oUri->segment(5);
-        $oItem   = $oItemModel->getById($iItemId);
+        $iItemId    = (int) $oUri->segment(5);
+        $oItem      = $oItemModel->getById($iItemId);
 
         if (empty($oItem)) {
             show_404();
@@ -536,13 +536,13 @@ class DefaultController extends Base
         $oItem      = $oItemModel->getAll(
             null,
             null,
-            array(
-                'where' => array(
-                    array(
-                        'id', $iItemId
-                    )
-                )
-            ),
+            [
+                'where' => [
+                    [
+                        'id', $iItemId,
+                    ],
+                ],
+            ],
             true
         );
 
