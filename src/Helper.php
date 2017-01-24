@@ -181,8 +181,22 @@ class Helper
         //  Get the CI super object
         $ci =& get_instance();
 
-        //  Hey presto!
-        return $ci->load->view($sViewPath, $aViewData, $bReturnView);
+        //  Load the view
+        try {
+            return $ci->load->view($sViewPath, $aViewData, $bReturnView);
+        } catch (\Exception $e) {
+            //  If it fails, and the controller is a default admin controller then
+            //  load up that view
+            $aParentClasses = class_parents($aCtrlData['currentRequest']['className']);
+            if (!in_array('Nails\\Admin\\Controller\\DefaultController', $aParentClasses)) {
+                throw new \Exception(
+                    $e->getMessage(),
+                    $e->getCode()
+                );
+            }
+
+            return $ci->load->view('admin/defaultcontroller/' . $sViewFile, $aViewData, $bReturnView);
+        }
     }
 
     // --------------------------------------------------------------------------
@@ -494,7 +508,7 @@ class Helper
     }
 
     // --------------------------------------------------------------------------
-    
+
     /**
      * Adds a button to Admin's header area
      * @param string $url The button's URL
