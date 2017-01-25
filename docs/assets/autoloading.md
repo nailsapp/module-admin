@@ -1,4 +1,6 @@
 # Autoloading Assets
+> Documentation is a WIP.
+
 
 Components can request the main admin controller to globally load any kind of Helper, JS or CSS asset. This is useful should a module wish to make a component available accross the whole of admin, even outside of it's own supplied panels.
 
