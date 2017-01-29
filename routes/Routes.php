@@ -12,17 +12,18 @@
 
 namespace Nails\Routes\Admin;
 
-class Routes
+use Nails\Common\Model\BaseRoutes;
+
+class Routes extends BaseRoutes
 {
     /**
      * Returns an array of routes for this module
-
      * @return array
      */
     public function getRoutes()
     {
         return [
-            'admin(.*)' => 'admin/adminRouter/index$1'
+            'admin(.*)' => 'admin/adminRouter/index$1',
         ];
     }
 }
