@@ -16,13 +16,13 @@ class Routes
 {
     /**
      * Returns an array of routes for this module
+
      * @return array
      */
     public function getRoutes()
     {
-        $routes              = array();
-        $routes['admin(.*)'] = 'admin/adminRouter/index$1';
-
-        return $routes;
+        return [
+            'admin(.*)' => 'admin/adminRouter/index$1'
+        ];
     }
 }
