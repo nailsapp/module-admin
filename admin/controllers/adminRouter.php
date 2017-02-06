@@ -122,7 +122,7 @@ class AdminRouter extends Base
         $this->loadAdminControllers(
             'admin',
             NAILS_PATH . 'module-admin/admin/controllers/',
-            FCPATH . APPPATH . 'modules/admin/controllers/',
+            APPPATH . 'modules/admin/controllers/',
             array(
                 'adminRouter.php'
             )
@@ -146,7 +146,7 @@ class AdminRouter extends Base
             $this->loadAdminControllers(
                 $module->moduleName,
                 $module->path . 'admin/controllers/',
-                FCPATH . APPPATH . 'modules/' . $module->moduleName . '/admin/controllers/'
+                APPPATH . 'modules/' . $module->moduleName . '/admin/controllers/'
             );
         }
 
@@ -185,7 +185,7 @@ class AdminRouter extends Base
 
     protected function loadAppAdminControllers()
     {
-        $appControllerPath = FCPATH . APPPATH . 'modules/admin/controllers/';
+        $appControllerPath = APPPATH . 'modules/admin/controllers/';
 
         if (is_dir($appControllerPath)) {
 

@@ -43,8 +43,8 @@ class Base extends \MX_Controller
         //  Configs
         $oConfig = Factory::service('Config');
         $paths   = array(
-            FCPATH . APPPATH . 'config/admin.php',
-            FCPATH . APPPATH . 'modules/admin/config/admin.php'
+            APPPATH . 'config/admin.php',
+            APPPATH . 'modules/admin/config/admin.php'
         );
 
         foreach ($paths as $path) {
