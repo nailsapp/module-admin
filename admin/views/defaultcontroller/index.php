@@ -28,10 +28,23 @@
                         echo '<tr>';
                         foreach ($CONFIG['INDEX_FIELDS'] as $sField => $sLabel) {
                             echo '<td class="field field--' . $sField . '">';
-                            //  @todo - handle expanded objects
                             //  @todo - handle different field types
                             if (property_exists($oItem, $sField)) {
                                 echo $oItem->{$sField};
+                            } elseif(strpos($sField, '.') !== false) {
+                                //  @todo - handle arrays in expanded objects
+                                $aField  = explode('.', $sField);
+                                $sField1 = getFromArray(0, $aField);
+                                $sField2 = getFromArray(1, $aField);
+                                if (property_exists($oItem, $sField1)) {
+                                    if (property_exists($oItem->{$sField1}, $sField2)) {
+                                        echo $oItem->{$sField1}->{$sField2};
+                                    } else {
+                                        echo $sField;
+                                    }
+                                } else {
+                                    echo $sField;
+                                }
                             } else {
                                 echo $sField;
                             }

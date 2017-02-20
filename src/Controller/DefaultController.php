@@ -71,6 +71,11 @@ class DefaultController extends Base
     ];
 
     /**
+     * Additional data to pass into the getAll call on the index view
+     */
+    const CONFIG_INDEX_DATA = [];
+
+    /**
      * The fields to ignore on the create/edit view
      */
     const CONFIG_EDIT_IGNORE_FIELDS = [
@@ -82,6 +87,11 @@ class DefaultController extends Base
         'modified',
         'modified_by',
     ];
+
+    /**
+     * Additional data to pass into the getAll call on the edit view
+     */
+    const CONFIG_EDIT_DATA = [];
 
     // --------------------------------------------------------------------------
 
@@ -115,8 +125,6 @@ class DefaultController extends Base
         $this->aConfig['FIELDS']      = $oItemModel->describeFields();
 
         $this->data['CONFIG'] = $this->aConfig;
-
-        // --------------------------------------------------------------------------
     }
 
     // --------------------------------------------------------------------------
@@ -149,7 +157,9 @@ class DefaultController extends Base
         $aConfig['BASE_URL']           = static::CONFIG_BASE_URL;
         $aConfig['SORT_OPTIONS']       = static::CONFIG_SORT_OPTIONS;
         $aConfig['INDEX_FIELDS']       = static::CONFIG_INDEX_FIELDS;
+        $aConfig['INDEX_DATA']         = static::CONFIG_INDEX_DATA;
         $aConfig['EDIT_IGNORE_FIELDS'] = static::CONFIG_EDIT_IGNORE_FIELDS;
+        $aConfig['EDIT_DATA']          = static::CONFIG_EDIT_DATA;
 
         //  Set defaults where appropriate
         if (empty($aConfig['TITLE_SINGLE'])) {
@@ -264,11 +274,11 @@ class DefaultController extends Base
         $sKeywords  = $oInput->get('keywords');
 
         $aData = [
-            'sort'     => [
-                [$sSortOn, $sSortOrder],
-            ],
-            'keywords' => $sKeywords,
-        ];
+                'sort'     => [
+                    [$sSortOn, $sSortOrder],
+                ],
+                'keywords' => $sKeywords,
+            ] + $this->aConfig['INDEX_DATA'];
 
         // --------------------------------------------------------------------------
 
@@ -361,7 +371,7 @@ class DefaultController extends Base
             $this->aConfig['MODEL_PROVIDER']
         );
         $iItemId    = (int) $oUri->segment(5);
-        $oItem      = $oItemModel->getById($iItemId);
+        $oItem      = $oItemModel->getById($iItemId, $this->aConfig['EDIT_DATA']);
 
         if (empty($oItem)) {
             show_404();
