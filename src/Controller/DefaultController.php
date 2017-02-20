@@ -415,7 +415,7 @@ class DefaultController extends Base
      * Form validation for edit/create
      * @return bool
      */
-    private function runFormValidation()
+    protected function runFormValidation()
     {
         $oFormValidation      = Factory::service('FormValidation');
         $aRulesFormValidation = [];
@@ -440,7 +440,7 @@ class DefaultController extends Base
      * @param  \stdClass $oItem The main item object
      * @return void
      */
-    private function loadEditViewData($oItem = null)
+    protected function loadEditViewData($oItem = null)
     {
         $this->data['item'] = $oItem;
     }
@@ -451,7 +451,7 @@ class DefaultController extends Base
      * Extract data from post variable
      * @return array
      */
-    private function getPostObject()
+    protected function getPostObject()
     {
         $oInput = Factory::service('Input');
         $aOut   = [];
