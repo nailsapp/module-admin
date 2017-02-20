@@ -15,7 +15,7 @@
                     }
 
                     ?>
-                    <th class="actions" style="width:130px;">Actions</th>
+                    <th class="actions" style="width:160px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -52,6 +52,14 @@
                         }
 
                         echo '<td class="actions">';
+
+                        if (property_exists($oItem, 'url')) {
+                            echo anchor(
+                                $oItem->url,
+                                lang('action_view'),
+                                'class="btn btn-xs btn-default" target="_blank"'
+                            );
+                        }
 
                         if (empty($CONFIG['PERMISSION']) || userHasPermission('admin:' . $CONFIG['PERMISSION'] . ':edit')) {
                             echo anchor(
