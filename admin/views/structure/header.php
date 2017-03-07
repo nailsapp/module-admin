@@ -121,9 +121,9 @@
             </div>
             <?php
 
-            if ($this->user_model->wasAdmin()) {
+            if (wasAdmin()) {
 
-                $adminRecovery = $this->user_model->getAdminRecoveryData();
+                $adminRecovery = getAdminRecoveryData();
 
                 ?>
                 <div class="shortcut admin-recovery" rel="tipsy" title="Log back in as <?=$adminRecovery->name?>">
