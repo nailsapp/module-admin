@@ -31,7 +31,7 @@ class Logs extends \Nails\Api\Controller\Base
     {
         $out = array();
 
-        if (!$this->user_model->isAdmin()) {
+        if (!isAdmin()) {
 
             return array(
                 'status' => 401,

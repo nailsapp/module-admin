@@ -27,7 +27,7 @@ class Users extends \Nails\Api\Controller\Base
      */
     public function getSearch()
     {
-        if (!$this->user_model->isAdmin()) {
+        if (!isAdmin()) {
 
             return array(
                 'status' => 401,

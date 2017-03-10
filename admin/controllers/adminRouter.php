@@ -82,7 +82,7 @@ class AdminRouter extends Base
             }
 
             //  Before we do anything, is the user an admin?
-            if (!$this->user_model->isAdmin()) {
+            if (!isAdmin()) {
                 unauthorised();
             }
         }
