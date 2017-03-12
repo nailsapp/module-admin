@@ -405,7 +405,6 @@ class Utilities extends Base
     protected function exportSourceUsersEmail($out = array())
     {
         if (!userHasPermission('admin:auth:accounts:browse')) {
-
             return false;
         }
 
@@ -415,7 +414,8 @@ class Utilities extends Base
         $out = $out;
 
         //  Fetch all users via the user_model
-        $users = $this->user_model->getAll();
+        $oUserModel = Factory::model('User', 'nailsapp/module-auth');
+        $users      = $oUserModel->getAll();
 
         //  Set column headings
         $out           = new \stdClass();

@@ -12,6 +12,8 @@
 
 namespace Nails\Api\Admin;
 
+use Nails\Factory;
+
 class Users extends \Nails\Api\Controller\Base
 {
     /**
@@ -36,10 +38,10 @@ class Users extends \Nails\Api\Controller\Base
 
         } else {
 
+            $oUserModel = Factory::model('User', 'nailsapp/module-auth');
             $avatarSize = $this->input->get('avatarSize') ? $this->input->get('avatarSize') : 50;
-
-            $users = $this->user_model->search($this->input->get('term'), 1, 50);
-            $out   = array('users' => array());
+            $users      = $oUserModel->search($this->input->get('term'), 1, 50);
+            $out        = array('users' => array());
 
             foreach ($users->data as $user) {
 
