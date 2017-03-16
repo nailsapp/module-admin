@@ -49,6 +49,11 @@ class DefaultController extends Base
     const CONFIG_SIDEBAR_GROUP = '';
 
     /**
+     * What icon to display in the nav
+     */
+    const CONFIG_SIDEBAR_ICON = '';
+
+    /**
      * the base URL for this controller
      */
     const CONFIG_BASE_URL = '';
@@ -154,6 +159,7 @@ class DefaultController extends Base
         $aConfig['TITLE_SINGLE']       = static::CONFIG_TITLE_SINGLE;
         $aConfig['TITLE_PLURAL']       = static::CONFIG_TITLE_PLURAL;
         $aConfig['SIDEBAR_GROUP']      = static::CONFIG_SIDEBAR_GROUP;
+        $aConfig['SIDEBAR_ICON']       = static::CONFIG_SIDEBAR_ICON;
         $aConfig['BASE_URL']           = static::CONFIG_BASE_URL;
         $aConfig['SORT_OPTIONS']       = static::CONFIG_SORT_OPTIONS;
         $aConfig['INDEX_FIELDS']       = static::CONFIG_INDEX_FIELDS;
@@ -200,6 +206,7 @@ class DefaultController extends Base
 
         $oNavGroup = Factory::factory('Nav', 'nailsapp/module-admin');
         $oNavGroup->setLabel($aConfig['SIDEBAR_GROUP']);
+        $oNavGroup->setIcon($aConfig['SIDEBAR_ICON']);
 
         if (empty($aConfig['PERMISSION']) || userHasPermission('admin:' . $aConfig['PERMISSION'] . ':browse')) {
             $oNavGroup->addAction('Manage ' . $aConfig['TITLE_PLURAL'], 'index');
