@@ -179,8 +179,8 @@ class DefaultController extends Base
 
         if (empty($aConfig['BASE_URL'])) {
             $aBits               = explode('\\', get_called_class());
-            $aConfig['BASE_URL'] = 'admin/' . $aBits[count($aBits) - 2] . '/' . $aBits[count($aBits) - 1];
-            $aConfig['BASE_URL'] = strtolower($aConfig['BASE_URL']);
+            $aConfig['BASE_URL'] = 'admin/' . strtolower($aBits[count($aBits) - 2]) . '/' . lcfirst($aBits[count($aBits) - 1]);
+            $aConfig['BASE_URL'] = $aConfig['BASE_URL'];
         }
 
         return $aConfig;
