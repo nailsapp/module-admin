@@ -32,7 +32,7 @@ class Books implements Source
 
     public function getFileName()
     {
-        return 'books;
+        return 'books';
     }
 
     // --------------------------------------------------------------------------
@@ -134,7 +134,7 @@ The above will result in a zip file being created containing two files: `book` a
 
 ## Creating Formats
 
-Formatters take the data returned by a soruce and compile it down to a string which is then saved to a file and sent to the user. If you need to create a new type of format which is not already available then create a new Format class at `src/DataExport/Format/`, give it the namespace `App\DataExport\Format` and implement the `Nails\Admin\Interfaces\DataExport\Format` interface.
+Formatters take the data returned by a source and compile it down to a string which is then saved to a file and sent to the user. If you need to create a new type of format which is not already available then create a new Format class at `src/DataExport/Format/`, give it the namespace `App\DataExport\Format` and implement the `Nails\Admin\Interfaces\DataExport\Format` interface.
 
 An example is shown below, but for more details please see the source of the interface.
 
@@ -183,7 +183,7 @@ class CustomFormat implements Format
 
 ## Exporting Data Programatically
 
-to export data programatically you may use the `DataExport` service:
+To export data programatically (e.g. in a cron job) you may use the `DataExport` service:
 
 ```
 $oDataExport = Factory::service('DataExport', 'nailsapp/module-admin');
