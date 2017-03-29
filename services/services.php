@@ -1,7 +1,16 @@
 <?php
 
-return array(
-    'factories' => array(
+return [
+    'services' => [
+        'DataExport' => function () {
+            if (class_exists('\App\Admin\Library\DataExport')) {
+                return new \App\Admin\Library\DataExport();
+            } else {
+                return new \Nails\Admin\Library\DataExport();
+            }
+        },
+    ],
+    'factories' => [
         'Nav' => function () {
             if (class_exists('\App\Admin\Nav')) {
                 return new \App\Admin\Nav();
@@ -15,9 +24,9 @@ return array(
             } else {
                 return new \Nails\Admin\NavAlert();
             }
-        }
-    ),
-    'models' => array(
+        },
+    ],
+    'models' => [
         'Admin' => function () {
             if (class_exists('\App\Admin\Model\Admin')) {
                 return new \App\Admin\Model\Admin();
@@ -46,5 +55,5 @@ return array(
                 return new \Nails\Admin\Model\SiteLog();
             }
         },
-    )
-);
+    ],
+];

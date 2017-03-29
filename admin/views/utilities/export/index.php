@@ -10,20 +10,20 @@
         <legend>Data Source</legend>
         <?php
 
-            //  Display Name
-            $field             = array();
-            $field['key']      = 'source';
-            $field['label']    = 'Source';
-            $field['required'] = true;
-            $field['class']    = 'select2';
+        $aField = [
+            'key'      => 'source',
+            'label'    => 'Source',
+            'required' => true,
+            'class'    => 'select2',
+            'options' => []
+        ];
 
-            $options = array();
-            foreach ($sources as $key => $source) {
+        $options = [];
+        foreach ($sources as $oSource) {
+            $aField['options'][$oSource->slug] = $oSource->label . ' - ' . $oSource->description;
+        }
 
-                $options[$key] = $source[0] . ' - ' . $source[1];
-            }
-
-            echo form_field_dropdown($field, $options);
+        echo form_field_dropdown($aField);
 
         ?>
     </fieldset>
@@ -31,20 +31,20 @@
         <legend>Export Format</legend>
         <?php
 
-            //  Display Name
-            $field             = array();
-            $field['key']      = 'format';
-            $field['label']    = 'Format';
-            $field['required'] = true;
-            $field['class']    = 'select2';
+        $aField = [
+            'key'      => 'format',
+            'label'    => 'Format',
+            'required' => true,
+            'class'    => 'select2',
+            'options' => []
+        ];
 
-            $options = array();
-            foreach ($formats as $key => $format) {
+        $options = [];
+        foreach ($formats as $oFormat) {
+            $aField['options'][$oFormat->slug] = $oFormat->label . ' - ' . $oFormat->description;
+        }
 
-                $options[$key] = $format[0] . ' - ' . $format[1];
-            }
-
-            echo form_field_dropdown($field, $options);
+        echo form_field_dropdown($aField);
 
         ?>
     </fieldset>
