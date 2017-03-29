@@ -51,10 +51,10 @@ class Books implements Source
 
     // --------------------------------------------------------------------------
 
-    public function execute()
+    public function execute($aData = [])
     {
         $oBookModel = Factory::model('Book', 'app');
-        $aBooks     = $oBookModel->getAll();
+        $aBooks     = $oBookModel->getAll(null, null, $aData);
 
         $oOut = (object) [
             'label'    => $this->getLabel(),
@@ -86,10 +86,10 @@ class Books implements Source
 Sometimes it is nessecary to bundle multiple files together in a single source, the use case is usually a one-to-many relationship (e.g. `book` and `book_review`). This is easily acocmplished by returning an array in the `execute()` method, an array of objects which each describe the file to include. Each of these items will be fed individually to the chosen formatter and then all zipped together into a single archive.
 
 ```
-public function execute()
+public function execute($aData = [])
 {
     $oBookModel = Factory::model('Book', 'app');
-    $aBooks     = $oBookModel->getAll(null, null, ['expand' => ['review']]);
+    $aBooks     = $oBookModel->getAll(null, null, $aData + ['expand' => ['review']]);
 
     $aOut = []
         'book' => (object) [
@@ -203,7 +203,7 @@ Returns an array of all available formats.
 ### `getFormatBySlug($sSlug)`
 Returns a particular format by its slug.
 
-### `export($sSourceSlug, $sFormatSlug, $bOutputToBrowser = true)`
-Exports a source using a format and optionally sends it to the browser.
+### `export($sSourceSlug, $sFormatSlug, $aSourceData = [], $bOutputToBrowser = true)`
+Exports a source using a format and optionally pass in data for the source and send it to the browser.
 
 *Note: this method creates a temporary file (details of which are returned as an object); you can use this information to move/save the file elsewhere if needed - the service will automatically delete the file when it destructs.*

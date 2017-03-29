@@ -163,12 +163,13 @@ class DataExport
      *
      * @param string $sSourceSlug The slug of the source to use
      * @param string $sFormatSlug The slug of the format to use
+     * @param array  $aSourceData Any data to pass to the source's execute() method
      * @param bool $bOutputToBrowser Whether to send the output to the browser or not
      *
      * @return object
      * @throws \Exception
      */
-    public function export($sSourceSlug, $sFormatSlug, $bOutputToBrowser = true)
+    public function export($sSourceSlug, $sFormatSlug, $aSourceData = [], $bOutputToBrowser = true)
     {
         $oSource = $this->getSourceBySlug($sSourceSlug);
         if (empty($oSource)) {
@@ -180,7 +181,7 @@ class DataExport
             throw new \Exception('Invalid data format');
         }
 
-        $mData = $oSource->instance->execute();
+        $mData = $oSource->instance->execute($aSourceData);
 
         //  Save the export to disk
         $sCacheFile = DEPLOY_CACHE_DIR . 'data-export-' . md5(microtime(true)) . mt_rand();

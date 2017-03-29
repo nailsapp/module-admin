@@ -129,6 +129,7 @@ class Utilities extends Base
                 $oDataExport->export(
                     $oInput->post('source'),
                     $oInput->post('format'),
+                    [],
                     true
                 );
 
