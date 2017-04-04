@@ -16,7 +16,25 @@ use Nails\Admin\Helper;
                     <?php
 
                     foreach ($CONFIG['INDEX_FIELDS'] as $sField => $sLabel) {
-                        echo '<th class="field field--' . $sField . '">' . $sLabel . '</th>';
+                        $aAttr = [
+                            'class' => ['field', 'field--' . $sField],
+                        ];
+
+                        if (in_array($sField, $CONFIG['INDEX_BOOL_FIELDS'])) {
+                            $aAttr['width'] = 150;
+                        } elseif (in_array($sField, $CONFIG['INDEX_USER_FIELDS'])) {
+                            $aAttr['width'] = 300;
+                        }
+
+                        $sAttr = '';
+                        foreach ($aAttr as $sKey => $mValue) {
+                            if (is_array($mValue)) {
+                                $sAttr = ' ' . $sKey . '="' . implode(' ', $mValue) . '"';
+                            } else {
+                                $sAttr = ' ' . $sKey . '="' . $mValue . '"';
+                            }
+                        }
+                        echo '<th ' . $sAttr . '>' . $sLabel . '</th>';
                     }
 
                     ?>
@@ -38,12 +56,16 @@ use Nails\Admin\Helper;
                                     echo Helper::loadDateTimeCell($oItem->{$sField});
                                 } elseif (preg_match('/\d\d\d\d-\d\d-\d\d/', $oItem->{$sField})) {
                                     echo Helper::loadDateCell($oItem->{$sField});
+                                } elseif (in_array($sField, $CONFIG['INDEX_BOOL_FIELDS'])) {
+                                    echo Helper::loadBoolCell($oItem->{$sField});
+                                } elseif (in_array($sField, $CONFIG['INDEX_USER_FIELDS'])) {
+                                    echo Helper::loadUserCell($oItem->{$sField});
                                 } else {
                                     echo '<td class="field field--' . $sField . '">';
                                     echo $oItem->{$sField};
                                     echo '</td>';
                                 }
-                            } elseif(strpos($sField, '.') !== false) {
+                            } elseif (strpos($sField, '.') !== false) {
                                 //  @todo - handle arrays in expanded objects
                                 $aField  = explode('.', $sField);
                                 $sField1 = getFromArray(0, $aField);

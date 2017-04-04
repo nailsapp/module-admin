@@ -11,7 +11,7 @@
  */
 
 //  @todo - Ensure search still works
-//  @todo - Ensure sorting stillworks
+//  @todo - Ensure sorting still works
 //  @todo - Render fields properly
 
 namespace Nails\Admin\Controller;
@@ -68,17 +68,36 @@ class DefaultController extends Base
     ];
 
     /**
-     * The fields to show on the index view.
+     * The fields to show on the index view
      */
     const CONFIG_INDEX_FIELDS = [
-        'label'    => 'Label',
-        'modified' => 'Modified',
+        'label'       => 'Label',
+        'modified'    => 'Modified',
+        'modified_by' => 'Modified By',
     ];
 
     /**
      * Additional data to pass into the getAll call on the index view
      */
     const CONFIG_INDEX_DATA = [];
+
+    /**
+     * The fields on the index view which should be rendered as user cells
+     */
+    const CONFIG_INDEX_USER_FIELDS = [
+        'created_by',
+        'modified_by',
+        'user_id',
+    ];
+
+    /**
+     * The fields on the index view which should be rendered as boolean cells
+     */
+    const CONFIG_INDEX_BOOL_FIELDS = [
+        'is_active',
+        'is_published',
+        'is_deleted',
+    ];
 
     /**
      * The fields to ignore on the create/edit view
@@ -164,6 +183,8 @@ class DefaultController extends Base
         $aConfig['SORT_OPTIONS']       = static::CONFIG_SORT_OPTIONS;
         $aConfig['INDEX_FIELDS']       = static::CONFIG_INDEX_FIELDS;
         $aConfig['INDEX_DATA']         = static::CONFIG_INDEX_DATA;
+        $aConfig['INDEX_BOOL_FIELDS']  = static::CONFIG_INDEX_BOOL_FIELDS;
+        $aConfig['INDEX_USER_FIELDS']  = static::CONFIG_INDEX_USER_FIELDS;
         $aConfig['EDIT_IGNORE_FIELDS'] = static::CONFIG_EDIT_IGNORE_FIELDS;
         $aConfig['EDIT_DATA']          = static::CONFIG_EDIT_DATA;
 
@@ -186,7 +207,6 @@ class DefaultController extends Base
         if (empty($aConfig['BASE_URL'])) {
             $aBits               = explode('\\', get_called_class());
             $aConfig['BASE_URL'] = 'admin/' . strtolower($aBits[count($aBits) - 2]) . '/' . lcfirst($aBits[count($aBits) - 1]);
-            $aConfig['BASE_URL'] = $aConfig['BASE_URL'];
         }
 
         return $aConfig;
@@ -444,7 +464,9 @@ class DefaultController extends Base
 
     /**
      * Load data for the edit/create view
+     *
      * @param  \stdClass $oItem The main item object
+     *
      * @return void
      */
     protected function loadEditViewData($oItem = null)
@@ -555,9 +577,7 @@ class DefaultController extends Base
             null,
             [
                 'where' => [
-                    [
-                        'id', $iItemId,
-                    ],
+                    ['id', $iItemId],
                 ],
             ],
             true
