@@ -1,3 +1,8 @@
+<?php
+
+use Nails\Admin\Helper;
+
+?>
 <div class="group-defaultcontroller browse">
     <p>
         Manage <?=$CONFIG['TITLE_PLURAL']?>.
@@ -27,15 +32,23 @@
 
                         echo '<tr>';
                         foreach ($CONFIG['INDEX_FIELDS'] as $sField => $sLabel) {
-                            echo '<td class="field field--' . $sField . '">';
-                            //  @todo - handle different field types
                             if (property_exists($oItem, $sField)) {
-                                echo $oItem->{$sField};
+                                //  @todo - handle more field types
+                                if (preg_match('/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/', $oItem->{$sField})) {
+                                    echo Helper::loadDateTimeCell($oItem->{$sField});
+                                } elseif (preg_match('/\d\d\d\d-\d\d-\d\d/', $oItem->{$sField})) {
+                                    echo Helper::loadDateCell($oItem->{$sField});
+                                } else {
+                                    echo '<td class="field field--' . $sField . '">';
+                                    echo $oItem->{$sField};
+                                    echo '</td>';
+                                }
                             } elseif(strpos($sField, '.') !== false) {
                                 //  @todo - handle arrays in expanded objects
                                 $aField  = explode('.', $sField);
                                 $sField1 = getFromArray(0, $aField);
                                 $sField2 = getFromArray(1, $aField);
+                                echo '<td class="field field--' . $sField . '">';
                                 if (property_exists($oItem, $sField1)) {
                                     if (property_exists($oItem->{$sField1}, $sField2)) {
                                         echo $oItem->{$sField1}->{$sField2};
@@ -45,10 +58,12 @@
                                 } else {
                                     echo $sField;
                                 }
+                                echo '</td>';
                             } else {
+                                echo '<td class="field field--' . $sField . '">';
                                 echo $sField;
+                                echo '</td>';
                             }
-                            echo '</td>';
                         }
 
                         echo '<td class="actions">';
@@ -70,7 +85,6 @@
                         }
 
                         if (empty($CONFIG['PERMISSION']) || userHasPermission('admin:' . $CONFIG['PERMISSION'] . ':delete')) {
-
                             if ($CONFIG['CAN_RESTORE']) {
                                 $sConfirm = 'You <strong>can</strong> undo this action.';
                             } else {
