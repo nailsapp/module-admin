@@ -77,6 +77,11 @@ class DefaultController extends Base
     ];
 
     /**
+     * Any additional header buttons to add to the page
+     */
+    const CONFIG_INDEX_HEADER_BUTTONS = [];
+
+    /**
      * Additional data to pass into the getAll call on the index view
      */
     const CONFIG_INDEX_DATA = [];
@@ -174,19 +179,20 @@ class DefaultController extends Base
         $aConfig['MODEL_PROVIDER'] = static::CONFIG_MODEL_PROVIDER;
 
         //  Define remaining "constants"
-        $aConfig['PERMISSION']         = static::CONFIG_PERMISSION;
-        $aConfig['TITLE_SINGLE']       = static::CONFIG_TITLE_SINGLE;
-        $aConfig['TITLE_PLURAL']       = static::CONFIG_TITLE_PLURAL;
-        $aConfig['SIDEBAR_GROUP']      = static::CONFIG_SIDEBAR_GROUP;
-        $aConfig['SIDEBAR_ICON']       = static::CONFIG_SIDEBAR_ICON;
-        $aConfig['BASE_URL']           = static::CONFIG_BASE_URL;
-        $aConfig['SORT_OPTIONS']       = static::CONFIG_SORT_OPTIONS;
-        $aConfig['INDEX_FIELDS']       = static::CONFIG_INDEX_FIELDS;
-        $aConfig['INDEX_DATA']         = static::CONFIG_INDEX_DATA;
-        $aConfig['INDEX_BOOL_FIELDS']  = static::CONFIG_INDEX_BOOL_FIELDS;
-        $aConfig['INDEX_USER_FIELDS']  = static::CONFIG_INDEX_USER_FIELDS;
-        $aConfig['EDIT_IGNORE_FIELDS'] = static::CONFIG_EDIT_IGNORE_FIELDS;
-        $aConfig['EDIT_DATA']          = static::CONFIG_EDIT_DATA;
+        $aConfig['PERMISSION']           = static::CONFIG_PERMISSION;
+        $aConfig['TITLE_SINGLE']         = static::CONFIG_TITLE_SINGLE;
+        $aConfig['TITLE_PLURAL']         = static::CONFIG_TITLE_PLURAL;
+        $aConfig['SIDEBAR_GROUP']        = static::CONFIG_SIDEBAR_GROUP;
+        $aConfig['SIDEBAR_ICON']         = static::CONFIG_SIDEBAR_ICON;
+        $aConfig['BASE_URL']             = static::CONFIG_BASE_URL;
+        $aConfig['SORT_OPTIONS']         = static::CONFIG_SORT_OPTIONS;
+        $aConfig['INDEX_FIELDS']         = static::CONFIG_INDEX_FIELDS;
+        $aConfig['INDEX_HEADER_BUTTONS'] = static::CONFIG_INDEX_HEADER_BUTTONS;
+        $aConfig['INDEX_DATA']           = static::CONFIG_INDEX_DATA;
+        $aConfig['INDEX_BOOL_FIELDS']    = static::CONFIG_INDEX_BOOL_FIELDS;
+        $aConfig['INDEX_USER_FIELDS']    = static::CONFIG_INDEX_USER_FIELDS;
+        $aConfig['EDIT_IGNORE_FIELDS']   = static::CONFIG_EDIT_IGNORE_FIELDS;
+        $aConfig['EDIT_DATA']            = static::CONFIG_EDIT_DATA;
 
         //  Set defaults where appropriate
         if (empty($aConfig['TITLE_SINGLE'])) {
@@ -319,6 +325,25 @@ class DefaultController extends Base
         $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':create';
         if (empty($this->aConfig['PERMISSION']) || userHasPermission($sPermissionStr)) {
             Helper::addHeaderButton($this->aConfig['BASE_URL'] . '/create', 'Create');
+        }
+
+        // --------------------------------------------------------------------------
+
+        foreach ($this->aConfig['INDEX_HEADER_BUTTONS'] as $aButton) {
+
+            $sUrl          = getFromArray(0, $aButton);
+            $sLabel        = getFromArray(1, $aButton);
+            $sContext      = getFromArray(2, $aButton);
+            $sConfirmTitle = getFromArray(3, $aButton);
+            $sConfirmBody  = getFromArray(4, $aButton);
+
+            Helper::addHeaderButton(
+                $sUrl,
+                $sLabel,
+                $sContext,
+                $sConfirmTitle,
+                $sConfirmBody
+            );
         }
 
         // --------------------------------------------------------------------------
