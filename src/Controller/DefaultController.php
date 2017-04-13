@@ -441,7 +441,7 @@ abstract class DefaultController extends Base
                         throw new NailsException('Failed to update item.' . $oItemModel->lastError());
                     }
 
-                    $this->afterEdit($iItemId);
+                    $this->afterEdit($iItemId, $oItem);
                     $oDb->trans_commit();
                     $oSession = Factory::service('Session', 'nailsapp/module-auth');
                     $oSession->set_flashdata('success', 'Item updated successfully.');
@@ -469,11 +469,12 @@ abstract class DefaultController extends Base
     /**
      * Executed after an item is edited
      *
-     * @param int $iItemId The item's ID
+     * @param int       $iItemId  The item's ID
+     * @param \stdClass $oOldItem The old item, before it was edited
      *
      * @return void
      */
-    protected function afterEdit($iItemId)
+    protected function afterEdit($iItemId, $oOldItem)
     {
     }
 
