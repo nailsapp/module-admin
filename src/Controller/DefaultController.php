@@ -68,6 +68,11 @@ abstract class DefaultController extends Base
     ];
 
     /**
+     * The default sorting order
+     */
+    const CONFIG_SORT_DIRECTION = 'asc';
+
+    /**
      * The fields to show on the index view
      */
     const CONFIG_INDEX_FIELDS = [
@@ -186,6 +191,7 @@ abstract class DefaultController extends Base
         $aConfig['SIDEBAR_ICON']         = static::CONFIG_SIDEBAR_ICON;
         $aConfig['BASE_URL']             = static::CONFIG_BASE_URL;
         $aConfig['SORT_OPTIONS']         = static::CONFIG_SORT_OPTIONS;
+        $aConfig['SORT_DIRECTION']       = static::CONFIG_SORT_DIRECTION;
         $aConfig['INDEX_FIELDS']         = static::CONFIG_INDEX_FIELDS;
         $aConfig['INDEX_HEADER_BUTTONS'] = static::CONFIG_INDEX_HEADER_BUTTONS;
         $aConfig['INDEX_DATA']           = static::CONFIG_INDEX_DATA;
@@ -303,7 +309,7 @@ abstract class DefaultController extends Base
         $iPage      = $oInput->get('page') ? $oInput->get('page') : 0;
         $iPerPage   = $oInput->get('perPage') ? $oInput->get('perPage') : 50;
         $sSortOn    = $oInput->get('sortOn') ? $oInput->get('sortOn') : $sAlias . '.' . $sFirstKey;
-        $sSortOrder = $oInput->get('sortOrder') ? $oInput->get('sortOrder') : 'asc';
+        $sSortOrder = $oInput->get('sortOrder') ? $oInput->get('sortOrder') : $this->aConfig['SORT_DIRECTION'];
         $sKeywords  = $oInput->get('keywords');
 
         $aData = [
