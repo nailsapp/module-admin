@@ -20,7 +20,7 @@ use Nails\Admin\Helper;
 use Nails\Common\Exception\NailsException;
 use Nails\Factory;
 
-class DefaultController extends Base
+abstract class DefaultController extends Base
 {
     /**
      * The following constants are used to build the controller
@@ -376,10 +376,12 @@ class DefaultController extends Base
             if ($this->runFormValidation()) {
                 try {
                     $oDb->trans_begin();
-                    if (!$oItemModel->create($this->getPostObject())) {
+                    $iItemId = $oItemModel->create($this->getPostObject());
+                    if (!$iItemId) {
                         throw new NailsException('Failed to create item.' . $oItemModel->lastError());
                     }
 
+                    $this->afterEdit($iItemId);
                     $oDb->trans_commit();
                     $oSession = Factory::service('Session', 'nailsapp/module-auth');
                     $oSession->set_flashdata('success', 'Item created successfully.');
@@ -439,6 +441,7 @@ class DefaultController extends Base
                         throw new NailsException('Failed to update item.' . $oItemModel->lastError());
                     }
 
+                    $this->afterEdit($iItemId);
                     $oDb->trans_commit();
                     $oSession = Factory::service('Session', 'nailsapp/module-auth');
                     $oSession->set_flashdata('success', 'Item updated successfully.');
@@ -459,6 +462,32 @@ class DefaultController extends Base
 
         $this->data['page']->title = $this->aConfig['TITLE_SINGLE'] . ' &rsaquo; Edit';
         Helper::loadView('edit');
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Executed after an item is edited
+     *
+     * @param int $iItemId The item's ID
+     *
+     * @return void
+     */
+    protected function afterEdit($iItemId)
+    {
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Executed after an item is created
+     *
+     * @param int $iItemId The item's ID
+     *
+     * @return void
+     */
+    protected function afterCreate($iItemId)
+    {
     }
 
     // --------------------------------------------------------------------------

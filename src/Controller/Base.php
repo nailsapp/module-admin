@@ -15,7 +15,7 @@ namespace Nails\Admin\Controller;
 
 use Nails\Factory;
 
-class Base extends \MX_Controller
+abstract class Base extends \MX_Controller
 {
     protected $data;
     protected $cdn;
