@@ -311,20 +311,33 @@ abstract class DefaultController extends Base
         $sSortOn    = $oInput->get('sortOn') ? $oInput->get('sortOn') : $sAlias . '.' . $sFirstKey;
         $sSortOrder = $oInput->get('sortOrder') ? $oInput->get('sortOrder') : $this->aConfig['SORT_DIRECTION'];
         $sKeywords  = $oInput->get('keywords');
+        $aCbFilters = $this->indexCheckboxFilters();
+        $aDdFilters = $this->indexDropdownFilters();
 
         $aData = [
-                'sort'     => [
+                'cbFilters' => $aCbFilters,
+                'ddFilters' => $aDdFilters,
+                'keywords'  => $sKeywords,
+                'sort'      => [
                     [$sSortOn, $sSortOrder],
                 ],
-                'keywords' => $sKeywords,
             ] + $this->aConfig['INDEX_DATA'];
 
         // --------------------------------------------------------------------------
 
         $iTotalRows               = $oItemModel->countAll($aData);
         $this->data['items']      = $oItemModel->getAll($iPage, $iPerPage, $aData);
-        $this->data['search']     = Helper::searchObject(true, $aSortCol, $sSortOn, $sSortOrder, $iPerPage, $sKeywords);
         $this->data['pagination'] = Helper::paginationObject($iPage, $iPerPage, $iTotalRows);
+        $this->data['search']     = Helper::searchObject(
+            true,
+            $aSortCol,
+            $sSortOn,
+            $sSortOrder,
+            $iPerPage,
+            $sKeywords,
+            $aCbFilters,
+            $aDdFilters
+        );
 
         // --------------------------------------------------------------------------
 
@@ -356,6 +369,28 @@ abstract class DefaultController extends Base
 
         $this->data['page']->title = $this->aConfig['TITLE_PLURAL'] . ' &rsaquo; Manage';
         Helper::loadView('index');
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Any checkbox style filters to include on the index page
+     * @return array
+     */
+    protected function indexCheckboxFilters()
+    {
+        return [];
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Any dropdown style filters to include on the index page
+     * @return array
+     */
+    protected function indexDropdownFilters()
+    {
+        return [];
     }
 
     // --------------------------------------------------------------------------
@@ -480,7 +515,7 @@ abstract class DefaultController extends Base
      *
      * @return void
      */
-    protected function afterEdit($iItemId, $oOldItem)
+    protected function afterEdit($iItemId, $oOldItem = null)
     {
     }
 
