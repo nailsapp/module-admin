@@ -29,7 +29,7 @@
             foreach ($aFields as $oField) {
 
                 $aField            = (array) $oField;
-                $aField['default'] = property_exists($item, $oField->key) ? $item->{$oField->key} : null;
+                $aField['default'] = !empty($item) && property_exists($item, $oField->key) ? $item->{$oField->key} : '';
 
                 if (!array_key_exists('required', $aFieldSets)) {
                     $aField['required'] = in_array('required', $oField->validation);
