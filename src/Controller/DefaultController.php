@@ -536,22 +536,51 @@ abstract class DefaultController extends Base
 
     /**
      * Form validation for edit/create
-     * @return bool
+     *
+     * @param array $aOverrides Any overrides for the fields; best to do this in the model's describeFields() method
+     *
+     * @return mixed
      */
-    protected function runFormValidation()
+    protected function runFormValidation($aOverrides = [])
     {
         $oFormValidation      = Factory::service('FormValidation');
         $aRulesFormValidation = [];
+        $aImplementedRules    = [];
+
         foreach ($this->aConfig['FIELDS'] as $oField) {
+
+            if (array_key_exists($oField->key, $aOverrides)) {
+                $sRules            = implode('|', $aOverrides[$oField->key]);
+                $aImplementedRules = array_merge($aImplementedRules, $aOverrides[$oField->key]);
+            } else {
+                $sRules            = implode('|', $oField->validation);
+                $aImplementedRules = array_merge($aImplementedRules, $oField->validation);
+            }
+
             $aRulesFormValidation[] = [
                 'field' => $oField->key,
                 'label' => $oField->label,
-                'rules' => $oField->validation,
+                'rules' => $sRules,
             ];
         }
 
         $oFormValidation->set_rules($aRulesFormValidation);
-        $oFormValidation->set_message('required', lang('fv_required'));
+
+        //  Load up friendly versions of the form validation rules if they exist
+        $aImplementedRules = array_map(
+            function ($sRule) {
+                return preg_replace('/\[.*\]/', '', $sRule);
+            },
+            $aImplementedRules
+        );
+        $aImplementedRules = array_unique_multi($aImplementedRules);
+
+        foreach ($aImplementedRules as $sRule) {
+            $sMessage = lang('fv_' . $sRule);
+            if ($sMessage) {
+                $oFormValidation->set_message($sRule, $sMessage);
+            }
+        }
 
         return $oFormValidation->run();
     }

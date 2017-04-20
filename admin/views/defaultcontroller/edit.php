@@ -27,17 +27,13 @@
             <?php
 
             foreach ($aFields as $oField) {
-                $aValidation = array_filter(explode('|', getFromArray('validation', (array) $oField)));
-                $aField      = [
-                    'key'       => getFromArray('key', (array) $oField),
-                    'type'      => getFromArray('type', (array) $oField),
-                    'label'     => getFromArray('label', (array) $oField),
-                    'sub_label' => getFromArray('sub_label', (array) $oField),
-                    'info'      => getFromArray('info', (array) $oField),
-                    'required'  => in_array('required', $aValidation),
-                    'default'   => !empty($item) && property_exists($item, $oField->key) ? $item->{$oField->key} : '',
-                    'class'     => 'field field--' . getFromArray('key', (array) $oField),
-                ];
+
+                $aField            = (array) $oField;
+                $aField['default'] = property_exists($item, $oField->key) ? $item->{$oField->key} : null;
+
+                if (!array_key_exists('required', $aFieldSets)) {
+                    $aField['required'] = in_array('required', $oField->validation);
+                }
 
                 if (is_callable('form_field_' . $aField['type'])) {
                     echo call_user_func('form_field_' . $aField['type'], $aField);
@@ -49,7 +45,6 @@
             ?>
         </fieldset>
         <?php
-
     }
 
     ?>
