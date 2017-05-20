@@ -422,7 +422,8 @@ abstract class DefaultController extends Base
                         throw new NailsException('Failed to create item.' . $oItemModel->lastError());
                     }
 
-                    $this->afterEdit($iItemId);
+                    $this->afterCreateAndEdit('CREATE', $iItemId);
+                    $this->afterCreate($iItemId);
                     $oDb->trans_commit();
                     $oSession = Factory::service('Session', 'nailsapp/module-auth');
                     $oSession->set_flashdata('success', 'Item created successfully.');
@@ -482,6 +483,7 @@ abstract class DefaultController extends Base
                         throw new NailsException('Failed to update item.' . $oItemModel->lastError());
                     }
 
+                    $this->afterCreateAndEdit('EDIT', $iItemId, $oItem);
                     $this->afterEdit($iItemId, $oItem);
                     $oDb->trans_commit();
                     $oSession = Factory::service('Session', 'nailsapp/module-auth');
@@ -503,6 +505,21 @@ abstract class DefaultController extends Base
 
         $this->data['page']->title = $this->aConfig['TITLE_SINGLE'] . ' &rsaquo; Edit';
         Helper::loadView('edit');
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Executed after an item is edited
+     *
+     * @param string    $sType    whether the action was CREATE or EDIT
+     * @param int       $iItemId  The item's ID
+     * @param \stdClass $oOldItem The old item, before it was edited
+     *
+     * @return void
+     */
+    protected function afterCreateAndEdit($sType, $iItemId, $oOldItem = null)
+    {
     }
 
     // --------------------------------------------------------------------------
