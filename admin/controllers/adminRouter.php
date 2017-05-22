@@ -506,7 +506,7 @@ class AdminRouter extends Base
     protected function routeRequest()
     {
         //  What are we trying to access?
-        $$oUri      = Factory::service('Uri');
+        $oUri       = Factory::service('Uri');
         $module     = $oUri->rsegment(3) ? $oUri->rsegment(3) : '';
         $controller = $oUri->rsegment(4) ? $oUri->rsegment(4) : $module;
         $method     = $oUri->rsegment(5) ? $oUri->rsegment(5) : 'index';
