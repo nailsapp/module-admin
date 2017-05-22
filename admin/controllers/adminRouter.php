@@ -449,18 +449,14 @@ class AdminRouter extends Base
             $temp = array();
 
             foreach ($userNavPref as $groupMd5 => $state) {
-
                 for ($i=0; $i < count($middle); $i++) {
 
                     if (empty($middle[$i])) {
-
                         continue;
                     }
 
                     if ($groupMd5 == md5($middle[$i]->label)) {
-
                         if (!in_array($middle[$i]->label, $this->admincontrollersNavSticky)) {
-
                             $temp[] = $middle[$i];
                             $middle[$i] = null;
                         }
@@ -481,13 +477,9 @@ class AdminRouter extends Base
 
         //  Set the open states of the modules
         if (!empty($userNavPref)) {
-
             foreach ($userNavPref as $groupMd5 => $state) {
-
                 for ($i=0; $i < count($this->adminControllersNav); $i++) {
-
                     if ($groupMd5 == md5($this->adminControllersNav[$i]->label)) {
-
                         $this->adminControllersNav[$i]->open = $state->open;
                     }
                 }
@@ -501,7 +493,6 @@ class AdminRouter extends Base
          */
 
         foreach ($this->adminControllersNav as $grouping) {
-
             array_sort_multi($grouping->actions, 'order');
         }
     }
@@ -515,21 +506,23 @@ class AdminRouter extends Base
     protected function routeRequest()
     {
         //  What are we trying to access?
-        $module     = $this->uri->rsegment(3) ? $this->uri->rsegment(3) : '';
-        $controller = $this->uri->rsegment(4) ? $this->uri->rsegment(4) : $module;
-        $method     = $this->uri->rsegment(5) ? $this->uri->rsegment(5) : 'index';
+        $$oUri      = Factory::service('Uri');
+        $module     = $oUri->rsegment(3) ? $oUri->rsegment(3) : '';
+        $controller = $oUri->rsegment(4) ? $oUri->rsegment(4) : $module;
+        $method     = $oUri->rsegment(5) ? $oUri->rsegment(5) : 'index';
 
         if (empty($module)) {
 
-            $this->session->keep_flashdata();
+            $oSession = Factory::service('Session', 'nailsapp/module-auth');
+            $oSession->keep_flashdata();
             redirect('admin/admin/dashboard');
 
         } elseif (isset($this->adminControllers[$module]->controllers[$controller])) {
 
-            $requestController = $this->adminControllers[$module]->controllers[$controller];
+            $requestController            = $this->adminControllers[$module]->controllers[$controller];
             $this->data['currentRequest'] = $requestController;
-            $className         = $requestController['className'];
-            $requestPage       = new $className();
+            $className                    = $requestController['className'];
+            $requestPage                  = new $className();
 
             if (is_callable(array($requestPage, $method))) {
                 return $requestPage->$method();

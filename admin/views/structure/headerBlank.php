@@ -44,17 +44,18 @@
     <link href="//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700" rel="stylesheet" type="text/css">
     <?php
 
-        $this->asset->output('CSS');
-        $this->asset->output('CSS-INLINE');
-        $this->asset->output('JS-INLINE-HEADER');
+    $oAsset = \Nails\Factory::service('Asset');
+    $oAsset->output('CSS');
+    $oAsset->output('CSS-INLINE');
+    $oAsset->output('JS-INLINE-HEADER');
 
     ?>
     <link rel="stylesheet" type="text/css" media="print" href="<?=NAILS_ASSETS_URL . 'css/nails.admin.print.css'?>" />
     <?php
 
-        $_primary   = appSetting('primary_colour', 'admin')   ? appSetting('primary_colour', 'admin')   : '#171D20';
-        $_secondary = appSetting('secondary_colour', 'admin') ? appSetting('secondary_colour', 'admin') : '#515557';
-        $_highlight = appSetting('highlight_colour', 'admin') ? appSetting('highlight_colour', 'admin') : '#F09634';
+    $_primary   = appSetting('primary_colour', 'admin')   ? appSetting('primary_colour', 'admin')   : '#171D20';
+    $_secondary = appSetting('secondary_colour', 'admin') ? appSetting('secondary_colour', 'admin') : '#515557';
+    $_highlight = appSetting('highlight_colour', 'admin') ? appSetting('highlight_colour', 'admin') : '#F09634';
 
     ?>
     <style type="text/css">

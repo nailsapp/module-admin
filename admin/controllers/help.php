@@ -113,7 +113,8 @@ class Help extends Base
 
         // --------------------------------------------------------------------------
 
-        $this->asset->inline('$(\'a.video-button\').fancybox({ type : \'iframe\' });', 'JS');
+        $oAsset = Factory::service('Asset');
+        $oAsset->inline('$(\'a.video-button\').fancybox({ type : \'iframe\' });', 'JS');
 
         // --------------------------------------------------------------------------
 
