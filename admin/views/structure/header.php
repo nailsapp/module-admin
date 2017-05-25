@@ -46,17 +46,18 @@
     <link href="//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700" rel="stylesheet" type="text/css">
     <?php
 
-        $this->asset->output('CSS');
-        $this->asset->output('CSS-INLINE');
-        $this->asset->output('JS-INLINE-HEADER');
+    $oAsset = \Nails\Factory::service('Asset');
+    $oAsset->output('CSS');
+    $oAsset->output('CSS-INLINE');
+    $oAsset->output('JS-INLINE-HEADER');
 
     ?>
     <link rel="stylesheet" type="text/css" media="print" href="<?=NAILS_ASSETS_URL . 'css/nails.admin.print.css'?>" />
     <?php
 
-        $brandColorPrimary   = appSetting('primary_colour', 'admin')   ? appSetting('primary_colour', 'admin')   : '#171D20';
-        $brandColorSecondary = appSetting('secondary_colour', 'admin') ? appSetting('secondary_colour', 'admin') : '#515557';
-        $brandColorHighlight = appSetting('highlight_colour', 'admin') ? appSetting('highlight_colour', 'admin') : '#F09634';
+    $brandColorPrimary   = appSetting('primary_colour', 'admin')   ? appSetting('primary_colour', 'admin')   : '#171D20';
+    $brandColorSecondary = appSetting('secondary_colour', 'admin') ? appSetting('secondary_colour', 'admin') : '#515557';
+    $brandColorHighlight = appSetting('highlight_colour', 'admin') ? appSetting('highlight_colour', 'admin') : '#F09634';
 
     ?>
     <style type="text/css">
@@ -99,20 +100,20 @@
             <div class="shortcut loggedin-as" rel="tipsy" title="Logged in as <?=activeUser('first_name,last_name')?>">
             <?php
 
-                $url  = 'admin/auth/accounts/edit/' . activeUser('id');
-                $attr = 'class="fancybox admin-branding-text-primary" data-fancybox-type="iframe"';
-                $img  = img(
-                    array(
-                        'src' => cdnavatar(activeUser('profile_img'), 30, 30),
-                        'class' => 'avatar'
-                    )
-                );
+            $url  = 'admin/auth/accounts/edit/' . activeUser('id');
+            $attr = 'class="fancybox admin-branding-text-primary" data-fancybox-type="iframe"';
+            $img  = img(
+                array(
+                    'src' => cdnavatar(activeUser('profile_img'), 30, 30),
+                    'class' => 'avatar'
+                )
+            );
 
-                echo anchor(
-                    $url,
-                    '<span class="name">' . activeUser('first_name,last_name') . '</span>' . $img,
-                    $attr
-                );
+            echo anchor(
+                $url,
+                '<span class="name">' . activeUser('first_name,last_name') . '</span>' . $img,
+                $attr
+            );
 
             ?>
             </div>
@@ -121,9 +122,9 @@
             </div>
             <?php
 
-            if ($this->user_model->wasAdmin()) {
+            if (wasAdmin()) {
 
-                $adminRecovery = $this->user_model->getAdminRecoveryData();
+                $adminRecovery = getAdminRecoveryData();
 
                 ?>
                 <div class="shortcut admin-recovery" rel="tipsy" title="Log back in as <?=$adminRecovery->name?>">
@@ -144,11 +145,11 @@
             <div class="shortcut logout" rel="tipsy" title="Log out">
             <?php
 
-                echo anchor(
-                    'auth/logout',
-                    '<span class="fa fa-power-off"></span>',
-                    'class="admin-branding-text-primary"'
-                );
+            echo anchor(
+                'auth/logout',
+                '<span class="fa fa-power-off"></span>',
+                'class="admin-branding-text-primary"'
+            );
 
             ?>
             </div>

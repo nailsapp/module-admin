@@ -33,7 +33,7 @@ class Nav extends \Nails\Api\Controller\Base
 
         parent::__construct($apiRouter);
 
-        if (!$this->user_model->isAdmin()) {
+        if (!isAdmin()) {
 
             $this->isAuthorised = false;
             $this->errorMsg     = 'You must be an administrator.';

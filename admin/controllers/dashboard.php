@@ -69,7 +69,8 @@ class Dashboard extends Base
         // --------------------------------------------------------------------------
 
         //  Assets
-        $this->asset->load('nails.admin.dashboard.min.js', true);
+        $oAsset = Factory::service('Asset');
+        $oAsset->load('nails.admin.dashboard.min.js', true);
 
         // --------------------------------------------------------------------------
 

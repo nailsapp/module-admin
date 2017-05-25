@@ -128,7 +128,8 @@ class Settings extends Base
         // --------------------------------------------------------------------------
 
         //  Load assets
-        $this->asset->load('nails.admin.settings.min.js', 'NAILS');
+        $oAsset = Factory::service('Asset');
+        $oAsset->load('nails.admin.settings.min.js', 'NAILS');
 
         // --------------------------------------------------------------------------
 
@@ -206,8 +207,9 @@ class Settings extends Base
         // --------------------------------------------------------------------------
 
         //  Load assets
-        $this->asset->load('nails.admin.settings.min.js', 'NAILS');
-        $this->asset->load('nails.admin.admin.settings.min.js', 'NAILS');
+        $oAsset = Factory::service('Asset');
+        $oAsset->load('nails.admin.settings.min.js', 'NAILS');
+        $oAsset->load('nails.admin.admin.settings.min.js', 'NAILS');
 
         // --------------------------------------------------------------------------
 
@@ -429,7 +431,8 @@ class Settings extends Base
 
                 //  Begin transaction
                 $oAppSettingModel = Factory::model('AppSetting');
-                $this->db->trans_begin();
+                $oDb              = Factory::service('Database');
+                $oDb->trans_begin();
                 $bRollback = false;
 
                 //  Normal settings
@@ -448,12 +451,12 @@ class Settings extends Base
 
                 if (empty($bRollback)) {
 
-                    $this->db->trans_commit();
+                    $oDb->trans_commit();
                     $this->data['success'] = $sType . ' settings were saved.';
 
                 } else {
 
-                    $this->db->trans_rollback();
+                    $oDb->trans_rollback();
                     $this->data['error'] = 'There was a problem saving shop settings. ' . $sError;
                 }
 

@@ -23,9 +23,11 @@ class Helper
     /**
      * Loads a view in admin taking into account the module being accessed. Passes controller
      * data and optionally loads the header and footer views.
-     * @param  string $viewFile The view to load
+     *
+     * @param  string  $viewFile      The view to load
      * @param  boolean $loadStructure Whether or not to include the header and footers in the output
-     * @param  boolean $returnView Whether to return the view or send it to the Output class
+     * @param  boolean $returnView    Whether to return the view or send it to the Output class
+     *
      * @return mixed                  String when $returnView is true, void otherwise
      */
     public static function loadView($viewFile, $loadStructure = true, $returnView = false)
@@ -103,8 +105,10 @@ class Helper
     /**
      * Generates a CSV and sends to the browser, if a filename is given then it's
      * sent as a download
-     * @param  mixed $data The data to render, either an array or a DB query object
+     *
+     * @param  mixed  $data     The data to render, either an array or a DB query object
      * @param  string $filename The filename to give the file if downloading
+     *
      * @return void
      */
     public static function loadCsv($data, $filename = '')
@@ -161,9 +165,11 @@ class Helper
 
     /**
      * Load a single view taking into account the module being accessed.
-     * @param  string $sViewFile The view to load
-     * @param  array $aViewData The data to pass to the view
+     *
+     * @param  string  $sViewFile   The view to load
+     * @param  array   $aViewData   The data to pass to the view
      * @param  boolean $bReturnView Whether to return the view or send it to the Output class
+     *
      * @return mixed               String when $bReturnView is true, void otherwise
      */
     public static function loadInlineView($sViewFile, $aViewData = [], $bReturnView = false)
@@ -203,8 +209,10 @@ class Helper
 
     /**
      * Loads the admin "search" component
-     * @param  \stdClass $oSearchObj An object as created by self::searchObject();
-     * @param  boolean $bReturnView Whether to return the view to the caller, or output to the browser
+     *
+     * @param  \stdClass $oSearchObj  An object as created by self::searchObject();
+     * @param  boolean   $bReturnView Whether to return the view to the caller, or output to the browser
+     *
      * @return mixed                  String when $bReturnView is true, void otherwise
      */
     public static function loadSearch($oSearchObj, $bReturnView = false)
@@ -228,14 +236,16 @@ class Helper
 
     /**
      * Creates a standard object designed for use with self::loadSearch()
-     * @param  boolean $searchable Whether the result set is keyword searchable
-     * @param  array $sortColumns An array of columns to sort results by
-     * @param  string $sortOn The column to sort on
-     * @param  string $sortOrder The order to sort results in
-     * @param  integer $perPage The number of results to show per page
-     * @param  string $keywords Keywords to apply to the search result
-     * @param  array $checkboxFilter An array of filters to filter the results by, presented as checkboxes
-     * @param  array $dropdownFilter An array of filters to filter the results by, presented as a dropdown
+     *
+     * @param  boolean $searchable     Whether the result set is keyword searchable
+     * @param  array   $sortColumns    An array of columns to sort results by
+     * @param  string  $sortOn         The column to sort on
+     * @param  string  $sortOrder      The order to sort results in
+     * @param  integer $perPage        The number of results to show per page
+     * @param  string  $keywords       Keywords to apply to the search result
+     * @param  array   $checkboxFilter An array of filters to filter the results by, presented as checkboxes
+     * @param  array   $dropdownFilter An array of filters to filter the results by, presented as a dropdown
+     *
      * @return \stdClass
      */
     public static function searchObject($searchable, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords = '', $checkboxFilter = [], $dropdownFilter = [])
@@ -258,9 +268,13 @@ class Helper
     /**
      * Creates a standard object designed for use with self::searchObject()'s
      * $checkboxFilter and $dropdownFilter parameters
-     * @param  string $column The name of the column to filter on, leave blank if you do not wish to use Nails's automatic filtering
-     * @param  string $label The label to give the filter group
-     * @param  array $options An array of options for the dropdown, either key => value pairs or a 3 element array: 0 = label, 1 = value, 2 = default check status
+     *
+     * @param  string $column  The name of the column to filter on, leave blank if you do not wish to use Nails's
+     *                         automatic filtering
+     * @param  string $label   The label to give the filter group
+     * @param  array  $options An array of options for the dropdown, either key => value pairs or a 3 element array: 0
+     *                         = label, 1 = value, 2 = default check status
+     *
      * @return \stdClass
      */
     public static function searchFilterObject($column, $label, $options)
@@ -295,9 +309,11 @@ class Helper
 
     /**
      * Creates a starndard object which is an option for self::searchFilterObject()
-     * @param  string $label The label to give the option
-     * @param  string $value The value to give the option (filters self::searchFilterObject's $column parameter)
+     *
+     * @param  string  $label   The label to give the option
+     * @param  string  $value   The value to give the option (filters self::searchFilterObject's $column parameter)
      * @param  boolean $checked Whether the value si checked by default
+     *
      * @return \stdClass
      */
     public static function searchFilterObjectOption($label = '', $value = '', $checked = false)
@@ -314,8 +330,10 @@ class Helper
 
     /**
      * Returns a value from a filter object at a specific key
+     *
      * @param  \stdClass $filterObject The filter object to search
-     * @param  integer $key The key to inspect
+     * @param  integer   $key          The key to inspect
+     *
      * @return mixed                  Mixed on success, null on failure
      */
     public static function searchFilterGetValueAtKey($filterObject, $key)
@@ -327,8 +345,10 @@ class Helper
 
     /**
      * Loads the admin "pagination" component
+     *
      * @param  \stdClass $paginationObject An object as created by self::paginationObject();
-     * @param  boolean $returnView Whether to return the view to the caller, or output to the browser
+     * @param  boolean   $returnView       Whether to return the view to the caller, or output to the browser
+     *
      * @return mixed                      String when $returnView is true, void otherwise
      */
     public static function loadPagination($paginationObject, $returnView = false)
@@ -347,9 +367,11 @@ class Helper
 
     /**
      * Creates a standard object designed for use with self::loadPagination();
-     * @param  integer $page The current page number
-     * @param  integer $perPage The number of results per page
+     *
+     * @param  integer $page      The current page number
+     * @param  integer $perPage   The number of results per page
      * @param  integer $totalRows The total number of results in the result set
+     *
      * @return \stdClass
      */
     public static function paginationObject($page, $perPage, $totalRows)
@@ -366,7 +388,9 @@ class Helper
 
     /**
      * Load the admin "user" table cell component
+     *
      * @param  mixed $mUser The user object or the User's ID/email/username
+     *
      * @return string
      */
     public static function loadUserCell($mUser)
@@ -403,8 +427,10 @@ class Helper
 
     /**
      * Load the admin "date" table cell component
-     * @param  string $date The date to render
+     *
+     * @param  string $date   The date to render
      * @param  string $noData What to render if the date is invalid or empty
+     *
      * @return string
      */
     public static function loadDateCell($date, $noData = '&mdash;')
@@ -421,8 +447,10 @@ class Helper
 
     /**
      * Load the admin "dateTime" table cell component
+     *
      * @param  string $dateTime The dateTime to render
-     * @param  string $noData What to render if the datetime is invalid or empty
+     * @param  string $noData   What to render if the datetime is invalid or empty
+     *
      * @return string
      */
     public static function loadDateTimeCell($dateTime, $noData = '&mdash;')
@@ -439,8 +467,10 @@ class Helper
 
     /**
      * Load the admin "boolean" table cell component
-     * @param  string $value The value to 'truthy' test
+     *
+     * @param  string $value    The value to 'truthy' test
      * @param  string $dateTime A datetime to show (for truthy values only)
+     *
      * @return string
      */
     public static function loadBoolCell($value, $dateTime = null)
@@ -457,9 +487,11 @@ class Helper
 
     /**
      * Load the admin "settings component table" component
-     * @param  string $sModel The model to use
-     * @param  array $sProvider The model provider
+     *
+     * @param  string $sModel         The model to use
+     * @param  array  $sProvider      The model provider
      * @param  string $sComponentType The type of component being loaded
+     *
      * @return string
      */
     public static function loadSettingsComponentTable($sModel, $sProvider, $sComponentType = 'component')
@@ -485,8 +517,10 @@ class Helper
 
     /**
      * Alias to loadSettingsComponentTable()
-     * @param  string $sModel The model to use
-     * @param  array $sProvider The model provider
+     *
+     * @param  string $sModel    The model to use
+     * @param  array  $sProvider The model provider
+     *
      * @return string
      */
     public static function loadSettingsDriverTable($sModel, $sProvider)
@@ -498,8 +532,10 @@ class Helper
 
     /**
      * Alias to loadSettingsComponentTable()
-     * @param  string $sModel The model to use
-     * @param  array $sProvider The model provider
+     *
+     * @param  string $sModel    The model to use
+     * @param  array  $sProvider The model provider
+     *
      * @return string
      */
     public static function loadSettingsSkinTable($sModel, $sProvider)
@@ -511,20 +547,29 @@ class Helper
 
     /**
      * Adds a button to Admin's header area
-     * @param string $url The button's URL
-     * @param string $label The button's label
-     * @param string $context The button's context
-     * @param string $confirmTitle If a confirmation is required, the title to use
-     * @param string $confirmBody If a confirmation is required, the body to use
+     *
+     * @param string $sUrl          The button's URL
+     * @param string $sLabel        The button's label
+     * @param string $sContext      The button's context
+     * @param string $sConfirmTitle If a confirmation is required, the title to use
+     * @param string $sConfirmBody  If a confirmation is required, the body to use
      */
-    public static function addHeaderButton($url, $label, $context = 'primary', $confirmTitle = '', $confirmBody = '')
+    public static function addHeaderButton(
+        $sUrl,
+        $sLabel,
+        $sContext = null,
+        $sConfirmTitle = null,
+        $sConfirmBody = null
+    )
     {
+        $sContext = empty($sContext) ? 'primary' : $sContext;
+
         self::$headerButtons[] = [
-            'url'          => $url,
-            'label'        => $label,
-            'context'      => $context,
-            'confirmTitle' => $confirmTitle,
-            'confirmBody'  => $confirmBody,
+            'url'          => $sUrl,
+            'label'        => $sLabel,
+            'context'      => $sContext,
+            'confirmTitle' => $sConfirmTitle,
+            'confirmBody'  => $sConfirmBody,
         ];
     }
 

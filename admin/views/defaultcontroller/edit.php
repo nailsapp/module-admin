@@ -1,26 +1,53 @@
 <div class="group-defaultcontroller edit">
-    <?=form_open()?>
-    <fieldset>
-        <legend>Basic Details</legend>
-        <?php
+    <?php
 
-        foreach ($CONFIG['FIELDS'] as $oField) {
+    echo form_open();
+    $aFieldSets = [];
 
-            if (in_array($oField->key, $CONFIG['EDIT_IGNORE_FIELDS'])) {
-                continue;
+    foreach ($CONFIG['FIELDS'] as $oField) {
+
+        if (in_array($oField->key, $CONFIG['EDIT_IGNORE_FIELDS'])) {
+            continue;
+        }
+
+        $sFieldSet = getFromArray('fieldset', (array) $oField, 'Basic Details');
+
+        if (!array_key_exists($sFieldSet, $aFieldSets)) {
+            $aFieldSets[$sFieldSet] = [];
+        }
+
+        $aFieldSets[$sFieldSet][] = $oField;
+    }
+
+    foreach ($aFieldSets as $sLegend => $aFields) {
+
+        ?>
+        <fieldset>
+            <legend><?=$sLegend?></legend>
+            <?php
+
+            foreach ($aFields as $oField) {
+
+                $aField            = (array) $oField;
+                $aField['default'] = !empty($item) && property_exists($item, $oField->key) ? $item->{$oField->key} : '';
+
+                if (!array_key_exists('required', $aFieldSets)) {
+                    $aField['required'] = in_array('required', $oField->validation);
+                }
+
+                if (is_callable('form_field_' . $aField['type'])) {
+                    echo call_user_func('form_field_' . $aField['type'], $aField);
+                } else {
+                    echo form_field($aField);
+                }
             }
 
-            $aField = array(
-                'key'      => $oField->key,
-                'label'    => $oField->label,
-                'default'  => !empty($item) && property_exists($item, $oField->key) ? $item->{$oField->key} : '',
-                'class'    => 'field field--' . $oField->key
-            );
-            echo form_field($aField);
+            ?>
+        </fieldset>
+        <?php
+    }
 
-        }
-        ?>
-    </fieldset>
+    ?>
     <p>
         <button type="submit" class="btn btn-primary">
             Save Changes
