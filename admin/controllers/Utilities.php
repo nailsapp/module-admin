@@ -118,8 +118,8 @@ class Utilities extends Base
             try {
 
                 $oFormValidation = Factory::service('FormValidation');
-                $oFormValidation->set_rules('source', '', 'xss_clean|required');
-                $oFormValidation->set_rules('format', '', 'xss_clean|required');
+                $oFormValidation->set_rules('source', '', 'required');
+                $oFormValidation->set_rules('format', '', 'required');
                 $oFormValidation->set_message('required', lang('fv_required'));
 
                 if (!$oFormValidation->run()) {
@@ -127,8 +127,8 @@ class Utilities extends Base
                 }
 
                 $oDataExport->export(
-                    $oInput->post('source'),
-                    $oInput->post('format'),
+                    $oInput->post('source', true),
+                    $oInput->post('format', true),
                     [],
                     true
                 );
