@@ -311,7 +311,8 @@ class AdminRouter extends Base
             $aNavGroupings = array_filter(array($aNavGroupings));
         }
 
-        $this->adminControllers[$moduleName]->controllers[$fileName] = array(
+        $controllerKey = strtolower( $fileName );
+        $this->adminControllers[$moduleName]->controllers[$controllerKey] = array(
             'className' => (string) $className,
             'path'      => (string) $classPath,
             'groupings' => $aNavGroupings
