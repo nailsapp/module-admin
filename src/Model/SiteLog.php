@@ -38,7 +38,7 @@ class SiteLog extends Base
      * Get a list of log files
      * @return void
      */
-    public function getAll()
+    public function getAll( $iPage = NULL, $iPerPage = NULL, $aData = Array, $bIncludeDeleted = false )
     {
         $dirMap        = directory_map($this->logPath, 0);
         $logFiles      = array();
