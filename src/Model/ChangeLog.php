@@ -211,10 +211,10 @@ class ChangeLog extends Base
      * @param mixed  $data    Any data to pass to getCountCommon()
      * @return array
      **/
-    public function getAll($page = null, $perPage = null, $data = array())
+    public function getAll($page = null, $perPage = null, $data = array(), $bIncludeDeleted = false )
     {
         $this->db->select($this->tableAlias . '.*, u.first_name, u.last_name, u.gender, u.profile_img, ue.email');
-        return parent::getAll($page, $perPage, $data, false);
+        return parent::getAll($page, $perPage, $data, $bIncludeDeleted);
     }
 
     // --------------------------------------------------------------------------
@@ -287,11 +287,11 @@ class ChangeLog extends Base
 
         $oObj->user              = new \stdClass();
         $oObj->user->id          = $oObj->user_id;
-        $oObj->user->first_name  = $oObj->first_name;
-        $oObj->user->last_name   = $oObj->last_name;
-        $oObj->user->gender      = $oObj->gender;
-        $oObj->user->profile_img = $oObj->profile_img;
-        $oObj->user->email       = $oObj->email;
+        $oObj->user->first_name  = isset( $oObj->first_name ) ? $oObj->first_name : '';
+        $oObj->user->last_name   = isset( $oObj->last_name ) ? $oObj->last_name : '';
+        $oObj->user->gender      = isset( $oObj->gender ) ? $oObj->gender : '';
+        $oObj->user->profile_img = isset( $oObj->profile_img ) ? $oObj->profile_img : '';
+        $oObj->user->email       = isset( $oObj->email ) ? $oObj->email : '';
 
         unset($oObj->user_id);
         unset($oObj->first_name);
