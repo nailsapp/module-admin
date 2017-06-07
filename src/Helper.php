@@ -33,12 +33,11 @@ class Helper
     public static function loadView($viewFile, $loadStructure = true, $returnView = false)
     {
         $controllerData =& getControllerData();
-
-        //  Get the CI super object
-        $ci =& get_instance();
+        $oInput         = Factory::service('Input');
+        $oView          = Factory::service('View');
 
         //  Are we in a modal?
-        if ($ci->input->get('isModal')) {
+        if ($oInput->get('isModal')) {
 
             if (!isset($controllerData['headerOverride']) && !isset($controllerData['isModal'])) {
                 $controllerData['isModal'] = true;
@@ -60,9 +59,9 @@ class Helper
 
             if ($loadStructure) {
                 if (!empty($controllerData['headerOverride'])) {
-                    $return .= $ci->load->view($controllerData['headerOverride'], $controllerData, true);
+                    $return .= $oView->load($controllerData['headerOverride'], $controllerData, true);
                 } else {
-                    $return .= $ci->load->view('structure/header', $controllerData, true);
+                    $return .= $oView->load('structure/header', $controllerData, true);
                 }
             }
 
@@ -70,9 +69,9 @@ class Helper
 
             if ($loadStructure) {
                 if (!empty($controllerData['footerOverride'])) {
-                    $return .= $ci->load->view($controllerData['footerOverride'], $controllerData, true);
+                    $return .= $oView->load($controllerData['footerOverride'], $controllerData, true);
                 } else {
-                    $return .= $ci->load->view('structure/footer', $controllerData, true);
+                    $return .= $oView->load('structure/footer', $controllerData, true);
                 }
             }
 
@@ -82,9 +81,9 @@ class Helper
 
             if ($loadStructure) {
                 if (!empty($controllerData['headerOverride'])) {
-                    $ci->load->view($controllerData['headerOverride'], $controllerData);
+                    $oView->load($controllerData['headerOverride'], $controllerData);
                 } else {
-                    $ci->load->view('structure/header', $controllerData);
+                    $oView->load('structure/header', $controllerData);
                 }
             }
 
@@ -92,9 +91,9 @@ class Helper
 
             if ($loadStructure) {
                 if (!empty($controllerData['footerOverride'])) {
-                    $ci->load->view($controllerData['footerOverride'], $controllerData);
+                    $oView->load($controllerData['footerOverride'], $controllerData);
                 } else {
-                    $ci->load->view('structure/footer', $controllerData);
+                    $oView->load('structure/footer', $controllerData);
                 }
             }
         }
@@ -119,36 +118,35 @@ class Helper
             //  If filename has been specified then set some additional headers
             if (!empty($filename)) {
 
-                $ci = get_instance();
+                $oInput  = Factory::service('Input');
+                $oOutput = Factory::service('Output');
 
                 //  Common headers
-                $ci->output->set_content_type('text/csv');
-                $ci->output->set_header('Content-Disposition: attachment; filename="' . $filename . '"');
-                $ci->output->set_header('Expires: 0');
-                $ci->output->set_header("Content-Transfer-Encoding: binary");
+                $oOutput->set_content_type('text/csv');
+                $oOutput->set_header('Content-Disposition: attachment; filename="' . $filename . '"');
+                $oOutput->set_header('Expires: 0');
+                $oOutput->set_header("Content-Transfer-Encoding: binary");
 
                 //  Handle IE, classic.
-                $userAgent = $ci->input->server('HTTP_USER_AGENT');
+                $userAgent = $oInput->server('HTTP_USER_AGENT');
 
                 if (strpos($userAgent, "MSIE") !== false) {
 
-                    $ci->output->set_header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-                    $ci->output->set_header('Pragma: public');
+                    $oOutput->set_header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+                    $oOutput->set_header('Pragma: public');
 
                 } else {
 
-                    $ci->output->set_header('Pragma: no-cache');
+                    $oOutput->set_header('Pragma: no-cache');
                 }
             }
 
             //  Not using self::loadInlineView() as this may be called from many contexts
+            $oView = Factory::service('View');
             if (is_array($data)) {
-
-                return get_instance()->load->view('admin/_components/csv/array', ['data' => $data]);
-
+                $oView->load('admin/_components/csv/array', ['data' => $data]);
             } elseif (get_class($data) == 'CI_DB_mysqli_result') {
-
-                return get_instance()->load->view('admin/_components/csv/dbResult', ['data' => $data]);
+                $oView->load('admin/_components/csv/dbResult', ['data' => $data]);
             }
 
         } else {
@@ -170,6 +168,8 @@ class Helper
      * @param  array   $aViewData   The data to pass to the view
      * @param  boolean $bReturnView Whether to return the view or send it to the Output class
      *
+     * @throws \Exception
+     *
      * @return mixed               String when $bReturnView is true, void otherwise
      */
     public static function loadInlineView($sViewFile, $aViewData = [], $bReturnView = false)
@@ -184,12 +184,11 @@ class Helper
         $aCtrlPath[] = $sViewFile;
         $sViewPath   = implode(DIRECTORY_SEPARATOR, $aCtrlPath) . '.php';
 
-        //  Get the CI super object
-        $ci =& get_instance();
+        $oView = Factory::service('View');
 
         //  Load the view
         try {
-            return $ci->load->view($sViewPath, $aViewData, $bReturnView);
+            return $oView->load($sViewPath, $aViewData, $bReturnView);
         } catch (\Exception $e) {
             //  If it fails, and the controller is a default admin controller then
             //  load up that view
@@ -201,7 +200,7 @@ class Helper
                 );
             }
 
-            return $ci->load->view('admin/defaultcontroller/' . $sViewFile, $aViewData, $bReturnView);
+            return $oView->load('admin/defaultcontroller/' . $sViewFile, $aViewData, $bReturnView);
         }
     }
 
@@ -215,7 +214,7 @@ class Helper
      *
      * @return mixed                  String when $bReturnView is true, void otherwise
      */
-    public static function loadSearch($oSearchObj, $bReturnView = false)
+    public static function loadSearch($oSearchObj, $bReturnView = true)
     {
         $data = [
             'searchable'     => isset($oSearchObj->searchable) ? $oSearchObj->searchable : true,
@@ -229,7 +228,8 @@ class Helper
         ];
 
         //  Not using self::loadInlineView() as this may be called from many contexts
-        return get_instance()->load->view('admin/_components/search', $data, $bReturnView);
+        $oView = Factory::service('View');
+        return $oView->load('admin/_components/search', $data, $bReturnView);
     }
 
     // --------------------------------------------------------------------------
@@ -248,8 +248,16 @@ class Helper
      *
      * @return \stdClass
      */
-    public static function searchObject($searchable, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords = '', $checkboxFilter = [], $dropdownFilter = [])
-    {
+    public static function searchObject(
+        $searchable,
+        $sortColumns,
+        $sortOn,
+        $sortOrder,
+        $perPage,
+        $keywords = '',
+        $checkboxFilter = [],
+        $dropdownFilter = []
+    ) {
         $searchObject                 = new \stdClass();
         $searchObject->searchable     = $searchable;
         $searchObject->sortColumns    = $sortColumns;
@@ -308,7 +316,7 @@ class Helper
     // --------------------------------------------------------------------------
 
     /**
-     * Creates a starndard object which is an option for self::searchFilterObject()
+     * Creates a standard object which is an option for self::searchFilterObject()
      *
      * @param  string  $label   The label to give the option
      * @param  string  $value   The value to give the option (filters self::searchFilterObject's $column parameter)
@@ -318,12 +326,11 @@ class Helper
      */
     public static function searchFilterObjectOption($label = '', $value = '', $checked = false)
     {
-        $temp          = new \stdClass();
-        $temp->label   = $label;
-        $temp->value   = $value;
-        $temp->checked = $checked;
-
-        return $temp;
+        return (object) [
+            'label'   => $label,
+            'value'   => $value,
+            'checked' => $checked,
+        ];
     }
 
     // --------------------------------------------------------------------------
@@ -351,7 +358,7 @@ class Helper
      *
      * @return mixed                      String when $returnView is true, void otherwise
      */
-    public static function loadPagination($paginationObject, $returnView = false)
+    public static function loadPagination($paginationObject, $returnView = true)
     {
         $data = [
             'page'      => isset($paginationObject->page) ? $paginationObject->page : null,
@@ -360,7 +367,8 @@ class Helper
         ];
 
         //  Not using self::loadInlineView() as this may be called from many contexts
-        return get_instance()->load->view('admin/_components/pagination', $data, $returnView);
+        $oView = Factory::service('View');
+        return $oView->load('admin/_components/pagination', $data, $returnView);
     }
 
     // --------------------------------------------------------------------------
@@ -376,12 +384,11 @@ class Helper
      */
     public static function paginationObject($page, $perPage, $totalRows)
     {
-        $paginationObject            = new \stdClass();
-        $paginationObject->page      = $page;
-        $paginationObject->perPage   = $perPage;
-        $paginationObject->totalRows = $totalRows;
-
-        return $paginationObject;
+        return (object) [
+            'page'      => $page,
+            'perPage'   => $perPage,
+            'totalRows' => $totalRows,
+        ];
     }
 
     // --------------------------------------------------------------------------
@@ -397,14 +404,16 @@ class Helper
     {
         if (is_numeric($mUser)) {
 
-            $oUser = get_instance()->user_model->getById($mUser);
+            $oUserModel = Factory::model('User', 'nailsapp/module-auth');
+            $oUser      = $oUserModel->getById($mUser);
 
-        } else if (is_string($mUser)) {
+        } elseif (is_string($mUser)) {
 
-            $oUser = get_instance()->user_model->getByEmail($mUser);
+            $oUserModel = Factory::model('User', 'nailsapp/module-auth');
+            $oUser      = $oUserModel->getByEmail($mUser);
 
             if (empty($oUser)) {
-                $oUser = get_instance()->user_model->getByUsername($mUser);
+                $oUser = $oUserModel->getByUsername($mUser);
             }
 
         } else {
@@ -420,7 +429,8 @@ class Helper
             'email'       => !empty($oUser->email) ? $oUser->email : null,
         ];
 
-        return get_instance()->load->view('admin/_components/table-cell-user', $aUser, true);
+        $oView = Factory::service('View');
+        return $oView->load('admin/_components/table-cell-user', $aUser, true);
     }
 
     // --------------------------------------------------------------------------
@@ -440,7 +450,8 @@ class Helper
             'noData' => $noData,
         ];
 
-        return get_instance()->load->view('admin/_components/table-cell-date', $data, true);
+        $oView = Factory::service('View');
+        return $oView->load('admin/_components/table-cell-date', $data, true);
     }
 
     // --------------------------------------------------------------------------
@@ -460,7 +471,8 @@ class Helper
             'noData'   => $noData,
         ];
 
-        return get_instance()->load->view('admin/_components/table-cell-datetime', $data, true);
+        $oView = Factory::service('View');
+        return $oView->load('admin/_components/table-cell-datetime', $data, true);
     }
 
     // --------------------------------------------------------------------------
@@ -480,7 +492,8 @@ class Helper
             'dateTime' => $dateTime,
         ];
 
-        return get_instance()->load->view('admin/_components/table-cell-boolean', $data, true);
+        $oView = Factory::service('View');
+        return $oView->load('admin/_components/table-cell-boolean', $data, true);
     }
 
     // --------------------------------------------------------------------------
@@ -510,7 +523,8 @@ class Helper
             'componentType'     => $sComponentType,
         ];
 
-        return get_instance()->load->view('admin/_components/settings-component-table', $aData, true);
+        $oView = Factory::service('View');
+        return $oView->load('admin/_components/settings-component-table', $aData, true);
     }
 
     // --------------------------------------------------------------------------
@@ -560,8 +574,7 @@ class Helper
         $sContext = null,
         $sConfirmTitle = null,
         $sConfirmBody = null
-    )
-    {
+    ) {
         $sContext = empty($sContext) ? 'primary' : $sContext;
 
         self::$headerButtons[] = [
