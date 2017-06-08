@@ -15,15 +15,13 @@ namespace Nails\Admin\Controller;
 
 use Nails\Factory;
 
-abstract class Base extends \Nails\Common\Controller\Base
+abstract class Base
 {
     /**
      * Construct the controller, load all the admin assets, etc
      */
     public function __construct()
     {
-        parent::__construct();
-
         //  Setup Events
         $oEventService = Factory::service('Event');
 
@@ -53,7 +51,7 @@ abstract class Base extends \Nails\Common\Controller\Base
         Factory::helper('admin', 'nailsapp/module-admin');
 
         //  Languages
-        $this->lang->load('admin/admin_generic');
+        get_instance()->lang->load('admin/admin_generic');
 
         // --------------------------------------------------------------------------
 
@@ -213,6 +211,11 @@ abstract class Base extends \Nails\Common\Controller\Base
         $sJs .= '}';
 
         $oAsset->inline($sJs, 'JS');
+
+        // --------------------------------------------------------------------------
+
+        //  @todo (Pablo - 2017-06-08) - Remove this
+        \Nails\Common\Controller\Base::backwardsCompatibility($this);
 
         // --------------------------------------------------------------------------
 
