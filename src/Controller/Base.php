@@ -15,13 +15,8 @@ namespace Nails\Admin\Controller;
 
 use Nails\Factory;
 
-abstract class Base extends \MX_Controller
+abstract class Base extends \Nails\Common\Controller\Base
 {
-    protected $data;
-    protected $cdn;
-
-    // --------------------------------------------------------------------------
-
     /**
      * Construct the controller, load all the admin assets, etc
      */
@@ -29,10 +24,11 @@ abstract class Base extends \MX_Controller
     {
         parent::__construct();
 
-        // --------------------------------------------------------------------------
+        //  Setup Events
+        $oEventService = Factory::service('Event');
 
-        //  Get the controller data
-        $this->data =& getControllerData();
+        //  Call the ADMIN.STARTUP event, admin is constructing
+        $oEventService->trigger('ADMIN.STARTUP', 'nailsapp/module-admin');
 
         // --------------------------------------------------------------------------
 
@@ -42,19 +38,16 @@ abstract class Base extends \MX_Controller
 
         //  Configs
         $oConfig = Factory::service('Config');
-        $paths   = array(
+        $aPaths  = [
             FCPATH . APPPATH . 'config/admin.php',
-            FCPATH . APPPATH . 'modules/admin/config/admin.php'
-        );
+            FCPATH . APPPATH . 'modules/admin/config/admin.php',
+        ];
 
-        foreach ($paths as $path) {
-            if (file_exists($path)) {
-                $oConfig->load($path);
+        foreach ($aPaths as $sPath) {
+            if (file_exists($sPath)) {
+                $oConfig->load($sPath);
             }
         }
-
-        //  Libraries
-        $this->cdn = Factory::service('Cdn', 'nailsapp/module-cdn');
 
         //  Helpers
         Factory::helper('admin', 'nailsapp/module-admin');
@@ -64,9 +57,12 @@ abstract class Base extends \MX_Controller
 
         // --------------------------------------------------------------------------
 
-        //  Unload any previously loaded assets, admin handles its own assets
         $oAsset = Factory::service('Asset');
+
+        //  Unload any previously loaded assets, admin handles its own assets
         $oAsset->clear();
+
+        //  @todo (Pablo - 2017-06-08) - Try and reduce the number of things being loaded, or theme it
 
         //  Bower assets
         $oAsset->load('jquery/dist/jquery.min.js', 'NAILS-BOWER');
@@ -107,10 +103,18 @@ abstract class Base extends \MX_Controller
                 $oAutoLoad = $oComponent->data->{'nailsapp/module-admin'}->autoload;
 
                 //  Libraries
-                //  @todo: maybe?
+                if (!empty($oAutoLoad->services)) {
+                    foreach ($oAutoLoad->services as $sService) {
+                        Factory::service($sService, $oComponent->slug);
+                    }
+                }
 
                 //  Models
-                //  @todo: maybe?
+                if (!empty($oAutoLoad->models)) {
+                    foreach ($oAutoLoad->models as $sModel) {
+                        Factory::model($sModel, $oComponent->slug);
+                    }
+                }
 
                 //  Helpers
                 if (!empty($oAutoLoad->helpers)) {
@@ -124,12 +128,9 @@ abstract class Base extends \MX_Controller
                     foreach ($oAutoLoad->assets->js as $mAsset) {
 
                         if (is_string($mAsset)) {
-
                             $sAsset    = $mAsset;
                             $sLocation = null;
-
                         } else {
-
                             $sAsset    = !empty($mAsset[0]) ? $mAsset[0] : null;
                             $sLocation = !empty($mAsset[1]) ? $mAsset[1] : null;
                         }
@@ -150,12 +151,9 @@ abstract class Base extends \MX_Controller
                     foreach ($oAutoLoad->assets->css as $mAsset) {
 
                         if (is_string($mAsset)) {
-
                             $sAsset    = $mAsset;
                             $sLocation = null;
-
                         } else {
-
                             $sAsset    = !empty($mAsset[0]) ? $mAsset[0] : null;
                             $sLocation = !empty($mAsset[1]) ? $mAsset[1] : null;
                         }
@@ -196,25 +194,30 @@ abstract class Base extends \MX_Controller
         }
 
         //  Inline assets
-        $js  = 'var _nails,_nails_admin,_nails_api, _nails_forms;';
+        $sJs = 'var _nails,_nails_admin,_nails_api, _nails_forms;';
 
-        $js .= 'if (typeof(NAILS_JS) === \'function\'){';
-        $js .= '_nails = new NAILS_JS();';
-        $js .= '}';
+        $sJs .= 'if (typeof(NAILS_JS) === \'function\'){';
+        $sJs .= '_nails = new NAILS_JS();';
+        $sJs .= '}';
 
-        $js .= 'if (typeof(NAILS_Admin) === \'function\'){';
-        $js .= '_nails_admin = new NAILS_Admin();';
-        $js .= '}';
+        $sJs .= 'if (typeof(NAILS_Admin) === \'function\'){';
+        $sJs .= '_nails_admin = new NAILS_Admin();';
+        $sJs .= '}';
 
-        $js .= 'if (typeof(NAILS_API) === \'function\'){';
-        $js .= '_nails_api = new NAILS_API();';
-        $js .= '}';
+        $sJs .= 'if (typeof(NAILS_API) === \'function\'){';
+        $sJs .= '_nails_api = new NAILS_API();';
+        $sJs .= '}';
 
-        $js .= 'if (typeof(NAILS_Forms) === \'function\'){';
-        $js .= '_nails_forms = new NAILS_Forms();';
-        $js .= '}';
+        $sJs .= 'if (typeof(NAILS_Forms) === \'function\'){';
+        $sJs .= '_nails_forms = new NAILS_Forms();';
+        $sJs .= '}';
 
-        $oAsset->inline($js, 'JS');
+        $oAsset->inline($sJs, 'JS');
+
+        // --------------------------------------------------------------------------
+
+        //  Call the ADMIN.READY event, admin is all geared up and ready to go
+        $oEventService->trigger('ADMIN.READY', 'nailsapp/module-admin');
     }
 
     // --------------------------------------------------------------------------
@@ -225,7 +228,7 @@ abstract class Base extends \MX_Controller
      */
     public static function announce()
     {
-        return array();
+        return [];
     }
 
     // --------------------------------------------------------------------------
@@ -236,6 +239,6 @@ abstract class Base extends \MX_Controller
      */
     public static function permissions()
     {
-        return array();
+        return [];
     }
 }
