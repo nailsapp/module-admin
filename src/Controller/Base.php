@@ -17,6 +17,8 @@ use Nails\Factory;
 
 abstract class Base
 {
+    public $data;
+
     /**
      * Construct the controller, load all the admin assets, etc
      */
@@ -27,6 +29,14 @@ abstract class Base
 
         //  Call the ADMIN.STARTUP event, admin is constructing
         $oEventService->trigger('ADMIN.STARTUP', 'nailsapp/module-admin');
+
+        // --------------------------------------------------------------------------
+
+        //  Provide access to the main controller's data property
+        $this->data =& getControllerData();
+        //  @todo (Pablo - 2017-06-08) - Try and remove these dependencies
+        $this->load =& get_instance()->load;
+        $this->lang =& get_instance()->lang;
 
         // --------------------------------------------------------------------------
 
