@@ -1,40 +1,42 @@
 <?php
 
+$aData   = !empty($data) ? $data : [];
+$bHeader = !empty($header) ? $header : true;
+
 //  Determine the field titles if we can
-$first   = (array) reset($data);
-$columns = array_keys($first);
-$columnsOut = array();
+if (!empty($bHeader)) {
 
-foreach ($columns as $column) {
+    $aFirstRow   = (array) reset($aData);
+    $aColumns    = array_keys($aFirstRow);
+    $aColumnsOut = [];
 
-    $columnsOut[] = '"' . str_replace('"', '""', $column) . '"';
+    foreach ($aColumns as $sColumn) {
+        $aColumnsOut[] = '"' . str_replace('"', '""', $sColumn) . '"';
+    }
+
+    echo $aColumnsOut ? implode(',', $aColumnsOut) . "\n" : '';
 }
-
-echo $columnsOut ? implode(',', $columnsOut) . "\n" : '';
 
 // --------------------------------------------------------------------------
 
 //  Now do the data dance
-for ($i=0; $i < count($data); $i++) {
+for ($i = 0; $i < count($aData); $i++) {
 
-    $csvRow = '';
+    $sCsvRow = '';
 
-    foreach ($data[$i] as $value) {
-
-        //  Stringy items only, please
-        if (!is_string($value) && !is_numeric($value) && !is_null($value)) {
-
-            $value = json_encode($value, JSON_PRETTY_PRINT);
-        }
+    foreach ($aData[$i] as $mValue) {
 
         //  Sanitize
-        $value = str_replace('"', '""', $value);
-        $value = trim(preg_replace("/\r\n|\r|\n/", ' ', $value));
+        if (!is_string($mValue) && !is_numeric($mValue) && !is_null($mValue)) {
+            $mValue = json_encode($mValue, JSON_PRETTY_PRINT);
+        }
+
+        $mValue = str_replace('"', '""', $mValue);
+        $mValue = trim(preg_replace("/\r\n|\r|\n/", ' ', $mValue));
 
         //  Add to the csvRow
-        $csvRow .= '"' . $value . '",';
+        $sCsvRow .= '"' . $mValue . '",';
     }
 
-    //  Spit it oot, hen!
-    echo substr($csvRow, 0, -1) . "\n";
+    echo substr($sCsvRow, 0, -1) . "\n";
 }
