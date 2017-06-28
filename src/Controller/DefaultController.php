@@ -10,10 +10,6 @@
  * @link
  */
 
-//  @todo - Ensure search still works
-//  @todo - Ensure sorting still works
-//  @todo - Render fields properly
-
 namespace Nails\Admin\Controller;
 
 use Nails\Admin\Helper;
@@ -85,6 +81,51 @@ abstract class DefaultController extends Base
      * Any additional header buttons to add to the page
      */
     const CONFIG_INDEX_HEADER_BUTTONS = [];
+
+    /**
+     * Specify whether the controller supports item creation
+     */
+    const CONFIG_CAN_CREATE = true;
+
+    /**
+     * Specify whether the controller supports item editing
+     */
+    const CONFIG_CAN_EDIT = true;
+
+    /**
+     * Specify whether the controller supports linking to the item
+     */
+    const CONFIG_CAN_VIEW = true;
+
+    /**
+     * Specify whether the controller supports item deletion (and restoration if possible)
+     */
+    const CONFIG_CAN_DELETE = true;
+
+    /**
+     * Any additional buttons to add for each row item (will sit between "View" if available and "Edit").
+     * Takes the following format:
+     *
+     *   [
+     *       // The button's URL, row items can be substituted in using double curly syntax.
+     *       // Will be prefixed with $CONFIG['BASE_URL'] (which is the URL to the controller)
+     *       'url'        => 'edit/{{id}}',
+     *
+     *       // The button's value/label
+     *       'label'      => 'Edit',
+     *
+     *       // Additional classes to add to the button
+     *       'class'      => 'btn-primary',
+     *
+     *       // Additional attributes to add to the button
+     *       'attr'       => '',
+     *
+     *       // If required, a permission string to check in order to render the button;
+     *       // will be appended to `admin:$CONFIG['PERMISSION']:`
+     *       'permission' => 'edit',
+     *   ],
+     */
+    const CONFIG_INDEX_ROW_BUTTONS = [];
 
     /**
      * Additional data to pass into the getAll call on the index view
@@ -166,11 +207,11 @@ abstract class DefaultController extends Base
     public static function getConfig()
     {
         //  Ensure required constants are set
-        $aConstants = [
+        $aRequiredConstants = [
             'CONFIG_MODEL_NAME',
             'CONFIG_MODEL_PROVIDER',
         ];
-        foreach ($aConstants as $sConstant) {
+        foreach ($aRequiredConstants as $sConstant) {
             if (empty(constant('static::' . $sConstant))) {
                 throw new NailsException(
                     'The constant "static::' . $sConstant . '" must be set in ' . get_called_class()
@@ -179,26 +220,30 @@ abstract class DefaultController extends Base
         }
 
         //  Build the config array
-        $aConfig                   = [];
-        $aConfig['MODEL_NAME']     = static::CONFIG_MODEL_NAME;
-        $aConfig['MODEL_PROVIDER'] = static::CONFIG_MODEL_PROVIDER;
-
-        //  Define remaining "constants"
-        $aConfig['PERMISSION']           = static::CONFIG_PERMISSION;
-        $aConfig['TITLE_SINGLE']         = static::CONFIG_TITLE_SINGLE;
-        $aConfig['TITLE_PLURAL']         = static::CONFIG_TITLE_PLURAL;
-        $aConfig['SIDEBAR_GROUP']        = static::CONFIG_SIDEBAR_GROUP;
-        $aConfig['SIDEBAR_ICON']         = static::CONFIG_SIDEBAR_ICON;
-        $aConfig['BASE_URL']             = static::CONFIG_BASE_URL;
-        $aConfig['SORT_OPTIONS']         = static::CONFIG_SORT_OPTIONS;
-        $aConfig['SORT_DIRECTION']       = static::CONFIG_SORT_DIRECTION;
-        $aConfig['INDEX_FIELDS']         = static::CONFIG_INDEX_FIELDS;
-        $aConfig['INDEX_HEADER_BUTTONS'] = static::CONFIG_INDEX_HEADER_BUTTONS;
-        $aConfig['INDEX_DATA']           = static::CONFIG_INDEX_DATA;
-        $aConfig['INDEX_BOOL_FIELDS']    = static::CONFIG_INDEX_BOOL_FIELDS;
-        $aConfig['INDEX_USER_FIELDS']    = static::CONFIG_INDEX_USER_FIELDS;
-        $aConfig['EDIT_IGNORE_FIELDS']   = static::CONFIG_EDIT_IGNORE_FIELDS;
-        $aConfig['EDIT_DATA']            = static::CONFIG_EDIT_DATA;
+        $aConfig = [
+            'MODEL_NAME'           => static::CONFIG_MODEL_NAME,
+            'MODEL_PROVIDER'       => static::CONFIG_MODEL_PROVIDER,
+            'CAN_CREATE'           => static::CONFIG_CAN_CREATE,
+            'CAN_EDIT'             => static::CONFIG_CAN_EDIT,
+            'CAN_VIEW'             => static::CONFIG_CAN_VIEW,
+            'CAN_DELETE'           => static::CONFIG_CAN_DELETE,
+            'PERMISSION'           => static::CONFIG_PERMISSION,
+            'TITLE_SINGLE'         => static::CONFIG_TITLE_SINGLE,
+            'TITLE_PLURAL'         => static::CONFIG_TITLE_PLURAL,
+            'SIDEBAR_GROUP'        => static::CONFIG_SIDEBAR_GROUP,
+            'SIDEBAR_ICON'         => static::CONFIG_SIDEBAR_ICON,
+            'BASE_URL'             => static::CONFIG_BASE_URL,
+            'SORT_OPTIONS'         => static::CONFIG_SORT_OPTIONS,
+            'SORT_DIRECTION'       => static::CONFIG_SORT_DIRECTION,
+            'INDEX_FIELDS'         => static::CONFIG_INDEX_FIELDS,
+            'INDEX_HEADER_BUTTONS' => static::CONFIG_INDEX_HEADER_BUTTONS,
+            'INDEX_ROW_BUTTONS'    => static::CONFIG_INDEX_ROW_BUTTONS,
+            'INDEX_DATA'           => static::CONFIG_INDEX_DATA,
+            'INDEX_BOOL_FIELDS'    => static::CONFIG_INDEX_BOOL_FIELDS,
+            'INDEX_USER_FIELDS'    => static::CONFIG_INDEX_USER_FIELDS,
+            'EDIT_IGNORE_FIELDS'   => static::CONFIG_EDIT_IGNORE_FIELDS,
+            'EDIT_DATA'            => static::CONFIG_EDIT_DATA,
+        ];
 
         //  Set defaults where appropriate
         if (empty($aConfig['TITLE_SINGLE'])) {
@@ -217,8 +262,11 @@ abstract class DefaultController extends Base
         }
 
         if (empty($aConfig['BASE_URL'])) {
-            $aBits               = explode('\\', get_called_class());
-            $aConfig['BASE_URL'] = 'admin/' . strtolower($aBits[count($aBits) - 2]) . '/' . lcfirst($aBits[count($aBits) - 1]);
+            $aBits   = explode('\\', get_called_class());
+            $sModule = strtolower($aBits[count($aBits) - 2]);
+            $sClass  = lcfirst($aBits[count($aBits) - 1]);
+
+            $aConfig['BASE_URL'] = 'admin/' . $sModule . '/' . $sClass;
         }
 
         return $aConfig;
@@ -341,9 +389,11 @@ abstract class DefaultController extends Base
 
         // --------------------------------------------------------------------------
 
-        $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':create';
-        if (empty($this->aConfig['PERMISSION']) || userHasPermission($sPermissionStr)) {
-            Helper::addHeaderButton($this->aConfig['BASE_URL'] . '/create', 'Create');
+        if (static::CONFIG_CAN_CREATE) {
+            $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':create';
+            if (empty($this->aConfig['PERMISSION']) || userHasPermission($sPermissionStr)) {
+                Helper::addHeaderButton($this->aConfig['BASE_URL'] . '/create', 'Create');
+            }
         }
 
         // --------------------------------------------------------------------------
@@ -401,6 +451,10 @@ abstract class DefaultController extends Base
      */
     public function create()
     {
+        if (!static::CONFIG_CAN_CREATE) {
+            show_404();
+        }
+
         $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':create';
         if (!empty($this->aConfig['PERMISSION']) && !userHasPermission($sPermissionStr)) {
             unauthorised();
@@ -454,6 +508,10 @@ abstract class DefaultController extends Base
      */
     public function edit()
     {
+        if (!static::CONFIG_CAN_EDIT) {
+            show_404();
+        }
+
         $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':edit';
         if (!empty($this->aConfig['PERMISSION']) && !userHasPermission($sPermissionStr)) {
             unauthorised();
@@ -649,6 +707,10 @@ abstract class DefaultController extends Base
      */
     public function delete()
     {
+        if (!static::CONFIG_CAN_DELETE) {
+            show_404();
+        }
+
         $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':delete';
         if (!empty($this->aConfig['PERMISSION']) && !userHasPermission($sPermissionStr)) {
             unauthorised();

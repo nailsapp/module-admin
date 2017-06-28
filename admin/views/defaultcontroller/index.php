@@ -90,7 +90,7 @@ use Nails\Admin\Helper;
 
                         echo '<td class="actions">';
 
-                        if (property_exists($oItem, 'url')) {
+                        if ($CONFIG['CAN_VIEW'] && property_exists($oItem, 'url')) {
                             echo anchor(
                                 $oItem->url,
                                 lang('action_view'),
@@ -98,25 +98,60 @@ use Nails\Admin\Helper;
                             );
                         }
 
-                        if (empty($CONFIG['PERMISSION']) || userHasPermission('admin:' . $CONFIG['PERMISSION'] . ':edit')) {
-                            echo anchor(
-                                $CONFIG['BASE_URL'] . '/edit/' . $oItem->id,
-                                lang('action_edit'),
-                                'class="btn btn-xs btn-primary"'
-                            );
+                        foreach ($CONFIG['INDEX_ROW_BUTTONS'] as $aButton) {
+                            $sUrl   = getFromArray('url', $aButton);
+                            $sLabel = getFromArray('label', $aButton);
+                            $sClass = getFromArray('class', $aButton);
+                            $sAttr  = getFromArray('attr', $aButton);
+                            $sPerm  = getFromArray('permission', $aButton);
+                            $sPerm  = $sPerm ? 'admin:' . $CONFIG['PERMISSION'] . ':' . $sPerm : '';
+
+                            if (empty($CONFIG['PERMISSION']) || empty($sPerm) || userHasPermission($sPerm)) {
+
+                                $sUrl = preg_replace_callback(
+                                    '/{{(.*?)}}/',
+                                    function ($aMatch) use ($oItem) {
+                                        list($sString, $sProperty) = $aMatch;
+                                        if (property_exists($oItem, $sProperty)) {
+                                            return $oItem->{$sProperty};
+                                        } else {
+                                            return $sString;
+                                        }
+                                    },
+                                    $sUrl
+                                );
+
+                                echo anchor(
+                                    $CONFIG['BASE_URL'] . '/' . $sUrl,
+                                    $sLabel,
+                                    'class="btn btn-xs ' . $sClass . '" ' . $sAttr
+                                );
+                            }
                         }
 
-                        if (empty($CONFIG['PERMISSION']) || userHasPermission('admin:' . $CONFIG['PERMISSION'] . ':delete')) {
-                            if ($CONFIG['CAN_RESTORE']) {
-                                $sConfirm = 'You <strong>can</strong> undo this action.';
-                            } else {
-                                $sConfirm = 'You <strong>cannot</strong> undo this action.';
+                        if ($CONFIG['CAN_EDIT']) {
+                            if (empty($CONFIG['PERMISSION']) || userHasPermission('admin:' . $CONFIG['PERMISSION'] . ':edit')) {
+                                echo anchor(
+                                    $CONFIG['BASE_URL'] . '/edit/' . $oItem->id,
+                                    lang('action_edit'),
+                                    'class="btn btn-xs btn-primary"'
+                                );
                             }
-                            echo anchor(
-                                $CONFIG['BASE_URL'] . '/delete/' . $oItem->id,
-                                lang('action_delete'),
-                                'class="btn btn-xs btn-danger confirm" data-body="' . $sConfirm . '"'
-                            );
+                        }
+
+                        if ($CONFIG['CAN_DELETE']) {
+                            if (empty($CONFIG['PERMISSION']) || userHasPermission('admin:' . $CONFIG['PERMISSION'] . ':delete')) {
+                                if ($CONFIG['CAN_RESTORE']) {
+                                    $sConfirm = 'You <strong>can</strong> undo this action.';
+                                } else {
+                                    $sConfirm = 'You <strong>cannot</strong> undo this action.';
+                                }
+                                echo anchor(
+                                    $CONFIG['BASE_URL'] . '/delete/' . $oItem->id,
+                                    lang('action_delete'),
+                                    'class="btn btn-xs btn-danger confirm" data-body="' . $sConfirm . '"'
+                                );
+                            }
                         }
 
                         echo '</td>';
