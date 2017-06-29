@@ -1,7 +1,7 @@
 <?php
 
 $aData   = !empty($data) ? $data : [];
-$bHeader = !empty($header) ? $header : true;
+$bHeader = !empty($header);
 
 //  Determine the field titles if we can
 if (!empty($bHeader)) {
