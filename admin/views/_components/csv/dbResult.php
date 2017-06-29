@@ -1,7 +1,7 @@
 <?php
 
 $oData   = !empty($data) ? $data : [];
-$bHeader = !empty($header) ? $header : true;
+$bHeader = !empty($header) ? $header : false;
 
 if (!empty($bHeader)) {
 
