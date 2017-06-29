@@ -206,15 +206,32 @@ class ChangeLog extends Base
 
     /**
      * Fetches all objects, optionally paginated.
-     * @param int    $page    The page number of the results, if null then no pagination
-     * @param int    $perPage How many items per page of paginated results
-     * @param mixed  $data    Any data to pass to getCountCommon()
+     * @param int    $iPage    The page number of the results, if null then no pagination
+     * @param int    $iPerPage How many items per page of paginated results
+     * @param mixed  $aData    Any data to pass to getCountCommon()
      * @return array
      **/
-    public function getAll($page = null, $perPage = null, $data = array())
+    public function getAll($iPage = null, $iPerPage = null, $aData = array())
     {
-        $this->db->select($this->tableAlias . '.*, u.first_name, u.last_name, u.gender, u.profile_img, ue.email');
-        return parent::getAll($page, $perPage, $data, false);
+        //  If the first value is an array then treat as if called with getAll(null, null, $aData);
+        //  @todo (Pablo - 2017-06-29) - Refactor how this join works (use expandable field)
+        if (is_array($iPage)) {
+            $aData = $iPage;
+            $iPage = null;
+        }
+
+        if (empty($aData['select'])) {
+            $aData['select'] = [
+                $this->tableAlias . '.*',
+                'u.first_name',
+                'u.last_name',
+                'u.gender',
+                'u.profile_img',
+                'ue.email'
+            ];
+        }
+
+        return parent::getAll($iPage, $iPerPage, $aData, false);
     }
 
     // --------------------------------------------------------------------------
