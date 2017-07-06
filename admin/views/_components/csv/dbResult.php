@@ -1,37 +1,37 @@
 <?php
 
-$columnsOut = array();
+$oData   = !empty($data) ? $data : [];
+$bHeader = !empty($header);
 
-foreach ($data->list_fields() as $column) {
+if (!empty($bHeader)) {
 
-    $columnsOut[] = '"' . str_replace('"', '""', $column) . '"';
+    $aColumnsOut = [];
+    foreach ($oData->list_fields() as $sColumn) {
+        $aColumnsOut[] = '"' . str_replace('"', '""', $sColumn) . '"';
+    }
+
+    echo $aColumnsOut ? implode(',', $aColumnsOut) . "\n" : '';
 }
-
-echo $columnsOut ? implode(',', $columnsOut) . "\n" : '';
 
 // --------------------------------------------------------------------------
 
 //  Now do the data dance
-while ($row = $data->_fetch_object()) {
+while ($oRow = $oData->_fetch_object()) {
 
-    $csvRow = '';
+    $sCsvRow = '';
 
-    foreach ($row as $value) {
-
-        //  Stringy items only, please
-        if (!is_string($value) && !is_numeric($value) && !is_null($value)) {
-
-            $value = json_encode($value, JSON_PRETTY_PRINT);
-        }
+    foreach ($oRow as $mValue) {
 
         //  Sanitize
-        $value = str_replace('"', '""', $value);
-        $value = trim(preg_replace("/\r\n|\r|\n/", ' ', $value));
+        if (!is_string($mValue) && !is_numeric($mValue) && !is_null($mValue)) {
+            $mValue = json_encode($mValue, JSON_PRETTY_PRINT);
+        }
 
-        //  Add to the row
-        $csvRow .= '"' . $value . '",';
+        $mValue = str_replace('"', '""', $mValue);
+        $mValue = trim(preg_replace("/\r\n|\r|\n/", ' ', $mValue));
+
+        $sCsvRow .= '"' . $mValue . '",';
     }
 
-    //  Spit it oot, hen!
-    echo substr($csvRow, 0, -1) . "\n";
+    echo substr($sCsvRow, 0, -1) . "\n";
 }

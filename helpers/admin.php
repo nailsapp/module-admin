@@ -2,12 +2,12 @@
 
 use Nails\Admin\Exception\HelperException;
 
-if (!function_exists('adminHelper'))
-{
+if (!function_exists('adminHelper')) {
     /**
      * Call an adminHelper static method, the first parameter should be the method to call,
      * all following params will be passed as if been called directly.
      * @return mixed
+     * @throws HelperException
      */
     function adminHelper()
     {
