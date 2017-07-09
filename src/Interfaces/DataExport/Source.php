@@ -51,7 +51,7 @@ interface Source
      *
      * @param array $aData Any data to pass to the source
      *
-     * @return \stdClass|bool
+     * @return \stdClass|array|bool
      */
     public function execute($aData = []);
 }
