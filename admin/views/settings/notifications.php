@@ -4,71 +4,84 @@
         Separate multiple email addresses using a comma; leaving blank will disable
         the notification
     </p>
-    <hr />
+    <hr/>
     <?php
 
-        if ($notifications) {
+    if ($notifications) {
 
-            echo form_open();
+        echo form_open();
 
-            foreach ($notifications as $grouping => $noti) {
+        foreach ($notifications as $grouping => $noti) {
 
-                echo '<fieldset>';
-                    echo $noti->label ? '<legend>' . $noti->label . '</legend>' : '';
-                    echo $noti->description ? '<p>' . $noti->description . '</p>' : '';
+            ?>
+            <fieldset>
+                <?=$noti->label ? '<legend>' . $noti->label . '</legend>' : ''?>
+                <?=$noti->description ? '<p>' . $noti->description . '</p>' : ''?>
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="event-label">Event Name</th>
+                            <th class="value">Value</th>
+                        </tr>
+                    <thead>
+                    <tbody>
+                        <?php
 
-                    echo '<table>';
-                        echo '<thead>';
-                            echo '<tr>';
-                                echo '<th class="event-label">Event Name</th>';
-                                echo '<th class="value">Value</th>';
-                            echo '</tr>';
-                        echo '<thead>';
-                        echo '<tbody>';
-
-                        $oAppNotificationModel = nailsFactory('model', 'AppNotification');
+                        $oAppNotificationModel = \Nails\Factory::model('AppNotification');
 
                         foreach ($noti->options as $key => $data) {
 
                             $_default = implode(', ', $oAppNotificationModel->get($key, $grouping));
 
-                            echo '<tr>';
-                                echo '<td class="event-label">';
+                            ?>
+                            <tr>
+                                <td class="event-label">
+                                    <?php
+
                                     echo !empty($data->label) ? $data->label : 'Unknown';
                                     if (!empty($data->sub_label)) {
-
                                         echo '<small>' . $data->sub_label . '</small>';
                                     }
-                                echo '</td>';
 
-                                $_has_tip = !empty($data->tip) ? 'has-tip' : '';
-                                echo '<td class="value ' . $_has_tip . '">';
-                                    echo '<div class="input-wrapper">';
+                                    ?>
+                                </td>
+                                <?php $_has_tip = !empty($data->tip) ? 'has-tip' : '' ?>
+                                <td class="value <?=$_has_tip?>">
+                                    <div class="input-wrapper">
+                                        <?php
+
                                         $_value = isset($_POST['notification'][$grouping][$key]) ? $_POST['notification'][$grouping][$key] : $_default;
                                         echo form_input('notification[' . $grouping . '][' . $key . ']', $_value, 'placeholder="Separate multiple email addresses using a comma"');
-                                    echo '</div>';
-                                    echo $_has_tip ? '<b class="fa fa-question-circle fa-lg pull-right" rel="tipsy" title="' . str_replace('"', '&quot;', $data->tip) .  '"></b>' : '';
-                                echo '</td>';
-                            echo '</tr>';
+
+                                        ?>
+                                    </div>
+                                    <?=$_has_tip ? '<b class="fa fa-question-circle fa-lg pull-right" rel="tipsy" title="' . str_replace('"', '&quot;', $data->tip) . '"></b>' : ''?>
+                                </td>
+                            </tr>
+                            <?php
                         }
-
-                        echo '</tbody>';
-                    echo '</table>';
-                echo '</fieldset>';
-            }
-
-            echo '<p>';
-                echo form_submit('submit', lang('action_save_changes'), 'class="btn btn-primary"');
-            echo '</p>';
-
-            echo form_close();
-
-        } else {
-
-            echo '<p class="alert alert-danger">';
-                echo 'Sorry, there are no configurable notifications.';
-            echo '</p>';
+                        ?>
+                    </tbody>
+                </table>
+            </fieldset>
+            <?php
         }
+
+        ?>
+        <p>
+            <?=form_submit('submit', lang('action_save_changes'), 'class="btn btn-primary"')?>
+        </p>
+        <?php
+        echo form_close();
+
+    } else {
+        ?>
+        <p class="alert alert-danger">
+            Sorry, there are no configurable notifications.
+        </p>
+        <?php
+
+    }
 
     ?>
 </div>
