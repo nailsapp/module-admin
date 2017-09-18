@@ -666,6 +666,19 @@ abstract class DefaultController extends Base
     // --------------------------------------------------------------------------
 
     /**
+     * Executed before an item is deleted
+     *
+     * @param int $iItemId The item's ID
+     *
+     * @return void
+     */
+    protected function beforeDelete($iItemId)
+    {
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
      * Executed after an item is edited
      *
      * @param string    $sMode    Whether the action was CREATE or EDIT
@@ -702,6 +715,19 @@ abstract class DefaultController extends Base
      * @return void
      */
     protected function afterCreate($iItemId)
+    {
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Executed after an item is deleted
+     *
+     * @param int $iItemId The item's ID
+     *
+     * @return void
+     */
+    protected function afterDelete($iItemId)
     {
     }
 
@@ -829,9 +855,13 @@ abstract class DefaultController extends Base
 
         try {
 
+            $this->beforeDelete($iItemId);
+
             if (!$oItemModel->delete($iItemId)) {
                 throw new NailsException(static::DELETE_ERROR_MESSAGE . ' ' . $oItemModel->lastError());
             }
+
+            $this->afterDelete($iItemId);
 
             if ($this->aConfig['CAN_RESTORE']) {
                 $sRestoreLink = anchor($this->aConfig['BASE_URL'] . '/restore/' . $iItemId, 'Restore?');
