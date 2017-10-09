@@ -875,8 +875,9 @@ abstract class DefaultController extends Base
             redirect($this->aConfig['BASE_URL']);
 
         } catch (\Exception $e) {
-            $oDb->trans_rollback();
-            $this->data['error'] = $e->getMessage();
+            $oSession = Factory::service('Session', 'nailsapp/module-auth');
+            $oSession->set_flashdata('error', static::DELETE_ERROR_MESSAGE . ' ' . $e->getMessage());
+            redirect($this->aConfig['BASE_URL']);
         }
     }
 
@@ -931,7 +932,9 @@ abstract class DefaultController extends Base
 
         } catch (\Exception $e) {
             $oDb->trans_rollback();
-            $this->data['error'] = $e->getMessage();
+            $oSession = Factory::service('Session', 'nailsapp/module-auth');
+            $oSession->set_flashdata('error', static::RESTORE_ERROR_MESSAGE . ' ' . $e->getMessage());
+            redirect($this->aConfig['BASE_URL']);
         }
     }
 }
