@@ -168,6 +168,56 @@ abstract class DefaultController extends Base
      */
     const CONFIG_EDIT_DATA = [];
 
+    /**
+     * When creating, this string is passed to supporting functions
+     */
+    const EDIT_MODE_CREATE = 'CREATE';
+
+    /**
+     * When editing, this string is passed to supporting functions
+     */
+    const EDIT_MODE_EDIT = 'EDIT';
+
+    /**
+     * Message displayed to user when an item is successfully created
+     */
+    const CREATE_SUCCESS_MESSAGE = 'Item created successfully.';
+
+    /**
+     * Message displayed to user when an item fails to be created
+     */
+    const CREATE_ERROR_MESSAGE = 'Failed to create item.';
+
+    /**
+     * Message displayed to user when an item is successfully updated
+     */
+    const EDIT_SUCCESS_MESSAGE = 'Item updated successfully.';
+
+    /**
+     * Message displayed to user when an item fails to be created
+     */
+    const EDIT_ERROR_MESSAGE = 'Failed to update item.';
+
+    /**
+     * Message displayed to user when an item is successfully deleted
+     */
+    const DELETE_SUCCESS_MESSAGE = 'Item deleted successfully.';
+
+    /**
+     * Message displayed to user when an item fails to be deleted
+     */
+    const DELETE_ERROR_MESSAGE = 'Failed to delete item.';
+
+    /**
+     * Message displayed to user when an item is successfully restored
+     */
+    const RESTORE_SUCCESS_MESSAGE = 'Item restore successfully.';
+
+    /**
+     * Message displayed to user when an item fails to be restored
+     */
+    const RESTORE_ERROR_MESSAGE = 'Failed to restore item.';
+
     // --------------------------------------------------------------------------
 
     /**
@@ -471,16 +521,20 @@ abstract class DefaultController extends Base
             if ($this->runFormValidation()) {
                 try {
                     $oDb->trans_begin();
+
+                    $this->beforeCreateAndEdit(static::EDIT_MODE_CREATE);
+                    $this->beforeCreate();
+
                     $iItemId = $oItemModel->create($this->getPostObject());
                     if (!$iItemId) {
-                        throw new NailsException('Failed to create item.' . $oItemModel->lastError());
+                        throw new NailsException(static::CREATE_ERROR_MESSAGE . ' ' . $oItemModel->lastError());
                     }
 
-                    $this->afterCreateAndEdit('CREATE', $iItemId);
+                    $this->afterCreateAndEdit(static::EDIT_MODE_CREATE, $iItemId);
                     $this->afterCreate($iItemId);
                     $oDb->trans_commit();
                     $oSession = Factory::service('Session', 'nailsapp/module-auth');
-                    $oSession->set_flashdata('success', 'Item created successfully.');
+                    $oSession->set_flashdata('success', static::CREATE_SUCCESS_MESSAGE);
                     redirect($this->aConfig['BASE_URL']);
 
                 } catch (\Exception $e) {
@@ -537,15 +591,19 @@ abstract class DefaultController extends Base
             if ($this->runFormValidation()) {
                 try {
                     $oDb->trans_begin();
+
+                    $this->beforeCreateAndEdit(static::EDIT_MODE_EDIT, $iItemId, $oItem);
+                    $this->beforeEdit($iItemId);
+
                     if (!$oItemModel->update($iItemId, $this->getPostObject())) {
-                        throw new NailsException('Failed to update item.' . $oItemModel->lastError());
+                        throw new NailsException(static::EDIT_ERROR_MESSAGE . ' ' . $oItemModel->lastError());
                     }
 
-                    $this->afterCreateAndEdit('EDIT', $iItemId, $oItem);
+                    $this->afterCreateAndEdit(static::EDIT_MODE_EDIT, $iItemId, $oItem);
                     $this->afterEdit($iItemId, $oItem);
                     $oDb->trans_commit();
                     $oSession = Factory::service('Session', 'nailsapp/module-auth');
-                    $oSession->set_flashdata('success', 'Item updated successfully.');
+                    $oSession->set_flashdata('success', static::EDIT_SUCCESS_MESSAGE);
                     redirect($this->aConfig['BASE_URL']);
 
                 } catch (\Exception $e) {
@@ -568,15 +626,68 @@ abstract class DefaultController extends Base
     // --------------------------------------------------------------------------
 
     /**
-     * Executed after an item is edited
+     * Executed before an item is edited
      *
-     * @param string    $sType    whether the action was CREATE or EDIT
+     * @param string    $sMode    Whether the action was CREATE or EDIT
      * @param int       $iItemId  The item's ID
      * @param \stdClass $oOldItem The old item, before it was edited
      *
      * @return void
      */
-    protected function afterCreateAndEdit($sType, $iItemId, $oOldItem = null)
+    protected function beforeCreateAndEdit($sMode, $iItemId = null, $oOldItem = null)
+    {
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Executed before an item is edited
+     *
+     * @param int       $iItemId  The item's ID
+     * @param \stdClass $oOldItem The old item, before it was edited
+     *
+     * @return void
+     */
+    protected function beforeEdit($iItemId, $oOldItem = null)
+    {
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Executed before an item is created
+     *
+     * @return void
+     */
+    protected function beforeCreate()
+    {
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Executed before an item is deleted
+     *
+     * @param int $iItemId The item's ID
+     *
+     * @return void
+     */
+    protected function beforeDelete($iItemId)
+    {
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Executed after an item is edited
+     *
+     * @param string    $sMode    Whether the action was CREATE or EDIT
+     * @param int       $iItemId  The item's ID
+     * @param \stdClass $oOldItem The old item, before it was edited
+     *
+     * @return void
+     */
+    protected function afterCreateAndEdit($sMode, $iItemId, $oOldItem = null)
     {
     }
 
@@ -604,6 +715,19 @@ abstract class DefaultController extends Base
      * @return void
      */
     protected function afterCreate($iItemId)
+    {
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Executed after an item is deleted
+     *
+     * @param int $iItemId The item's ID
+     *
+     * @return void
+     */
+    protected function afterDelete($iItemId)
     {
     }
 
@@ -731,9 +855,13 @@ abstract class DefaultController extends Base
 
         try {
 
+            $this->beforeDelete($iItemId);
+
             if (!$oItemModel->delete($iItemId)) {
-                throw new NailsException('Failed to delete item.' . $oItemModel->lastError());
+                throw new NailsException(static::DELETE_ERROR_MESSAGE . ' ' . $oItemModel->lastError());
             }
+
+            $this->afterDelete($iItemId);
 
             if ($this->aConfig['CAN_RESTORE']) {
                 $sRestoreLink = anchor($this->aConfig['BASE_URL'] . '/restore/' . $iItemId, 'Restore?');
@@ -743,12 +871,13 @@ abstract class DefaultController extends Base
 
             $oDb->trans_commit();
             $oSession = Factory::service('Session', 'nailsapp/module-auth');
-            $oSession->set_flashdata('success', 'Item deleted successfully. ' . $sRestoreLink);
+            $oSession->set_flashdata('success', static::DELETE_SUCCESS_MESSAGE . ' ' . $sRestoreLink);
             redirect($this->aConfig['BASE_URL']);
 
         } catch (\Exception $e) {
-            $oDb->trans_rollback();
-            $this->data['error'] = $e->getMessage();
+            $oSession = Factory::service('Session', 'nailsapp/module-auth');
+            $oSession->set_flashdata('error', static::DELETE_ERROR_MESSAGE . ' ' . $e->getMessage());
+            redirect($this->aConfig['BASE_URL']);
         }
     }
 
@@ -793,17 +922,19 @@ abstract class DefaultController extends Base
 
         try {
             if (!$oItemModel->restore($iItemId)) {
-                throw new NailsException('Failed to restore item.' . $oItemModel->lastError());
+                throw new NailsException(static::RESTORE_ERROR_MESSAGE . ' ' . $oItemModel->lastError());
             }
 
             $oDb->trans_commit();
             $oSession = Factory::service('Session', 'nailsapp/module-auth');
-            $oSession->set_flashdata('success', 'Item restored successfully.');
+            $oSession->set_flashdata('success', static::RESTORE_SUCCESS_MESSAGE);
             redirect($this->aConfig['BASE_URL']);
 
         } catch (\Exception $e) {
             $oDb->trans_rollback();
-            $this->data['error'] = $e->getMessage();
+            $oSession = Factory::service('Session', 'nailsapp/module-auth');
+            $oSession->set_flashdata('error', static::RESTORE_ERROR_MESSAGE . ' ' . $e->getMessage());
+            redirect($this->aConfig['BASE_URL']);
         }
     }
 }
