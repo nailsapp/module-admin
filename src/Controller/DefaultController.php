@@ -78,7 +78,8 @@ abstract class DefaultController extends Base
     ];
 
     /**
-     * Any additional header buttons to add to the page
+     * Any additional header buttons to add to the page.
+     * See static::$aConfigIndexRowButtons for details
      */
     const CONFIG_INDEX_HEADER_BUTTONS = [];
 
@@ -101,31 +102,6 @@ abstract class DefaultController extends Base
      * Specify whether the controller supports item deletion (and restoration if possible)
      */
     const CONFIG_CAN_DELETE = true;
-
-    /**
-     * Any additional buttons to add for each row item (will sit between "View" if available and "Edit").
-     * Takes the following format:
-     *
-     *   [
-     *       // The button's URL, row items can be substituted in using double curly syntax.
-     *       // Will be prefixed with $CONFIG['BASE_URL'] (which is the URL to the controller)
-     *       'url'        => 'edit/{{id}}',
-     *
-     *       // The button's value/label
-     *       'label'      => 'Edit',
-     *
-     *       // Additional classes to add to the button
-     *       'class'      => 'btn-primary',
-     *
-     *       // Additional attributes to add to the button
-     *       'attr'       => '',
-     *
-     *       // If required, a permission string to check in order to render the button;
-     *       // will be appended to `admin:$CONFIG['PERMISSION']:`
-     *       'permission' => 'edit',
-     *   ],
-     */
-    const CONFIG_INDEX_ROW_BUTTONS = [];
 
     /**
      * Additional data to pass into the getAll call on the index view
@@ -221,6 +197,36 @@ abstract class DefaultController extends Base
     // --------------------------------------------------------------------------
 
     /**
+     * Any additional buttons to add for each row item (will sit between "View" if available and "Edit").
+     * Takes the following format:
+     *
+     *   [
+     *       // The button's URL, row items can be substituted in using double curly syntax.
+     *       // Will be prefixed with $CONFIG['BASE_URL'] (which is the URL to the controller)
+     *       'url'        => 'edit/{{id}}',
+     *
+     *       // The button's value/label
+     *       'label'      => 'Edit',
+     *
+     *       // Additional classes to add to the button
+     *       'class'      => 'btn-primary',
+     *
+     *       // Additional attributes to add to the button
+     *       'attr'       => '',
+     *
+     *       // If required, a permission string to check in order to render the button;
+     *       // will be appended to `admin:$CONFIG['PERMISSION']:`
+     *       'permission' => 'edit',
+     *
+     *       // An expression to determine if the button can be rendered
+     *       'enabled'   => function($oItem) { return true; },
+     *   ],
+     */
+    protected static $aConfigIndexRowButtons = [];
+
+    // --------------------------------------------------------------------------
+
+    /**
      * Contains the configs for this controller
      * @var array
      */
@@ -287,7 +293,7 @@ abstract class DefaultController extends Base
             'SORT_DIRECTION'       => static::CONFIG_SORT_DIRECTION,
             'INDEX_FIELDS'         => static::CONFIG_INDEX_FIELDS,
             'INDEX_HEADER_BUTTONS' => static::CONFIG_INDEX_HEADER_BUTTONS,
-            'INDEX_ROW_BUTTONS'    => static::CONFIG_INDEX_ROW_BUTTONS,
+            'INDEX_ROW_BUTTONS'    => array_merge(static::$aConfigIndexRowButtons, static::CONFIG_INDEX_HEADER_BUTTONS),
             'INDEX_DATA'           => static::CONFIG_INDEX_DATA,
             'INDEX_BOOL_FIELDS'    => static::CONFIG_INDEX_BOOL_FIELDS,
             'INDEX_USER_FIELDS'    => static::CONFIG_INDEX_USER_FIELDS,
