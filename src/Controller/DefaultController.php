@@ -523,6 +523,13 @@ abstract class DefaultController extends Base
             $this->aConfig['MODEL_PROVIDER']
         );
 
+        // --------------------------------------------------------------------------
+
+        //  View Data & Assets
+        $this->loadEditViewData();
+
+        // --------------------------------------------------------------------------
+
         if ($oInput->post()) {
             if ($this->runFormValidation()) {
                 try {
@@ -553,8 +560,7 @@ abstract class DefaultController extends Base
             }
         }
 
-        //  View Data & Assets
-        $this->loadEditViewData();
+        // --------------------------------------------------------------------------
 
         $this->data['page']->title = $this->aConfig['TITLE_SINGLE'] . ' &rsaquo; Create';
         Helper::loadView('edit');
@@ -593,6 +599,11 @@ abstract class DefaultController extends Base
 
         // --------------------------------------------------------------------------
 
+        //  View Data & Assets
+        $this->loadEditViewData($oItem);
+
+        // --------------------------------------------------------------------------
+
         if ($oInput->post()) {
             if ($this->runFormValidation()) {
                 try {
@@ -621,9 +632,6 @@ abstract class DefaultController extends Base
                 $this->data['error'] = lang('fv_there_were_errors');
             }
         }
-
-        //  View Data & Assets
-        $this->loadEditViewData($oItem);
 
         $this->data['page']->title = $this->aConfig['TITLE_SINGLE'] . ' &rsaquo; Edit';
         Helper::loadView('edit');
