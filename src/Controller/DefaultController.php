@@ -79,9 +79,14 @@ abstract class DefaultController extends Base
 
     /**
      * Any additional header buttons to add to the page.
-     * See static::$aConfigIndexRowButtons for details
      */
     const CONFIG_INDEX_HEADER_BUTTONS = [];
+
+    /**
+     * Any additional buttons to add to each row on the page.
+     * See static::$aConfigIndexRowButtons for details
+     */
+    const CONFIG_INDEX_ROW_BUTTONS = [];
 
     /**
      * Specify whether the controller supports item creation
@@ -293,7 +298,7 @@ abstract class DefaultController extends Base
             'SORT_DIRECTION'       => static::CONFIG_SORT_DIRECTION,
             'INDEX_FIELDS'         => static::CONFIG_INDEX_FIELDS,
             'INDEX_HEADER_BUTTONS' => static::CONFIG_INDEX_HEADER_BUTTONS,
-            'INDEX_ROW_BUTTONS'    => array_merge(static::$aConfigIndexRowButtons, static::CONFIG_INDEX_HEADER_BUTTONS),
+            'INDEX_ROW_BUTTONS'    => array_merge(static::$aConfigIndexRowButtons, static::CONFIG_INDEX_ROW_BUTTONS),
             'INDEX_DATA'           => static::CONFIG_INDEX_DATA,
             'INDEX_BOOL_FIELDS'    => static::CONFIG_INDEX_BOOL_FIELDS,
             'INDEX_USER_FIELDS'    => static::CONFIG_INDEX_USER_FIELDS,
