@@ -14,6 +14,7 @@ namespace Nails\Admin\Controller;
 
 use Nails\Admin\Helper;
 use Nails\Common\Exception\NailsException;
+use Nails\Common\Exception\ValidationException;
 use Nails\Factory;
 
 abstract class DefaultController extends Base
@@ -536,32 +537,27 @@ abstract class DefaultController extends Base
         // --------------------------------------------------------------------------
 
         if ($oInput->post()) {
-            if ($this->runFormValidation()) {
-                try {
-                    $oDb->trans_begin();
+            try {
+                $this->runFormValidation();
+                $oDb->trans_begin();
+                $this->beforeCreateAndEdit(static::EDIT_MODE_CREATE);
+                $this->beforeCreate();
 
-                    $this->beforeCreateAndEdit(static::EDIT_MODE_CREATE);
-                    $this->beforeCreate();
-
-                    $iItemId = $oItemModel->create($this->getPostObject());
-                    if (!$iItemId) {
-                        throw new NailsException(static::CREATE_ERROR_MESSAGE . ' ' . $oItemModel->lastError());
-                    }
-
-                    $this->afterCreateAndEdit(static::EDIT_MODE_CREATE, $iItemId);
-                    $this->afterCreate($iItemId);
-                    $oDb->trans_commit();
-                    $oSession = Factory::service('Session', 'nailsapp/module-auth');
-                    $oSession->set_flashdata('success', static::CREATE_SUCCESS_MESSAGE);
-                    redirect($this->aConfig['BASE_URL']);
-
-                } catch (\Exception $e) {
-                    $oDb->trans_rollback();
-                    $this->data['error'] = $e->getMessage();
+                $iItemId = $oItemModel->create($this->getPostObject());
+                if (!$iItemId) {
+                    throw new NailsException(static::CREATE_ERROR_MESSAGE . ' ' . $oItemModel->lastError());
                 }
 
-            } else {
-                $this->data['error'] = lang('fv_there_were_errors');
+                $this->afterCreateAndEdit(static::EDIT_MODE_CREATE, $iItemId);
+                $this->afterCreate($iItemId);
+                $oDb->trans_commit();
+                $oSession = Factory::service('Session', 'nailsapp/module-auth');
+                $oSession->set_flashdata('success', static::CREATE_SUCCESS_MESSAGE);
+                redirect($this->aConfig['BASE_URL']);
+
+            } catch (\Exception $e) {
+                $oDb->trans_rollback();
+                $this->data['error'] = $e->getMessage();
             }
         }
 
@@ -610,31 +606,27 @@ abstract class DefaultController extends Base
         // --------------------------------------------------------------------------
 
         if ($oInput->post()) {
-            if ($this->runFormValidation()) {
-                try {
-                    $oDb->trans_begin();
+            try {
 
-                    $this->beforeCreateAndEdit(static::EDIT_MODE_EDIT, $iItemId, $oItem);
-                    $this->beforeEdit($iItemId);
+                $this->runFormValidation();
+                $oDb->trans_begin();
+                $this->beforeCreateAndEdit(static::EDIT_MODE_EDIT, $iItemId, $oItem);
+                $this->beforeEdit($iItemId);
 
-                    if (!$oItemModel->update($iItemId, $this->getPostObject())) {
-                        throw new NailsException(static::EDIT_ERROR_MESSAGE . ' ' . $oItemModel->lastError());
-                    }
-
-                    $this->afterCreateAndEdit(static::EDIT_MODE_EDIT, $iItemId, $oItem);
-                    $this->afterEdit($iItemId, $oItem);
-                    $oDb->trans_commit();
-                    $oSession = Factory::service('Session', 'nailsapp/module-auth');
-                    $oSession->set_flashdata('success', static::EDIT_SUCCESS_MESSAGE);
-                    redirect($this->aConfig['BASE_URL']);
-
-                } catch (\Exception $e) {
-                    $oDb->trans_rollback();
-                    $this->data['error'] = $e->getMessage();
+                if (!$oItemModel->update($iItemId, $this->getPostObject())) {
+                    throw new NailsException(static::EDIT_ERROR_MESSAGE . ' ' . $oItemModel->lastError());
                 }
 
-            } else {
-                $this->data['error'] = lang('fv_there_were_errors');
+                $this->afterCreateAndEdit(static::EDIT_MODE_EDIT, $iItemId, $oItem);
+                $this->afterEdit($iItemId, $oItem);
+                $oDb->trans_commit();
+                $oSession = Factory::service('Session', 'nailsapp/module-auth');
+                $oSession->set_flashdata('success', static::EDIT_SUCCESS_MESSAGE);
+                redirect($this->aConfig['BASE_URL']);
+
+            } catch (\Exception $e) {
+                $oDb->trans_rollback();
+                $this->data['error'] = $e->getMessage();
             }
         }
 
@@ -757,7 +749,8 @@ abstract class DefaultController extends Base
      *
      * @param array $aOverrides Any overrides for the fields; best to do this in the model's describeFields() method
      *
-     * @return mixed
+     * @throws ValidationException
+     * @return void
      */
     protected function runFormValidation($aOverrides = [])
     {
@@ -800,7 +793,9 @@ abstract class DefaultController extends Base
             }
         }
 
-        return $oFormValidation->run();
+        if (!$oFormValidation->run()) {
+            throw new ValidationException(lang('fv_there_were_errors'));
+        }
     }
 
     // --------------------------------------------------------------------------
