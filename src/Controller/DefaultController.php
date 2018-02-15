@@ -163,7 +163,7 @@ abstract class DefaultController extends Base
     /**
      * Message displayed to user when an item is successfully created
      */
-    const CREATE_SUCCESS_MESSAGE = 'Item created successfully.';
+    const CREATE_SUCCESS_MESSAGE = 'Item created successfully. %s';
 
     /**
      * Message displayed to user when an item fails to be created
@@ -173,7 +173,7 @@ abstract class DefaultController extends Base
     /**
      * Message displayed to user when an item is successfully updated
      */
-    const EDIT_SUCCESS_MESSAGE = 'Item updated successfully.';
+    const EDIT_SUCCESS_MESSAGE = 'Item updated successfully. %s';
 
     /**
      * Message displayed to user when an item fails to be created
@@ -260,8 +260,7 @@ abstract class DefaultController extends Base
 
         $this->aConfig['CAN_RESTORE'] = !$oItemModel->isDestructiveDelete();
         $this->aConfig['FIELDS']      = $oItemModel->describeFields();
-
-        $this->data['CONFIG'] = $this->aConfig;
+        $this->data['CONFIG']         = $this->aConfig;
     }
 
     // --------------------------------------------------------------------------
@@ -543,17 +542,29 @@ abstract class DefaultController extends Base
                 $this->beforeCreateAndEdit(static::EDIT_MODE_CREATE);
                 $this->beforeCreate();
 
-                $iItemId = $oItemModel->create($this->getPostObject());
-                if (!$iItemId) {
+                $oItem = $oItemModel->create($this->getPostObject(), true);
+                if (!$oItem) {
                     throw new NailsException(static::CREATE_ERROR_MESSAGE . ' ' . $oItemModel->lastError());
                 }
 
-                $this->afterCreateAndEdit(static::EDIT_MODE_CREATE, $iItemId);
-                $this->afterCreate($iItemId);
+                $this->afterCreateAndEdit(static::EDIT_MODE_CREATE, $oItem);
+                $this->afterCreate($oItem);
                 $oDb->trans_commit();
+
+                if (property_exists($oItem, 'url')) {
+                    $sLink = anchor(
+                        $oItem->url,
+                        'View &nbsp;<span class="fa fa-external-link"></span>',
+                        'class="btn btn-success btn-xs pull-right" target="_blank"'
+                    );
+                } else {
+                    $sLink = '';
+                }
+
                 $oSession = Factory::service('Session', 'nailsapp/module-auth');
-                $oSession->set_flashdata('success', static::CREATE_SUCCESS_MESSAGE);
-                redirect($this->aConfig['BASE_URL']);
+                $oSession->set_flashdata('success', sprintf(static::CREATE_SUCCESS_MESSAGE, $sLink));
+
+                redirect($this->aConfig['BASE_URL'] . '/edit/' . $oItem->id);
 
             } catch (\Exception $e) {
                 $oDb->trans_rollback();
@@ -610,19 +621,31 @@ abstract class DefaultController extends Base
 
                 $this->runFormValidation();
                 $oDb->trans_begin();
-                $this->beforeCreateAndEdit(static::EDIT_MODE_EDIT, $iItemId, $oItem);
-                $this->beforeEdit($iItemId);
+                $this->beforeCreateAndEdit(static::EDIT_MODE_EDIT, $oItem);
+                $this->beforeEdit($oItem);
 
                 if (!$oItemModel->update($iItemId, $this->getPostObject())) {
                     throw new NailsException(static::EDIT_ERROR_MESSAGE . ' ' . $oItemModel->lastError());
                 }
 
-                $this->afterCreateAndEdit(static::EDIT_MODE_EDIT, $iItemId, $oItem);
-                $this->afterEdit($iItemId, $oItem);
+                $oNewItem = $oItemModel->getById($iItemId);
+                $this->afterCreateAndEdit(static::EDIT_MODE_EDIT, $oNewItem, $oItem);
+                $this->afterEdit($oNewItem, $oItem);
                 $oDb->trans_commit();
+
+                if (property_exists($oNewItem, 'url')) {
+                    $sLink = anchor(
+                        $oNewItem->url,
+                        'View &nbsp;<span class="fa fa-external-link"></span>',
+                        'class="btn btn-success btn-xs pull-right" target="_blank"'
+                    );
+                } else {
+                    $sLink = '';
+                }
+
                 $oSession = Factory::service('Session', 'nailsapp/module-auth');
-                $oSession->set_flashdata('success', static::EDIT_SUCCESS_MESSAGE);
-                redirect($this->aConfig['BASE_URL']);
+                $oSession->set_flashdata('success', sprintf(static::EDIT_SUCCESS_MESSAGE, $sLink));
+                redirect($this->aConfig['BASE_URL'] . '/edit/' . $iItemId);
 
             } catch (\Exception $e) {
                 $oDb->trans_rollback();
@@ -639,13 +662,12 @@ abstract class DefaultController extends Base
     /**
      * Executed before an item is edited
      *
-     * @param string    $sMode    Whether the action was CREATE or EDIT
-     * @param int       $iItemId  The item's ID
-     * @param \stdClass $oOldItem The old item, before it was edited
+     * @param string    $sMode Whether the action was CREATE or EDIT
+     * @param \stdClass $oItem The old item, before it was edited
      *
      * @return void
      */
-    protected function beforeCreateAndEdit($sMode, $iItemId = null, $oOldItem = null)
+    protected function beforeCreateAndEdit($sMode, \stdClass $oItem = null)
     {
     }
 
@@ -654,12 +676,11 @@ abstract class DefaultController extends Base
     /**
      * Executed before an item is edited
      *
-     * @param int       $iItemId  The item's ID
-     * @param \stdClass $oOldItem The old item, before it was edited
+     * @param \stdClass $oItem The old item, before it was edited
      *
      * @return void
      */
-    protected function beforeEdit($iItemId, $oOldItem = null)
+    protected function beforeEdit(\stdClass $oItem = null)
     {
     }
 
@@ -679,11 +700,11 @@ abstract class DefaultController extends Base
     /**
      * Executed before an item is deleted
      *
-     * @param int $iItemId The item's ID
+     * @param \stdClass $oItem The item being deleted
      *
      * @return void
      */
-    protected function beforeDelete($iItemId)
+    protected function beforeDelete(\stdClass $oItem)
     {
     }
 
@@ -693,12 +714,12 @@ abstract class DefaultController extends Base
      * Executed after an item is edited
      *
      * @param string    $sMode    Whether the action was CREATE or EDIT
-     * @param int       $iItemId  The item's ID
+     * @param \stdClass $oNewItem The new item, after it was edited
      * @param \stdClass $oOldItem The old item, before it was edited
      *
      * @return void
      */
-    protected function afterCreateAndEdit($sMode, $iItemId, $oOldItem = null)
+    protected function afterCreateAndEdit($sMode, \stdClass $oNewItem, \stdClass $oOldItem = null)
     {
     }
 
@@ -707,12 +728,12 @@ abstract class DefaultController extends Base
     /**
      * Executed after an item is edited
      *
-     * @param int       $iItemId  The item's ID
+     * @param \stdClass $oNewItem The new item, after it was edited
      * @param \stdClass $oOldItem The old item, before it was edited
      *
      * @return void
      */
-    protected function afterEdit($iItemId, $oOldItem = null)
+    protected function afterEdit(\stdClass $oNewItem, \stdClass $oOldItem = null)
     {
     }
 
@@ -721,11 +742,11 @@ abstract class DefaultController extends Base
     /**
      * Executed after an item is created
      *
-     * @param int $iItemId The item's ID
+     * @param \stdClass $oNewItem The new item
      *
      * @return void
      */
-    protected function afterCreate($iItemId)
+    protected function afterCreate(\stdClass $oNewItem)
     {
     }
 
@@ -734,11 +755,11 @@ abstract class DefaultController extends Base
     /**
      * Executed after an item is deleted
      *
-     * @param int $iItemId The item's ID
+     * @param \stdClass $oItem The deleted item
      *
      * @return void
      */
-    protected function afterDelete($iItemId)
+    protected function afterDelete(\stdClass $oItem)
     {
     }
 
@@ -869,13 +890,13 @@ abstract class DefaultController extends Base
 
         try {
 
-            $this->beforeDelete($iItemId);
+            $this->beforeDelete($oItem);
 
             if (!$oItemModel->delete($iItemId)) {
                 throw new NailsException(static::DELETE_ERROR_MESSAGE . ' ' . $oItemModel->lastError());
             }
 
-            $this->afterDelete($iItemId);
+            $this->afterDelete($oItem);
 
             if ($this->aConfig['CAN_RESTORE']) {
                 $sRestoreLink = anchor($this->aConfig['BASE_URL'] . '/restore/' . $iItemId, 'Restore?');
