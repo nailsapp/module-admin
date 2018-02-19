@@ -53,8 +53,6 @@ class DataExport
 
             foreach ($aComponentSources as $sSource) {
 
-                require_once $sPath . 'src/DataExport/Source/' . $sSource;
-
                 $sClass    = $sNamespace . 'DataExport\\Source\\' . basename($sSource, '.php');
                 $oInstance = new $sClass();
 
@@ -63,14 +61,13 @@ class DataExport
                         'slug'        => $oComponent->slug . '::' . basename($sSource, '.php'),
                         'label'       => $oInstance->getLabel(),
                         'description' => $oInstance->getDescription(),
+                        'options'     => $oInstance->getOptions(),
                         'instance'    => $oInstance,
                     ];
                 }
             }
 
             foreach ($aComponentFormats as $sFormat) {
-
-                require_once $sPath . 'src/DataExport/Format/' . $sFormat;
 
                 $sClass    = $sNamespace . 'DataExport\\Format\\' . basename($sFormat, '.php');
                 $oInstance = new $sClass();
@@ -156,87 +153,83 @@ class DataExport
     // --------------------------------------------------------------------------
 
     /**
-     * Executes a source and passes to a format. If $bOutputToBrowser is true then
-     * the result will be sent to the browser as a download, if not details about
-     * the generated file will be returned. The cache file will be available until
-     * the model destructs.
+     * Executes a DateExport source then passes to a DataExport format. Once complete
+     * the resulting file is uploaded to the CDN and the object's ID returned.
      *
      * @param string $sSourceSlug The slug of the source to use
      * @param string $sFormatSlug The slug of the format to use
-     * @param array  $aSourceData Any data to pass to the source's execute() method
-     * @param bool $bOutputToBrowser Whether to send the output to the browser or not
+     * @param array  $aOptions    Additional options to pass to the source
      *
-     * @return object
+     * @return integer
      * @throws \Exception
      */
-    public function export($sSourceSlug, $sFormatSlug, $aSourceData = [], $bOutputToBrowser = true)
+    public function export($sSourceSlug, $sFormatSlug, $aOptions = [])
     {
         $oSource = $this->getSourceBySlug($sSourceSlug);
         if (empty($oSource)) {
-            throw new \Exception('Invalid data source');
+            throw new \Exception('Invalid data source "' . $sSourceSlug . '"');
         }
 
         $oFormat = $this->getFormatBySlug($sFormatSlug);
         if (empty($oFormat)) {
-            throw new \Exception('Invalid data format');
+            throw new \Exception('Invalid data format "' . $sFormatSlug . '"');
         }
 
-        $mData = $oSource->instance->execute($aSourceData);
-
-        //  Save the export to disk
-        $sCacheFile = DEPLOY_CACHE_DIR . 'data-export-' . md5(microtime(true)) . mt_rand();
-        if (is_array($mData)) {
-
-            $sCacheFile = $sCacheFile . '.zip';
-            $oZip       = Factory::service('Zip');
-            foreach ($mData as $oData) {
-                $oFile = $oFormat->instance->execute($oData);
-                $oZip->add_data($oFile->filename . '.' . $oFile->extension, $oFile->data);
-            }
-            $oDate = Factory::factory('DateTime');
-            $oZip->archive($sCacheFile);
-            $sFileName = $oSource->instance->getFileName() . '-' . $oDate->format('Y-m-d_H-i-s') . '.zip';
-
+        $oSource = $oSource->instance->execute($aOptions);
+        if (!is_array($oSource)) {
+            $aSources = [$oSource];
         } else {
-
-            $oResult    = $oFormat->instance->execute($mData);
-            $sCacheFile = $sCacheFile . '.' . $oResult->extension;
-            $oNow       = Factory::factory('DateTime');
-            $sFileName  = $oResult->filename . '-' . $oNow->format('Y-m-d_H-i-s') . '.' . $oResult->extension;
-
-            if (!($rFh = @fopen($sCacheFile, FOPEN_WRITE_CREATE_DESTRUCTIVE))) {
-                throw new \Exception('Failed to write file to disk');
-            }
-
-            flock($rFh, LOCK_EX);
-            fwrite($rFh, $oResult->data);
-            flock($rFh, LOCK_UN);
-            fclose($rFh);
+            $aSources = $oSource;
         }
 
-        if ($bOutputToBrowser) {
-            $aHeaders = [
-                ['Content-Type: application/octet-stream', true],
-                ['Pragma: public', true],
-                ['Expires: 0', true],
-                ['Cache-Control: must-revalidate, post-check=0, pre-check=0', true],
-                ['Cache-Control: private', false],
-                ['Content-Disposition: attachment; filename=data-export-' . $sFileName . ';', true],
-                ['Content-Transfer-Encoding: binary', true],
-            ];
+        //  Create temporary working directory
+        $sTempDir = DEPLOY_CACHE_DIR . 'data-export-' . md5(microtime(true)) . mt_rand() . '/';
+        mkdir($sTempDir);
 
-            foreach ($aHeaders as $aHeader) {
-                header($aHeader[0], $aHeader[1]);
-            }
-            readFileChunked($sCacheFile);
+        //  Process each file
+        $aFiles = [];
+        foreach ($aSources as $oSource) {
+            //  Create a new file
+            $sFile    = $sTempDir . $oSource->getFilename() . '.' . $oFormat->instance->getFileExtension();
+            $aFiles[] = $sFile;
+            $rFile    = fopen($sFile, 'w');
+            //  Write to the file
+            $oSource->reset();
+            $oFormat->instance->execute($oSource, $rFile);
+            //  Close the file
+            fclose($rFile);
         }
 
-        $this->aCacheFiles[] = $sCacheFile;
+        //  Compress if > 1
+        if (count($aFiles) > 1) {
 
-        return (object) [
-            'filename' => $sFileName,
-            'path'     => $sCacheFile,
-        ];
+            $sArchiveFile = $sTempDir . 'export.zip';
+            $oZip         = Factory::service('Zip');
+            foreach ($aFiles as $sFile) {
+                $oZip->read_file($sFile);
+            }
+            $oZip->archive($sArchiveFile);
+            $aFiles[] = $sArchiveFile;
+        }
+        $sFile = end($aFiles);
+
+        //  Save to CDN
+        $oCdn    = Factory::service('Cdn', 'nailsapp/module-cdn');
+        $oObject = $oCdn->objectCreate($sFile, 'data-export');
+
+        if (empty($oObject)) {
+            throw new \Exception('Failed to upload exported file');
+        }
+
+        //  Tidy up
+        foreach ($aFiles as $sFile) {
+            if (file_exists($sFile)) {
+                unlink($sFile);
+            }
+        }
+        rmdir($sTempDir);
+
+        return $oObject->id;
     }
 
     // --------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'services' => [
+    'services'  => [
         'DataExport' => function () {
             if (class_exists('\App\Admin\Library\DataExport')) {
                 return new \App\Admin\Library\DataExport();
@@ -10,24 +10,8 @@ return [
             }
         },
     ],
-    'factories' => [
-        'Nav' => function () {
-            if (class_exists('\App\Admin\Nav')) {
-                return new \App\Admin\Nav();
-            } else {
-                return new \Nails\Admin\Nav();
-            }
-        },
-        'NavAlert' => function () {
-            if (class_exists('\App\Admin\NavAlert')) {
-                return new \App\Admin\NavAlert();
-            } else {
-                return new \Nails\Admin\NavAlert();
-            }
-        },
-    ],
-    'models' => [
-        'Admin' => function () {
+    'models'    => [
+        'Admin'     => function () {
             if (class_exists('\App\Admin\Model\Admin')) {
                 return new \App\Admin\Model\Admin();
             } else {
@@ -41,18 +25,48 @@ return [
                 return new \Nails\Admin\Model\ChangeLog();
             }
         },
-        'Help' => function () {
+        'Export'    => function () {
+            if (class_exists('\App\Admin\Model\Export')) {
+                return new \App\Admin\Model\Export();
+            } else {
+                return new \Nails\Admin\Model\Export();
+            }
+        },
+        'Help'      => function () {
             if (class_exists('\App\Admin\Model\Help')) {
                 return new \App\Admin\Model\Help();
             } else {
                 return new \Nails\Admin\Model\Help();
             }
         },
-        'SiteLog' => function () {
+        'SiteLog'   => function () {
             if (class_exists('\App\Admin\Model\SiteLog')) {
                 return new \App\Admin\Model\SiteLog();
             } else {
                 return new \Nails\Admin\Model\SiteLog();
+            }
+        },
+    ],
+    'factories' => [
+        'Nav'                      => function () {
+            if (class_exists('\App\Admin\Nav')) {
+                return new \App\Admin\Nav();
+            } else {
+                return new \Nails\Admin\Nav();
+            }
+        },
+        'NavAlert'                 => function () {
+            if (class_exists('\App\Admin\NavAlert')) {
+                return new \App\Admin\NavAlert();
+            } else {
+                return new \Nails\Admin\NavAlert();
+            }
+        },
+        'DataExportSourceResponse' => function () {
+            if (class_exists('\App\Admin\DataExport\SourceResponse')) {
+                return new \App\Admin\DataExport\SourceResponse();
+            } else {
+                return new \Nails\Admin\DataExport\SourceResponse();
             }
         },
     ],

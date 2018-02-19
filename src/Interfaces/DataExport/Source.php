@@ -14,11 +14,15 @@ interface Source
      */
     public function getLabel();
 
+    // --------------------------------------------------------------------------
+
     /**
      * Returns the source's filename
      * @return string
      */
     public function getFileName();
+
+    // --------------------------------------------------------------------------
 
     /**
      * Returns the source's description
@@ -26,32 +30,31 @@ interface Source
      */
     public function getDescription();
 
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns an array of additional options for the export
+     * @return array
+     */
+    public function getOptions();
+
+    // --------------------------------------------------------------------------
+
     /**
      * Provides an opportunity for the source to decide whether it is available or not to the user
      * @return bool
      */
     public function isEnabled();
 
+    // --------------------------------------------------------------------------
+
     /**
-     * Performs the export; must return an object with the following fields (if multiple files
-     * must be produced and zipped together, then this should return an array of these objects):
+     * Performs the export; must return a \Nails\Admin\DataExport\SourceResponse object,
+     * or an array of these objects.
      *
-     * {
-     *     'label':    'A label to give the data set',
-     *     'filename': 'The filename of the file',
-     *     'fields': [
-     *         'ID', 'The', 'Column', 'Names', 'or Labels'
-     *     ],
-     *     'data': [
-     *         [1, 'the', 'data', 'to', 'export'],
-     *         [2, 'the', 'data', 'to', 'export'],
-     *         [3, 'the', 'data', 'to', 'export']
-     *     ],
-     * }
+     * @param array $aOptions The options, in key/value form
      *
-     * @param array $aData Any data to pass to the source
-     *
-     * @return \stdClass|bool
+     * @return \Nails\Admin\DataExport\SourceResponse|array
      */
-    public function execute($aData = []);
+    public function execute($aOptions = []);
 }

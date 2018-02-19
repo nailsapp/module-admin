@@ -2,6 +2,7 @@
 
 namespace Nails\Admin\DataExport\Format;
 
+use Nails\Admin\DataExport\SourceResponse;
 use Nails\Admin\Interfaces\DataExport\Format;
 use Nails\Factory;
 
@@ -34,13 +35,23 @@ class Json implements Format
     // --------------------------------------------------------------------------
 
     /**
-     * Takes the supplied data and transforms it into the appropriate format
-     *
-     * @param \stdClass $oData The Data to transform
-     *
-     * @return \stdClass
+     * Returns the format's file extension
+     * @return string
      */
-    public function execute($oData)
+    public function getFileExtension()
+    {
+        return 'json';
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Takes a SourceResponse object and transforms it into the appropriate format.
+     *
+     * @param SourceResponse $oSourceResponse A SourceResponse object
+     * @param resource       $rFile           The file resource to write to
+     */
+    public function execute($oSourceResponse, $rFile)
     {
         $oView = Factory::service('View');
 

@@ -107,8 +107,8 @@ class Utilities extends Base
         }
 
         $oDataExport = Factory::service('DataExport', 'nailsapp/module-admin');
-        $aSources         = $oDataExport->getAllSources();
-        $aFormats         = $oDataExport->getAllFormats();
+        $aSources    = $oDataExport->getAllSources();
+        $aFormats    = $oDataExport->getAllFormats();
 
         // --------------------------------------------------------------------------
 
@@ -126,15 +126,38 @@ class Utilities extends Base
                     throw new \Exception(lang('fv_there_were_errors'));
                 }
 
-                $oDataExport->export(
-                    $oInput->post('source'),
-                    $oInput->post('format'),
-                    [],
-                    true
-                );
+                //  Validate source
+                $oSelectedSource = $oDataExport->getSourceBySlug($oInput->post('source'));
+                if (empty($oSelectedSource)) {
+                    throw new \Exception('Invalid data source');
+                }
 
-                //  Kill the script so that the output class doesn't set additional headers
-                die();
+                //  Validate format
+                $oSelectedFormat = $oDataExport->getFormatBySlug($oInput->post('format'));
+                if (empty($oSelectedFormat)) {
+                    throw new \Exception('Invalid data format');
+                }
+
+                //  Prepare options
+                $aOptions = [];
+                foreach ($oSelectedSource->options as $aOption) {
+                    $sKey            = getFromArray('key', $aOption);
+                    $aOptions[$sKey] = getFromArray($sKey, (array) $oInput->post('options'));
+                }
+
+                $oDataExportModel = Factory::model('Export', 'nailsapp/module-admin');
+                $aData            = [
+                    'source'  => $oSelectedSource->slug,
+                    'options' => json_encode($aOptions),
+                    'format'  => $oSelectedFormat->slug,
+                ];
+                if (!$oDataExportModel->create($aData)) {
+                    throw new \Exception('Failed to schedule export.');
+                }
+
+                $oSession = Factory::service('Session', 'nailsapp/module-auth');
+                $oSession->setFlashData('success', 'Export scheduled');
+                redirect('admin/admin/utilities/export');
 
             } catch (\Exception $e) {
                 $this->data['error'] = $e->getMessage();
@@ -143,12 +166,62 @@ class Utilities extends Base
 
         // --------------------------------------------------------------------------
 
-        //  Set view data
-        $this->data['page']->title = 'Export Data';
-        $this->data['sources']     = $aSources;
-        $this->data['formats']     = $aFormats;
+        $oModel  = Factory::model('Export', 'nailsapp/module-admin');
+        $aRecent = $oModel->getAll([
+            'where' => [['created_by', activeUser('id')]],
+            'sort'  => [['created', 'desc']],
+            'limit' => 10,
+        ]);
+
+        //  Pretty source labels, format labels, and options
+        $aRecent = array_map(function ($oItem) use ($aSources, $aFormats) {
+
+            //  Sources
+            foreach ($aSources as $oSource) {
+                if ($oSource->slug === $oItem->source) {
+                    $oItem->source = $oSource->label;
+                }
+            }
+
+            if (empty($oItem->source)) {
+                $oItem->source = 'Unknown';
+            }
+
+            //  Formats
+            foreach ($aFormats as $oFormat) {
+                if ($oFormat->slug === $oItem->format) {
+                    $oItem->format = $oFormat->label;
+                }
+            }
+
+            if (empty($oItem->format)) {
+                $oItem->format = 'Unknown';
+            }
+
+            //  Options
+            $oOptions = json_decode($oItem->options);
+            if ($oOptions) {
+                $oItem->options = '<pre>' . json_encode($oOptions, JSON_PRETTY_PRINT) . '</pre>';
+            } else {
+                $oItem->options = '';
+            }
+
+            return $oItem;
+        }, $aRecent);
 
         // --------------------------------------------------------------------------
+
+        //  Set view data
+        $this->data['page']->title = 'Export Data';
+        $this->data['aSources']    = $aSources;
+        $this->data['aFormats']    = $aFormats;
+        $this->data['aRecent']     = $aRecent;
+
+        // --------------------------------------------------------------------------
+
+        //  Load assets
+        $oAsset = Factory::service('Asset');
+        $oAsset->load('nails.admin.export.min.js', 'NAILS');
 
         //  Load views
         Helper::loadView('export/index');
