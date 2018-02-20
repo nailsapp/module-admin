@@ -2,6 +2,8 @@
 
 namespace Nails\Admin\Interfaces\DataExport;
 
+use Nails\Admin\DataExport\SourceResponse;
+
 /**
  * Interface Format
  * @package Nails\Admin\Interfaces\DataExport
@@ -14,28 +16,29 @@ interface Format
      */
     public function getLabel();
 
+    // --------------------------------------------------------------------------
+
     /**
      * Returns the format's description
      * @return string
      */
     public function getDescription();
 
+    // --------------------------------------------------------------------------
+
     /**
-     * Takes the supplied data and transforms it into the appropriate format.
-     * This method should return data in the following format:
-     *
-     * {
-     *     'filename':  'The filename of the file, minus the extension',
-     *     'extension': 'The extension of the file',
-     *     'data':      'The data to save to the file',
-     *     'headers': [
-     *          'Any additional headers to send'
-     *      ]
-     * }
-     *
-     * @param \stdClass $oData The Data to transform
-     *
-     * @return \stdClass
+     * Returns the format's file extension
+     * @return string
      */
-    public function execute($oData);
+    public function getFileExtension();
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Takes a SourceResponse object and transforms it into the appropriate format.
+     *
+     * @param SourceResponse $oSourceResponse A SourceResponse object
+     * @param resource       $rFile           The file resource to write to
+     */
+    public function execute($oSourceResponse, $rFile);
 }
