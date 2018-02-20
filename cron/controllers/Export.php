@@ -20,6 +20,9 @@ class Export extends Base
     {
         $this->writeLog('Generating exports');
 
+        $oNow = Factory::factory('DateTime');
+        setAppSetting('data-export-cron-last-run', 'nailsapp/module-admin', $oNow->format('Y-m-d H:i:s'));
+
         $oService  = Factory::service('DataExport', 'nailsapp/module-admin');
         $oModel    = Factory::model('Export', 'nailsapp/module-admin');
         $aRequests = $oModel->getAll(['where' => [['status', $oModel::STATUS_PENDING]]]);
@@ -28,7 +31,7 @@ class Export extends Base
 
             $this->writeLog(count($aRequests) . ' requests');
             $this->writeLog('Marking as "RUNNING"');
-            $oModel->setBatchStatus($aRequests, $oModel::STATUS_PENDING);
+            $oModel->setBatchStatus($aRequests, $oModel::STATUS_RUNNING);
 
             //  Group identical requests
             $aGroupedRequests = [];
@@ -52,11 +55,13 @@ class Export extends Base
             //  Process each request
             foreach ($aGroupedRequests as $oRequest) {
                 try {
+                    $this->writeLog('Starting ' . $oRequest->source . '->' . $oRequest->format);
                     $oModel->setBatchDownloadId(
                         $oRequest->ids,
                         $oService->export($oRequest->source, $oRequest->format)
                     );
                     $oModel->setBatchStatus($oRequest->ids, $oModel::STATUS_COMPLETE);
+                    $this->writeLog('Completed ' . $oRequest->source . '->' . $oRequest->format);
                 } catch (\Exception $e) {
                     $this->writeLog('Exception: ' . $e->getMessage());
                     $oModel->setBatchStatus($oRequest->ids, $oModel::STATUS_FAILED, $e->getMessage());
