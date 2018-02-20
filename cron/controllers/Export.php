@@ -53,6 +53,7 @@ class Export extends Base
             }
 
             //  Process each request
+            $oEmail = Factory::factory('EmailDataExport', 'nailsapp/module-admin');
             foreach ($aGroupedRequests as $oRequest) {
                 try {
                     $this->writeLog('Starting ' . $oRequest->source . '->' . $oRequest->format);
@@ -62,9 +63,31 @@ class Export extends Base
                     );
                     $oModel->setBatchStatus($oRequest->ids, $oModel::STATUS_COMPLETE);
                     $this->writeLog('Completed ' . $oRequest->source . '->' . $oRequest->format);
+                    $this->writeLog('Sending emails');
+
+                    $oEmail
+                        ->data([
+                            'status' => $oModel::STATUS_COMPLETE,
+                            'error'  => null,
+                        ]);
+
+                    foreach ($oRequest->recipients as $iRecipient) {
+                        $oEmail->to($iRecipient)->send();
+                    }
+
                 } catch (\Exception $e) {
                     $this->writeLog('Exception: ' . $e->getMessage());
                     $oModel->setBatchStatus($oRequest->ids, $oModel::STATUS_FAILED, $e->getMessage());
+
+                    $oEmail
+                        ->data([
+                            'status' => $oModel::STATUS_FAILED,
+                            'error'  => $e->getMessage(),
+                        ]);
+
+                    foreach ($oRequest->recipients as $iRecipient) {
+                        $oEmail->to($iRecipient)->send();
+                    }
                 }
             }
 

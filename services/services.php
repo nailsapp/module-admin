@@ -48,6 +48,20 @@ return [
         },
     ],
     'factories' => [
+        'EmailDataExport'          => function () {
+            if (class_exists('\App\Admin\Factory\Email\DataExport')) {
+                return new \App\Admin\Factory\Email\DataExport();
+            } else {
+                return new \Nails\Admin\Factory\Email\DataExport();
+            }
+        },
+        'EmailTest'                => function () {
+            if (class_exists('\App\Admin\Factory\Email\Test')) {
+                return new \App\Admin\Factory\Email\Test();
+            } else {
+                return new \Nails\Admin\Factory\Email\Test();
+            }
+        },
         'Nav'                      => function () {
             if (class_exists('\App\Admin\Nav')) {
                 return new \App\Admin\Nav();

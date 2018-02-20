@@ -10,14 +10,26 @@
  * @link
  */
 
-$config['email_types'] = array();
+$config['email_types'] = [
+    (object) [
+        'slug'             => 'test_email',
+        'name'             => 'Admin: Test Email',
+        'isUnsubscribable' => false,
+        'description'      => 'Test email template, normally used in admin to test if recipients can receive email sent by the system',
+        'template_header'  => '',
+        'template_body'    => 'admin/email/email_templates/test_email',
+        'template_footer'  => '',
+        'default_subject'  => 'Test email sent at {{sentAt}}',
+    ],
 
-$config['email_types'][0]                   = new \stdClass();
-$config['email_types'][0]->slug             = 'test_email';
-$config['email_types'][0]->name             = 'Admin: Test Email';
-$config['email_types'][0]->isUnsubscribable = false;
-$config['email_types'][0]->description      = 'Test email template, normally used in admin to test if recipients can receive email sent by the system';
-$config['email_types'][0]->template_header  = '';
-$config['email_types'][0]->template_body    = 'admin/email/email_templates/test_email';
-$config['email_types'][0]->template_footer  = '';
-$config['email_types'][0]->default_subject  = 'Test email sent at {{sentAt}}';
+    (object) [
+        'slug'             => 'data_export',
+        'name'             => 'Admin: Data Export',
+        'isUnsubscribable' => false,
+        'description'      => 'Sent when a data export is completed',
+        'template_header'  => '',
+        'template_body'    => 'admin/email/email_templates/data_export',
+        'template_footer'  => '',
+        'default_subject'  => 'Data Export Complete',
+    ],
+];
