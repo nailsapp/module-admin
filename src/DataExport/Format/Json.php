@@ -4,7 +4,6 @@ namespace Nails\Admin\DataExport\Format;
 
 use Nails\Admin\DataExport\SourceResponse;
 use Nails\Admin\Interfaces\DataExport\Format;
-use Nails\Factory;
 
 /**
  * Class Json
@@ -29,7 +28,7 @@ class Json implements Format
      */
     public function getDescription()
     {
-        return 'Export as a JSON file';
+        return 'Export as a JSON file, useful for transporting to other systems';
     }
 
     // --------------------------------------------------------------------------
@@ -53,25 +52,20 @@ class Json implements Format
      */
     public function execute($oSourceResponse, $rFile)
     {
-        $oView = Factory::service('View');
+        fwrite($rFile, '[');
 
-        $aData = [];
-        foreach ($oData->data as $aItem) {
-            $aData[] = array_combine($oData->fields, $aItem);
+        //  Write the data to the file
+        while ($oRow = $oSourceResponse->getNextItem()) {
+            fwrite($rFile, trim(json_encode($oRow) . ','));
         }
 
-        return (object) [
-            'filename'  => $oData->filename,
-            'extension' => 'json',
-            'data'      => $oView->load(
-                'admin/utilities/export/json',
-                [
-                    'label'  => $oData->label,
-                    'fields' => $oData->fields,
-                    'data'   => $aData,
-                ],
-                true
-            ),
-        ];
+        $aStats = fstat($rFile);
+        $aStats = array_slice($aStats, 13);
+        if ($aStats['size'] > 1) {
+            ftruncate($rFile, $aStats['size'] - 1);
+            fseek($rFile, $aStats['size'] - 1);
+        }
+
+        fwrite($rFile, ']');
     }
 }

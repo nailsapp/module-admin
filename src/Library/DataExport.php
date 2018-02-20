@@ -193,7 +193,7 @@ class DataExport
                 //  Create a new file
                 $sFile    = $sTempDir . $oSource->getFilename() . '.' . $oFormat->instance->getFileExtension();
                 $aFiles[] = $sFile;
-                $rFile    = fopen($sFile, 'w');
+                $rFile    = fopen($sFile, 'w+');
                 //  Write to the file
                 $oSource->reset();
                 $oFormat->instance->execute($oSource, $rFile);
