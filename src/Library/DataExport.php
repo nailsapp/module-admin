@@ -188,46 +188,47 @@ class DataExport
 
         //  Process each file
         $aFiles = [];
-        foreach ($aSources as $oSource) {
-            //  Create a new file
-            $sFile    = $sTempDir . $oSource->getFilename() . '.' . $oFormat->instance->getFileExtension();
-            $aFiles[] = $sFile;
-            $rFile    = fopen($sFile, 'w');
-            //  Write to the file
-            $oSource->reset();
-            $oFormat->instance->execute($oSource, $rFile);
-            //  Close the file
-            fclose($rFile);
-        }
+        try {
+            foreach ($aSources as $oSource) {
+                //  Create a new file
+                $sFile    = $sTempDir . $oSource->getFilename() . '.' . $oFormat->instance->getFileExtension();
+                $aFiles[] = $sFile;
+                $rFile    = fopen($sFile, 'w');
+                //  Write to the file
+                $oSource->reset();
+                $oFormat->instance->execute($oSource, $rFile);
+                //  Close the file
+                fclose($rFile);
+            }
 
-        //  Compress if > 1
-        if (count($aFiles) > 1) {
+            //  Compress if > 1
+            if (count($aFiles) > 1) {
+                $sArchiveFile = $sTempDir . 'export.zip';
+                $oZip         = Factory::service('Zip');
+                foreach ($aFiles as $sFile) {
+                    $oZip->read_file($sFile);
+                }
+                $oZip->archive($sArchiveFile);
+                $aFiles[] = $sArchiveFile;
+            }
+            $sFile = end($aFiles);
 
-            $sArchiveFile = $sTempDir . 'export.zip';
-            $oZip         = Factory::service('Zip');
+            //  Save to CDN
+            $oCdn    = Factory::service('Cdn', 'nailsapp/module-cdn');
+            $oObject = $oCdn->objectCreate($sFile, 'data-export');
+
+            if (empty($oObject)) {
+                throw new \Exception('Failed to upload exported file. ' . $oCdn->lastError());
+            }
+        } finally {
+            //  Tidy up
             foreach ($aFiles as $sFile) {
-                $oZip->read_file($sFile);
+                if (file_exists($sFile)) {
+                    unlink($sFile);
+                }
             }
-            $oZip->archive($sArchiveFile);
-            $aFiles[] = $sArchiveFile;
+            rmdir($sTempDir);
         }
-        $sFile = end($aFiles);
-
-        //  Save to CDN
-        $oCdn    = Factory::service('Cdn', 'nailsapp/module-cdn');
-        $oObject = $oCdn->objectCreate($sFile, 'data-export');
-
-        if (empty($oObject)) {
-            throw new \Exception('Failed to upload exported file');
-        }
-
-        //  Tidy up
-        foreach ($aFiles as $sFile) {
-            if (file_exists($sFile)) {
-                unlink($sFile);
-            }
-        }
-        rmdir($sTempDir);
 
         return $oObject->id;
     }
