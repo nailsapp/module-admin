@@ -653,6 +653,17 @@ abstract class DefaultController extends Base
             }
         }
 
+        // --------------------------------------------------------------------------
+
+        if (static::CONFIG_CAN_CREATE) {
+            $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':create';
+            if (empty($this->aConfig['PERMISSION']) || userHasPermission($sPermissionStr)) {
+                Helper::addHeaderButton($this->aConfig['BASE_URL'] . '/create', 'Create');
+            }
+        }
+
+        // --------------------------------------------------------------------------
+
         $this->data['page']->title = $this->aConfig['TITLE_SINGLE'] . ' &rsaquo; Edit';
         Helper::loadView('edit');
     }
