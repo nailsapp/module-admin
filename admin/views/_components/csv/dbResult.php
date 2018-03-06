@@ -16,7 +16,7 @@ if (!empty($bHeader)) {
 // --------------------------------------------------------------------------
 
 //  Now do the data dance
-while ($oRow = $oData->_fetch_object()) {
+while ($oRow = $oData->unbuffered_row()) {
 
     $sCsvRow = '';
 

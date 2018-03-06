@@ -47,6 +47,7 @@ abstract class Base
 
         //  Configs
         $oConfig = Factory::service('Config');
+
         $aPaths  = [
             FCPATH . APPPATH . 'config/admin.php',
             FCPATH . APPPATH . 'modules/admin/config/admin.php',

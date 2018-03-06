@@ -29,7 +29,7 @@ class SiteLog extends Base
         // --------------------------------------------------------------------------
 
         $config =& get_config();
-        $this->logPath = $config['log_path'] != '' ? $config['log_path'] : FCPATH . APPPATH . 'logs/';
+        $this->logPath = $config['log_path'] != '' ? $config['log_path'] : APPPATH . 'logs/';
     }
 
     // --------------------------------------------------------------------------
@@ -38,7 +38,7 @@ class SiteLog extends Base
      * Get a list of log files
      * @return void
      */
-    public function getAll()
+    public function getAll( $iPage = NULL, $iPerPage = NULL, $aData = [], $bIncludeDeleted = false )
     {
         $dirMap        = directory_map($this->logPath, 0);
         $logFiles      = array();

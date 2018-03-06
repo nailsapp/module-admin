@@ -211,7 +211,7 @@ class ChangeLog extends Base
      * @param mixed  $aData    Any data to pass to getCountCommon()
      * @return array
      **/
-    public function getAll($iPage = null, $iPerPage = null, $aData = array())
+    public function getAll($iPage = null, $iPerPage = null, $aData = array(), $bIncludeDeleted = false)
     {
         //  If the first value is an array then treat as if called with getAll(null, null, $aData);
         //  @todo (Pablo - 2017-06-29) - Refactor how this join works (use expandable field)
@@ -231,7 +231,7 @@ class ChangeLog extends Base
             ];
         }
 
-        return parent::getAll($iPage, $iPerPage, $aData, false);
+        return parent::getAll($iPage, $iPerPage, $aData, $bIncludeDeleted);
     }
 
     // --------------------------------------------------------------------------
@@ -304,11 +304,11 @@ class ChangeLog extends Base
 
         $oObj->user              = new \stdClass();
         $oObj->user->id          = $oObj->user_id;
-        $oObj->user->first_name  = $oObj->first_name;
-        $oObj->user->last_name   = $oObj->last_name;
-        $oObj->user->gender      = $oObj->gender;
-        $oObj->user->profile_img = $oObj->profile_img;
-        $oObj->user->email       = $oObj->email;
+        $oObj->user->first_name  = isset( $oObj->first_name ) ? $oObj->first_name : '';
+        $oObj->user->last_name   = isset( $oObj->last_name ) ? $oObj->last_name : '';
+        $oObj->user->gender      = isset( $oObj->gender ) ? $oObj->gender : '';
+        $oObj->user->profile_img = isset( $oObj->profile_img ) ? $oObj->profile_img : '';
+        $oObj->user->email       = isset( $oObj->email ) ? $oObj->email : '';
 
         unset($oObj->user_id);
         unset($oObj->first_name);
