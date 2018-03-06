@@ -1,10 +1,4 @@
 <div class="group-utilities export">
-    <p>
-        Export data stored in the site\'s database in a variety of formats.
-    </p>
-    <p class="alert alert-warning">
-        <strong>Please note:</strong> Exporting may take some time when executing on large databases. Please be patient.
-    </p>
     <?=form_open()?>
     <fieldset>
         <legend>Data Source</legend>
@@ -15,11 +9,11 @@
             'label'    => 'Source',
             'required' => true,
             'class'    => 'select2',
-            'options' => []
+            'options'  => [],
         ];
 
-        $options = [];
-        foreach ($sources as $oSource) {
+        $aOptions = [];
+        foreach ($aSources as $oSource) {
             $aField['options'][$oSource->slug] = $oSource->label . ' - ' . $oSource->description;
         }
 
@@ -27,6 +21,31 @@
 
         ?>
     </fieldset>
+    <?php
+
+    foreach ($aSources as $oSource) {
+        if (empty($oSource->options)) {
+            continue;
+        }
+        ?>
+        <fieldset class="js-options hidden" data-slug="<?=$oSource->slug?>">
+            <legend>Options</legend>
+            <?php
+
+            foreach ($oSource->options as $aOption) {
+                $aOption['key'] = 'options[' . getFromArray('key', $aOption) . ']';
+                if (!empty($aOption['type']) && is_callable('form_field_' . $aOption['type'])) {
+                    echo call_user_func('form_field_' . $aOption['type'], $aOption);
+                } else {
+                    echo form_field($aOption);
+                }
+            }
+            ?>
+        </fieldset>
+        <?php
+    }
+
+    ?>
     <fieldset>
         <legend>Export Format</legend>
         <?php
@@ -36,11 +55,11 @@
             'label'    => 'Format',
             'required' => true,
             'class'    => 'select2',
-            'options' => []
+            'options'  => [],
         ];
 
-        $options = [];
-        foreach ($formats as $oFormat) {
+        $aOptions = [];
+        foreach ($aFormats as $oFormat) {
             $aField['options'][$oFormat->slug] = $oFormat->label . ' - ' . $oFormat->description;
         }
 
@@ -52,4 +71,59 @@
         <?=form_submit('submit', 'Export', 'class="btn btn-primary"')?>
     </p>
     <?=form_close()?>
+    <hr>
+    <h2>Recent exports</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Export</th>
+                <th>Options</th>
+                <th width="100">Format</th>
+                <th>Status</th>
+                <th width="150">Requested</th>
+                <th width="150">Generated</th>
+                <th class="actions" width="100">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+
+            if (!empty($aRecent)) {
+                foreach ($aRecent as $oItem) {
+                    ?>
+                    <tr>
+                        <td><?=$oItem->source?></td>
+                        <td><?=$oItem->options?></td>
+                        <td><?=$oItem->format?></td>
+                        <td>
+                            <?=$oItem->status?>
+                            <?=$oItem->status === 'FAILED' ? '<small>' . $oItem->error . '</small>' : ''?>
+                        </td>
+                        <?=adminHelper('loadDateCell', $oItem->created)?>
+                        <?=adminHelper('loadDateCell', $oItem->status === 'COMPLETE' ? $oItem->modified : '', '&mdash;')?>
+                        <td class="actions">
+                            <?php
+
+                            if ($oItem->download_id) {
+                                echo anchor(cdnServe($oItem->download_id, true), 'Download', 'class="btn btn-xs btn-primary"');
+                            }
+
+                            ?>
+                        </td>
+                    </tr>
+                    <?php
+                }
+            } else {
+                ?>
+                <tr>
+                    <td colspan="7" class="no-data">
+                        You have not generated any reports
+                    </td>
+                </tr>
+                <?php
+            }
+
+            ?>
+        </tbody>
+    </table>
 </div>

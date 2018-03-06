@@ -108,6 +108,11 @@ use Nails\Admin\Helper;
 
                             if (empty($CONFIG['PERMISSION']) || empty($sPerm) || userHasPermission($sPerm)) {
 
+                                $cEnabled = getFromArray('enabled', $aButton);
+                                if (is_callable($cEnabled) && !$cEnabled($oItem)) {
+                                    continue;
+                                }
+
                                 $sUrl = preg_replace_callback(
                                     '/{{(.*?)}}/',
                                     function ($aMatch) use ($oItem) {

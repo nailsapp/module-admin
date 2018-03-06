@@ -2,11 +2,11 @@
     <p>
         Configure various aspects of the site.
     </p>
-    <hr />
+    <hr/>
     <?php
 
-        echo form_open(null, 'id="settings-form"');
-        echo '<input type="hidden" name="activeTab" value="' . set_value('activeTab') . '" id="activeTab" />';
+    echo form_open(null, 'id="settings-form"');
+    echo '<input type="hidden" name="activeTab" value="' . set_value('activeTab') . '" id="activeTab" />';
 
     ?>
     <ul class="tabs">
@@ -62,7 +62,7 @@
                     </legend>
                     <?php
 
-                    $aField                = array();
+                    $aField                = [];
                     $aField['key']         = 'site_custom_js';
                     $aField['label']       = 'JavaScript';
                     $aField['default']     = appSetting($aField['key'], 'site');
@@ -73,7 +73,7 @@
 
                     // --------------------------------------------------------------------------
 
-                    $aField                = array();
+                    $aField                = [];
                     $aField['key']         = 'site_custom_css';
                     $aField['label']       = 'CSS';
                     $aField['default']     = appSetting($aField['key'], 'site');
@@ -98,12 +98,12 @@
                 <p>
                     Configure your analytics accounts. If field is left empty then that provider will not be used.
                 </p>
-                <hr />
+                <hr/>
                 <fieldset id="site-settings-google">
                     <legend>Google Analytics</legend>
                     <?php
 
-                    $aField                = array();
+                    $aField                = [];
                     $aField['key']         = 'google_analytics_account';
                     $aField['label']       = 'Profile ID';
                     $aField['default']     = appSetting($aField['key']);
@@ -133,12 +133,12 @@
                     If the <code>.MAINTENANCE</code> file is found then the site will forcibly
                     be placed into maintenance mode, regardless of this setting.
                 </p>
-                <hr />
+                <hr/>
                 <fieldset>
                     <legend>Maintenance Mode</legend>
                     <?php
 
-                    $aField            = array();
+                    $aField            = [];
                     $aField['id']      = 'maintenance-mode-enabled';
                     $aField['key']     = 'maintenance_mode_enabled';
                     $aField['label']   = 'Enabled';
@@ -152,18 +152,18 @@
                     <div id="maintenance-mode-extras" style="display:<?=$display?>">
                         <?php
 
-                        $aField                = array();
+                        $aField                = [];
                         $aField['key']         = 'maintenance_mode_whitelist';
                         $aField['label']       = 'Whitelist';
                         $aField['default']     = trim(implode("\n", (array) appSetting($aField['key'], 'site')));
                         $aField['placeholder'] = 'Specify IP addresses to whitelist either comma seperated or on new lines.';
-                        $aField['info']        = 'Your current IP address is: ' . $this->input->ipAddress();
+                        $aField['info']        = 'Your current IP address is: ' . \Nails\Factory::service('Input')->ipAddress();
 
                         echo form_field_textarea($aField);
 
                         // --------------------------------------------------------------------------
 
-                        $aField                = array();
+                        $aField                = [];
                         $aField['key']         = 'maintenance_mode_title';
                         $aField['label']       = 'Title';
                         $aField['default']     = appSetting($aField['key'], 'site');
@@ -173,7 +173,7 @@
 
                         // --------------------------------------------------------------------------
 
-                        $aField                = array();
+                        $aField                = [];
                         $aField['key']         = 'maintenance_mode_body';
                         $aField['label']       = 'Body';
                         $aField['default']     = appSetting($aField['key'], 'site');

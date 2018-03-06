@@ -13,6 +13,7 @@
 
 namespace Nails\Admin\Controller;
 
+use Nails\Admin\Events;
 use Nails\Factory;
 
 abstract class Base
@@ -27,8 +28,8 @@ abstract class Base
         //  Setup Events
         $oEventService = Factory::service('Event');
 
-        //  Call the ADMIN.STARTUP event, admin is constructing
-        $oEventService->trigger('ADMIN.STARTUP', 'nailsapp/module-admin');
+        //  Call the ADMIN:STARTUP event, admin is constructing
+        $oEventService->trigger(Events::ADMIN_STARTUP, 'nailsapp/module-admin');
 
         // --------------------------------------------------------------------------
 
@@ -230,8 +231,8 @@ abstract class Base
 
         // --------------------------------------------------------------------------
 
-        //  Call the ADMIN.READY event, admin is all geared up and ready to go
-        $oEventService->trigger('ADMIN.READY', 'nailsapp/module-admin');
+        //  Call the ADMIN:READY event, admin is all geared up and ready to go
+        $oEventService->trigger(Events::ADMIN_STARTUP, 'nailsapp/module-admin');
     }
 
     // --------------------------------------------------------------------------

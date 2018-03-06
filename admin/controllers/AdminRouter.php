@@ -10,9 +10,9 @@
  * @link
  */
 
-use Nails\Factory;
-use Nails\Admin\Exception\RouterException;
 use App\Controller\Base;
+use Nails\Admin\Exception\RouterException;
+use Nails\Factory;
 
 class AdminRouter extends Base
 {
@@ -37,11 +37,11 @@ class AdminRouter extends Base
          * forth.
          */
 
-        $this->admincontrollersNavSticky = array(
+        $this->admincontrollersNavSticky = [
             'Dashboard',
             'Utilities',
-            'Settings'
-        );
+            'Settings',
+        ];
 
         /**
          * Sticky items by default stick to the top of the nav. If you wish for
@@ -49,10 +49,10 @@ class AdminRouter extends Base
          * will be respected, i.e., the order below doesn't matter.
          */
 
-        $this->admincontrollersNavStickyBottom = array(
+        $this->admincontrollersNavStickyBottom = [
             'Utilities',
-            'Settings'
-        );
+            'Settings',
+        ];
 
         /**
          * Load helpers we'll need
@@ -64,19 +64,20 @@ class AdminRouter extends Base
     // --------------------------------------------------------------------------
 
     /**
-     * Initial touchpoint for admin, all requests are routed through here.
+     * Initial touch point for admin, all requests are routed through here.
      * @return void
      */
     public function index()
     {
         //  When executing on the CLI we don't need to perform a few bit's of sense checking
-        if (!$this->input->is_cli_request()) {
+        $oInput = Factory::service('Input');
+        if (!$oInput->isCli()) {
 
             //  Is there an AdminIP whitelist?
             $whitelistIp = (array) appSetting('whitelist', 'admin');
 
             if ($whitelistIp) {
-                if (!isIpInRange($this->input->ipAddress(), $whitelistIp)) {
+                if (!isIpInRange($oInput->ipAddress(), $whitelistIp)) {
                     show_404();
                 }
             }
@@ -123,9 +124,9 @@ class AdminRouter extends Base
             'admin',
             NAILS_PATH . 'module-admin/admin/controllers/',
             APPPATH . 'modules/admin/controllers/',
-            array(
-                'adminRouter.php'
-            )
+            [
+                'adminRouter.php',
+            ]
         );
 
         //  Look in all enabled modules
@@ -158,13 +159,15 @@ class AdminRouter extends Base
 
     /**
      * Looks for admin controllers in specific locations
+     *
      * @param  string $moduleName     The name of the module currently being searched
      * @param  string $controllerPath The full path to the controllers
      * @param  string $appPath        If the app can extend these controllers, this is where it will place the file
      * @param  array  $ignore         An array of filenames to ignore
+     *
      * @return void
      */
-    protected function loadAdminControllers($moduleName, $controllerPath, $appPath, $ignore = array())
+    protected function loadAdminControllers($moduleName, $controllerPath, $appPath, $ignore = [])
     {
         //  Does a path exist? Don't pollute the array with empty modules
         if (is_dir($controllerPath)) {
@@ -216,10 +219,12 @@ class AdminRouter extends Base
 
     /**
      * Loads a specific admin controller
+     *
      * @param  string $file           The file to load
      * @param  string $moduleName     The name of the module currently being searched
      * @param  string $controllerPath The full path to the controller
      * @param  string $appPath        If the app can extend this controllers, this is where it will place the file
+     *
      * @return void
      */
     protected function loadAdminController($file, $moduleName, $controllerPath, $appPath)
@@ -259,7 +264,9 @@ class AdminRouter extends Base
 
     /**
      * Determines whether the file being loaded has an acceptable filename.
-     * @param  String  $file The filename to test
+     *
+     * @param  String $file The filename to test
+     *
      * @return boolean
      */
     protected function isValidAdminFile($file)
@@ -272,10 +279,12 @@ class AdminRouter extends Base
 
     /**
      * Attempts to load an AdminClass
-     * @param  string  $fileName   The filename of the class being loaded
-     * @param  string  $className  The name of the class being loaded
-     * @param  string  $classPath  The path of the class being loaded
-     * @param  string  $moduleName The name of the module to which this class belongs
+     *
+     * @param  string $fileName   The filename of the class being loaded
+     * @param  string $className  The name of the class being loaded
+     * @param  string $classPath  The path of the class being loaded
+     * @param  string $moduleName The name of the module to which this class belongs
+     *
      * @return boolean
      */
     protected function loadAdminClass($fileName, $className, $classPath, $moduleName)
@@ -293,7 +302,7 @@ class AdminRouter extends Base
         //  Cool! We have a controller which is valid, Add it to the stack!
         if (!isset($this->adminControllers[$moduleName])) {
             $this->adminControllers[$moduleName]              = new \stdClass();
-            $this->adminControllers[$moduleName]->controllers = array();
+            $this->adminControllers[$moduleName]->controllers = [];
         }
 
         $aNavGroupings = $className::announce();
@@ -308,15 +317,14 @@ class AdminRouter extends Base
 
         } elseif (!is_array($aNavGroupings)) {
 
-            $aNavGroupings = array_filter(array($aNavGroupings));
+            $aNavGroupings = array_filter([$aNavGroupings]);
         }
 
-        $controllerKey = strtolower( $fileName );
-        $this->adminControllers[$moduleName]->controllers[$controllerKey] = array(
+        $this->adminControllers[$moduleName]->controllers[$fileName] = [
             'className' => (string) $className,
             'path'      => (string) $classPath,
-            'groupings' => $aNavGroupings
-        );
+            'groupings' => $aNavGroupings,
+        ];
 
         return true;
     }
@@ -330,7 +338,7 @@ class AdminRouter extends Base
      */
     public function prepAdminControllersNav()
     {
-        $adminControllersNav = array();
+        $adminControllersNav = [];
 
         foreach ($this->adminControllers as $module => $moduleDetails) {
             foreach ($moduleDetails->controllers as $controller => $controllerDetails) {
@@ -342,10 +350,10 @@ class AdminRouter extends Base
                     if (!isset($adminControllersNav[md5($sGroupLabel)])) {
                         $adminControllersNav[md5($sGroupLabel)]           = new \stdClass();
                         $adminControllersNav[md5($sGroupLabel)]->label    = $sGroupLabel;
-                        $adminControllersNav[md5($sGroupLabel)]->icon     = array();
+                        $adminControllersNav[md5($sGroupLabel)]->icon     = [];
                         $adminControllersNav[md5($sGroupLabel)]->sortable = true;
                         $adminControllersNav[md5($sGroupLabel)]->open     = false;
-                        $adminControllersNav[md5($sGroupLabel)]->actions  = array();
+                        $adminControllersNav[md5($sGroupLabel)]->actions  = [];
                     }
 
                     /**
@@ -367,7 +375,7 @@ class AdminRouter extends Base
 
                     foreach ($groupActions as $actionUrl => $actionDetails) {
 
-                        $url  = $module . '/' . $controller;
+                        $url = $module . '/' . $controller;
                         $url .= empty($actionUrl) ? '' : '/';
                         $url .= $actionUrl;
 
@@ -387,7 +395,7 @@ class AdminRouter extends Base
 
         //  Remove navGroups with no actions and set as sortable
         $numGroups = count($adminControllersNav);
-        for ($i=0; $i < $numGroups; $i++) {
+        for ($i = 0; $i < $numGroups; $i++) {
 
             //  Remove if empty
             if (empty($adminControllersNav[$i]->actions)) {
@@ -408,9 +416,9 @@ class AdminRouter extends Base
         $adminControllersNav = array_values($adminControllersNav);
 
         //  Split the groups
-        $stickyTop    = array();
-        $middle       = array();
-        $stickyBottom = array();
+        $stickyTop    = [];
+        $middle       = [];
+        $stickyBottom = [];
 
         foreach ($this->admincontrollersNavSticky as $sticky) {
             foreach ($adminControllersNav as $group) {
@@ -447,10 +455,10 @@ class AdminRouter extends Base
 
         if (!empty($userNavPref)) {
 
-            $temp = array();
+            $temp = [];
 
             foreach ($userNavPref as $groupMd5 => $state) {
-                for ($i=0; $i < count($middle); $i++) {
+                for ($i = 0; $i < count($middle); $i++) {
 
                     if (empty($middle[$i])) {
                         continue;
@@ -458,7 +466,7 @@ class AdminRouter extends Base
 
                     if ($groupMd5 == md5($middle[$i]->label)) {
                         if (!in_array($middle[$i]->label, $this->admincontrollersNavSticky)) {
-                            $temp[] = $middle[$i];
+                            $temp[]     = $middle[$i];
                             $middle[$i] = null;
                         }
                     }
@@ -479,7 +487,7 @@ class AdminRouter extends Base
         //  Set the open states of the modules
         if (!empty($userNavPref)) {
             foreach ($userNavPref as $groupMd5 => $state) {
-                for ($i=0; $i < count($this->adminControllersNav); $i++) {
+                for ($i = 0; $i < count($this->adminControllersNav); $i++) {
                     if ($groupMd5 == md5($this->adminControllersNav[$i]->label)) {
                         $this->adminControllersNav[$i]->open = $state->open;
                     }
@@ -525,7 +533,7 @@ class AdminRouter extends Base
             $className                    = $requestController['className'];
             $requestPage                  = new $className();
 
-            if (is_callable(array($requestPage, $method))) {
+            if (is_callable([$requestPage, $method])) {
                 return $requestPage->$method();
             } else {
                 show_404();
