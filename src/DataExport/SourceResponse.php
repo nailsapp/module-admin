@@ -228,8 +228,7 @@ class SourceResponse
         } elseif ($this->oSource instanceof \PDOStatement) {
             $oRow = $this->oSource->fetch(\PDO::FETCH_ASSOC);
         } elseif ($this->oSource instanceof \CI_DB_mysqli_result) {
-            //  @todo (Pablo - 2018-02-19) - this should use unbuffered_row() when CI is upgraded
-            $oRow = $this->oSource->_fetch_object();
+            $oRow = $this->oSource->unbuffered_row();
         }
 
         return is_callable($this->cFormatter) ? call_user_func($this->cFormatter, $oRow) : $oRow;

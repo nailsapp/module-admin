@@ -52,6 +52,7 @@ class Helper
             }
         }
 
+
         //  Hey presto!
         if ($bReturnView) {
 
@@ -61,7 +62,7 @@ class Helper
                 if (!empty($aData['headerOverride'])) {
                     $sReturn .= $oView->load($aData['headerOverride'], $aData, true);
                 } else {
-                    $sReturn .= $oView->load('structure/header', $aData, true);
+                    $sReturn .= $oView->load('_components/structure/header', $aData, true);
                 }
             }
 
@@ -71,7 +72,7 @@ class Helper
                 if (!empty($aData['footerOverride'])) {
                     $sReturn .= $oView->load($aData['footerOverride'], $aData, true);
                 } else {
-                    $sReturn .= $oView->load('structure/footer', $aData, true);
+                    $sReturn .= $oView->load('_components/structure/footer', $aData, true);
                 }
             }
 
@@ -83,7 +84,7 @@ class Helper
                 if (!empty($aData['headerOverride'])) {
                     $oView->load($aData['headerOverride'], $aData);
                 } else {
-                    $oView->load('structure/header', $aData);
+                    $oView->load('_components/structure/header', $aData);
                 }
             }
 
@@ -93,7 +94,7 @@ class Helper
                 if (!empty($aData['footerOverride'])) {
                     $oView->load($aData['footerOverride'], $aData);
                 } else {
-                    $oView->load('structure/footer', $aData);
+                    $oView->load('_components/structure/footer', $aData);
                 }
             }
         }
@@ -181,7 +182,7 @@ class Helper
         $aCtrlPath   = explode(DIRECTORY_SEPARATOR, $sCtrlPath);
         $aCtrlPath   = array_splice($aCtrlPath, 0, count($aCtrlPath) - 2);
         $aCtrlPath[] = 'views';
-        $aCtrlPath[] = strtolower( $sCtrlName );
+        $aCtrlPath[] = strtolower($sCtrlName);
         $aCtrlPath[] = $sViewFile;
         $sViewPath   = implode(DIRECTORY_SEPARATOR, $aCtrlPath) . '.php';
 

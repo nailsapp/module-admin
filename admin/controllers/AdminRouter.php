@@ -18,13 +18,15 @@ class AdminRouter extends Base
 {
     protected $adminControllers;
     protected $adminControllersNav;
-    protected $admincontrollersNavNotSortable;
+    protected $adminControllersNavSticky;
+    protected $adminControllersNavStickyBottom;
+    protected $adminControllersNavNotSortable;
     protected $adminControllersPermissions;
 
     // --------------------------------------------------------------------------
 
     /**
-     * Cosntruct the adminRouter, define the sticky groupings
+     * Construct the adminRouter, define the sticky groupings
      */
     public function __construct()
     {
@@ -37,7 +39,7 @@ class AdminRouter extends Base
          * forth.
          */
 
-        $this->admincontrollersNavSticky = [
+        $this->adminControllersNavSticky = [
             'Dashboard',
             'Utilities',
             'Settings',
@@ -49,7 +51,7 @@ class AdminRouter extends Base
          * will be respected, i.e., the order below doesn't matter.
          */
 
-        $this->admincontrollersNavStickyBottom = [
+        $this->adminControllersNavStickyBottom = [
             'Utilities',
             'Settings',
         ];
@@ -135,7 +137,7 @@ class AdminRouter extends Base
         foreach ($modules as $module) {
             /**
              * Skip the admin module. We use the moduleName rather than the component name
-             * so that we don't inadvertantly load up the admin module (or any module identifying
+             * so that we don't inadvertently load up the admin module (or any module identifying
              * itself as admin) and listing all the files contained therein; we only want
              * admin/controllers.
              */
@@ -233,7 +235,7 @@ class AdminRouter extends Base
 
         //  PHP file, no leading underscore
         if (!$this->isValidAdminFile($file)) {
-            return false;
+            return;
         }
 
         //  Valid file, load it up and define the full class path and name
@@ -256,8 +258,6 @@ class AdminRouter extends Base
 
         //  Load and process the class
         $this->loadAdminClass($fileName, $className, $classPath, $moduleName);
-
-        return true;
     }
 
     // --------------------------------------------------------------------------
@@ -285,6 +285,7 @@ class AdminRouter extends Base
      * @param  string $classPath  The path of the class being loaded
      * @param  string $moduleName The name of the module to which this class belongs
      *
+     * @throws RouterException
      * @return boolean
      */
     protected function loadAdminClass($fileName, $className, $classPath, $moduleName)
@@ -316,7 +317,6 @@ class AdminRouter extends Base
             throw new RouterException('Admin Nav groupings returned by ' . $className . '::announce() were invalid', 1);
 
         } elseif (!is_array($aNavGroupings)) {
-
             $aNavGroupings = array_filter([$aNavGroupings]);
         }
 
@@ -375,7 +375,7 @@ class AdminRouter extends Base
 
                     foreach ($groupActions as $actionUrl => $actionDetails) {
 
-                        $url = $module . '/' . $controller;
+                        $url = $module . '/' . lcfirst($controller);
                         $url .= empty($actionUrl) ? '' : '/';
                         $url .= $actionUrl;
 
@@ -399,14 +399,12 @@ class AdminRouter extends Base
 
             //  Remove if empty
             if (empty($adminControllersNav[$i]->actions)) {
-
                 $adminControllersNav[$i] = null;
                 continue;
             }
 
             //  Set sortable
-            if (in_array($adminControllersNav[$i]->label, $this->admincontrollersNavSticky)) {
-
+            if (in_array($adminControllersNav[$i]->label, $this->adminControllersNavSticky)) {
                 $adminControllersNav[$i]->sortable = false;
             }
         }
@@ -420,10 +418,10 @@ class AdminRouter extends Base
         $middle       = [];
         $stickyBottom = [];
 
-        foreach ($this->admincontrollersNavSticky as $sticky) {
+        foreach ($this->adminControllersNavSticky as $sticky) {
             foreach ($adminControllersNav as $group) {
                 if ($group->label == $sticky) {
-                    if (in_array($sticky, $this->admincontrollersNavStickyBottom)) {
+                    if (in_array($sticky, $this->adminControllersNavStickyBottom)) {
                         $stickyBottom[] = $group;
                     } else {
                         $stickyTop[] = $group;
@@ -434,7 +432,7 @@ class AdminRouter extends Base
 
         foreach ($adminControllersNav as $group) {
 
-            if (!in_array($group->label, $this->admincontrollersNavSticky)) {
+            if (!in_array($group->label, $this->adminControllersNavSticky)) {
                 $middle[] = $group;
             }
         }
@@ -465,7 +463,7 @@ class AdminRouter extends Base
                     }
 
                     if ($groupMd5 == md5($middle[$i]->label)) {
-                        if (!in_array($middle[$i]->label, $this->admincontrollersNavSticky)) {
+                        if (!in_array($middle[$i]->label, $this->adminControllersNavSticky)) {
                             $temp[]     = $middle[$i];
                             $middle[$i] = null;
                         }
@@ -497,7 +495,7 @@ class AdminRouter extends Base
 
         /**
          * Finally, now that everything has been sorted, go through all the groupings
-         * and sort their emthods alphabetically so there's some feeling of order in
+         * and sort their methods alphabetically so there's some feeling of order in
          * amongst all this chaos.
          */
 
@@ -515,26 +513,26 @@ class AdminRouter extends Base
     protected function routeRequest()
     {
         //  What are we trying to access?
-        $oUri       = Factory::service('Uri');
-        $module     = $oUri->rsegment(3) ? $oUri->rsegment(3) : '';
-        $controller = $oUri->rsegment(4) ? $oUri->rsegment(4) : $module;
-        $method     = $oUri->rsegment(5) ? $oUri->rsegment(5) : 'index';
+        $oUri        = Factory::service('Uri');
+        $sModule     = $oUri->rsegment(3) ? $oUri->rsegment(3) : '';
+        $sController = ucfirst($oUri->rsegment(4) ? $oUri->rsegment(4) : $sModule);
+        $sMethod     = $oUri->rsegment(5) ? $oUri->rsegment(5) : 'index';
 
-        if (empty($module)) {
+        if (empty($sModule)) {
 
             $oSession = Factory::service('Session', 'nailsapp/module-auth');
             $oSession->keep_flashdata();
             redirect('admin/admin/dashboard');
 
-        } elseif (isset($this->adminControllers[$module]->controllers[$controller])) {
+        } elseif (isset($this->adminControllers[$sModule]->controllers[$sController])) {
 
-            $requestController            = $this->adminControllers[$module]->controllers[$controller];
-            $this->data['currentRequest'] = $requestController;
-            $className                    = $requestController['className'];
-            $requestPage                  = new $className();
+            $aRequestController           = $this->adminControllers[$sModule]->controllers[$sController];
+            $this->data['currentRequest'] = $aRequestController;
+            $sControllerName              = $aRequestController['className'];
 
-            if (is_callable([$requestPage, $method])) {
-                return $requestPage->$method();
+            if (is_callable([$sControllerName, $sMethod])) {
+                $oController = new $sControllerName();
+                $oController->$sMethod();
             } else {
                 show_404();
             }

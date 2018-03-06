@@ -5,13 +5,11 @@
                     <?php
 
                     if (NAILS_BRANDING) {
-
                         ?>
                         <small class="right">
                             <?=lang('admin_powered_by', 'http://nailsapp.co.uk')?>
                         </small>
                         <?php
-
                     }
 
                     ?>

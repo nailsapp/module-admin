@@ -49,8 +49,8 @@ abstract class Base
         $oConfig = Factory::service('Config');
 
         $aPaths  = [
-            FCPATH . APPPATH . 'config/admin.php',
-            FCPATH . APPPATH . 'modules/admin/config/admin.php',
+            APPPATH . 'config/admin.php',
+            APPPATH . 'modules/admin/config/admin.php',
         ];
 
         foreach ($aPaths as $sPath) {

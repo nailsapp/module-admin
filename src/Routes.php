@@ -23,7 +23,7 @@ class Routes implements RouteGenerator
     public static function generate()
     {
         return [
-            'admin(.*)' => 'admin/adminRouter/index$1',
+            'admin(/(.+))?' => 'admin/adminRouter/index$1',
         ];
     }
 }

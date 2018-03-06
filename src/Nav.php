@@ -22,6 +22,7 @@ class Nav
 
     /**
      * Construct the navGroup
+     *
      * @param string $label The label to give the navGroup
      * @param string $icon  The icon to give the navGroup
      */
@@ -29,13 +30,16 @@ class Nav
     {
         $this->setLabel($label);
         $this->setIcon($icon);
-        $this->actions = array();
+        $this->actions = [];
     }
 
     // --------------------------------------------------------------------------
 
     /**
      * Set the navGroup's label
+     *
+     * @param string $label
+     *
      * @return $this
      */
     public function setLabel($label = '')
@@ -59,6 +63,9 @@ class Nav
 
     /**
      * Set the navGroup's icon
+     *
+     * @param string $icon
+     *
      * @return string
      */
     public function setIcon($icon)
@@ -82,7 +89,7 @@ class Nav
 
     /**
      * Returns the navGroup's actions
-     * @return string
+     * @return array
      */
     public function getActions()
     {
@@ -93,23 +100,23 @@ class Nav
 
     /**
      * Adds a new action to the navGroup. An action is menu item essentially.
+     *
      * @param string $label  The label to give the action
      * @param string $url    The url this action applies to
      * @param array  $alerts An array of alerts to have along side this action
      * @param mixed  $order  An optional order index, used to push menu items up and down the group
+     *
+     * @return Nav      $this, for chaining
      */
-    public function addAction($label, $url = 'index', $alerts = array(), $order = null)
+    public function addAction($label, $url = 'index', $alerts = [], $order = null)
     {
         $this->actions[$url]         = new \stdClass();
         $this->actions[$url]->label  = $label;
-        $this->actions[$url]->alerts = !is_array($alerts) ? array($alerts) : $alerts;
+        $this->actions[$url]->alerts = !is_array($alerts) ? [$alerts] : $alerts;
 
         if (is_null($order)) {
-
             $this->actions[$url]->order = count($this->actions);
-
         } else {
-
             $this->actions[$url]->order = $order;
         }
 
@@ -120,8 +127,10 @@ class Nav
 
     /**
      * Removes a action
+     *
      * @param  string $url The URL/key of the action to remove
-     * @return Object      $this, for chaining
+     *
+     * @return Nav
      */
     public function removeAction($url)
     {
