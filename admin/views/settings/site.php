@@ -56,10 +56,7 @@
 
             ?>
             <div class="tab-page <?=$display?> tab-customjscss">
-                <fieldset>
-                    <legend>
-                        Custom JS &amp; CSS
-                    </legend>
+                <div class="fieldset">
                     <?php
 
                     $aField                = [];
@@ -83,7 +80,7 @@
                     echo form_field_textarea($aField);
 
                     ?>
-                </fieldset>
+                </div>
             </div>
             <?php
 
@@ -133,9 +130,7 @@
                     If the <code>.MAINTENANCE</code> file is found then the site will forcibly
                     be placed into maintenance mode, regardless of this setting.
                 </p>
-                <hr/>
-                <fieldset>
-                    <legend>Maintenance Mode</legend>
+                <div class="fieldset">
                     <?php
 
                     $aField            = [];
@@ -183,7 +178,7 @@
 
                         ?>
                     </div>
-                </fieldset>
+                </div>
             </div>
             <?php
         }
