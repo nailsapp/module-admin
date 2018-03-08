@@ -3,10 +3,10 @@
 return [
     'services'  => [
         'DataExport' => function () {
-            if (class_exists('\App\Admin\Library\DataExport')) {
-                return new \App\Admin\Library\DataExport();
+            if (class_exists('\App\Admin\Service\DataExport')) {
+                return new \App\Admin\Service\DataExport();
             } else {
-                return new \Nails\Admin\Library\DataExport();
+                return new \Nails\Admin\Service\DataExport();
             }
         },
     ],

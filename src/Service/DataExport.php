@@ -10,13 +10,13 @@
  * @link
  */
 
-namespace Nails\Admin\Library;
+namespace Nails\Admin\Service;
 
 use Nails\Factory;
 
 /**
  * Class DataExport
- * @package Nails\Admin\Library
+ * @package Nails\Admin\Service
  */
 class DataExport
 {
