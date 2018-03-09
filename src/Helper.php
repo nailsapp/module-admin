@@ -182,7 +182,7 @@ class Helper
         $aCtrlPath   = explode(DIRECTORY_SEPARATOR, $sCtrlPath);
         $aCtrlPath   = array_splice($aCtrlPath, 0, count($aCtrlPath) - 2);
         $aCtrlPath[] = 'views';
-        $aCtrlPath[] = strtolower($sCtrlName);
+        $aCtrlPath[] = $sCtrlName;
         $aCtrlPath[] = $sViewFile;
         $sViewPath   = implode(DIRECTORY_SEPARATOR, $aCtrlPath) . '.php';
 
