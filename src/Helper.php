@@ -202,7 +202,7 @@ class Helper
                 );
             }
 
-            return $oView->load('admin/defaultcontroller/' . $sViewFile, $aViewData, $bReturnView);
+            return $oView->load('admin/DefaultController/' . $sViewFile, $aViewData, $bReturnView);
         }
     }
 
