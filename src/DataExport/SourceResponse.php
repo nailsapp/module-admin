@@ -207,8 +207,7 @@ class SourceResponse
         } elseif ($this->oSource instanceof \PDOStatement) {
             //  unsupported
         } elseif ($this->oSource instanceof \CI_DB_mysqli_result) {
-            //  @todo (Pablo - 2018-02-19) - Watch compatibility with this function as it's marked as private
-            $this->oSource->_data_seek(0);
+            $this->oSource->data_seek(0);
         }
     }
 
