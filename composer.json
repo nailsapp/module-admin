@@ -46,7 +46,16 @@
         {
             "moduleName": "admin",
             "type": "module",
-            "namespace": "Nails\\Admin\\"
+            "namespace": "Nails\\Admin\\",
+            "data": {
+                "nailsapp/module-cdn": {
+                    "permitted-image-dimensions": [
+                        "30x30",
+                        "35x35"
+                    ]
+                }
+            }
+
         }
     }
 }

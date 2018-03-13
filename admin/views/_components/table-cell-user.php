@@ -11,14 +11,14 @@ $sNoDataClass = isset($id) && $id ? '' : 'no-data';
 
         echo anchor(
             cdnServe($profile_img),
-            img(cdnCrop($profile_img, 36, 36)),
+            img(cdnCrop($profile_img, 35, 35)),
             'class="fancybox"'
         );
 
     } else {
 
         $sGender = !empty($gender) ? $gender : 'undisclosed';
-        echo img(cdnBlankAvatar(36, 36, $sGender));
+        echo img(cdnBlankAvatar(35, 35, $sGender));
     }
 
     ?>
