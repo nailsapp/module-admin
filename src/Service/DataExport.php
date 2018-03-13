@@ -183,7 +183,7 @@ class DataExport
         }
 
         //  Create temporary working directory
-        $sTempDir = DEPLOY_CACHE_DIR . 'data-export-' . md5(microtime(true)) . mt_rand() . '/';
+        $sTempDir = CACHE_PATH . 'data-export-' . md5(microtime(true)) . mt_rand() . '/';
         mkdir($sTempDir);
 
         //  Process each file
