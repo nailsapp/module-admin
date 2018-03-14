@@ -31,17 +31,18 @@ class Users extends \Nails\Api\Controller\Base
     {
         if (!isAdmin()) {
 
-            return array(
+            return [
                 'status' => 401,
-                'error'  => 'You must be an administrator.'
-            );
+                'error'  => 'You must be an administrator.',
+            ];
 
         } else {
 
+            $oInput     = Factory::service('Input');
             $oUserModel = Factory::model('User', 'nailsapp/module-auth');
-            $avatarSize = $this->input->get('avatarSize') ? $this->input->get('avatarSize') : 50;
-            $users      = $oUserModel->search($this->input->get('term'), 1, 50);
-            $out        = array('users' => array());
+            $avatarSize = $oInput->get('avatarSize') ? $oInput->get('avatarSize') : 50;
+            $users      = $oUserModel->search($oInput->get('term'), 1, 50);
+            $out        = ['users' => []];
 
             foreach ($users->data as $user) {
 

@@ -54,26 +54,26 @@ class Nav extends \Nails\Api\Controller\Base
     {
         if (!$this->isAuthorised) {
 
-            return array(
+            return [
                 'status' => 401,
-                'error'  => $this->errorMsg
-            );
+                'error'  => $this->errorMsg,
+            ];
 
         } else {
 
-            $prefRaw = $this->input->post('preferences');
-            $pref    = new \stdClass();
+            $oInput   = Factory::service('Input');
+            $aPrefRaw = $oInput->post('preferences');
+            $oPref    = new \stdClass();
 
-            foreach ($prefRaw as $module => $options) {
-
-                $pref->{$module}       = new \stdClass();
-                $pref->{$module}->open = stringToBoolean($options['open']);
+            foreach ($aPrefRaw as $sModule => $aOptions) {
+                $oPref->{$sModule}       = new \stdClass();
+                $oPref->{$sModule}->open = stringToBoolean($aOptions['open']);
             }
 
             $oAdminModel = Factory::model('Admin', 'nailsapp/module-admin');
-            $oAdminModel->setAdminData('nav_state', $pref);
+            $oAdminModel->setAdminData('nav_state', $oPref);
 
-            return array();
+            return [];
         }
     }
 
@@ -87,17 +87,17 @@ class Nav extends \Nails\Api\Controller\Base
     {
         if (!$this->isAuthorised) {
 
-            return array(
+            return [
                 'status' => 401,
-                'error'  => $this->errorMsg
-            );
+                'error'  => $this->errorMsg,
+            ];
 
         } else {
 
             $oAdminModel = Factory::model('Admin', 'nailsapp/module-admin');
             $oAdminModel->unsetAdminData('nav_state');
 
-            return array();
+            return [];
         }
     }
 }

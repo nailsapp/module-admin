@@ -29,14 +29,14 @@ class Logs extends \Nails\Api\Controller\Base
      */
     public function getSite()
     {
-        $out = array();
+        $out = [];
 
         if (!isAdmin()) {
 
-            return array(
+            return [
                 'status' => 401,
-                'error'  => 'You must be an administrator.'
-            );
+                'error'  => 'You must be an administrator.',
+            ];
 
         } else {
 
