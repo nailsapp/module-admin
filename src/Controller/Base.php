@@ -28,6 +28,9 @@ if (class_exists('\App\Admin\Controller\Base')) {
 } else {
     abstract class BaseMiddle
     {
+        public function __construct()
+        {
+        }
     }
 }
 
