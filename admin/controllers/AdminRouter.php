@@ -19,11 +19,11 @@ use Nails\Factory;
  * Allow the app to add functionality, if needed
  */
 if (class_exists('\App\Admin\Controller\BaseRouter')) {
-    class BaseMiddle extends \App\Admin\Controller\BaseRouter
+    abstract class BaseMiddle extends \App\Admin\Controller\BaseRouter
     {
     }
 } else {
-    class BaseMiddle extends \Nails\Common\Controller\Base
+    abstract class BaseMiddle extends \Nails\Common\Controller\Base
     {
     }
 }

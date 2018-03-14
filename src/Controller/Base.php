@@ -22,11 +22,11 @@ use Nails\Factory;
  * Allow the app to add functionality, if needed
  */
 if (class_exists('\App\Admin\Controller\Base')) {
-    class BaseMiddle extends \App\Admin\Controller\Base
+    abstract class BaseMiddle extends \App\Admin\Controller\Base
     {
     }
 } else {
-    class BaseMiddle
+    abstract class BaseMiddle
     {
     }
 }
