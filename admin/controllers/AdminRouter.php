@@ -10,11 +10,27 @@
  * @link
  */
 
-use App\Controller\Base;
 use Nails\Admin\Exception\RouterException;
 use Nails\Factory;
 
-class AdminRouter extends Base
+// --------------------------------------------------------------------------
+
+/**
+ * Allow the app to add functionality, if needed
+ */
+if (class_exists('\App\Admin\Controller\BaseRouter')) {
+    class BaseMiddle extends \App\Admin\Controller\BaseRouter
+    {
+    }
+} else {
+    class BaseMiddle extends \Nails\Common\Controller\Base
+    {
+    }
+}
+
+// --------------------------------------------------------------------------
+
+class AdminRouter extends BaseMiddle
 {
     protected $adminControllers;
     protected $adminControllersNav;

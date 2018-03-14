@@ -16,7 +16,24 @@ namespace Nails\Admin\Controller;
 use Nails\Admin\Events;
 use Nails\Factory;
 
-abstract class Base
+// --------------------------------------------------------------------------
+
+/**
+ * Allow the app to add functionality, if needed
+ */
+if (class_exists('\App\Admin\Controller\Base')) {
+    class BaseMiddle extends \App\Admin\Controller\Base
+    {
+    }
+} else {
+    class BaseMiddle
+    {
+    }
+}
+
+// --------------------------------------------------------------------------
+
+abstract class Base extends BaseMiddle
 {
     public $data;
 
@@ -25,6 +42,8 @@ abstract class Base
      */
     public function __construct()
     {
+        parent::__construct();
+
         //  Setup Events
         $oEventService = Factory::service('Event');
 
