@@ -12,6 +12,7 @@
 
 namespace Nails\Admin;
 
+use Nails\Common\Exception\ViewNotFoundException;
 use Nails\Factory;
 
 class Helper
@@ -52,51 +53,27 @@ class Helper
             }
         }
 
+        $aHeaderViews = array_filter([
+            $bLoadStructure && !empty($aData['headerOverride']) ? $aData['headerOverride'] : '',
+            $bLoadStructure && empty($aData['headerOverride']) ? '_components/structure/header' : '',
+        ]);
+        $sHeaderView  = reset($aHeaderViews);
 
-        //  Hey presto!
+        $aFooterViews = array_filter([
+            $bLoadStructure && !empty($aData['footerOverride']) ? $aData['footerOverride'] : '',
+            $bLoadStructure && empty($aData['footerOverride']) ? '_components/structure/footer' : '',
+        ]);
+        $sFooterView  = reset($aFooterViews);
+
         if ($bReturnView) {
-
-            $sReturn = '';
-
-            if ($bLoadStructure) {
-                if (!empty($aData['headerOverride'])) {
-                    $sReturn .= $oView->load($aData['headerOverride'], $aData, true);
-                } else {
-                    $sReturn .= $oView->load('_components/structure/header', $aData, true);
-                }
-            }
-
-            $sReturn .= self::loadInlineView($sViewFile, $aData, true);
-
-            if ($bLoadStructure) {
-                if (!empty($aData['footerOverride'])) {
-                    $sReturn .= $oView->load($aData['footerOverride'], $aData, true);
-                } else {
-                    $sReturn .= $oView->load('_components/structure/footer', $aData, true);
-                }
-            }
-
-            return $sReturn;
-
+            $sOut = $oView->load($sHeaderView, $aData, true);
+            $sOut .= static::loadInlineView($sViewFile, $aData, true);
+            $sOut .= $oView->load($sFooterView, $aData, true);
+            return $sOut;
         } else {
-
-            if ($bLoadStructure) {
-                if (!empty($aData['headerOverride'])) {
-                    $oView->load($aData['headerOverride'], $aData);
-                } else {
-                    $oView->load('_components/structure/header', $aData);
-                }
-            }
-
-            self::loadInlineView($sViewFile, $aData);
-
-            if ($bLoadStructure) {
-                if (!empty($aData['footerOverride'])) {
-                    $oView->load($aData['footerOverride'], $aData);
-                } else {
-                    $oView->load('_components/structure/footer', $aData);
-                }
-            }
+            $oView->load($sHeaderView, $aData);
+            static::loadInlineView($sViewFile, $aData);
+            $oView->load($sFooterView, $aData);
         }
     }
 
@@ -191,12 +168,12 @@ class Helper
         //  Load the view
         try {
             return $oView->load($sViewPath, $aViewData, $bReturnView);
-        } catch (\Exception $e) {
+        } catch (ViewNotFoundException $e) {
             //  If it fails, and the controller is a default admin controller then
             //  load up that view
             $aParentClasses = class_parents($aCtrlData['currentRequest']['className']);
             if (!in_array('Nails\\Admin\\Controller\\DefaultController', $aParentClasses)) {
-                throw new \Exception(
+                throw new ViewNotFoundException(
                     $e->getMessage(),
                     $e->getCode()
                 );
