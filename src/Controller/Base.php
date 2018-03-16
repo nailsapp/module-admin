@@ -248,6 +248,10 @@ abstract class Base extends BaseMiddle
 
         // --------------------------------------------------------------------------
 
+        \Nails\Common\Controller\Base::populateUserFeedback($this->data);
+
+        // --------------------------------------------------------------------------
+
         //  @todo (Pablo - 2017-06-08) - Remove this
         \Nails\Common\Controller\Base::backwardsCompatibility($this);
 
@@ -255,6 +259,7 @@ abstract class Base extends BaseMiddle
 
         //  Call the ADMIN:READY event, admin is all geared up and ready to go
         $oEventService->trigger(Events::ADMIN_STARTUP, 'nailsapp/module-admin');
+
     }
 
     // --------------------------------------------------------------------------
