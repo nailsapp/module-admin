@@ -324,7 +324,7 @@ class AdminRouter extends BaseMiddle
 
         $aNavGroupings = $className::announce();
 
-        if (!empty($aNavGroupings) && !is_array($aNavGroupings) && !($aNavGroupings instanceof \Nails\Admin\Nav)) {
+        if (!empty($aNavGroupings) && !is_array($aNavGroupings) && !($aNavGroupings instanceof \Nails\Admin\Factory\Nav)) {
 
             /**
              * @todo Use an admin specific exception class, and autoload it.

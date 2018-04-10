@@ -1,39 +1,38 @@
-<hr />
+<hr/>
 <div class="search clearfix">
     <div class="mask">
         <b class="fa fa-refresh fa-2x"></b>
     </div>
     <?php
 
-    parse_str($this->input->server('QUERY_STRING'), $query);
+    $oInput = \Nails\Factory::service('Input');
+    parse_str($oInput->server('QUERY_STRING'), $aQuery);
 
-    unset($query['keywords']);
-    unset($query['sortOn']);
-    unset($query['sortOrder']);
-    unset($query['perPage']);
-    unset($query['page']);
-    unset($query['cbF']);
-    unset($query['ddF']);
+    unset($aQuery['keywords']);
+    unset($aQuery['sortOn']);
+    unset($aQuery['sortOrder']);
+    unset($aQuery['perPage']);
+    unset($aQuery['page']);
+    unset($aQuery['cbF']);
+    unset($aQuery['ddF']);
 
-    $formAttr = array(
-        'method' => 'GET'
-    );
+    $aFormAttr = [
+        'method' => 'GET',
+    ];
 
-    echo form_open(null, $formAttr);
+    echo form_open(null, $aFormAttr);
 
-    foreach ($query as $key => $value) {
-
-        echo form_hidden($key, $value);
+    foreach ($aQuery as $sKey => $sValue) {
+        echo form_hidden($sKey, $sValue);
     }
 
     if ($searchable) {
-
         echo '<div class="search-text">';
-            echo form_input(
-                'keywords',
-                $keywords,
-                'autocomplete="off" placeholder="Type your search term and hit enter"'
-            );
+        echo form_input(
+            'keywords',
+            $keywords,
+            'autocomplete="off" placeholder="Type your search term and hit enter"'
+        );
         echo '</div>';
     }
 
@@ -42,7 +41,7 @@
     if (!empty($injectHtml)) {
 
         echo '<div class="search-inject">';
-            echo $injectHtml;
+        echo $injectHtml;
         echo '</div>';
     }
 
@@ -52,35 +51,32 @@
     if (!empty($dropdownFilter)) {
 
         echo '<hr />';
-        foreach ($dropdownFilter as $filterIndex => $filter) {
+        foreach ($dropdownFilter as $iFilterIndex => $oFilter) {
 
             echo '<span class="filterGroup dropdown">';
-                echo '<span class="filterLabel">';
-                    echo $filter->label;
-                echo '</span>';
+            echo '<span class="filterLabel">';
+            echo $oFilter->getLabel();
+            echo '</span>';
 
-                echo '<span class="filterDropdown">';
-                    echo '<select name="ddF[' . $filterIndex . ']">';
-                    foreach ($filter->options as $optionIndex => $option) {
+            echo '<span class="filterDropdown">';
+            echo '<select name="ddF[' . $iFilterIndex . ']">';
+            foreach ($oFilter->getOptions() as $iOptionIndex => $oOption) {
 
-                        //  Checked or not?
-                        if (!empty($_GET)) {
+                //  Checked or not?
+                if (!empty($_GET)) {
+                    $bSelected = isset($_GET['ddF'][$iFilterIndex]) && $_GET['ddF'][$iFilterIndex] == $iOptionIndex;
+                } else {
+                    $bSelected = $oOption->isSelected();
+                }
 
-                            $selected = isset($_GET['ddF'][$filterIndex]) && $_GET['ddF'][$filterIndex] == $optionIndex;
+                $sSelected = $bSelected ? 'selected="selected"' : '';
 
-                        } else {
-
-                            $selected = $option->checked;
-                        }
-
-                        $selected = $selected ? 'selected="selected"' : '';
-
-                        echo '<option value="' . $optionIndex . '" ' . $selected . '>';
-                             echo $option->label;
-                        echo '</option>';
-                    }
-                    echo '</select>';
-                echo '</span>';
+                echo '<option value="' . $iOptionIndex . '" ' . $sSelected . '>';
+                echo $oOption->getLabel();
+                echo '</option>';
+            }
+            echo '</select>';
+            echo '</span>';
 
             echo '</span>';
         }
@@ -88,33 +84,30 @@
 
     if (!empty($checkboxFilter)) {
 
-        echo '<hr />';
-        foreach ($checkboxFilter as $filterIndex => $filter) {
+        echo '<hr>';
+        foreach ($checkboxFilter as $iFilterIndex => $oFilter) {
 
             echo '<span class="filterGroup">';
-                echo '<span class="filterLabel">';
-                    echo $filter->label;
-                echo '</span>';
+            echo '<span class="filterLabel">';
+            echo $oFilter->getLabel();
+            echo '</span>';
 
-                foreach ($filter->options as $optionIndex => $option) {
+            foreach ($oFilter->getOptions() as $iOptionIndex => $oOption) {
 
-                    //  Checked or not?
-                    if (!empty($_GET)) {
-
-                        $checked = !empty($_GET['cbF'][$filterIndex][$optionIndex]);
-
-                    } else {
-
-                        $checked = $option->checked;
-                    }
-
-                    $checked = $checked ? 'checked="checked"' : '';
-
-                    echo '<label class="filterOption">';
-                        echo '<input type="checkbox" name="cbF[' . $filterIndex . '][' . $optionIndex . ']" ' . $checked . ' value="1">';
-                        echo $option->label;
-                    echo '</label>';
+                //  Checked or not?
+                if (!empty($_GET)) {
+                    $bChecked = !empty($_GET['cbF'][$iFilterIndex][$iOptionIndex]);
+                } else {
+                    $bChecked = $oOption->isSelected();
                 }
+
+                $sChecked = $bChecked ? 'checked="checked"' : '';
+
+                echo '<label class="filterOption">';
+                echo '<input type="checkbox" name="cbF[' . $iFilterIndex . '][' . $iOptionIndex . ']" ' . $sChecked . ' value="1">';
+                echo $oOption->getLabel();
+                echo '</label>';
+            }
 
             echo '</span>';
         }
@@ -125,24 +118,24 @@
     echo '<hr />';
     echo '<span style="padding-right: 1em;">';
 
-        if (!empty($sortColumns)) {
+    if (!empty($sortColumns)) {
 
-            //  Sort Column
-            echo 'Sort results by';
-            echo form_dropdown('sortOn', $sortColumns, $sortOn);
+        //  Sort Column
+        echo 'Sort results by';
+        echo form_dropdown('sortOn', $sortColumns, $sortOn);
 
-        } else {
+    } else {
 
-            echo 'Sort results';
-        }
+        echo 'Sort results';
+    }
 
-        //  Sort order
-        $options = array(
-            'asc'  => 'Ascending',
-            'desc' => 'Descending'
-        );
+    //  Sort order
+    $options = [
+        'asc'  => 'Ascending',
+        'desc' => 'Descending',
+    ];
 
-        echo form_dropdown('sortOrder', $options, $sortOrder);
+    echo form_dropdown('sortOrder', $options, $sortOrder);
 
     echo '</span>';
 
@@ -150,18 +143,18 @@
 
     echo '<span style="padding-right: 1em;">';
 
-        //  Results per page
-        $options = array(
-            10  => 10,
-            25  => 25,
-            50  => 50,
-            75  => 75,
-            100 => 100
-        );
+    //  Results per page
+    $options = [
+        10  => 10,
+        25  => 25,
+        50  => 50,
+        75  => 75,
+        100 => 100,
+    ];
 
-        echo 'Show';
-        echo form_dropdown('perPage', $options, $perPage);
-        echo 'results per page.';
+    echo 'Show';
+    echo form_dropdown('perPage', $options, $perPage);
+    echo 'results per page.';
 
     echo '</span>';
 
@@ -169,11 +162,11 @@
 
     echo '<div class="actions">';
 
-        $resetUrl  = uri_string();
-        $resetUrl .= $query ? '?' . http_build_query($query) : '';
+    $resetUrl = uri_string();
+    $resetUrl .= $aQuery ? '?' . http_build_query($aQuery) : '';
 
-        echo '<button type="submit" class="btn btn-xs btn-primary">Search</button> ';
-        echo anchor($resetUrl, 'Reset', 'class="btn btn-xs btn-default"');
+    echo '<button type="submit" class="btn btn-xs btn-primary">Search</button> ';
+    echo anchor($resetUrl, 'Reset', 'class="btn btn-xs btn-default"');
 
     echo '</div>';
 

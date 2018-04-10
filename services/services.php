@@ -63,17 +63,17 @@ return [
             }
         },
         'Nav'                      => function () {
-            if (class_exists('\App\Admin\Nav')) {
-                return new \App\Admin\Nav();
+            if (class_exists('\App\Admin\Factory\Nav')) {
+                return new \App\Admin\Factory\Nav();
             } else {
-                return new \Nails\Admin\Nav();
+                return new \Nails\Admin\Factory\Nav();
             }
         },
         'NavAlert'                 => function () {
-            if (class_exists('\App\Admin\NavAlert')) {
-                return new \App\Admin\NavAlert();
+            if (class_exists('\App\Admin\Factory\Nav\Alert')) {
+                return new \App\Admin\Factory\Nav\Alert();
             } else {
-                return new \Nails\Admin\NavAlert();
+                return new \Nails\Admin\Factory\Nav\Alert();
             }
         },
         'DataExportSourceResponse' => function () {
@@ -83,5 +83,19 @@ return [
                 return new \Nails\Admin\DataExport\SourceResponse();
             }
         },
+        'IndexFilter' => function() {
+            if (class_exists('\App\Admin\Factory\IndexFilter')) {
+                return new \App\Admin\Factory\IndexFilter();
+            } else {
+                return new \Nails\Admin\Factory\IndexFilter();
+            }
+        },
+        'IndexFilterOption' => function() {
+            if (class_exists('\App\Admin\Factory\IndexFilter\Option')) {
+                return new \App\Admin\Factory\IndexFilter\Option();
+            } else {
+                return new \Nails\Admin\Factory\IndexFilter\Option();
+            }
+        }
     ],
 ];
