@@ -265,31 +265,27 @@ class Helper
      */
     public static function searchFilterObject($sColumn, $sLabel, $aOptions)
     {
-        $oFilterObject = (object) [
-            'column'  => $sColumn,
-            'label'   => $sLabel,
-            'options' => [],
-        ];
+        //  @todo (Pablo - 2018-04-10) - DonRemove this helper and use factories directly
+        $oFilter = Factory::factory('IndexFilter', 'nailsapp/module-admin')
+                          ->setLabel($sLabel)
+                          ->setColumn($sColumn);
 
         foreach ($aOptions as $sIndex => $mOption) {
 
             if (is_array($mOption)) {
-
-                $sLabel   = isset($mOption[0]) ? $mOption[0] : null;
-                $mValue   = isset($mOption[1]) ? $mOption[1] : null;
-                $bChecked = isset($mOption[2]) ? $mOption[2] : false;
-
+                $sLabel   = getFromArray(0, $mOption, null);
+                $mValue   = getFromArray(1, $mOption, null);
+                $bChecked = getFromArray(2, $mOption, false);
             } else {
-
                 $sLabel   = $mOption;
                 $mValue   = $sIndex;
                 $bChecked = false;
             }
 
-            $oFilterObject->options[] = self::searchFilterObjectOption($sLabel, $mValue, $bChecked);
+            $oFilter->addOption($sLabel, $mValue, $bChecked);
         }
 
-        return $oFilterObject;
+        return $oFilter;
     }
 
     // --------------------------------------------------------------------------
