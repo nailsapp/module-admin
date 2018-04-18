@@ -45,11 +45,11 @@ class Helper
             }
 
             if (empty($aData['headerOverride'])) {
-                $aData['headerOverride'] = 'structure/header/blank';
+                $aData['headerOverride'] = '_components/structure/headerBlank';
             }
 
             if (empty($aData['footerOverride'])) {
-                $aData['footerOverride'] = 'structure/footer/blank';
+                $aData['footerOverride'] = '_components/structure/footerBlank';
             }
         }
 

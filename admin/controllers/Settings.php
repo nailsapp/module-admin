@@ -12,15 +12,22 @@
 
 namespace Nails\Admin\Admin;
 
-use Nails\Factory;
-use Nails\Admin\Helper;
 use Nails\Admin\Controller\Base;
+use Nails\Admin\Helper;
+use Nails\Factory;
 
 class Settings extends Base
 {
     /**
+     * @var array
+     */
+    protected $aFields;
+
+    // --------------------------------------------------------------------------
+
+    /**
      * Announces this controller's navGroups
-     * @return stdClass
+     * @return \stdClass
      */
     public static function announce()
     {
@@ -29,17 +36,14 @@ class Settings extends Base
         $oNavGroup->setIcon('fa-wrench');
 
         if (userHasPermission('admin:admin:settings:admin:.*')) {
-
             $oNavGroup->addAction('Admin', 'admin');
         }
 
         if (userHasPermission('admin:admin:settings:site:.*')) {
-
             $oNavGroup->addAction('Site', 'site');
         }
 
         if (userHasPermission('admin:admin:settings:notifications')) {
-
             $oNavGroup->addAction('Notifications', 'notifications');
         }
 
@@ -54,16 +58,16 @@ class Settings extends Base
      */
     public static function permissions()
     {
-        $permissions = parent::permissions();
+        $aPermissions = parent::permissions();
 
-        $permissions['admin:branding']     = 'Configure Admin Branding';
-        $permissions['admin:whitelist']    = 'Configure Admn Whitelist';
-        $permissions['site:customjscss']   = 'Configure Site Custom JS and CSS';
-        $permissions['site:analytics']     = 'Configure Site analytics';
-        $permissions['site:maintenance']   = 'Configure Maintenance Mode';
-        $permissions['notifications']      = 'Configure Notifications';
+        $aPermissions['admin:branding']   = 'Configure Admin Branding';
+        $aPermissions['admin:whitelist']  = 'Configure Admn Whitelist';
+        $aPermissions['site:customjscss'] = 'Configure Site Custom JS and CSS';
+        $aPermissions['site:analytics']   = 'Configure Site analytics';
+        $aPermissions['site:maintenance'] = 'Configure Maintenance Mode';
+        $aPermissions['notifications']    = 'Configure Notifications';
 
-        return $permissions;
+        return $aPermissions;
     }
 
     // --------------------------------------------------------------------------
@@ -75,42 +79,36 @@ class Settings extends Base
     public function admin()
     {
         if (!userHasPermission('admin:admin:settings:admin:.*')) {
-
             unauthorised();
         }
 
         // --------------------------------------------------------------------------
 
-        if ($this->input->post()) {
+        $oInput = Factory::service('Input');
+        if ($oInput->post()) {
 
-            $settings = array();
+            $aSettings = [];
 
             if (userHasPermission('admin:admin:settings:admin:branding')) {
-
-                $settings['primary_colour']   = $this->input->post('primary_colour');
-                $settings['secondary_colour'] = $this->input->post('secondary_colour');
-                $settings['highlight_colour'] = $this->input->post('highlight_colour');
+                $aSettings['primary_colour']   = $oInput->post('primary_colour');
+                $aSettings['secondary_colour'] = $oInput->post('secondary_colour');
+                $aSettings['highlight_colour'] = $oInput->post('highlight_colour');
             }
 
             if (userHasPermission('admin:admin:settings:admin:branding')) {
-
-                $settings['whitelist'] = $this->prepareWhitelist($this->input->post('whitelist'));
+                $aSettings['whitelist'] = $this->prepareWhitelist($oInput->post('whitelist'));
             }
 
-            if (!empty($settings)) {
+            if (!empty($aSettings)) {
 
                 $oAppSettingModel = Factory::model('AppSetting');
-                if ($oAppSettingModel->set($settings, 'admin')) {
-
+                if ($oAppSettingModel->set($aSettings, 'admin')) {
                     $this->data['success'] = 'Admin settings have been saved.';
-
                 } else {
-
                     $this->data['error'] = 'There was a problem saving admin settings.';
                 }
 
             } else {
-
                 $this->data['message'] = 'No settings to save.';
             }
         }
@@ -146,50 +144,43 @@ class Settings extends Base
     public function site()
     {
         if (!userHasPermission('admin:admin:settings:site:.*')) {
-
             unauthorised();
         }
 
         // --------------------------------------------------------------------------
 
-        if ($this->input->post()) {
+        $oInput = Factory::service('Input');
+        if ($oInput->post()) {
 
-            $settings = array();
+            $aSettings = [];
 
             if (userHasPermission('admin:admin:settings:site:customjscss')) {
-
-                $settings['site_custom_js']  = $this->input->post('site_custom_js');
-                $settings['site_custom_css'] = $this->input->post('site_custom_css');
+                $aSettings['site_custom_js']  = $oInput->post('site_custom_js');
+                $aSettings['site_custom_css'] = $oInput->post('site_custom_css');
             }
 
             if (userHasPermission('admin:admin:settings:site:analytics')) {
-
-                $settings['google_analytics_account'] = $this->input->post('google_analytics_account');
+                $aSettings['google_analytics_account'] = $oInput->post('google_analytics_account');
             }
 
             if (userHasPermission('admin:admin:settings:site:maintenance')) {
-
-                $rawIPs = $this->input->post('maintenance_mode_whitelist');
-                $settings['maintenance_mode_enabled']   = (bool) $this->input->post('maintenance_mode_enabled');
-                $settings['maintenance_mode_whitelist'] = $this->prepareWhitelist($rawIPs);
-                $settings['maintenance_mode_title']     = $this->input->post('maintenance_mode_title');
-                $settings['maintenance_mode_body']      = $this->input->post('maintenance_mode_body');
+                $sRawIPs                                 = $oInput->post('maintenance_mode_whitelist');
+                $aSettings['maintenance_mode_enabled']   = (bool) $oInput->post('maintenance_mode_enabled');
+                $aSettings['maintenance_mode_whitelist'] = $this->prepareWhitelist($sRawIPs);
+                $aSettings['maintenance_mode_title']     = $oInput->post('maintenance_mode_title');
+                $aSettings['maintenance_mode_body']      = $oInput->post('maintenance_mode_body');
             }
 
-            if (!empty($settings)) {
+            if (!empty($aSettings)) {
 
                 $oAppSettingModel = Factory::model('AppSetting');
-                if ($oAppSettingModel->set($settings, 'site')) {
-
+                if ($oAppSettingModel->set($aSettings, 'site')) {
                     $this->data['success'] = 'Site settings have been saved.';
-
                 } else {
-
                     $this->data['error'] = 'There was a problem saving site settings.';
                 }
 
             } else {
-
                 $this->data['message'] = 'No settings to save.';
             }
         }
@@ -226,7 +217,6 @@ class Settings extends Base
     public function notifications()
     {
         if (!userHasPermission('admin:admin:settings:notifications')) {
-
             unauthorised();
         }
 
@@ -241,50 +231,46 @@ class Settings extends Base
 
         // --------------------------------------------------------------------------
 
-        if ($this->input->post()) {
+        $oInput = Factory::service('Input');
+        if ($oInput->post()) {
 
-            $notification = $this->input->post('notification');
+            $aNotification = $oInput->post('notification');
 
-            if (is_array($notification)) {
+            if (is_array($aNotification)) {
 
-                $set = array();
+                $aSet = [];
 
-                foreach ($notification as $grouping => $options) {
+                foreach ($aNotification as $sGroup => $aOptions) {
 
-                    $set[$grouping] = array();
+                    $aSet[$sGroup] = [];
 
-                    foreach ($options as $key => $emails) {
+                    foreach ($aOptions as $sKey => $sEmails) {
 
-                        $emails = explode(',', $emails);
-                        $emails = array_filter($emails);
-                        $emails = array_unique($emails);
+                        $aEmails = explode(',', $sEmails);
+                        $aEmails = array_filter($aEmails);
+                        $aEmails = array_unique($aEmails);
 
-                        foreach ($emails as &$email) {
-
-                            $email = trim($email) ;
-
-                            if (!valid_email($email)) {
-
-                                $error = '"<strong>' . $email . '</strong>" is not a valid email.';
+                        foreach ($aEmails as &$sEmail) {
+                            $sEmail = trim($sEmail);
+                            if (!valid_email($sEmail)) {
+                                $error = '"<strong>' . $sEmail . '</strong>" is not a valid email.';
                                 break 3;
                             }
                         }
 
-                        $set[$grouping][$key] = $emails;
+                        $aSet[$sGroup][$sKey] = $aEmails;
                     }
                 }
 
                 if (empty($error)) {
 
-                    foreach ($set as $grouping => $options) {
-
-                        $oAppNotificationModel->set($options, $grouping);
+                    foreach ($aSet as $sGroup => $aOptions) {
+                        $oAppNotificationModel->set($aOptions, $sGroup);
                     }
 
                     $this->data['success'] = 'Notifications were updated successfully.';
 
                 } else {
-
                     $this->data['error'] = $error;
                 }
             }
@@ -304,27 +290,28 @@ class Settings extends Base
 
     /**
      * Takes a multi line input and converts it into an array
-     * @param  string $input The input string
+     *
+     * @param  string $sInput The input string
+     *
      * @return array
      */
-    protected function prepareWhitelist($input)
+    protected function prepareWhitelist($sInput)
     {
-        $whitelistRaw = $input;
-        $whitelistRaw = str_replace("\n\r", "\n", $whitelistRaw);
-        $whitelistRaw = explode("\n", $whitelistRaw);
-        $whitelist    = array();
+        $sWhitelistRaw = $sInput;
+        $sWhitelistRaw = str_replace("\n\r", "\n", $sWhitelistRaw);
+        $aWhitelistRaw = explode("\n", $sWhitelistRaw);
+        $aWhitelist    = [];
 
-        foreach ($whitelistRaw as $line) {
-
-            $whitelist = array_merge(explode(',', $line), $whitelist);
+        foreach ($aWhitelistRaw as $sLine) {
+            $aWhitelist = array_merge(explode(',', $sLine), $aWhitelist);
         }
 
-        $whitelist = array_unique($whitelist);
-        $whitelist = array_filter($whitelist);
-        $whitelist = array_map('trim', $whitelist);
-        $whitelist = array_values($whitelist);
+        $aWhitelist = array_unique($aWhitelist);
+        $aWhitelist = array_filter($aWhitelist);
+        $aWhitelist = array_map('trim', $aWhitelist);
+        $aWhitelist = array_values($aWhitelist);
 
-        return $whitelist;
+        return $aWhitelist;
     }
 
     // --------------------------------------------------------------------------
@@ -364,11 +351,15 @@ class Settings extends Base
 
     /**
      * Configure components which have settings described in their composer.json/config.json file
+     *
+     * @param string $sType The type of component
+     *
      * @return void
      */
     public function component($sType = 'component')
     {
-        $this->data['slug'] = $this->input->get('slug');
+        $oInput             = Factory::service('Input');
+        $this->data['slug'] = $oInput->get('slug');
 
         $oComponent = _NAILS_GET_COMPONENTS_BY_SLUG($this->data['slug']);
 
@@ -377,20 +368,20 @@ class Settings extends Base
         }
 
         //  Move all the settings which aren't already in fieldsets/groups into groups
-        $this->data['fieldsets'] = array();
-        $this->fields            = array();
+        $this->data['fieldsets'] = [];
+        $this->aFields           = [];
         $this->extractFieldsets($oComponent->slug, $oComponent->data->settings);
         $this->data['fieldsets'] = array_values($this->data['fieldsets']);
 
-        if ($this->input->post()) {
+        if ($oInput->post()) {
 
             //  Validate
             $oFormValidation = Factory::service('FormValidation');
-            $aRules          = array();
+            $aRules          = [];
 
-            foreach ($this->fields as $oField) {
+            foreach ($this->aFields as $oField) {
 
-                $aFieldRule   = array();
+                $aFieldRule   = ['trim'];
                 $aFieldRule[] = !empty($oField->required) ? 'required' : '';
 
                 if (!empty($oField->validation_rules)) {
@@ -400,32 +391,29 @@ class Settings extends Base
                 $aFieldRule = array_filter($aFieldRule);
                 $aFieldRule = array_unique($aFieldRule);
 
-                $aRules[] = array(
+                $aRules[] = [
                     'field' => $oField->key,
                     'label' => $oField->label,
-                    'rules' => implode('|', $aFieldRule)
-                );
+                    'rules' => implode('|', $aFieldRule),
+                ];
             }
 
             $oFormValidation->set_rules($aRules);
 
             if ($oFormValidation->run()) {
 
-                $aSettings          = array();
-                $aSettingsEncrypted = array();
+                $aSettings          = [];
+                $aSettingsEncrypted = [];
 
-                foreach ($this->fields as $oField) {
+                foreach ($this->aFields as $oField) {
 
                     //  @todo respect data types
 
                     //  Encrypted or not?
                     if (!empty($oField->encrypted)) {
-
-                        $aSettingsEncrypted[$oField->key] = $this->input->post($oField->key);
-
+                        $aSettingsEncrypted[$oField->key] = $oInput->post($oField->key);
                     } else {
-
-                        $aSettings[$oField->key] = $this->input->post($oField->key);
+                        $aSettings[$oField->key] = $oInput->post($oField->key);
                     }
                 }
 
@@ -433,35 +421,26 @@ class Settings extends Base
                 $oAppSettingModel = Factory::model('AppSetting');
                 $oDb              = Factory::service('Database');
                 $oDb->trans_begin();
-                $bRollback = false;
 
                 //  Normal settings
                 if (!$oAppSettingModel->set($aSettings, $oComponent->slug)) {
-
-                    $sError    = $oAppSettingModel->lastError();
-                    $bRollback = true;
+                    $sError = $oAppSettingModel->lastError();
                 }
 
                 //  Encrypted settings
                 if (!$oAppSettingModel->set($aSettingsEncrypted, $oComponent->slug, null, true)) {
-
-                    $sError    = $oAppSettingModel->lastError();
-                    $bRollback = true;
+                    $sError = $oAppSettingModel->lastError();
                 }
 
-                if (empty($bRollback)) {
-
+                if (empty($sError)) {
                     $oDb->trans_commit();
                     $this->data['success'] = $sType . ' settings were saved.';
-
                 } else {
-
                     $oDb->trans_rollback();
                     $this->data['error'] = 'There was a problem saving shop settings. ' . $sError;
                 }
 
             } else {
-
                 $this->data['error'] = lang('fv_there_were_errors');
             }
         }
@@ -480,11 +459,14 @@ class Settings extends Base
         Helper::loadView('component');
     }
 
+    // --------------------------------------------------------------------------
 
     /**
      * Recursively gets all the settings from the settings array
-     * @param  array $aSettings The array of fieldsets and/or settings
-     * @return array
+     *
+     * @param string $sComponentSlug The component's slug
+     * @param array  $aSettings      The array of fieldsets and/or settings
+     * @param int    $fieldSetIndex  The index of the fieldset
      */
     protected function extractFieldsets($sComponentSlug, $aSettings, $fieldSetIndex = 0)
     {
@@ -496,10 +478,10 @@ class Settings extends Base
                 $fieldSetIndex++;
 
                 if (!isset($this->data['fieldsets'][$fieldSetIndex])) {
-                    $this->data['fieldsets'][$fieldSetIndex] = array(
+                    $this->data['fieldsets'][$fieldSetIndex] = [
                         'legend' => $oSetting->legend,
-                        'fields' => array()
-                    );
+                        'fields' => [],
+                    ];
                 }
 
                 $this->extractFieldsets($sComponentSlug, $oSetting->fields, $fieldSetIndex);
@@ -512,14 +494,14 @@ class Settings extends Base
                 }
 
                 if (!isset($this->data['fieldsets'][$fieldSetIndex])) {
-                    $this->data['fieldsets'][$fieldSetIndex] = array(
+                    $this->data['fieldsets'][$fieldSetIndex] = [
                         'legend' => '',
-                        'fields' => array()
-                    );
+                        'fields' => [],
+                    ];
                 }
 
                 $this->data['fieldsets'][$fieldSetIndex]['fields'][] = $oSetting;
-                $this->fields[] = $oSetting;
+                $this->aFields[]                                     = $oSetting;
             }
         }
     }
