@@ -113,7 +113,7 @@ class Create extends BaseMaker
                 }
 
                 //  Check for existing controller
-                $sPath = static::CONTROLLER_PATH . lcfirst($sModel) . '.php';
+                $sPath = static::CONTROLLER_PATH . $sModel . '.php';
                 if (file_exists($sPath)) {
                     throw new ControllerExistsException(
                         'Controller "' . $sModel . '" exists already at path "' . $sPath . '"'
