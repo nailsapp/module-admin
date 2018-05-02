@@ -1,5 +1,5 @@
 'use strict';
-var _ADMIN;
+let _ADMIN;
 
 import DynamicTable from './components/DynamicTable.js';
 import Sortable from './components/Sortable.js';

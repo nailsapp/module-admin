@@ -1,6 +1,12 @@
 /* export DynamicTable */
-/* globals Mustache */
+
+/* globals Mustache, $, jQuery */
 class DynamicTable {
+
+    /**
+     * Construct DynamicTable
+     * @return {DynamicTable}
+     */
     constructor() {
 
         $('.js-admin-dynamic-table')
@@ -12,6 +18,11 @@ class DynamicTable {
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Initialise a dynamic table
+     * @param {jQuery} $table The table DOM element
+     * @return {DynamicTable}
+     */
     init($table) {
 
         let $body = $table.find('.js-admin-dynamic-table__template');
@@ -32,6 +43,12 @@ class DynamicTable {
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Bind events
+     * @param {jQuery} $table The table DOM element
+     * @param {jQuery} $body The body DOM element
+     * @return {DynamicTable}
+     */
     bindEvents($table, $body) {
         $('.js-admin-dynamic-table__add', $table)
             .on('click', () => {
@@ -50,6 +67,13 @@ class DynamicTable {
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Add a new row
+     * @param {jQuery} $table The table DOM element
+     * @param {jQuery} $body The body DOM element
+     * @param {Object} data Data to render the row with
+     * @return {DynamicTable}
+     */
     add($table, $body, data) {
         data = data || {};
         data.index = $table.data('index');
@@ -63,6 +87,11 @@ class DynamicTable {
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Remove a row
+     * @param {jQuery} $row The row DOM element
+     * @return {DynamicTable}
+     */
     remove($row) {
         $row.remove();
         return this;
