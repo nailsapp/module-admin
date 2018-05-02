@@ -49,8 +49,7 @@ var css = {};
 var js = {
     'admin': {
         'input': [
-            'assets/js/components/DynamicTable.js',
-            'assets/js/components/Sortable.js'
+            'assets/js/admin.js'
         ],
         'output': 'admin.js',
         'watch': [
@@ -165,7 +164,6 @@ function compileCss(task, input, output) {
  */
 function compileJs(task, input, output) {
 
-    console.log(task, input, output);
     var b = browserify({
         entries: input,
         debug: true,

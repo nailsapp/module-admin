@@ -1,109 +1,72 @@
-/* exported _ADMIN_DYNAMIC_TABLE */
+/* export DynamicTable */
 /* globals Mustache */
-var _ADMIN_DYNAMIC_TABLE;
-_ADMIN_DYNAMIC_TABLE = function() {
+class DynamicTable {
+    constructor() {
 
-    /**
-     * Avoid scope issues in callbacks and anonymous functions by referring to `this` as `base`
-     * @type {_ADMIN_DYNAMIC_TABLE}
-     */
-    var base = this;
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Construct _ADMIN_DYNAMIC_TABLE
-     * @return {_ADMIN_DYNAMIC_TABLE} A reference to this class
-     */
-    base.__construct = function() {
         $('.js-admin-dynamic-table')
-            .each(function(index, element) {
-                base.init($(element));
+            .each((index, element) => {
+                this.init($(element));
             });
-        return base;
-    };
+        return this;
+    }
 
     // --------------------------------------------------------------------------
 
-    /**
-     * Initialise dynamic tables
-     * @param  {jQuery} $table The table DOM element
-     * @return {_ADMIN_DYNAMIC_TABLE} A reference to this class
-     */
-    base.init = function($table) {
+    init($table) {
 
-        var $body = $table.find('.js-admin-dynamic-table__template');
-        var data = $table.data('data') || [];
+        let $body = $table.find('.js-admin-dynamic-table__template');
+        let data = $table.data('data') || [];
 
         $table.data('template', $body.html());
         $table.data('index', 0);
         $body.empty();
 
-        base.bindEvents($table, $body);
+        this.bindEvents($table, $body);
 
-        for (var i = 0, j = data.length; i < j; i++) {
-            base.add($table, $body, data[i]);
+        for (let i = 0, j = data.length; i < j; i++) {
+            this.add($table, $body, data[i]);
         }
 
-        return base;
-    };
+        return this;
+    }
 
     // --------------------------------------------------------------------------
 
-    /**
-     * Bind events to the table
-     * @param  {jQuery} $table The table DOM element
-     * @param  {jQuery} $body  The body DOM element
-     * @return {_ADMIN_DYNAMIC_TABLE} A reference to this class
-     */
-    base.bindEvents = function($table, $body) {
+    bindEvents($table, $body) {
         $('.js-admin-dynamic-table__add', $table)
-            .on('click', function() {
-                base.add($table, $body);
+            .on('click', () => {
+                this.add($table, $body);
                 return false;
             });
 
         $table
-            .on('click', '.js-admin-dynamic-table__remove', function(e) {
-                base.remove($(e.currentTarget).closest('tr'));
+            .on('click', '.js-admin-dynamic-table__remove', (e) => {
+                this.remove($(e.currentTarget).closest('tr'));
                 return false;
             });
 
-        return base;
-    };
+        return this;
+    }
 
     // --------------------------------------------------------------------------
 
-    /**
-     * Adds a new row
-     * @param  {jQuery} $table The table DOM element
-     * @param  {jQuery} $body  The body DOM element
-     * @param {Object}  data   Any data to use to populate the row
-     * @return {_ADMIN_DYNAMIC_TABLE} A reference to this class
-     */
-    base.add = function($table, $body, data) {
+    add($table, $body, data) {
         data = data || {};
         data.index = $table.data('index');
         $body.append(
             Mustache.render($table.data('template'), data)
         );
         $table.data('index', data.index + 1);
-        return base;
-    };
+
+        return this;
+    }
 
     // --------------------------------------------------------------------------
 
-    /**
-     * Remove a row
-     * @param  {jquery} $row The row DOM element
-     * @return {_ADMIN_DYNAMIC_TABLE} A reference to this class
-     */
-    base.remove = function($row) {
+    remove($row) {
         $row.remove();
-        return base;
-    };
+        return this;
+    }
+}
 
-    // --------------------------------------------------------------------------
-
-    return base.__construct();
-}();
+export default DynamicTable;
