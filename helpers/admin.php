@@ -23,3 +23,21 @@ if (!function_exists('adminHelper')) {
         return call_user_func_array($sMethod, $aArgs);
     }
 }
+
+// --------------------------------------------------------------------------
+
+if (!function_exists('adminDynamicTable')) {
+    /**
+     * Generates a dynamic table
+     *
+     * @param string $sKey    The key to give items in the table
+     * @param array  $aFields The fields to render
+     * @param array  $aData   Data to populate the table with
+     *
+     * @return string
+     */
+    function adminDynamicTable($sKey, array $aFields, array $aData = [])
+    {
+        return \Nails\Admin\Helper::dynamicTable($sKey, $aFields, $aData);
+    }
+}

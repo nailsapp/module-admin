@@ -76,7 +76,7 @@ class DynamicTable {
      */
     add($table, $body, data) {
         data = data || {};
-        data.index = $table.data('index');
+        data.index = $table.data('index') || 0;
         $body.append(
             Mustache.render($table.data('template'), data)
         );

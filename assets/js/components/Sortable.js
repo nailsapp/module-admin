@@ -35,7 +35,7 @@ class Sortable {
                         },
                         stop: function() {
                             $item
-                                .find('.js-order')
+                                .find('.js-admin-sortable__order')
                                 .each(function(index) {
                                     $(this).val(index);
                                 });

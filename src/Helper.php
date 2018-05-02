@@ -571,4 +571,29 @@ class Helper
     {
         return self::$aHeaderButtons;
     }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Generates a dynamic table
+     *
+     * @param string $sKey    The key to give items in the table
+     * @param array  $aFields The fields to render
+     * @param array  $aData   Data to populate the table with
+     *
+     * @return string
+     */
+    public static function dynamicTable($sKey, array $aFields, array $aData = [])
+    {
+        return Factory::service('View')
+                      ->load(
+                          'admin/_components/dynamic-table',
+                          [
+                              'sKey'    => $sKey,
+                              'aFields' => $aFields,
+                              'aData'   => $aData,
+                          ],
+                          true
+                      );
+    }
 }
