@@ -460,8 +460,7 @@ class AdminRouter extends BaseMiddle
          */
 
         //  Sort alphabetically
-        Factory::helper('array');
-        array_sort_multi($middle, 'label');
+        arraySortMulti($middle, 'label');
 
         //  Get user's prefs
         $oAdminModel = Factory::model('Admin', 'nailsapp/module-admin');
@@ -516,7 +515,7 @@ class AdminRouter extends BaseMiddle
          */
 
         foreach ($this->adminControllersNav as $grouping) {
-            array_sort_multi($grouping->actions, 'order');
+            arraySortMulti($grouping->actions, 'order');
         }
     }
 

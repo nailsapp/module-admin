@@ -81,8 +81,8 @@ class DataExport
             }
         }
 
-        array_sort_multi($this->aSources, 'label');
-        array_sort_multi($this->aFormats, 'label');
+        arraySortMulti($this->aSources, 'label');
+        arraySortMulti($this->aFormats, 'label');
 
         $this->aSources = array_values($this->aSources);
         $this->aFormats = array_values($this->aFormats);

@@ -816,7 +816,7 @@ abstract class DefaultController extends Base
             },
             $aImplementedRules
         );
-        $aImplementedRules = array_unique_multi($aImplementedRules);
+        $aImplementedRules = arrayUniqueMulti($aImplementedRules);
 
         foreach ($aImplementedRules as $sRule) {
             $sMessage = lang('fv_' . $sRule);

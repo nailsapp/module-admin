@@ -46,8 +46,6 @@ class Dashboard extends Base
         // --------------------------------------------------------------------------
 
         //  Choose a hello phrase
-        Factory::helper('array');
-
         $phrases   = array();
         $phrases[] = 'Be awesome.';
         $phrases[] = 'You look nice!';
