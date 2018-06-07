@@ -72,7 +72,7 @@ use Nails\Admin\Helper;
                                 $sField2 = getFromArray(1, $aField);
                                 echo '<td class="field field--' . $sField . '">';
                                 if (property_exists($oItem, $sField1)) {
-                                    if (property_exists($oItem->{$sField1}, $sField2)) {
+                                    if (!empty($oItem->{$sField1}) && property_exists($oItem->{$sField1}, $sField2)) {
                                         echo $oItem->{$sField1}->{$sField2};
                                     } else {
                                         echo $sField;
