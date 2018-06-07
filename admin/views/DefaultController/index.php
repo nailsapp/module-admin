@@ -75,15 +75,15 @@ use Nails\Admin\Helper;
                                     if (!empty($oItem->{$sField1}) && property_exists($oItem->{$sField1}, $sField2)) {
                                         echo $oItem->{$sField1}->{$sField2};
                                     } else {
-                                        echo $sField;
+                                        echo '<span class="text-muted">&mdash;</span>';
                                     }
                                 } else {
-                                    echo $sField;
+                                    echo '<span class="text-muted">&mdash;</span>';
                                 }
                                 echo '</td>';
                             } else {
                                 echo '<td class="field field--' . $sField . '">';
-                                echo $sField;
+                                echo '<span class="text-muted">&mdash;</span>';
                                 echo '</td>';
                             }
                         }
