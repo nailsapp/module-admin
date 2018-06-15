@@ -187,7 +187,8 @@ class ChangeLog extends Base
                 $this->changes[$i]['modified_by'] = activeUser('id');
             }
 
-            $this->db->insert_batch($this->table, $this->changes);
+            $oDb = Factory::service('Database');
+            $oDb->insert_batch($this->table, $this->changes);
         }
 
         $this->clear();
@@ -244,8 +245,9 @@ class ChangeLog extends Base
     protected function getCountCommon($data = array())
     {
         //  Join user tables
-        $this->db->join(NAILS_DB_PREFIX . 'user u', 'u.id = ' . $this->tableAlias . '.user_id', 'LEFT');
-        $this->db->join(NAILS_DB_PREFIX . 'user_email ue', 'ue.user_id = ' . $this->tableAlias . '.user_id AND ue.is_primary = 1', 'LEFT');
+        $oDb = Factory::service('Database');
+        $oDb->join(NAILS_DB_PREFIX . 'user u', 'u.id = ' . $this->tableAlias . '.user_id', 'LEFT');
+        $oDb->join(NAILS_DB_PREFIX . 'user_email ue', 'ue.user_id = ' . $this->tableAlias . '.user_id AND ue.is_primary = 1', 'LEFT');
 
         //  Searching?
         if (!empty($data['keywords'])) {
