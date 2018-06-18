@@ -160,7 +160,7 @@ $oMustache = \Nails\Factory::service('Mustache');
                 } else {
                     ?>
                     <tr>
-                        <td colspan="5" class="no-data">
+                        <td colspan="<?=count($CONFIG['INDEX_FIELDS']) + 1?>" class="no-data">
                             No items found
                         </td>
                     </tr>
