@@ -38,7 +38,7 @@ class IndexFilter
      * An array of options to present to the user
      * @var array
      */
-    protected $aOptions;
+    protected $aOptions = [];
 
     // --------------------------------------------------------------------------
 
