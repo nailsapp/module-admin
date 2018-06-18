@@ -2,6 +2,8 @@
 
 use Nails\Admin\Helper;
 
+$oMustache = \Nails\Factory::service('Mustache');
+
 ?>
 <div class="group-defaultcontroller browse">
     <p>
@@ -113,18 +115,10 @@ use Nails\Admin\Helper;
                                     continue;
                                 }
 
-                                $sUrl = preg_replace_callback(
-                                    '/{{(.*?)}}/',
-                                    function ($aMatch) use ($oItem) {
-                                        list($sString, $sProperty) = $aMatch;
-                                        if (property_exists($oItem, $sProperty)) {
-                                            return $oItem->{$sProperty};
-                                        } else {
-                                            return $sString;
-                                        }
-                                    },
-                                    $sUrl
-                                );
+                                $sUrl   = $oMustache->render($sUrl, $oItem);
+                                $sLabel = $oMustache->render($sLabel, $oItem);
+                                $sClass = $oMustache->render($sClass, $oItem);
+                                $sAttr  = $oMustache->render($sAttr, $oItem);
 
                                 echo anchor(
                                     $CONFIG['BASE_URL'] . '/' . $sUrl,
