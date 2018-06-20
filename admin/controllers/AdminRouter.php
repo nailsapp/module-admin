@@ -536,7 +536,7 @@ class AdminRouter extends BaseMiddle
         if (empty($sModule)) {
 
             $oSession = Factory::service('Session', 'nailsapp/module-auth');
-            $oSession->keep_flashdata();
+            $oSession->keepFlashData();
             redirect('admin/admin/dashboard');
 
         } elseif (isset($this->adminControllers[$sModule]->controllers[$sController])) {
