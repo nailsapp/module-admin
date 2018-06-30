@@ -16,7 +16,6 @@ $oMustache = \Nails\Factory::service('Mustache');
             <thead>
                 <tr>
                     <?php
-
                     foreach ($CONFIG['INDEX_FIELDS'] as $sField => $sLabel) {
                         $aAttr = [
                             'class' => ['field', 'field--' . $sField],
@@ -36,125 +35,153 @@ $oMustache = \Nails\Factory::service('Mustache');
                                 $sAttr = ' ' . $sKey . '="' . $mValue . '"';
                             }
                         }
-                        echo '<th ' . $sAttr . '>' . $sLabel . '</th>';
+                        ?>
+                        <th <?=$sAttr?>>
+                            <?=$sLabel?>
+                        </th>
+                        <?php
                     }
-
                     ?>
                     <th class="actions" style="width:160px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <?php
-
                 if (!empty($items)) {
-
                     foreach ($items as $oItem) {
+                        ?>
+                        <tr>
+                            <?php
 
-                        echo '<tr>';
-                        foreach ($CONFIG['INDEX_FIELDS'] as $sField => $sLabel) {
-                            if (property_exists($oItem, $sField)) {
-                                //  @todo - handle more field types
-                                if (preg_match('/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/', $oItem->{$sField})) {
-                                    echo Helper::loadDateTimeCell($oItem->{$sField});
-                                } elseif (preg_match('/\d\d\d\d-\d\d-\d\d/', $oItem->{$sField})) {
-                                    echo Helper::loadDateCell($oItem->{$sField});
-                                } elseif (in_array($sField, $CONFIG['INDEX_BOOL_FIELDS'])) {
-                                    echo Helper::loadBoolCell($oItem->{$sField});
-                                } elseif (in_array($sField, $CONFIG['INDEX_USER_FIELDS'])) {
-                                    echo Helper::loadUserCell($oItem->{$sField});
-                                } else {
-                                    echo '<td class="field field--' . $sField . '">';
-                                    echo $oItem->{$sField};
-                                    echo '</td>';
-                                }
-                            } elseif (strpos($sField, '.') !== false) {
-                                //  @todo - handle arrays in expanded objects
-                                $aField  = explode('.', $sField);
-                                $sField1 = getFromArray(0, $aField);
-                                $sField2 = getFromArray(1, $aField);
-                                echo '<td class="field field--' . $sField . '">';
-                                if (property_exists($oItem, $sField1)) {
-                                    if (!empty($oItem->{$sField1}) && property_exists($oItem->{$sField1}, $sField2)) {
-                                        echo $oItem->{$sField1}->{$sField2};
+                            foreach ($CONFIG['INDEX_FIELDS'] as $sField => $sLabel) {
+                                if (property_exists($oItem, $sField)) {
+                                    //  @todo - handle more field types
+                                    if (preg_match('/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/', $oItem->{$sField})) {
+                                        echo Helper::loadDateTimeCell($oItem->{$sField});
+                                    } elseif (preg_match('/\d\d\d\d-\d\d-\d\d/', $oItem->{$sField})) {
+                                        echo Helper::loadDateCell($oItem->{$sField});
+                                    } elseif (in_array($sField, $CONFIG['INDEX_BOOL_FIELDS'])) {
+                                        echo Helper::loadBoolCell($oItem->{$sField});
+                                    } elseif (in_array($sField, $CONFIG['INDEX_USER_FIELDS'])) {
+                                        echo Helper::loadUserCell($oItem->{$sField});
                                     } else {
-                                        echo '<span class="text-muted">&mdash;</span>';
+                                        ?>
+                                        <td class="field field--' . $sField . '">
+                                            <?php
+
+                                            echo $oItem->{$sField};
+
+                                            if (classUses($CONFIG['MODEL_INSTANCE'], '\Nails\Common\Traits\Model\Nestable')) {
+                                                $aBreadcrumbs = json_decode($oItem->breadcrumbs);
+                                                if (!empty($aBreadcrumbs)) {
+                                                    $aItems = arrayExtractProperty($aBreadcrumbs, 'label');
+                                                    echo '<small>' . implode(' &rsaquo; ', $aItems) . '</small>';
+                                                }
+                                            }
+
+
+                                            ?>
+                                        </td>
+                                        <?php
                                     }
+                                } elseif (strpos($sField, '.') !== false) {
+                                    //  @todo - handle arrays in expanded objects
+                                    $aField  = explode('.', $sField);
+                                    $sField1 = getFromArray(0, $aField);
+                                    $sField2 = getFromArray(1, $aField);
+                                    ?>
+                                    <td class="field field--<?=$sField?>">
+                                        <?php
+                                        if (property_exists($oItem, $sField1)) {
+                                            if (!empty($oItem->{$sField1}) && property_exists($oItem->{$sField1}, $sField2)) {
+                                                echo $oItem->{$sField1}->{$sField2};
+                                            } else {
+                                                echo '<span class="text-muted">&mdash;</span>';
+                                            }
+                                        } else {
+                                            echo '<span class="text-muted">&mdash;</span>';
+                                        }
+                                        ?>
+                                    </td>
+                                    <?php
                                 } else {
-                                    echo '<span class="text-muted">&mdash;</span>';
+                                    ?>
+                                    <td class="field field--<?=$sField?>">
+                                        <span class="text-muted">&mdash;</span>
+                                    </td>
+                                    <?php
                                 }
-                                echo '</td>';
-                            } else {
-                                echo '<td class="field field--' . $sField . '">';
-                                echo '<span class="text-muted">&mdash;</span>';
-                                echo '</td>';
                             }
-                        }
 
-                        echo '<td class="actions">';
+                            ?>
+                            <td class="actions">
+                                <?php
 
-                        if ($CONFIG['CAN_VIEW'] && property_exists($oItem, 'url')) {
-                            echo anchor(
-                                $oItem->url,
-                                lang('action_view'),
-                                'class="btn btn-xs btn-default" target="_blank"'
-                            );
-                        }
-
-                        foreach ($CONFIG['INDEX_ROW_BUTTONS'] as $aButton) {
-                            $sUrl   = getFromArray('url', $aButton);
-                            $sLabel = getFromArray('label', $aButton);
-                            $sClass = getFromArray('class', $aButton);
-                            $sAttr  = getFromArray('attr', $aButton);
-                            $sPerm  = getFromArray('permission', $aButton);
-                            $sPerm  = $sPerm ? 'admin:' . $CONFIG['PERMISSION'] . ':' . $sPerm : '';
-
-                            if (empty($CONFIG['PERMISSION']) || empty($sPerm) || userHasPermission($sPerm)) {
-
-                                $cEnabled = getFromArray('enabled', $aButton);
-                                if (is_callable($cEnabled) && !$cEnabled($oItem)) {
-                                    continue;
+                                if ($CONFIG['CAN_VIEW'] && property_exists($oItem, 'url')) {
+                                    echo anchor(
+                                        $oItem->url,
+                                        lang('action_view'),
+                                        'class="btn btn-xs btn-default" target="_blank"'
+                                    );
                                 }
 
-                                $sUrl   = $oMustache->render($sUrl, $oItem);
-                                $sLabel = $oMustache->render($sLabel, $oItem);
-                                $sClass = $oMustache->render($sClass, $oItem);
-                                $sAttr  = $oMustache->render($sAttr, $oItem);
+                                foreach ($CONFIG['INDEX_ROW_BUTTONS'] as $aButton) {
+                                    $sUrl   = getFromArray('url', $aButton);
+                                    $sLabel = getFromArray('label', $aButton);
+                                    $sClass = getFromArray('class', $aButton);
+                                    $sAttr  = getFromArray('attr', $aButton);
+                                    $sPerm  = getFromArray('permission', $aButton);
+                                    $sPerm  = $sPerm ? 'admin:' . $CONFIG['PERMISSION'] . ':' . $sPerm : '';
 
-                                echo anchor(
-                                    $CONFIG['BASE_URL'] . '/' . $sUrl,
-                                    $sLabel,
-                                    'class="btn btn-xs ' . $sClass . '" ' . $sAttr
-                                );
-                            }
-                        }
+                                    if (empty($CONFIG['PERMISSION']) || empty($sPerm) || userHasPermission($sPerm)) {
 
-                        if ($CONFIG['CAN_EDIT']) {
-                            if (empty($CONFIG['PERMISSION']) || userHasPermission('admin:' . $CONFIG['PERMISSION'] . ':edit')) {
-                                echo anchor(
-                                    $CONFIG['BASE_URL'] . '/edit/' . $oItem->id,
-                                    lang('action_edit'),
-                                    'class="btn btn-xs btn-primary"'
-                                );
-                            }
-                        }
+                                        $cEnabled = getFromArray('enabled', $aButton);
+                                        if (is_callable($cEnabled) && !$cEnabled($oItem)) {
+                                            continue;
+                                        }
 
-                        if ($CONFIG['CAN_DELETE']) {
-                            if (empty($CONFIG['PERMISSION']) || userHasPermission('admin:' . $CONFIG['PERMISSION'] . ':delete')) {
-                                if ($CONFIG['CAN_RESTORE']) {
-                                    $sConfirm = 'You <strong>can</strong> undo this action.';
-                                } else {
-                                    $sConfirm = 'You <strong>cannot</strong> undo this action.';
+                                        $sUrl   = $oMustache->render($sUrl, $oItem);
+                                        $sLabel = $oMustache->render($sLabel, $oItem);
+                                        $sClass = $oMustache->render($sClass, $oItem);
+                                        $sAttr  = $oMustache->render($sAttr, $oItem);
+
+                                        echo anchor(
+                                            $CONFIG['BASE_URL'] . '/' . $sUrl,
+                                            $sLabel,
+                                            'class="btn btn-xs ' . $sClass . '" ' . $sAttr
+                                        );
+                                    }
                                 }
-                                echo anchor(
-                                    $CONFIG['BASE_URL'] . '/delete/' . $oItem->id,
-                                    lang('action_delete'),
-                                    'class="btn btn-xs btn-danger confirm" data-body="' . $sConfirm . '"'
-                                );
-                            }
-                        }
 
-                        echo '</td>';
-                        echo '</tr>';
+                                if ($CONFIG['CAN_EDIT']) {
+                                    if (empty($CONFIG['PERMISSION']) || userHasPermission('admin:' . $CONFIG['PERMISSION'] . ':edit')) {
+                                        echo anchor(
+                                            $CONFIG['BASE_URL'] . '/edit/' . $oItem->id,
+                                            lang('action_edit'),
+                                            'class="btn btn-xs btn-primary"'
+                                        );
+                                    }
+                                }
+
+                                if ($CONFIG['CAN_DELETE']) {
+                                    if (empty($CONFIG['PERMISSION']) || userHasPermission('admin:' . $CONFIG['PERMISSION'] . ':delete')) {
+                                        if ($CONFIG['CAN_RESTORE']) {
+                                            $sConfirm = 'You <strong>can</strong> undo this action.';
+                                        } else {
+                                            $sConfirm = 'You <strong>cannot</strong> undo this action.';
+                                        }
+                                        echo anchor(
+                                            $CONFIG['BASE_URL'] . '/delete/' . $oItem->id,
+                                            lang('action_delete'),
+                                            'class="btn btn-xs btn-danger confirm" data-body="' . $sConfirm . '"'
+                                        );
+                                    }
+                                }
+
+                                ?>
+                            </td>
+                        </tr>
+                        <?php
                     }
 
                 } else {
@@ -166,7 +193,6 @@ $oMustache = \Nails\Factory::service('Mustache');
                     </tr>
                     <?php
                 }
-
                 ?>
             </tbody>
         </table>

@@ -151,6 +151,11 @@ abstract class DefaultController extends Base
     const CONFIG_EDIT_DATA = [];
 
     /**
+     * Specify a specific order for fieldsets
+     */
+    const CONFIG_EDIT_FIELDSET_ORDER = [];
+
+    /**
      * When creating, this string is passed to supporting functions
      */
     const EDIT_MODE_CREATE = 'CREATE';
@@ -253,13 +258,10 @@ abstract class DefaultController extends Base
         // --------------------------------------------------------------------------
 
         //  Model specific fields
-        $oItemModel = Factory::model(
-            $this->aConfig['MODEL_NAME'],
-            $this->aConfig['MODEL_PROVIDER']
-        );
+        $oModel = $this->getModel();
 
-        $this->aConfig['CAN_RESTORE'] = !$oItemModel->isDestructiveDelete();
-        $this->aConfig['FIELDS']      = $oItemModel->describeFields();
+        $this->aConfig['CAN_RESTORE'] = !$oModel->isDestructiveDelete();
+        $this->aConfig['FIELDS']      = $oModel->describeFields();
         $this->data['CONFIG']         = $this->aConfig;
     }
 
@@ -284,6 +286,7 @@ abstract class DefaultController extends Base
         $aConfig = [
             'MODEL_NAME'           => static::CONFIG_MODEL_NAME,
             'MODEL_PROVIDER'       => static::CONFIG_MODEL_PROVIDER,
+            'MODEL_INSTANCE'       => static::getModel(),
             'CAN_CREATE'           => static::CONFIG_CAN_CREATE,
             'CAN_EDIT'             => static::CONFIG_CAN_EDIT,
             'CAN_VIEW'             => static::CONFIG_CAN_VIEW,
@@ -304,6 +307,7 @@ abstract class DefaultController extends Base
             'INDEX_USER_FIELDS'    => static::CONFIG_INDEX_USER_FIELDS,
             'EDIT_IGNORE_FIELDS'   => static::CONFIG_EDIT_IGNORE_FIELDS,
             'EDIT_DATA'            => static::CONFIG_EDIT_DATA,
+            'FIELDSET_ORDER'       => static::CONFIG_EDIT_FIELDSET_ORDER,
         ];
 
         //  Set defaults where appropriate
@@ -380,6 +384,16 @@ abstract class DefaultController extends Base
 
     // --------------------------------------------------------------------------
 
+    protected static function getModel()
+    {
+        return Factory::model(
+            static::CONFIG_MODEL_NAME,
+            static::CONFIG_MODEL_PROVIDER
+        );
+    }
+
+    // --------------------------------------------------------------------------
+
     /**
      * Browse all items
      * @return void
@@ -391,14 +405,15 @@ abstract class DefaultController extends Base
             unauthorised();
         }
 
-        $oInput     = Factory::service('Input');
-        $oItemModel = Factory::model(
-            $this->aConfig['MODEL_NAME'],
-            $this->aConfig['MODEL_PROVIDER']
-        );
+        $oInput = Factory::service('Input');
+        $oModel = $this->getModel();
 
-        $sAlias      = $oItemModel->getTableAlias();
+        $sAlias      = $oModel->getTableAlias();
         $aSortConfig = $this->aConfig['SORT_OPTIONS'];
+
+        if (classUses($oModel, '\Nails\Common\Traits\Model\Nestable')) {
+            $aSortConfig = array_merge(['breadcrumbs' => 'Hierarchy'], $aSortConfig);n
+        }
 
         //  Get the first key (i.e the default sort)
         reset($aSortConfig);
@@ -434,8 +449,8 @@ abstract class DefaultController extends Base
 
         // --------------------------------------------------------------------------
 
-        $iTotalRows               = $oItemModel->countAll($aData);
-        $this->data['items']      = $oItemModel->getAll($iPage, $iPerPage, $aData);
+        $iTotalRows               = $oModel->countAll($aData);
+        $this->data['items']      = $oModel->getAll($iPage, $iPerPage, $aData);
         $this->data['pagination'] = Helper::paginationObject($iPage, $iPerPage, $iTotalRows);
         $this->data['search']     = Helper::searchObject(
             true,
@@ -521,12 +536,9 @@ abstract class DefaultController extends Base
             unauthorised();
         }
 
-        $oDb        = Factory::service('Database');
-        $oInput     = Factory::service('Input');
-        $oItemModel = Factory::model(
-            $this->aConfig['MODEL_NAME'],
-            $this->aConfig['MODEL_PROVIDER']
-        );
+        $oDb    = Factory::service('Database');
+        $oInput = Factory::service('Input');
+        $oModel = $this->getModel();
 
         // --------------------------------------------------------------------------
 
@@ -542,9 +554,9 @@ abstract class DefaultController extends Base
                 $this->beforeCreateAndEdit(static::EDIT_MODE_CREATE);
                 $this->beforeCreate();
 
-                $oItem = $oItemModel->create($this->getPostObject(), true);
+                $oItem = $oModel->create($this->getPostObject(), true);
                 if (!$oItem) {
-                    throw new NailsException(static::CREATE_ERROR_MESSAGE . ' ' . $oItemModel->lastError());
+                    throw new NailsException(static::CREATE_ERROR_MESSAGE . ' ' . $oModel->lastError());
                 }
 
                 $this->afterCreateAndEdit(static::EDIT_MODE_CREATE, $oItem);
@@ -595,15 +607,12 @@ abstract class DefaultController extends Base
             unauthorised();
         }
 
-        $oDb        = Factory::service('Database');
-        $oUri       = Factory::service('Uri');
-        $oInput     = Factory::service('Input');
-        $oItemModel = Factory::model(
-            $this->aConfig['MODEL_NAME'],
-            $this->aConfig['MODEL_PROVIDER']
-        );
-        $iItemId    = (int) $oUri->segment(5);
-        $oItem      = $oItemModel->getById($iItemId, $this->aConfig['EDIT_DATA']);
+        $oDb     = Factory::service('Database');
+        $oUri    = Factory::service('Uri');
+        $oInput  = Factory::service('Input');
+        $oModel  = $this->getModel();
+        $iItemId = (int) $oUri->segment(5);
+        $oItem   = $oModel->getById($iItemId, $this->aConfig['EDIT_DATA']);
 
         if (empty($oItem)) {
             show_404();
@@ -624,11 +633,11 @@ abstract class DefaultController extends Base
                 $this->beforeCreateAndEdit(static::EDIT_MODE_EDIT, $oItem);
                 $this->beforeEdit($oItem);
 
-                if (!$oItemModel->update($iItemId, $this->getPostObject())) {
-                    throw new NailsException(static::EDIT_ERROR_MESSAGE . ' ' . $oItemModel->lastError());
+                if (!$oModel->update($iItemId, $this->getPostObject())) {
+                    throw new NailsException(static::EDIT_ERROR_MESSAGE . ' ' . $oModel->lastError());
                 }
 
-                $oNewItem = $oItemModel->getById($iItemId);
+                $oNewItem = $oModel->getById($iItemId);
                 $this->afterCreateAndEdit(static::EDIT_MODE_EDIT, $oNewItem, $oItem);
                 $this->afterEdit($oNewItem, $oItem);
                 $oDb->trans_commit();
@@ -841,7 +850,33 @@ abstract class DefaultController extends Base
      */
     protected function loadEditViewData($oItem = null)
     {
-        $this->data['item'] = $oItem;
+        //  Extract the fields into fieldsets
+        $aFieldSets = array_combine(
+            $this->aConfig['FIELDSET_ORDER'],
+            array_pad(
+                [],
+                count($this->aConfig['FIELDSET_ORDER']),
+                []
+            )
+        );
+
+        foreach ($this->aConfig['FIELDS'] as $oField) {
+
+            if (in_array($oField->key, $this->aConfig['EDIT_IGNORE_FIELDS'])) {
+                continue;
+            }
+
+            $sFieldSet = getFromArray('fieldset', (array) $oField, 'Details');
+
+            if (!array_key_exists($sFieldSet, $aFieldSets)) {
+                $aFieldSets[$sFieldSet] = [];
+            }
+
+            $aFieldSets[$sFieldSet][] = $oField;
+        }
+
+        $this->data['aFieldSets'] = array_filter($aFieldSets);
+        $this->data['item']       = $oItem;
     }
 
     // --------------------------------------------------------------------------
@@ -886,14 +921,11 @@ abstract class DefaultController extends Base
             unauthorised();
         }
 
-        $oDb        = Factory::service('Database');
-        $oUri       = Factory::service('Uri');
-        $oItemModel = Factory::model(
-            $this->aConfig['MODEL_NAME'],
-            $this->aConfig['MODEL_PROVIDER']
-        );
-        $iItemId    = (int) $oUri->segment(5);
-        $oItem      = $oItemModel->getById($iItemId);
+        $oDb     = Factory::service('Database');
+        $oUri    = Factory::service('Uri');
+        $oModel  = $this->getModel();
+        $iItemId = (int) $oUri->segment(5);
+        $oItem   = $oModel->getById($iItemId);
 
         if (empty($oItem)) {
             show_404();
@@ -903,8 +935,8 @@ abstract class DefaultController extends Base
 
             $this->beforeDelete($oItem);
 
-            if (!$oItemModel->delete($iItemId)) {
-                throw new NailsException(static::DELETE_ERROR_MESSAGE . ' ' . $oItemModel->lastError());
+            if (!$oModel->delete($iItemId)) {
+                throw new NailsException(static::DELETE_ERROR_MESSAGE . ' ' . $oModel->lastError());
             }
 
             $this->afterDelete($oItem);
@@ -944,14 +976,11 @@ abstract class DefaultController extends Base
             unauthorised();
         }
 
-        $oUri       = Factory::service('Uri');
-        $oDb        = Factory::service('Database');
-        $oItemModel = Factory::model(
-            $this->aConfig['MODEL_NAME'],
-            $this->aConfig['MODEL_PROVIDER']
-        );
-        $iItemId    = (int) $oUri->segment(5);
-        $oItem      = $oItemModel->getAll(
+        $oUri    = Factory::service('Uri');
+        $oDb     = Factory::service('Database');
+        $oModel  = $this->getModel();
+        $iItemId = (int) $oUri->segment(5);
+        $oItem   = $oModel->getAll(
             null,
             null,
             [
@@ -967,8 +996,8 @@ abstract class DefaultController extends Base
         }
 
         try {
-            if (!$oItemModel->restore($iItemId)) {
-                throw new NailsException(static::RESTORE_ERROR_MESSAGE . ' ' . $oItemModel->lastError());
+            if (!$oModel->restore($iItemId)) {
+                throw new NailsException(static::RESTORE_ERROR_MESSAGE . ' ' . $oModel->lastError());
             }
 
             $oDb->trans_commit();
