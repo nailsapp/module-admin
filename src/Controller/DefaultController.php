@@ -412,7 +412,7 @@ abstract class DefaultController extends Base
         $aSortConfig = $this->aConfig['SORT_OPTIONS'];
 
         if (classUses($oModel, '\Nails\Common\Traits\Model\Nestable')) {
-            $aSortConfig = array_merge(['breadcrumbs' => 'Hierarchy'], $aSortConfig);n
+            $aSortConfig = array_merge(['breadcrumbs' => 'Hierarchy'], $aSortConfig);
         }
 
         //  Get the first key (i.e the default sort)
