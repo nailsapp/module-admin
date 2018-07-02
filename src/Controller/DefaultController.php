@@ -283,10 +283,11 @@ abstract class DefaultController extends Base
         }
 
         //  Build the config array
+        $oModel  = static::getModel();
         $aConfig = [
             'MODEL_NAME'           => static::CONFIG_MODEL_NAME,
             'MODEL_PROVIDER'       => static::CONFIG_MODEL_PROVIDER,
-            'MODEL_INSTANCE'       => static::getModel(),
+            'MODEL_INSTANCE'       => $oModel,
             'CAN_CREATE'           => static::CONFIG_CAN_CREATE,
             'CAN_EDIT'             => static::CONFIG_CAN_EDIT,
             'CAN_VIEW'             => static::CONFIG_CAN_VIEW,
@@ -309,6 +310,14 @@ abstract class DefaultController extends Base
             'EDIT_DATA'            => static::CONFIG_EDIT_DATA,
             'FIELDSET_ORDER'       => static::CONFIG_EDIT_FIELDSET_ORDER,
         ];
+
+        //  Additional ignore fields
+        if (classUses($oModel, 'Nails\Common\Traits\Model\Sortable')) {
+            $aConfig['EDIT_IGNORE_FIELDS'][] = $oModel->getSortableColumn();
+        }
+        if (classUses($oModel, 'Nails\Common\Traits\Model\Nestable')) {
+            $aConfig['EDIT_IGNORE_FIELDS'][] = $oModel->getBreadcrumbsColumn();
+        }
 
         //  Set defaults where appropriate
         if (empty($aConfig['TITLE_SINGLE'])) {
@@ -898,6 +907,13 @@ abstract class DefaultController extends Base
 
             if ($oField->allow_null && empty($aOut[$oField->key])) {
                 $aOut[$oField->key] = null;
+            }
+
+            //  Type casting
+            switch ($oField->type) {
+                case 'boolean':
+                    $aOut[$oField->key] = (bool) $aOut[$oField->key];
+                    break;
             }
         }
 

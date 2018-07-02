@@ -42,6 +42,10 @@
                     $aField            = (array) $oField;
                     $aField['default'] = !empty($item) && property_exists($item, $oField->key) ? $item->{$oField->key} : '';
 
+                    if (is_object($aField['default']) && property_exists($aField['default'], 'count') && property_exists($aField['default'], 'data')) {
+                        $aField['default'] = $aField['default']->data;
+                    }
+
                     if (!array_key_exists('required', $aFieldSets)) {
                         $aField['required'] = in_array('required', $oField->validation);
                     }
