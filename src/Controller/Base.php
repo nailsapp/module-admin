@@ -70,7 +70,7 @@ abstract class Base extends BaseMiddle
         //  Configs
         $oConfig = Factory::service('Config');
 
-        $aPaths  = [
+        $aPaths = [
             APPPATH . 'config/admin.php',
             APPPATH . 'modules/admin/config/admin.php',
         ];
@@ -124,7 +124,7 @@ abstract class Base extends BaseMiddle
         $oAsset->load('nails.admin.css', 'NAILS');
         $oAsset->load('admin.min.js', 'nailsapp/module-admin');
         $oAsset->load('nails.default.min.js', 'NAILS');
-        $oAsset->load('nails.admin.min.js', 'NAILS');
+        $oAsset->load('nails.admin.js', 'NAILS');
         $oAsset->load('nails.forms.min.js', 'NAILS');
         $oAsset->load('nails.api.min.js', 'NAILS');
 
@@ -233,12 +233,12 @@ abstract class Base extends BaseMiddle
         $sJs .= '_nails = new NAILS_JS();';
         $sJs .= '}';
 
-        $sJs .= 'if (typeof(NAILS_Admin) === \'function\'){';
-        $sJs .= '_nails_admin = new NAILS_Admin();';
-        $sJs .= '}';
-
         $sJs .= 'if (typeof(NAILS_API) === \'function\'){';
         $sJs .= '_nails_api = new NAILS_API();';
+        $sJs .= '}';
+
+        $sJs .= 'if (typeof(NAILS_Admin) === \'function\'){';
+        $sJs .= '_nails_admin = new NAILS_Admin();';
         $sJs .= '}';
 
         $sJs .= 'if (typeof(NAILS_Forms) === \'function\'){';
@@ -260,7 +260,6 @@ abstract class Base extends BaseMiddle
 
         //  Call the ADMIN:READY event, admin is all geared up and ready to go
         $oEventService->trigger(Events::ADMIN_STARTUP, 'nailsapp/module-admin');
-
     }
 
     // --------------------------------------------------------------------------

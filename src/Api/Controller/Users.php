@@ -14,36 +14,13 @@
 
 namespace Nails\Admin\Api\Controller;
 
-use Nails\Api\Controller\Base;
-use Nails\Api\Exception\ApiException;
 use Nails\Factory;
 
 class Users extends Base
 {
     /**
-     * Require the user be authenticated to use any endpoint
-     */
-    const REQUIRE_AUTH = true;
-
-    // --------------------------------------------------------------------------
-
-    public function __construct($oApiRouter)
-    {
-        parent::__construct($oApiRouter);
-        if (!isAdmin()) {
-            $oHttpCodes = Factory::service('HttpCodes');
-            throw new ApiException(
-                'You do not have permission to access this resource',
-                $oHttpCodes::STATUS_UNAUTHORIZED
-            );
-        }
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
      * Searches users
-     * @return array
+     * @return \Nails\Api\Factory\ApiResponse
      */
     public function getSearch()
     {
@@ -58,6 +35,13 @@ class Users extends Base
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Formats search objects
+     *
+     * @param stdClass $oObj The object to format
+     *
+     * @return \stdClass
+     */
     protected function formatObject($oObj)
     {
         return (object) [

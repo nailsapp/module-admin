@@ -12,33 +12,18 @@
 
 namespace Nails\Admin\Api\Controller;
 
-use Nails\Api\Controller\Base;
+use Nails\Admin\Controller\BaseApi;
 use Nails\Api\Exception\ApiException;
 use Nails\Factory;
 
 class Logs extends Base
 {
     /**
-     * Require the user be authenticated to use any endpoint
-     */
-    const REQUIRE_AUTH = true;
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Searches users
-     * @return array
+     * Fetches site logs
+     * @return \Nails\Api\Factory\ApiResponse
      */
     public function getSite()
     {
-        if (!isAdmin()) {
-            $oHttpCodes = Factory::service('HttpCodes');
-            throw new ApiException(
-                'You do not have permission to access this resource',
-                $oHttpCodes::STATUS_UNAUTHORIZED
-            );
-        }
-
         $oSiteLogModel = Factory::model('SiteLog', 'nailsapp/module-admin');
         return Factory::factory('ApiResponse', 'nailsapp/module-api')
                       ->setData($oSiteLogModel->getAll());
