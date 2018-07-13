@@ -16,7 +16,7 @@ use Nails\Admin\Controller\BaseApi;
 use Nails\Api\Exception\ApiException;
 use Nails\Factory;
 
-class Logs extends Base
+class Logs extends BaseApi
 {
     /**
      * Fetches site logs

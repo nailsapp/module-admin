@@ -16,7 +16,7 @@ use Nails\Admin\Controller\BaseApi;
 use Nails\Api\Exception\ApiException;
 use Nails\Factory;
 
-class Nav extends Base
+class Nav extends BaseApi
 {
     /**
      * Saves the user's admin nav preferences

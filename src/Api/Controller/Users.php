@@ -16,7 +16,7 @@ namespace Nails\Admin\Api\Controller;
 
 use Nails\Factory;
 
-class Users extends Base
+class Users extends BaseApi
 {
     /**
      * Searches users
