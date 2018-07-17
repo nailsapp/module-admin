@@ -74,6 +74,7 @@ abstract class DefaultController extends Base
      */
     const CONFIG_INDEX_FIELDS = [
         'label'       => 'Label',
+        'created'     => 'Created',
         'modified'    => 'Modified',
         'modified_by' => 'Modified By',
     ];
