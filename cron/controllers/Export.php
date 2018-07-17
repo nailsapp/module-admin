@@ -45,7 +45,7 @@ class Export extends Base
                     $aGroupedRequests[$sHash] = (object) [
                         'source'     => $oRequest->source,
                         'format'     => $oRequest->format,
-                        'options'    => json_decode($oRequest->options),
+                        'options'    => json_decode($oRequest->options, JSON_OBJECT_AS_ARRAY),
                         'recipients' => [$oRequest->created_by],
                         'ids'        => [$oRequest->id],
                     ];
@@ -56,10 +56,12 @@ class Export extends Base
             $oEmail = Factory::factory('EmailDataExport', 'nailsapp/module-admin');
             foreach ($aGroupedRequests as $oRequest) {
                 try {
-                    $this->writeLog('Starting ' . $oRequest->source . '->' . $oRequest->format);
+                    $this->writeLog(
+                        'Starting ' . $oRequest->source . '->' . $oRequest->format . ' (' . json_encode($oRequest->options) . ')'
+                    );
                     $oModel->setBatchDownloadId(
                         $oRequest->ids,
-                        $oService->export($oRequest->source, $oRequest->format)
+                        $oService->export($oRequest->source, $oRequest->format, $oRequest->options)
                     );
                     $oModel->setBatchStatus($oRequest->ids, $oModel::STATUS_COMPLETE);
                     $this->writeLog('Completed ' . $oRequest->source . '->' . $oRequest->format);
