@@ -139,10 +139,11 @@ class Utilities extends Base
                 }
 
                 //  Prepare options
-                $aOptions = [];
+                $aOptions       = [];
+                $aPostedOptions = getFromArray($oSelectedSource->slug, (array) $oInput->post('options'));
                 foreach ($oSelectedSource->options as $aOption) {
                     $sKey            = getFromArray('key', $aOption);
-                    $aOptions[$sKey] = getFromArray($sKey, (array) $oInput->post('options'));
+                    $aOptions[$sKey] = getFromArray($sKey, $aPostedOptions);
                 }
 
                 $oDataExportModel = Factory::model('Export', 'nailsapp/module-admin');
