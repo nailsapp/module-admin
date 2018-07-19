@@ -212,7 +212,7 @@ class ChangeLog extends Base
      * @param mixed  $aData    Any data to pass to getCountCommon()
      * @return array
      **/
-    public function getAll($iPage = null, $iPerPage = null, $aData = array(), $bIncludeDeleted = false)
+    public function getAll($iPage = null, $iPerPage = null, array $aData = array(), $bIncludeDeleted = false)
     {
         //  If the first value is an array then treat as if called with getAll(null, null, $aData);
         //  @todo (Pablo - 2017-06-29) - Refactor how this join works (use expandable field)
@@ -242,7 +242,7 @@ class ChangeLog extends Base
      * @param array $data Data passed from the calling method
      * @return void
      **/
-    protected function getCountCommon($data = array())
+    protected function getCountCommon(array $data = array())
     {
         //  Join user tables
         $oDb = Factory::service('Database');
@@ -289,10 +289,10 @@ class ChangeLog extends Base
      */
     protected function formatObject(
         &$oObj,
-        $aData = array(),
-        $aIntegers = array(),
-        $aBools = array(),
-        $aFloats = array()
+        array $aData = [],
+        array $aIntegers = [],
+        array $aBools = [],
+        array $aFloats = []
     ) {
 
         parent::formatObject($oObj, $aData, $aIntegers, $aBools, $aFloats);
