@@ -13,7 +13,7 @@
     $config['base_url'] = site_url(uri_string()) . '?';
 
     //  Build the parameters array, use any existing GET params as the base
-    $oInput = Factory::service('Input');
+    $oInput = \Nails\Factory::service('Input');
     parse_str($oInput->server('QUERY_STRING'), $params);
 
     //  Filter out the useless ones and append to the base URL
