@@ -21,21 +21,18 @@ if (!empty($aComponents)) {
             <tbody>
                 <?php
 
+                $oInput = \Nails\Factory::service('Input');
                 foreach ($aComponents as $oComponent) {
 
-                    if ($this->input->post($sKey)) {
+                    if ($oInput->post($sKey)) {
 
                         if ($bCanSelectMultiple) {
-
-                            $bEnabled = in_array($oComponent->slug, $this->input->post($sKey));
-
+                            $bEnabled = in_array($oComponent->slug, $oInput->post($sKey));
                         } else {
-
-                            $bEnabled = $oComponent->slug == $this->input->post($sKey);
+                            $bEnabled = $oComponent->slug == $oInput->post($sKey);
                         }
 
                     } else {
-
                         $bEnabled = in_array($oComponent->slug, $aEnabled);
                     }
 
@@ -57,7 +54,6 @@ if (!empty($aComponents)) {
 
                             echo $oComponent->name;
                             if (!empty($oComponent->description)) {
-
                                 echo '<small>';
                                 echo $oComponent->description;
                                 echo '</small>';
@@ -69,14 +65,12 @@ if (!empty($aComponents)) {
                             <?php
 
                             if (!empty($oComponent->data->settings)) {
-
                                 echo anchor(
                                     'admin/admin/settings/' . $sComponentType . '?slug=' . $oComponent->slug,
                                     'Configure',
                                     'data-fancybox-type="iframe" class="fancybox btn btn-xs btn-primary"'
                                 );
                             } else {
-
                                 ?>
                                 <span class="text-muted">
                                     Not configurable
@@ -89,11 +83,9 @@ if (!empty($aComponents)) {
                     </tr>
                     <?php
                 }
-
                 ?>
             <tbody>
         </table>
     </div>
     <?php
-
 }

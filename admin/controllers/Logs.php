@@ -12,9 +12,9 @@
 
 namespace Nails\Admin\Admin;
 
-use Nails\Factory;
-use Nails\Admin\Helper;
 use Nails\Admin\Controller\Base;
+use Nails\Admin\Helper;
+use Nails\Factory;
 
 class Logs extends Base
 {
@@ -29,17 +29,14 @@ class Logs extends Base
         $oNavGroup->setIcon('fa-archive');
 
         if (userHasPermission('admin:admin:logs:site:browse')) {
-
             $oNavGroup->addAction('Browse Site Logs', 'site');
         }
 
         if (userHasPermission('admin:admin:logs:event:browse')) {
-
             $oNavGroup->addAction('Browse Event Logs', 'event');
         }
 
         if (userHasPermission('admin:admin:logs:change:browse')) {
-
             $oNavGroup->addAction('Browse Admin Logs', 'changelog');
         }
 
@@ -54,38 +51,39 @@ class Logs extends Base
      */
     public static function permissions()
     {
-        $permissions = parent::permissions();
+        $aPermissions = parent::permissions();
 
-        $permissions['site:browse']     = 'Can browse site logs';
-        $permissions['event:browse']    = 'Can browse event logs';
-        $permissions['event:download']  = 'Can download event logs';
-        $permissions['change:browse']   = 'Can browse change logs';
-        $permissions['change:download'] = 'Can download change logs';
+        $aPermissions['site:browse']     = 'Can browse site logs';
+        $aPermissions['event:browse']    = 'Can browse event logs';
+        $aPermissions['event:download']  = 'Can download event logs';
+        $aPermissions['change:browse']   = 'Can browse change logs';
+        $aPermissions['change:download'] = 'Can download change logs';
 
-        return $permissions;
+        return $aPermissions;
     }
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Route site log pages
+     * @throws \Nails\Common\Exception\FactoryException
+     */
     public function site()
     {
         if (!userHasPermission('admin:admin:logs:site:browse')) {
-
             unauthorised();
         }
 
         // --------------------------------------------------------------------------
 
         Factory::helper('string');
-        $method = $this->uri->segment(5) ? $this->uri->segment(5) : 'index';
-        $method = 'site' . underscoreToCamelcase(strtolower($method), false);
+        $oUri    = Factory::service('Uri');
+        $sMethod = $oUri->segment(5) ? $oUri->segment(5) : 'index';
+        $sMethod = 'site' . underscoreToCamelcase(strtolower($sMethod), false);
 
-        if (method_exists($this, $method)) {
-
-            $this->{$method}();
-
+        if (method_exists($this, $sMethod)) {
+            $this->{$sMethod}();
         } else {
-
             show_404('', true);
         }
     }
@@ -99,7 +97,6 @@ class Logs extends Base
     protected function siteIndex()
     {
         if (!userHasPermission('admin:admin:logs:site:browse')) {
-
             unauthorised();
         }
 
@@ -117,22 +114,25 @@ class Logs extends Base
 
     // --------------------------------------------------------------------------
 
+    /**
+     * View a single log file
+     */
     protected function siteView()
     {
         if (!userHasPermission('admin:admin:logs:site:browse')) {
-
             unauthorised();
         }
 
         // --------------------------------------------------------------------------
-        $file = $this->uri->segment(6);
-        $this->data['page']->title = 'Browse Logs &rsaquo; ' . $file;
 
-        $oSiteLogModel = Factory::model('SiteLog', 'nailsapp/module-admin');
-        $this->data['logs'] = $oSiteLogModel->readLog($file);
+        $oUri                      = Factory::service('Uri');
+        $sFile                     = $oUri->segment(6);
+        $this->data['page']->title = 'Browse Logs &rsaquo; ' . $sFile;
+
+        $oSiteLogModel      = Factory::model('SiteLog', 'nailsapp/module-admin');
+        $this->data['logs'] = $oSiteLogModel->readLog($sFile);
 
         if (!$this->data['logs']) {
-
             show_404();
         }
 
@@ -148,7 +148,6 @@ class Logs extends Base
     public function event()
     {
         if (!userHasPermission('admin:admin:logs:event:browse')) {
-
             unauthorised();
         }
 
@@ -159,67 +158,69 @@ class Logs extends Base
 
         // --------------------------------------------------------------------------
 
-        $tableAlias = $this->event->getTableAlias();
+        $sTableAlias = $this->event->getTableAlias();
 
         // --------------------------------------------------------------------------
 
         //  Get pagination and search/sort variables
-        $page      = $this->input->get('page')      ? $this->input->get('page')      : 0;
-        $perPage   = $this->input->get('perPage')   ? $this->input->get('perPage')   : 50;
-        $sortOn    = $this->input->get('sortOn')    ? $this->input->get('sortOn')    : $tableAlias . '.created';
-        $sortOrder = $this->input->get('sortOrder') ? $this->input->get('sortOrder') : 'desc';
-        $keywords  = $this->input->get('keywords')  ? $this->input->get('keywords')  : '';
+        $oInput     = Factory::service('Input');
+        $iPage      = (int) $oInput->get('page') ?: 0;
+        $iPerPage   = (int) $oInput->get('perPage') ?: 50;
+        $sSortOn    = $oInput->get('sortOn') ?: $sTableAlias . '.created';
+        $sSortOrder = $oInput->get('sortOrder') ?: 'desc';
+        $sKeywords  = $oInput->get('keywords') ?: '';
 
         // --------------------------------------------------------------------------
 
         //  Define the sortable columns
-        $sortColumns = array(
-            $tableAlias . '.created' => 'Created',
-            $tableAlias . '.type'    => 'Type'
-        );
+        $aSortColumns = [
+            $sTableAlias . '.created' => 'Created',
+            $sTableAlias . '.type'    => 'Type',
+        ];
 
         // --------------------------------------------------------------------------
 
-        //  Define the $data variable for the queries
-        $data = array(
-            'sort' => array(
-                array($sortOn, $sortOrder)
-            ),
-            'keywords' => $keywords
-        );
+        //  Define the $aData variable for the queries
+        $aData = [
+            'sort'     => [
+                [$sSortOn, $sSortOrder],
+            ],
+            'keywords' => $sKeywords,
+        ];
 
         //  Are we downloading? Or viewing?
-        if ($this->input->get('dl') && userHasPermission('admin:admin:logs:event:download')) {
+        if ($oInput->get('dl') && userHasPermission('admin:admin:logs:event:download')) {
 
             //  Get all items for the search, the view will iterate over the resultset
-            $events = $this->event->getAllRawQuery(null, null, $data);
+            $oEvents = $this->event->getAllRawQuery(null, null, $aData);
 
-            Helper::loadCsv($events, 'export-events-' . toUserDatetime(null, 'Y-m-d_h-i-s') . '.csv');
+            Helper::loadCsv($oEvents, 'export-events-' . toUserDatetime(null, 'Y-m-d_h-i-s') . '.csv');
 
         } else {
 
             //  Get the items for the page
-            $totalRows            = $this->event->countAll($data);
-            $this->data['events'] = $this->event->getAll($page, $perPage, $data);
+            $iTotalRows           = $this->event->countAll($aData);
+            $this->data['events'] = $this->event->getAll($iPage, $iPerPage, $aData);
 
             //  Set Search and Pagination objects for the view
-            $this->data['search']     = Helper::searchObject(true, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords);
-            $this->data['pagination'] = Helper::paginationObject($page, $perPage, $totalRows);
+            $this->data['search']     = Helper::searchObject(true, $aSortColumns, $sSortOn, $sSortOrder, $iPerPage, $sKeywords);
+            $this->data['pagination'] = Helper::paginationObject($iPage, $iPerPage, $iTotalRows);
 
             //  Add the header button for downloading
             if (userHasPermission('admin:admin:logs:event:download')) {
 
                 //  Build the query string, so that the same search is applies
-                $params              = array();
-                $params['dl']        = true;
-                $params['sortOn']    = $this->input->get('sortOn');
-                $params['sortOrder'] = $this->input->get('sortOrder');
-                $params['keywords']  = $this->input->get('keywords');
+                $oInput               = Factory::service('Input');
+                $aParams              = [];
+                $aParams['dl']        = true;
+                $aParams['sortOn']    = $oInput->get('sortOn');
+                $aParams['sortOrder'] = $oInput->get('sortOrder');
+                $aParams['keywords']  = $oInput->get('keywords');
 
-                $params = array_filter($params);
-                $params = http_build_query($params);
+                $aParams = array_filter($aParams);
+                $aParams = http_build_query($aParams);
 
-                Helper::addHeaderButton('admin/admin/logs/event?' . $params, 'Download As CSV');
+                Helper::addHeaderButton('admin/admin/logs/event?' . $aParams, 'Download As CSV');
             }
 
             Helper::loadView('event/index');
@@ -235,7 +236,6 @@ class Logs extends Base
     public function changelog()
     {
         if (!userHasPermission('admin:admin:logs:change:browse')) {
-
             unauthorised();
         }
 
@@ -246,68 +246,69 @@ class Logs extends Base
 
         // --------------------------------------------------------------------------
 
+        $oInput          = Factory::service('Input');
         $oChangeLogModel = Factory::model('ChangeLog', 'nailsapp/module-admin');
-        $tableAlias     = $oChangeLogModel->getTableAlias();
+        $sTableAlias     = $oChangeLogModel->getTableAlias();
 
         // --------------------------------------------------------------------------
 
         //  Get pagination and search/sort variables
-        $page      = $this->input->get('page')      ? $this->input->get('page')      : 0;
-        $perPage   = $this->input->get('perPage')   ? $this->input->get('perPage')   : 50;
-        $sortOn    = $this->input->get('sortOn')    ? $this->input->get('sortOn')    : $tableAlias . '.created';
-        $sortOrder = $this->input->get('sortOrder') ? $this->input->get('sortOrder') : 'desc';
-        $keywords  = $this->input->get('keywords')  ? $this->input->get('keywords')  : '';
+        $iPage      = (int) $oInput->get('page') ?: 0;
+        $iPerPage   = (int) $oInput->get('perPage') ?: 50;
+        $sSortOn    = $oInput->get('sortOn') ?: $sTableAlias . '.created';
+        $sSortOrder = $oInput->get('sortOrder') ?: 'desc';
+        $sKeywords  = $oInput->get('keywords') ?: '';
 
         // --------------------------------------------------------------------------
 
         //  Define the sortable columns
-        $sortColumns = array(
-            $tableAlias . '.created' => 'Created',
-            $tableAlias . '.type'    => 'Type'
-        );
+        $aSortColumns = [
+            $sTableAlias . '.created' => 'Created',
+            $sTableAlias . '.type'    => 'Type',
+        ];
 
         // --------------------------------------------------------------------------
 
-        //  Define the $data variable for the queries
-        $data = array(
-            'sort' => array(
-                array($sortOn, $sortOrder)
-            ),
-            'keywords' => $keywords
-        );
+        //  Define the $aData variable for the queries
+        $aData = [
+            'sort'     => [
+                [$sSortOn, $sSortOrder],
+            ],
+            'keywords' => $sKeywords,
+        ];
 
         //  Are we downloading? Or viewing?
-        if ($this->input->get('dl') && userHasPermission('admin:admin:logs:change:download')) {
+        if ($oInput->get('dl') && userHasPermission('admin:admin:logs:change:download')) {
 
             //  Get all items for the search, the view will iterate over the resultset
-            $changelog = $oChangeLogModel->getAllRawQuery(null, null, $data);
+            $oChangelog = $oChangeLogModel->getAllRawQuery(null, null, $aData);
 
-            Helper::loadCsv($changelog, 'export-changelog-' . toUserDatetime(null, 'Y-m-d_h-i-s') . '.csv');
+            Helper::loadCsv($oChangelog, 'export-changelog-' . toUserDatetime(null, 'Y-m-d_h-i-s') . '.csv');
 
         } else {
 
             //  Get the items for the page
-            $totalRows               = $oChangeLogModel->countAll($data);
-            $this->data['changelog'] = $oChangeLogModel->getAll($page, $perPage, $data);
+            $iTotalRows              = $oChangeLogModel->countAll($aData);
+            $this->data['changelog'] = $oChangeLogModel->getAll($iPage, $iPerPage, $aData);
 
             //  Set Search and Pagination objects for the view
-            $this->data['search']     = Helper::searchObject(false, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords);
-            $this->data['pagination'] = Helper::paginationObject($page, $perPage, $totalRows);
+            $this->data['search']     = Helper::searchObject(false, $aSortColumns, $sSortOn, $sSortOrder, $iPerPage, $sKeywords);
+            $this->data['pagination'] = Helper::paginationObject($iPage, $iPerPage, $iTotalRows);
 
             //  Add the header button for downloading
             if (userHasPermission('admin:admin:logs:change:download')) {
 
                 //  Build the query string, so that the same search is applies
-                $params              = array();
-                $params['dl']        = true;
-                $params['sortOn']    = $this->input->get('sortOn');
-                $params['sortOrder'] = $this->input->get('sortOrder');
-                $params['keywords']  = $this->input->get('keywords');
+                $aParams              = [];
+                $aParams['dl']        = true;
+                $aParams['sortOn']    = $oInput->get('sortOn');
+                $aParams['sortOrder'] = $oInput->get('sortOrder');
+                $aParams['keywords']  = $oInput->get('keywords');
 
-                $params = array_filter($params);
-                $params = http_build_query($params);
+                $aParams = array_filter($aParams);
+                $aParams = http_build_query($aParams);
 
-                Helper::addHeaderButton('admin/admin/logs/changelog?' . $params, 'Download As CSV');
+                Helper::addHeaderButton('admin/admin/logs/changelog?' . $aParams, 'Download As CSV');
             }
 
             Helper::loadView('changelog/index');

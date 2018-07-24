@@ -1,7 +1,8 @@
 <div class="group-settings component">
     <?php
 
-    $sUrl = current_url() . '?slug=' . $slug . '&isModal=' . $this->input->get('isModal');
+    $oInput = \Nails\Factory::service('Input');
+    $sUrl   = current_url() . '?slug=' . $slug . '&isModal=' . $oInput->get('isModal');
 
     echo form_open($sUrl);
     echo form_hidden('slug', $slug);

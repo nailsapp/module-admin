@@ -1,12 +1,15 @@
+<?php
+$oInput = \Nails\Factory::service('Input');
+?>
 <div class="group-settings site">
     <p>
         Configure various aspects of the site.
     </p>
-    <hr />
+    <hr/>
     <?php
 
-        echo form_open();
-        echo '<input type="hidden" name="activeTab" value="' . set_value('activeTab') . '" id="activeTab" />';
+    echo form_open();
+    echo '<input type="hidden" name="activeTab" value="' . set_value('activeTab') . '" id="activeTab" />';
 
     ?>
     <ul class="tabs">
@@ -14,7 +17,7 @@
 
         if (userHasPermission('admin:admin:settings:admin:branding')) {
 
-            $active = $this->input->post('activeTab') == 'tab-branding' || !$this->input->post('activeTab') ? 'active' : '';
+            $active = $oInput->post('activeTab') == 'tab-branding' || !$oInput->post('activeTab') ? 'active' : '';
 
             ?>
             <li class="tab <?=$active?>">
@@ -25,7 +28,7 @@
 
         if (userHasPermission('admin:admin:settings:admin:white')) {
 
-            $active = $this->input->post('activeTab') == 'tab-whitelist' ? 'active' : '';
+            $active = $oInput->post('activeTab') == 'tab-whitelist' ? 'active' : '';
 
             ?>
             <li class="tab <?=$active?>">
@@ -41,18 +44,18 @@
 
         if (userHasPermission('admin:admin:settings:admin:branding')) {
 
-            $display = $this->input->post('activeTab') == 'tab-branding' || !$this->input->post('activeTab') ? 'active' : '';
+            $display = $oInput->post('activeTab') == 'tab-branding' || !$oInput->post('activeTab') ? 'active' : '';
 
             ?>
             <div class="tab-page tab-branding <?=$display?>">
                 <p>
                     Give admin a lick of paint using your brand colours.
                 </p>
-                <hr />
+                <hr/>
                 <div class="fieldset" id="site-settings-google">
-                <?php
+                    <?php
 
-                    $field                = array();
+                    $field                = [];
                     $field['key']         = 'primary_colour';
                     $field['label']       = 'Primary Colour';
                     $field['default']     = appSetting($field['key'], 'admin');
@@ -62,7 +65,7 @@
 
                     // --------------------------------------------------------------------------
 
-                    $field                = array();
+                    $field                = [];
                     $field['key']         = 'secondary_colour';
                     $field['label']       = 'Secondary Colour';
                     $field['default']     = appSetting($field['key'], 'admin');
@@ -72,7 +75,7 @@
 
                     // --------------------------------------------------------------------------
 
-                    $field                = array();
+                    $field                = [];
                     $field['key']         = 'highlight_colour';
                     $field['label']       = 'Highlight Colour';
                     $field['default']     = appSetting($field['key'], 'admin');
@@ -80,7 +83,7 @@
 
                     echo form_field($field);
 
-                ?>
+                    ?>
                 </div>
             </div>
             <?php
@@ -88,7 +91,7 @@
 
         if (userHasPermission('admin:admin:settings:admin:whitelist')) {
 
-            $display = $this->input->post('activeTab') == 'tab-whitelist' ? 'active' : '';
+            $display = $oInput->post('activeTab') == 'tab-whitelist' ? 'active' : '';
 
             ?>
             <div class="tab-page tab-whitelist <?=$display?>">
@@ -96,21 +99,21 @@
                     Specify which IP's can access admin. If no IP addresses are specified then
                     admin will be accessible from any IP address.
                 </p>
-                <hr />
+                <hr/>
                 <div class="fieldset">
-                <?php
+                    <?php
 
-                    $field                = array();
+                    $field                = [];
                     $field['key']         = 'whitelist';
                     $field['label']       = 'Whitelist';
                     $field['type']        = 'textarea';
                     $field['default']     = trim(implode("\n", (array) appSetting($field['key'], 'admin')));
                     $field['placeholder'] = 'Specify IP addresses to whitelist either comma seperated or on new lines.';
-                    $field['help']        = 'Your current IP address is: ' . $this->input->ipAddress();
+                    $field['help']        = 'Your current IP address is: ' . $oInput->ipAddress();
 
                     echo form_field($field);
 
-                ?>
+                    ?>
                 </div>
             </div>
             <?php

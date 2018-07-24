@@ -12,9 +12,9 @@
 
 namespace Nails\Admin\Admin;
 
-use Nails\Factory;
-use Nails\Admin\Helper;
 use Nails\Admin\Controller\Base;
+use Nails\Admin\Helper;
+use Nails\Factory;
 
 class Help extends Base
 {
@@ -45,11 +45,11 @@ class Help extends Base
      */
     public static function permissions()
     {
-        $permissions = parent::permissions();
+        $aPermissions = parent::permissions();
 
-        $permissions['view'] = 'Can view help videos';
+        $aPermissions['view'] = 'Can view help videos';
 
-        return $permissions;
+        return $aPermissions;
     }
 
     // --------------------------------------------------------------------------
@@ -61,7 +61,6 @@ class Help extends Base
     public function index()
     {
         if (!userHasPermission('admin:admin:help:view')) {
-
             unauthorised();
         }
 
@@ -73,43 +72,44 @@ class Help extends Base
         // --------------------------------------------------------------------------
 
         //  Get data
-        $oHelpModel   = Factory::model('Help', 'nailsapp/module-admin');
+        $oInput      = Factory::service('Input');
+        $oHelpModel  = Factory::model('Help', 'nailsapp/module-admin');
         $sTableAlias = $oHelpModel->getTableAlias();
 
         //  Get pagination and search/sort variables
-        $page      = $this->input->get('page')      ? $this->input->get('page')      : 0;
-        $perPage   = $this->input->get('perPage')   ? $this->input->get('perPage')   : 50;
-        $sortOn    = $this->input->get('sortOn')    ? $this->input->get('sortOn')    : $sTableAlias . '.label';
-        $sortOrder = $this->input->get('sortOrder') ? $this->input->get('sortOrder') : 'asc';
-        $keywords  = $this->input->get('keywords')  ? $this->input->get('keywords')  : '';
+        $iPage      = (int) $oInput->get('page') ?: 0;
+        $iPerPage   = (int) $oInput->get('perPage') ?: 50;
+        $sSortOn    = $oInput->get('sortOn') ?: $sTableAlias . '.label';
+        $sSortOrder = $oInput->get('sortOrder') ?: 'asc';
+        $sKeywords  = $oInput->get('keywords') ?: '';
 
         // --------------------------------------------------------------------------
 
         //  Define the sortable columns
-        $sortColumns = array(
+        $aSortColumns = [
             $sTableAlias . '.label'    => 'Label',
             $sTableAlias . '.duration' => 'Duration',
             $sTableAlias . '.created'  => 'Added',
-            $sTableAlias . '.modified' => 'Modified'
-        );
+            $sTableAlias . '.modified' => 'Modified',
+        ];
 
         // --------------------------------------------------------------------------
 
-        //  Define the $data variable for the queries
-        $data = array(
-            'sort' => array(
-                array($sortOn, $sortOrder)
-            ),
-            'keywords' => $keywords
-        );
+        //  Define the $aData variable for the queries
+        $aData = [
+            'sort'     => [
+                [$sSortOn, $sSortOrder],
+            ],
+            'keywords' => $sKeywords,
+        ];
 
         //  Get the items for the page
-        $totalRows            = $oHelpModel->countAll($data);
-        $this->data['videos'] = $oHelpModel->getAll($page, $perPage, $data);
+        $iTotalRows           = $oHelpModel->countAll($aData);
+        $this->data['videos'] = $oHelpModel->getAll($iPage, $iPerPage, $aData);
 
         //  Set Search and Pagination objects for the view
-        $this->data['search']     = Helper::searchObject(true, $sortColumns, $sortOn, $sortOrder, $perPage, $keywords);
-        $this->data['pagination'] = Helper::paginationObject($page, $perPage, $totalRows);
+        $this->data['search']     = Helper::searchObject(true, $aSortColumns, $sSortOn, $sSortOrder, $iPerPage, $sKeywords);
+        $this->data['pagination'] = Helper::paginationObject($iPage, $iPerPage, $iTotalRows);
 
         // --------------------------------------------------------------------------
 

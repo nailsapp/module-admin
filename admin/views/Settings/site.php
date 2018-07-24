@@ -1,3 +1,6 @@
+<?php
+$oInput = \Nails\Factory::service('Input');
+?>
 <div class="group-settings site">
     <p>
         Configure various aspects of the site.
@@ -14,7 +17,7 @@
 
         if (userHasPermission('admin:admin:settings:site:customjscss')) {
 
-            $active = $this->input->post('activeTab') == 'tab-customjscss' || !$this->input->post('activeTab') ? 'active' : '';
+            $active = $oInput->post('activeTab') == 'tab-customjscss' || !$oInput->post('activeTab') ? 'active' : '';
 
             ?>
             <li class="tab <?=$active?>">
@@ -25,7 +28,7 @@
 
         if (userHasPermission('admin:admin:settings:site:analytics')) {
 
-            $active = $this->input->post('activeTab') == 'tab-analytics' ? 'active' : '';
+            $active = $oInput->post('activeTab') == 'tab-analytics' ? 'active' : '';
 
             ?>
             <li class="tab <?=$active?>">
@@ -36,7 +39,7 @@
 
         if (userHasPermission('admin:admin:settings:site:maintenance')) {
 
-            $active = $this->input->post('activeTab') == 'tab-maintenance' ? 'active' : '';
+            $active = $oInput->post('activeTab') == 'tab-maintenance' ? 'active' : '';
 
             ?>
             <li class="tab <?=$active?>">
@@ -52,7 +55,7 @@
 
         if (userHasPermission('admin:admin:settings:site:customjscss')) {
 
-            $display = $this->input->post('activeTab') == 'tab-customjscss' || !$this->input->post('activeTab') ? 'active' : '';
+            $display = $oInput->post('activeTab') == 'tab-customjscss' || !$oInput->post('activeTab') ? 'active' : '';
 
             ?>
             <div class="tab-page <?=$display?> tab-customjscss">
@@ -88,7 +91,7 @@
 
         if (userHasPermission('admin:admin:settings:site:analytics')) {
 
-            $display = $this->input->post('activeTab') == 'tab-analytics' ? 'active' : '';
+            $display = $oInput->post('activeTab') == 'tab-analytics' ? 'active' : '';
 
             ?>
             <div class="tab-page <?=$display?> tab-analytics">
@@ -116,7 +119,7 @@
 
         if (userHasPermission('admin:admin:settings:site:maintenance')) {
 
-            $display = $this->input->post('activeTab') == 'tab-maintenance' ? 'active' : '';
+            $display = $oInput->post('activeTab') == 'tab-maintenance' ? 'active' : '';
 
             ?>
             <div class="tab-page <?=$display?> tab-maintenance">
