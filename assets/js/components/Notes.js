@@ -44,7 +44,7 @@ class Notes {
      */
     load($modal, model_name, model_provider, id) {
 
-        $modal.html('<p>Loading...</p>');
+        $modal.html($('<p>').text('Loading...'));
 
         $.ajax({
                 'url': window.SITE_URL + 'api/admin/notes',
@@ -69,7 +69,11 @@ class Notes {
                         );
                     }
                 } else {
-                    $ul.append($('<li>').html('<p class"admin-notes__empty">No notes recorded for this item</p>'));
+                    $ul.append(
+                        $('<li>')
+                            .addClass('admin-notes__empty')
+                            .append($('<p>').text('No notes recorded for this item'))
+                    );
                 }
 
                 let $formItem = $('<li>');
