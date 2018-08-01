@@ -16,8 +16,7 @@ class Notes {
                     .dialog({
                         modal: true,
                         title: $btn.data('modal-title') || 'Notes',
-                        width: $btn.data('modal-width') || 500,
-                        minHeight: $btn.data('modal-height') || 500
+                        width: $btn.data('modal-width') || 500
                     });
 
                 this.load(
@@ -94,6 +93,7 @@ class Notes {
                             })
                             .done((response) => {
                                 $textarea.val('');
+                                $('.admin-notes__empty', $modal).remove();
                                 $formItem
                                     .before(
                                         Notes.renderMessageItem(
