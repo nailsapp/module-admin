@@ -16,8 +16,8 @@ class Notes {
                     .dialog({
                         modal: true,
                         title: $btn.data('modal-title') || 'Notes',
-                        width: $btn.data('modal-width') || 500,
-                        height: $btn.data('modal-height') || 500
+                        maxWidth: $btn.data('modal-width') || 500,
+                        minHeight: $btn.data('modal-height') || 500
                     });
 
                 this.load(
