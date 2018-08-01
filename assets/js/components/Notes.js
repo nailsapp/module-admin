@@ -16,7 +16,8 @@ class Notes {
                     .dialog({
                         modal: true,
                         title: $btn.data('modal-title') || 'Notes',
-                        width: $btn.data('modal-width') || 500
+                        width: $btn.data('modal-width') || 500,
+                        maxHeight: $btn.data('modal-max-height') || 750
                     });
 
                 this.load(
@@ -102,6 +103,9 @@ class Notes {
                                             response.data.date
                                         )
                                     );
+
+                                $modal
+                                    .dialog('option', 'position', 'center');
 
                             })
                             .error((response) => {
