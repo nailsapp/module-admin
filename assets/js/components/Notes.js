@@ -128,11 +128,12 @@ class Notes {
      * @return {jQuery}
      */
     static renderMessageItem(message, user, date) {
-        let $message = $('<div>').addClass('admin-notes__message').html(message);
-        let $meta = $('<div>').addClass('admin-notes__meta');
-        let $user = $('<span>').addClass('admin-notes__user').html(user.first_name + ' ' + user.last_name);
-        let $date = $('<span>').addClass('admin-notes__date').html(date);
+        let $message = $('<div>').addClass('admin-notes__note__message').html(message);
+        let $meta = $('<div>').addClass('admin-notes__note__meta');
+        let $user = $('<span>').addClass('admin-notes__note__user').html(user.first_name + ' ' + user.last_name);
+        let $date = $('<span>').addClass('admin-notes__note__date').html(date);
         return $('<li>')
+            .addClass('admin-notes__note')
             .append($message)
             .append(
                 $meta

@@ -1,18 +1,29 @@
 .admin-notes {
+    &__note {
+        border: 1px solid #ccc;
+
+        &__message {
+            padding: 1rem;
+
+            > *:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        &__meta {
+            font-size: .8em;
+            border: 1px solid #ccc;
+            background: #efefef;
+            padding: 0.5rem;
+
+            &__date {
+                float: right;
+            }
+        }
+    }
+
     textarea {
         width: 100%;
         height: 100px;
-    }
-
-    &__meta {
-        font-size: .8em;
-        border: 1px solid #ccc;
-        background: #efefef;
-        padding: 0.5rem;
-        margin-bottom: 1rem;
-    }
-
-    &__date {
-        float: right;
     }
 }
