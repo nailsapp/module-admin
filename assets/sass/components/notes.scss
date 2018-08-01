@@ -1,4 +1,10 @@
 .admin-notes {
+    &__empty {
+        padding: 2rem;
+        text-align: center;
+        color: #aaa;
+    }
+
     &__note {
         border: 1px solid #ccc;
 
@@ -12,7 +18,6 @@
 
         &__meta {
             font-size: .8em;
-            border: 1px solid #ccc;
             background: #efefef;
             padding: 0.5rem;
 
@@ -25,5 +30,6 @@
     textarea {
         width: 100%;
         height: 100px;
+        margin-top: 1rem;
     }
 }

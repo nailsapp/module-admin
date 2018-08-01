@@ -69,14 +69,14 @@ class Notes {
                         );
                     }
                 } else {
-                    $ul.append($('<li>').html('No notes recorded for this item'));
+                    $ul.append($('<li>').html('<p class"admin-notes__empty">No notes recorded for this item</p>'));
                 }
 
                 let $formItem = $('<li>');
                 let $textarea = $('<textarea>');
                 let $btn = $('<button>')
                     .addClass('btn btn-block btn-primary')
-                    .text('Add Item')
+                    .text('Add Note')
                     .on('click', () => {
                         $.ajax({
                                 'url': window.SITE_URL + 'api/admin/notes',
