@@ -134,8 +134,8 @@ class Notes {
     static renderMessageItem(message, user, date) {
         let $message = $('<div>').addClass('admin-notes__note__message').html(message);
         let $meta = $('<div>').addClass('admin-notes__note__meta');
-        let $user = $('<span>').addClass('admin-notes__note__user').html(user.first_name + ' ' + user.last_name);
-        let $date = $('<span>').addClass('admin-notes__note__date').html(date);
+        let $user = $('<span>').addClass('admin-notes__note__meta__user').html(user.first_name + ' ' + user.last_name);
+        let $date = $('<span>').addClass('admin-notes__note__meta__date').html(date);
         return $('<li>')
             .addClass('admin-notes__note')
             .append($message)
