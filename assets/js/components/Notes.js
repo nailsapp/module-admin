@@ -56,7 +56,7 @@ class Notes {
             })
             .done((response) => {
 
-                $ul = $('<ul>').addClass('admin-notes');
+                let $ul = $('<ul>').addClass('admin-notes');
 
                 if (response.data.length) {
                     for (let i = 0, j = response.data.length; i < j; i++) {
