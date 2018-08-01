@@ -167,6 +167,11 @@ abstract class DefaultController extends Base
     const EDIT_MODE_EDIT = 'EDIT';
 
     /**
+     * Enable or disable the "Notes" feature
+     */
+    const EDIT_ENABLE_NOTES = true;
+
+    /**
      * Message displayed to user when an item is successfully created
      */
     const CREATE_SUCCESS_MESSAGE = 'Item created successfully. %s';
@@ -310,6 +315,7 @@ abstract class DefaultController extends Base
             'EDIT_IGNORE_FIELDS'   => static::CONFIG_EDIT_IGNORE_FIELDS,
             'EDIT_DATA'            => static::CONFIG_EDIT_DATA,
             'FIELDSET_ORDER'       => static::CONFIG_EDIT_FIELDSET_ORDER,
+            'ENABLE_NOTES'         => static::EDIT_ENABLE_NOTES,
         ];
 
         //  Additional ignore fields

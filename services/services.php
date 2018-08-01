@@ -39,6 +39,13 @@ return [
                 return new \Nails\Admin\Model\Help();
             }
         },
+        'Notes'     => function () {
+            if (class_exists('\App\Admin\Model\Notes')) {
+                return new \App\Admin\Model\Notes();
+            } else {
+                return new \Nails\Admin\Model\Notes();
+            }
+        },
         'SiteLog'   => function () {
             if (class_exists('\App\Admin\Model\SiteLog')) {
                 return new \App\Admin\Model\SiteLog();
@@ -83,19 +90,19 @@ return [
                 return new \Nails\Admin\DataExport\SourceResponse();
             }
         },
-        'IndexFilter' => function() {
+        'IndexFilter'              => function () {
             if (class_exists('\App\Admin\Factory\IndexFilter')) {
                 return new \App\Admin\Factory\IndexFilter();
             } else {
                 return new \Nails\Admin\Factory\IndexFilter();
             }
         },
-        'IndexFilterOption' => function() {
+        'IndexFilterOption'        => function () {
             if (class_exists('\App\Admin\Factory\IndexFilter\Option')) {
                 return new \App\Admin\Factory\IndexFilter\Option();
             } else {
                 return new \Nails\Admin\Factory\IndexFilter\Option();
             }
-        }
+        },
     ],
 ];

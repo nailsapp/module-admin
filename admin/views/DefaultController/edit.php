@@ -69,6 +69,19 @@
         <button type="submit" class="btn btn-primary">
             Save Changes
         </button>
+        <?php
+        if (!empty($item) && $CONFIG['ENABLE_NOTES']) {
+            ?>
+            <button type="button"
+                    class="btn btn-default pull-right js-admin-notes"
+                    data-model-name="<?=$CONFIG['MODEL_NAME']?>"
+                    data-model-provider="<?=$CONFIG['MODEL_PROVIDER']?>"
+                    data-id="<?=$item->id?>">
+                Notes
+            </button>
+            <?php
+        }
+        ?>
     </div>
     <?=form_close()?>
 </div>

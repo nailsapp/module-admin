@@ -44,7 +44,18 @@
  *  js:app
  */
 
-var css = {};
+var css = {
+    'admin': {
+        'input': [
+            'assets/sass/admin.scss'
+        ],
+        'output': 'admin.css',
+        'watch': [
+            'assets/sass/admin.scss',
+            'assets/sass/**/*.scss'
+        ]
+    }
+};
 
 var js = {
     'admin': {
@@ -58,34 +69,29 @@ var js = {
     }
 };
 
-
 // --------------------------------------------------------------------------
 //  End of configurable options
 // --------------------------------------------------------------------------
 
-
 //  Load all the things we'll need
-var gulp         = require('gulp');
-var sass         = require('gulp-sass');
-var concat       = require('gulp-concat');
+var gulp = require('gulp');
+var sass = require('gulp-sass');
+var concat = require('gulp-concat');
 var autoPrefixer = require('gulp-autoprefixer');
-var cleanCSS     = require('gulp-clean-css');
-var rename       = require('gulp-rename');
-var uglify       = require('gulp-uglify');
-var sourceMap    = require('gulp-sourcemaps');
-var runSequence  = require('run-sequence');
-var notify       = require('gulp-notify');
+var cleanCSS = require('gulp-clean-css');
+var rename = require('gulp-rename');
+var uglify = require('gulp-uglify');
+var sourceMap = require('gulp-sourcemaps');
+var runSequence = require('run-sequence');
+var notify = require('gulp-notify');
 
 // ES2015 reqs
-var browserify   = require('browserify');
-var gulp         = require('gulp');
-var source       = require('vinyl-source-stream');
-var transform    = require('vinyl-transform');
-var buffer       = require('vinyl-buffer');
-var babelify     = require('babelify');
-
-
-
+var browserify = require('browserify');
+var gulp = require('gulp');
+var source = require('vinyl-source-stream');
+var transform = require('vinyl-transform');
+var buffer = require('vinyl-buffer');
+var babelify = require('babelify');
 
 // --------------------------------------------------------------------------
 
@@ -117,6 +123,7 @@ function createTask(type, task, input, output) {
 function createWatch(input, task) {
     gulp.watch(input, [task]);
 }
+
 /**
  * Executes a compilation of CSS files
  * @param task   string The task name
@@ -131,7 +138,7 @@ function compileCss(task, input, output) {
         .pipe(concat(output))
         .pipe(autoPrefixer({
             browsers: ['last 2 versions', 'ie 8', 'ie 9'],
-            cascade:  false
+            cascade: false
         }))
         .pipe(cleanCSS())
         .pipe(rename({
@@ -140,18 +147,18 @@ function compileCss(task, input, output) {
         .pipe(gulp.dest('./assets/css/'))
         .on('error', notify.onError({
             message: '[' + task + '] Error compiling CSS',
-            title:   '<%= error.message %>',
-            sound:   'Funk'
+            title: '<%= error.message %>',
+            sound: 'Funk'
         }))
-        .on('error', function (err) {
+        .on('error', function(err) {
             console.log('Error compiling CSS: ', err);
         })
         .pipe(notify({
-            title:   'Successfully compiled CSS',
+            title: 'Successfully compiled CSS',
             message: '[' + task + '] All .scss files were successfully compiled into CSS',
-            sound:   false,
-            icon:    false,
-            onLast:  true
+            sound: false,
+            icon: false,
+            onLast: true
         }));
 }
 
@@ -168,7 +175,7 @@ function compileJs(task, input, output) {
         entries: input,
         debug: true,
         transform: [babelify.configure({
-          presets: ['es2015']
+            presets: ['es2015']
         })]
     });
 
@@ -176,29 +183,29 @@ function compileJs(task, input, output) {
         .pipe(source(output))
         .pipe(buffer())
         .pipe(sourceMap.init({loadMaps: true}))
-            // Add transformation tasks to the pipeline here.
-            .pipe(uglify())
-            .pipe(rename({
-                suffix: '.min'
-            }))
-            .on('error', notify.onError({
-                message: '[' + task + '] Error compiling JS',
-                title:   '<%= error.message %>',
-                sound:   'Funk',
-                icon:    false,
-                onLast:  true
-            }))
-            .on('error', function (err) {
-                console.log('Error compiling JS: ', err);
-            })
+        // Add transformation tasks to the pipeline here.
+        .pipe(uglify())
+        .pipe(rename({
+            suffix: '.min'
+        }))
+        .on('error', notify.onError({
+            message: '[' + task + '] Error compiling JS',
+            title: '<%= error.message %>',
+            sound: 'Funk',
+            icon: false,
+            onLast: true
+        }))
+        .on('error', function(err) {
+            console.log('Error compiling JS: ', err);
+        })
         .pipe(sourceMap.write('./'))
         .pipe(gulp.dest('./assets/js/'))
         .pipe(notify({
-            title:   'Successfully compiled JS',
+            title: 'Successfully compiled JS',
             message: '[' + task + '] All .js files were successfully minified and sourceMap generated',
-            sound:   false,
-            icon:    false,
-            onLast:  true
+            sound: false,
+            icon: false,
+            onLast: true
         }))
         ;
 }
