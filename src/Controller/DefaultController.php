@@ -134,6 +134,11 @@ abstract class DefaultController extends Base
     ];
 
     /**
+     * Fields which should be marked as readonly when creating an item
+     */
+    const CONFIG_CREATE_READONLY_FIELDS = [];
+
+    /**
      * The fields to ignore on the create/edit view
      */
     const CONFIG_EDIT_IGNORE_FIELDS = [
@@ -145,6 +150,11 @@ abstract class DefaultController extends Base
         'modified',
         'modified_by',
     ];
+
+    /**
+     * Fields which should be marked as readonly when editing an item
+     */
+    const CONFIG_EDIT_READONLY_FIELDS = [];
 
     /**
      * Additional data to pass into the getAll call on the edit view
@@ -291,31 +301,33 @@ abstract class DefaultController extends Base
         //  Build the config array
         $oModel  = static::getModel();
         $aConfig = [
-            'MODEL_NAME'           => static::CONFIG_MODEL_NAME,
-            'MODEL_PROVIDER'       => static::CONFIG_MODEL_PROVIDER,
-            'MODEL_INSTANCE'       => $oModel,
-            'CAN_CREATE'           => static::CONFIG_CAN_CREATE,
-            'CAN_EDIT'             => static::CONFIG_CAN_EDIT,
-            'CAN_VIEW'             => static::CONFIG_CAN_VIEW,
-            'CAN_DELETE'           => static::CONFIG_CAN_DELETE,
-            'PERMISSION'           => static::CONFIG_PERMISSION,
-            'TITLE_SINGLE'         => static::CONFIG_TITLE_SINGLE,
-            'TITLE_PLURAL'         => static::CONFIG_TITLE_PLURAL,
-            'SIDEBAR_GROUP'        => static::CONFIG_SIDEBAR_GROUP,
-            'SIDEBAR_ICON'         => static::CONFIG_SIDEBAR_ICON,
-            'BASE_URL'             => static::CONFIG_BASE_URL,
-            'SORT_OPTIONS'         => static::CONFIG_SORT_OPTIONS,
-            'SORT_DIRECTION'       => static::CONFIG_SORT_DIRECTION,
-            'INDEX_FIELDS'         => static::CONFIG_INDEX_FIELDS,
-            'INDEX_HEADER_BUTTONS' => static::CONFIG_INDEX_HEADER_BUTTONS,
-            'INDEX_ROW_BUTTONS'    => array_merge(static::$aConfigIndexRowButtons, static::CONFIG_INDEX_ROW_BUTTONS),
-            'INDEX_DATA'           => static::CONFIG_INDEX_DATA,
-            'INDEX_BOOL_FIELDS'    => static::CONFIG_INDEX_BOOL_FIELDS,
-            'INDEX_USER_FIELDS'    => static::CONFIG_INDEX_USER_FIELDS,
-            'EDIT_IGNORE_FIELDS'   => static::CONFIG_EDIT_IGNORE_FIELDS,
-            'EDIT_DATA'            => static::CONFIG_EDIT_DATA,
-            'FIELDSET_ORDER'       => static::CONFIG_EDIT_FIELDSET_ORDER,
-            'ENABLE_NOTES'         => static::EDIT_ENABLE_NOTES,
+            'MODEL_NAME'             => static::CONFIG_MODEL_NAME,
+            'MODEL_PROVIDER'         => static::CONFIG_MODEL_PROVIDER,
+            'MODEL_INSTANCE'         => $oModel,
+            'CAN_CREATE'             => static::CONFIG_CAN_CREATE,
+            'CAN_EDIT'               => static::CONFIG_CAN_EDIT,
+            'CAN_VIEW'               => static::CONFIG_CAN_VIEW,
+            'CAN_DELETE'             => static::CONFIG_CAN_DELETE,
+            'PERMISSION'             => static::CONFIG_PERMISSION,
+            'TITLE_SINGLE'           => static::CONFIG_TITLE_SINGLE,
+            'TITLE_PLURAL'           => static::CONFIG_TITLE_PLURAL,
+            'SIDEBAR_GROUP'          => static::CONFIG_SIDEBAR_GROUP,
+            'SIDEBAR_ICON'           => static::CONFIG_SIDEBAR_ICON,
+            'BASE_URL'               => static::CONFIG_BASE_URL,
+            'SORT_OPTIONS'           => static::CONFIG_SORT_OPTIONS,
+            'SORT_DIRECTION'         => static::CONFIG_SORT_DIRECTION,
+            'INDEX_FIELDS'           => static::CONFIG_INDEX_FIELDS,
+            'INDEX_HEADER_BUTTONS'   => static::CONFIG_INDEX_HEADER_BUTTONS,
+            'INDEX_ROW_BUTTONS'      => array_merge(static::$aConfigIndexRowButtons, static::CONFIG_INDEX_ROW_BUTTONS),
+            'INDEX_DATA'             => static::CONFIG_INDEX_DATA,
+            'INDEX_BOOL_FIELDS'      => static::CONFIG_INDEX_BOOL_FIELDS,
+            'INDEX_USER_FIELDS'      => static::CONFIG_INDEX_USER_FIELDS,
+            'CREATE_READONLY_FIELDS' => static::CONFIG_CREATE_READONLY_FIELDS,
+            'EDIT_READONLY_FIELDS'   => static::CONFIG_EDIT_READONLY_FIELDS,
+            'EDIT_IGNORE_FIELDS'     => static::CONFIG_EDIT_IGNORE_FIELDS,
+            'EDIT_DATA'              => static::CONFIG_EDIT_DATA,
+            'FIELDSET_ORDER'         => static::CONFIG_EDIT_FIELDSET_ORDER,
+            'ENABLE_NOTES'           => static::EDIT_ENABLE_NOTES,
         ];
 
         //  Additional ignore fields

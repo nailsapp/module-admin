@@ -50,6 +50,12 @@
                         $aField['required'] = in_array('required', $oField->validation);
                     }
 
+                    if (!empty($item)) {
+                        $aField['readonly'] = in_array($oField->key, $CONFIG['EDIT_READONLY_FIELDS']);
+                    } else {
+                        $aField['readonly'] = in_array($oField->key, $CONFIG['CREATE_READONLY_FIELDS']);
+                    }
+
                     if (is_callable('form_field_' . $aField['type'])) {
                         echo call_user_func('form_field_' . $aField['type'], $aField);
                     } else {
