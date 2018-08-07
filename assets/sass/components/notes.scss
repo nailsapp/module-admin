@@ -5,6 +5,22 @@
         color: #aaa;
     }
 
+    &__counter {
+        margin-left: 0.4rem;
+
+        &:before {
+            content: '(';
+        }
+
+        &:after {
+            content: ')';
+        }
+
+        &:empty {
+            display: none;
+        }
+    }
+
     &__note {
         border: 1px solid #ccc;
 

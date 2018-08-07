@@ -9,25 +9,43 @@ class Notes {
      */
     constructor() {
         $('.js-admin-notes')
-            .on('click', (e) => {
+            .each((e) => {
 
                 let $btn = $(e.currentTarget);
-                let $modal = $('<div>')
-                    .dialog({
-                        modal: true,
-                        title: $btn.data('modal-title') || 'Notes',
-                        width: $btn.data('modal-width') || 500,
-                        maxHeight: $btn.data('modal-max-height') || 750
+                let $counter = $('<span>').addClass('admin-notes__counter');
+                let modelName = $btn.data('model-name');
+                let modelProvider = $btn.data('model-provider');
+                let itemId = $btn.data('id');
+                let title = $btn.data('modal-title') || 'Notes';
+                let width = $btn.data('modal-width') || 500;
+                let maxHeight = $btn.data('modal-max-height') || 750;
+
+                $btn
+                    .append($counter)
+                    .on('click', () => {
+
+                        let $modal = $('<div>')
+                            .dialog({
+                                modal: true,
+                                title: title,
+                                width: width,
+                                maxHeight: maxHeight
+                            });
+
+                        this.load(
+                            $modal,
+                            modelName,
+                            modelProvider,
+                            itemId
+                        );
+
+                        return false;
                     });
 
-                this.load(
-                    $modal,
-                    $btn.data('model-name'),
-                    $btn.data('model-provider'),
-                    $btn.data('id')
-                );
-
-                return false;
+                this.countNotes(modelName, modelProvider, itemId)
+                    .done((count) => {
+                        $counter.val(count);
+                    });
             });
 
         return this;
@@ -38,22 +56,15 @@ class Notes {
     /**
      * Load notes from the server
      * @param {jQuery} $modal The modal object
-     * @param {String} model_name The model name
-     * @param {String} model_provider The model provider
-     * @param {Number} id The item's ID
+     * @param {String} modelName The model name
+     * @param {String} modelProvider The model provider
+     * @param {Number} itemId The item's ID
      */
-    load($modal, model_name, model_provider, id) {
+    load($modal, modelName, modelProvider, itemId) {
 
         $modal.html($('<p>').text('Loading...'));
 
-        $.ajax({
-                'url': window.SITE_URL + 'api/admin/notes',
-                'data': {
-                    'model_name': model_name,
-                    'model_provider': model_provider,
-                    'id': id
-                }
-            })
+        base.loadNotes(modelName, modelProvider, itemId)
             .done((response) => {
 
                 let $ul = $('<ul>').addClass('admin-notes');
@@ -82,16 +93,8 @@ class Notes {
                     .addClass('btn btn-block btn-primary')
                     .text('Add Note')
                     .on('click', () => {
-                        $.ajax({
-                                'url': window.SITE_URL + 'api/admin/notes',
-                                'method': 'POST',
-                                'data': {
-                                    'model_name': model_name,
-                                    'model_provider': model_provider,
-                                    'id': id,
-                                    'message': $textarea.val()
-                                }
-                            })
+
+                        this.saveNote(modelName, modelProvider, itemId, $textarea.val())
                             .done((response) => {
                                 $textarea.val('');
                                 $('.admin-notes__empty', $modal).remove();
@@ -106,10 +109,6 @@ class Notes {
 
                                 $modal
                                     .dialog('option', 'position', 'center');
-
-                            })
-                            .error((response) => {
-                                Notes.showError(response.responseText);
                             });
                     });
 
@@ -120,11 +119,101 @@ class Notes {
                 );
 
                 $modal.html($ul);
-            })
-            .error((response) => {
-                Notes.showError(response.responseText);
             });
     };
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Loads notes from the server
+     * @param {String} modelName The model name
+     * @param {String} modelProvider The model provider
+     * @param {Number} itemId The ID of the item
+     * @return {jQuery.Deferred}
+     */
+    countNotes(modelName, modelProvider, itemId) {
+        let $deferred = new $.Deferred();
+        $.ajax({
+                'url': window.SITE_URL + 'api/admin/notes/count',
+                'data': {
+                    'model_name': modelName,
+                    'model_provider': modelProvider,
+                    'id': itemId
+                }
+            })
+            .done((response) => {
+                $deferred.resolve(response.data);
+            })
+            .fail((response) => {
+                Notes.showError(response.responseText);
+                $deferred.reject(response.responseText);
+            });
+
+        return $deferred.promise();
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Loads notes from the server
+     * @param {String} modelName The model name
+     * @param {String} modelProvider The model provider
+     * @param {Number} itemId The ID of the item
+     * @return {jQuery.Deferred}
+     */
+    loadNotes(modelName, modelProvider, itemId) {
+        let $deferred = new $.Deferred();
+        $.ajax({
+                'url': window.SITE_URL + 'api/admin/notes',
+                'data': {
+                    'model_name': modelName,
+                    'model_provider': modelProvider,
+                    'id': itemId
+                }
+            })
+            .done((response) => {
+                $deferred.resolve(response);
+            })
+            .fail((response) => {
+                Notes.showError(response.responseText);
+                $deferred.reject(response.responseText);
+            });
+
+        return $deferred.promise();
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Save a new note to the server
+     * @param {String} modelName The model name
+     * @param {String} modelProvider The model provider
+     * @param {Number} itemId The ID of the item
+     * @param {String} message The message to save
+     * @return {jQuery.Deferred}
+     */
+    saveNote(modelName, modelProvider, itemId, message) {
+        let $deferred = new $.Deferred();
+        $.ajax({
+                'url': window.SITE_URL + 'api/admin/notes',
+                'method': 'POST',
+                'data': {
+                    'model_name': modelName,
+                    'model_provider': modelProvider,
+                    'id': itemId,
+                    'message': message
+                }
+            })
+            .done((response) => {
+                $deferred.resolve(response);
+            })
+            .fail((response) => {
+                Notes.showError(response.responseText);
+                $deferred.reject(response.responseText);
+            });
+
+        return $deferred.promise();
+    }
 
     // --------------------------------------------------------------------------
 

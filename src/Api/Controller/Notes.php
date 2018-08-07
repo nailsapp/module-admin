@@ -37,6 +37,30 @@ class Notes extends Base
     // --------------------------------------------------------------------------
 
     /**
+     * Counts notes for a given item
+     *
+     * @return Nails\Api\Factory\ApiResponse
+     */
+    public function getCount()
+    {
+        list($oItem, $oItemModel) = $this->getItemAndModel();
+        $oNotesModel = Factory::model('Notes', 'nailsapp/module-admin');
+
+        return Factory::factory('ApiResponse', 'nailsapp/module-api')
+                      ->setData(
+                          $oNotesModel->countAll([
+                              'expand' => ['created_by'],
+                              'where'  => [
+                                  ['model', get_class($oItemModel)],
+                                  ['item_id', $oItem->id],
+                              ],
+                          ])
+                      );
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
      * Creates a new note for a given item
      *
      * @return Nails\Api\Factory\ApiResponse
