@@ -44,7 +44,7 @@ class Notes {
 
                 this.countNotes(modelName, modelProvider, itemId)
                     .done((count) => {
-                        $counter.val(count);
+                        $counter.text(count || '');
                     });
             });
 
@@ -64,7 +64,7 @@ class Notes {
 
         $modal.html($('<p>').text('Loading...'));
 
-        base.loadNotes(modelName, modelProvider, itemId)
+        this.loadNotes(modelName, modelProvider, itemId)
             .done((response) => {
 
                 let $ul = $('<ul>').addClass('admin-notes');
