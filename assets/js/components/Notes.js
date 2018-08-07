@@ -9,8 +9,9 @@ class Notes {
      */
     constructor() {
         $('.js-admin-notes')
-            .each((index, $btn) => {
+            .each((index, element) => {
 
+                let $btn = $(element);
                 let $counter = $('<span>').addClass('admin-notes__counter');
                 let modelName = $btn.data('model-name');
                 let modelProvider = $btn.data('model-provider');
