@@ -34,6 +34,7 @@ class Notes {
 
                         this.load(
                             $modal,
+                            $counter,
                             modelName,
                             modelProvider,
                             itemId
@@ -56,11 +57,12 @@ class Notes {
     /**
      * Load notes from the server
      * @param {jQuery} $modal The modal object
+     * @param {jQuery} $counter The counter object
      * @param {String} modelName The model name
      * @param {String} modelProvider The model provider
      * @param {Number} itemId The item's ID
      */
-    load($modal, modelName, modelProvider, itemId) {
+    load($modal, $counter, modelName, modelProvider, itemId) {
 
         $modal.html($('<p>').text('Loading...'));
 
@@ -106,6 +108,9 @@ class Notes {
                                             response.data.date
                                         )
                                     );
+
+                                $counter
+                                    .text($('.admin-notes__note', $modal).length || '');
 
                                 $modal
                                     .dialog('option', 'position', 'center');
