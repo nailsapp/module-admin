@@ -276,13 +276,15 @@ class Helper
                 $sLabel   = getFromArray(0, $mOption, null);
                 $mValue   = getFromArray(1, $mOption, null);
                 $bChecked = getFromArray(2, $mOption, false);
+                $bQuery   = getFromArray(3, $mOption, false);
             } else {
                 $sLabel   = $mOption;
                 $mValue   = $sIndex;
                 $bChecked = false;
+                $bQuery   = false;
             }
 
-            $oFilter->addOption($sLabel, $mValue, $bChecked);
+            $oFilter->addOption($sLabel, $mValue, $bChecked, $bQuery);
         }
 
         return $oFilter;
@@ -299,12 +301,13 @@ class Helper
      *
      * @return \stdClass
      */
-    public static function searchFilterObjectOption($sLabel = '', $sValue = '', $bChecked = false)
+    public static function searchFilterObjectOption($sLabel = '', $sValue = '', $bChecked = false, $bQuery = false)
     {
         return (object) [
             'label'   => $sLabel,
             'value'   => $sValue,
             'checked' => $bChecked,
+            'query'   => $bQuery,
         ];
     }
 

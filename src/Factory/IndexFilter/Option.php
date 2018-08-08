@@ -21,6 +21,12 @@ class Option
     protected $aMethods = [];
 
     /**
+     * Stores an array of the getter/setters for boolean properties
+     * @var array
+     */
+    protected $aBoolMethods = [];
+
+    /**
      * The label to give the option
      * @var string
      */
@@ -28,15 +34,21 @@ class Option
 
     /**
      * The value to give the option
-     * @var
+     * @var mixed
      */
     protected $mValue;
 
     /**
      * Whether the item is selected or not
-     * @var
+     * @var boolean
      */
-    protected $bSelected;
+    protected $bIsSelected;
+
+    /**
+     * If true, treat the value as the entire query
+     * @var boolean
+     */
+    protected $bIsQuery;
 
     // --------------------------------------------------------------------------
 
@@ -47,13 +59,18 @@ class Option
     {
         $aVars = get_object_vars($this);
         unset($aVars['aMethods']);
-        unset($aVars['bSelected']);
+        unset($aVars['aBoolMethods']);
         $aVars = array_keys($aVars);
 
         foreach ($aVars as $sVar) {
-            $sNormalised                          = substr($sVar, 1);
-            $this->aMethods['set' . $sNormalised] = $sVar;
-            $this->aMethods['get' . $sNormalised] = $sVar;
+            $sNormalised = substr($sVar, 1);
+            if (preg_match('/^Is[A-Z]/', $sNormalised)) {
+                $this->aBoolMethods['set' . $sNormalised]  = $sVar;
+                $this->aBoolMethods[lcfirst($sNormalised)] = $sVar;
+            } else {
+                $this->aMethods['set' . $sNormalised] = $sVar;
+                $this->aMethods['get' . $sNormalised] = $sVar;
+            }
         }
     }
 
@@ -71,12 +88,9 @@ class Option
     public function __call($sMethod, $aArguments)
     {
         if (array_key_exists($sMethod, $this->aMethods)) {
-            if (substr($sMethod, 0, 3) === 'set') {
-                $this->{$this->aMethods[$sMethod]} = reset($aArguments);
-                return $this;
-            } else {
-                return $this->{$this->aMethods[$sMethod]};
-            }
+            return $this->handleMethodCall($this->aMethods, $sMethod, reset($aArguments));
+        } elseif (array_key_exists($sMethod, $this->aBoolMethods)) {
+            return $this->handleMethodCall($this->aBoolMethods, $sMethod, (bool) reset($aArguments));
         } else {
             throw new \Exception('Call to undefined method ' . get_called_class() . '::' . $sMethod . '()');
         }
@@ -85,27 +99,21 @@ class Option
     // --------------------------------------------------------------------------
 
     /**
-     * Set whetehr the option is selected or not
+     * Executes the appropriate "method" behaviour
      *
-     * @param boolean $bSelected The selected state
+     * @param array  $aMethods The array of methods to check against
+     * @param string $sMethod  The method being called
+     * @param mixed  $mValue   The value to assign when setting
      *
-     * @return $this
+     * @return $this|mixed
      */
-    public function setSelected($bSelected)
+    private function handleMethodCall($aMethods, $sMethod, $mValue)
     {
-        $this->bSelected = $bSelected;
+        if (substr($sMethod, 0, 3) !== 'set') {
+            return $this->{$aMethods[$sMethod]};
+        }
+
+        $this->{$aMethods[$sMethod]} = $mValue;
         return $this;
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Returns whether the option is selected or not
-     *
-     * @return bool
-     */
-    public function isSelected()
-    {
-        return (bool) $this->bSelected;
     }
 }

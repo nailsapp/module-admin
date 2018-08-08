@@ -89,18 +89,21 @@ class IndexFilter
     /**
      * Adds a new option
      *
-     * @param string $sLabel    the label to give the option
-     * @param mixed  $mValue    The value to give the option
-     * @param bool   $bSelected Whether the item is selected
+     * @param string $sLabel      the label to give the option
+     * @param mixed  $mValue      The value to give the option
+     * @param bool   $bIsSelected Whether the item is selected
+     * @param bool   $bIsQuery    If true, treat the value as the entire query
      *
      * @return $this
      */
-    public function addOption($sLabel, $mValue, $bSelected = false)
+    public function addOption($sLabel, $mValue, $bIsSelected = false, $bIsQuery = null)
     {
         $this->aOptions[] = Factory::factory('IndexFilterOption', 'nailsapp/module-admin')
                                    ->setLabel($sLabel)
                                    ->setValue($mValue)
-                                   ->setSelected($bSelected);
+                                   ->setIsSelected($bIsSelected)
+                                   ->setIsQuery($bIsQuery);
+
         return $this;
     }
 
@@ -116,10 +119,11 @@ class IndexFilter
     public function addOptions($aOptions)
     {
         foreach ($aOptions as $aOption) {
-            $sLabel    = getFromArray('label', $aOption, getFromArray(0, $aOption));
-            $mValue    = getFromArray('value', $aOption, getFromArray(1, $aOption));
-            $bSelected = getFromArray('selected', $aOption, getFromArray(2, $aOption));
-            $this->addOption($sLabel, $mValue, $bSelected);
+            $sLabel      = getFromArray('label', $aOption, getFromArray(0, $aOption));
+            $mValue      = getFromArray('value', $aOption, getFromArray(1, $aOption));
+            $bIsSelected = (bool) getFromArray('selected', $aOption, getFromArray(2, $aOption));
+            $bIsQuery    = (bool) getFromArray('query', $aOption, getFromArray(3, $aOption));
+            $this->addOption($sLabel, $mValue, $bIsSelected, $bIsQuery);
         }
 
         return $this;
