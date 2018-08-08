@@ -372,6 +372,29 @@ class Helper
     // --------------------------------------------------------------------------
 
     /**
+     * Automatically decides what type of cell to load
+     *
+     * @param mixed  $mValue          The value of the cell
+     * @param string $sCellClass      Any classes to add to the cell
+     * @param string $sCellAdditional Any additional HTML to add to the cell (after the value)
+     *
+     * @return string
+     */
+    public static function loadCellAuto($mValue, $sCellClass = '', $sCellAdditional = '')
+    {
+        //  @todo - handle more field types
+        if (preg_match('/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/', $mValue)) {
+            return Helper::loadDateTimeCell($mValue);
+        } elseif (preg_match('/\d\d\d\d-\d\d-\d\d/', $mValue)) {
+            return Helper::loadDateCell($mValue);
+        } else {
+            return '<td class="' . $sCellClass . '">' . $mValue . $sCellAdditional . '</td>';
+        }
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
      * Load the admin "user" table cell component
      *
      * @param  mixed $mUser The user object or the User's ID/email/username

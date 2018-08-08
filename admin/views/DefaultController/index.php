@@ -55,55 +55,50 @@ $oMustache = \Nails\Factory::service('Mustache');
 
                             foreach ($CONFIG['INDEX_FIELDS'] as $sField => $sLabel) {
                                 if (property_exists($oItem, $sField)) {
-                                    //  @todo - handle more field types
-                                    if (preg_match('/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/', $oItem->{$sField})) {
-                                        echo Helper::loadDateTimeCell($oItem->{$sField});
-                                    } elseif (preg_match('/\d\d\d\d-\d\d-\d\d/', $oItem->{$sField})) {
-                                        echo Helper::loadDateCell($oItem->{$sField});
-                                    } elseif (in_array($sField, $CONFIG['INDEX_BOOL_FIELDS'])) {
-                                        echo Helper::loadBoolCell($oItem->{$sField});
-                                    } elseif (in_array($sField, $CONFIG['INDEX_USER_FIELDS'])) {
-                                        echo Helper::loadUserCell($oItem->{$sField});
-                                    } else {
-                                        ?>
-                                        <td class="field field--' . $sField . '">
-                                            <?php
 
-                                            echo $oItem->{$sField};
-
-                                            if (classUses($CONFIG['MODEL_INSTANCE'], '\Nails\Common\Traits\Model\Nestable')) {
-                                                $aBreadcrumbs = json_decode($oItem->breadcrumbs);
-                                                if (!empty($aBreadcrumbs)) {
-                                                    $aItems = arrayExtractProperty($aBreadcrumbs, 'label');
-                                                    echo '<small>' . implode(' &rsaquo; ', $aItems) . '</small>';
-                                                }
-                                            }
-
-
-                                            ?>
-                                        </td>
-                                        <?php
+                                    $sCellAdditional = '';
+                                    if (classUses($CONFIG['MODEL_INSTANCE'], '\Nails\Common\Traits\Model\Nestable')) {
+                                        $aBreadcrumbs = json_decode($oItem->breadcrumbs);
+                                        if (!empty($aBreadcrumbs)) {
+                                            $aItems          = arrayExtractProperty($aBreadcrumbs, 'label');
+                                            $sCellAdditional = '<small>' . implode(' &rsaquo; ', $aItems) . '</small>';
+                                        }
                                     }
+
+                                    if (in_array($sField, $CONFIG['INDEX_BOOL_FIELDS'])) {
+                                        echo Helper::loadBoolCell($mValue);
+                                    } elseif (in_array($sField, $CONFIG['INDEX_USER_FIELDS'])) {
+                                        echo Helper::loadUserCell($mValue);
+                                    } else {
+                                        echo Helper::loadCellAuto(
+                                            $oItem->{$sField},
+                                            'field field--' . $sField,
+                                            $sCellAdditional
+                                        );
+                                    }
+
                                 } elseif (strpos($sField, '.') !== false) {
-                                    //  @todo - handle arrays in expanded objects
+
+                                    //  @todo (Pablo - 2018-08-08) - Handle arrays in expanded objects
                                     $aField  = explode('.', $sField);
                                     $sField1 = getFromArray(0, $aField);
                                     $sField2 = getFromArray(1, $aField);
-                                    ?>
-                                    <td class="field field--<?=$sField?>">
-                                        <?php
-                                        if (property_exists($oItem, $sField1)) {
-                                            if (!empty($oItem->{$sField1}) && property_exists($oItem->{$sField1}, $sField2)) {
-                                                echo $oItem->{$sField1}->{$sField2};
-                                            } else {
-                                                echo '<span class="text-muted">&mdash;</span>';
-                                            }
+
+                                    if (property_exists($oItem, $sField1)) {
+                                        if (!empty($oItem->{$sField1}) && property_exists($oItem->{$sField1}, $sField2)) {
+                                            $mValue = $oItem->{$sField1}->{$sField2};
                                         } else {
-                                            echo '<span class="text-muted">&mdash;</span>';
+                                            $mValue = '<span class="text-muted">&mdash;</span>';
                                         }
-                                        ?>
-                                    </td>
-                                    <?php
+                                    } else {
+                                        $mValue = '<span class="text-muted">&mdash;</span>';
+                                    }
+
+                                    echo Helper::loadCellAuto(
+                                        $mValue,
+                                        'field field--' . $sField
+                                    );
+
                                 } else {
                                     ?>
                                     <td class="field field--<?=$sField?>">
