@@ -66,9 +66,9 @@ $oMustache = \Nails\Factory::service('Mustache');
                                     }
 
                                     if (in_array($sField, $CONFIG['INDEX_BOOL_FIELDS'])) {
-                                        echo Helper::loadBoolCell($mValue);
+                                        echo Helper::loadBoolCell($oItem->{$sField});
                                     } elseif (in_array($sField, $CONFIG['INDEX_USER_FIELDS'])) {
-                                        echo Helper::loadUserCell($mValue);
+                                        echo Helper::loadUserCell($oItem->{$sField});
                                     } else {
                                         echo Helper::loadCellAuto(
                                             $oItem->{$sField},
