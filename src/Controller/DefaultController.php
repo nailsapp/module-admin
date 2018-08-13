@@ -330,10 +330,12 @@ abstract class DefaultController extends Base
             'ENABLE_NOTES'           => static::EDIT_ENABLE_NOTES,
         ];
 
-        //  Additional ignore fields
+        //  Additional fields
         if (classUses($oModel, 'Nails\Common\Traits\Model\Sortable')) {
+            $aConfig['SORT_OPTIONS']         = array_merge(['order' => 'Defined Order'], $aConfig['SORT_OPTIONS']);
             $aConfig['EDIT_IGNORE_FIELDS'][] = $oModel->getSortableColumn();
         }
+
         if (classUses($oModel, 'Nails\Common\Traits\Model\Nestable')) {
             $aConfig['EDIT_IGNORE_FIELDS'][] = $oModel->getBreadcrumbsColumn();
         }
@@ -497,6 +499,14 @@ abstract class DefaultController extends Base
             $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':create';
             if (empty($this->aConfig['PERMISSION']) || userHasPermission($sPermissionStr)) {
                 Helper::addHeaderButton($this->aConfig['BASE_URL'] . '/create', 'Create');
+            }
+        }
+
+        if (static::CONFIG_CAN_EDIT) {
+            $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':edit';
+            $bIsSortable    = classUses($oModel, 'Nails\Common\Traits\Model\Sortable');
+            if ($bIsSortable && (empty($this->aConfig['PERMISSION']) || userHasPermission($sPermissionStr))) {
+                Helper::addHeaderButton($this->aConfig['BASE_URL'] . '/sort', 'Set Order');
             }
         }
 
@@ -1046,5 +1056,45 @@ abstract class DefaultController extends Base
             $oSession->setFlashData('error', static::RESTORE_ERROR_MESSAGE . ' ' . $e->getMessage());
             redirect($this->aConfig['BASE_URL']);
         }
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Sort items into order
+     * @return void
+     */
+    public function sort()
+    {
+        if (!static::CONFIG_CAN_EDIT) {
+            show_404();
+        }
+
+        $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':edit';
+        if (!empty($this->aConfig['PERMISSION']) && !userHasPermission($sPermissionStr)) {
+            unauthorised();
+        }
+
+        $oModel = $this->getModel();
+        $oInput = Factory::service('Input');
+        if ($oInput->post()) {
+            try {
+                $aItems = array_values((array) $oInput->post('order'));
+                foreach ($aItems as $iOrder => $iId) {
+                    if (!$oModel->update($iId, ['order' => $iOrder])) {
+                        throw new \Exception('Failed to update item order. ' . $oModel->lastError());
+                    }
+                }
+                $oSession = Factory::service('Session', 'nailsapp/module-auth');
+                $oSession->setFlashData('success', 'Order saved.');
+                redirect($this->aConfig['BASE_URL'] . '/sort');
+            } catch (\Exception $e) {
+                $this->data['error'] = $e->getMessage();
+            }
+        }
+
+        $aItems              = $oModel->getAll();
+        $this->data['items'] = $aItems;
+        Helper::loadView('order');
     }
 }
