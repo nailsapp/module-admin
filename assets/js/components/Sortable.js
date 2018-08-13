@@ -1,5 +1,4 @@
 /* export Sortable */
-
 /* globals $, jQuery */
 class Sortable {
 

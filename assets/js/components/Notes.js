@@ -1,7 +1,5 @@
 /* export Notes */
-
 /* globals $, jQuery */
-
 class Notes {
     /**
      * Construct Notes
