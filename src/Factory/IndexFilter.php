@@ -12,6 +12,7 @@
 
 namespace Nails\Admin\Factory;
 
+use Nails\Admin\Factory\IndexFilter\Option;
 use Nails\Factory;
 
 class IndexFilter
@@ -89,20 +90,24 @@ class IndexFilter
     /**
      * Adds a new option
      *
-     * @param string $sLabel      the label to give the option
-     * @param mixed  $mValue      The value to give the option
-     * @param bool   $bIsSelected Whether the item is selected
-     * @param bool   $bIsQuery    If true, treat the value as the entire query
+     * @param string|Option $sLabel      The label to give the option, or an IndexFilterOption object
+     * @param mixed         $mValue      The value to give the option
+     * @param bool          $bIsSelected Whether the item is selected
+     * @param bool          $bIsQuery    If true, treat the value as the entire query
      *
      * @return $this
      */
-    public function addOption($sLabel, $mValue, $bIsSelected = false, $bIsQuery = null)
+    public function addOption($sLabel, $mValue = null, $bIsSelected = false, $bIsQuery = null)
     {
-        $this->aOptions[] = Factory::factory('IndexFilterOption', 'nailsapp/module-admin')
-                                   ->setLabel($sLabel)
-                                   ->setValue($mValue)
-                                   ->setIsSelected($bIsSelected)
-                                   ->setIsQuery($bIsQuery);
+        if ($sLabel instanceof Option) {
+            $this->aOptions[] = $sLabel;
+        } else {
+            $this->aOptions[] = Factory::factory('IndexFilterOption', 'nailsapp/module-admin')
+                                       ->setLabel($sLabel)
+                                       ->setValue($mValue)
+                                       ->setIsSelected($bIsSelected)
+                                       ->setIsQuery($bIsQuery);
+        }
 
         return $this;
     }
@@ -119,11 +124,15 @@ class IndexFilter
     public function addOptions($aOptions)
     {
         foreach ($aOptions as $aOption) {
-            $sLabel      = getFromArray('label', $aOption, getFromArray(0, $aOption));
-            $mValue      = getFromArray('value', $aOption, getFromArray(1, $aOption));
-            $bIsSelected = (bool) getFromArray('selected', $aOption, getFromArray(2, $aOption));
-            $bIsQuery    = (bool) getFromArray('query', $aOption, getFromArray(3, $aOption));
-            $this->addOption($sLabel, $mValue, $bIsSelected, $bIsQuery);
+            if ($aOption instanceof Option) {
+                $this->aOptions[] = $aOption;
+            } else {
+                $sLabel      = getFromArray('label', $aOption, getFromArray(0, $aOption));
+                $mValue      = getFromArray('value', $aOption, getFromArray(1, $aOption));
+                $bIsSelected = (bool) getFromArray('selected', $aOption, getFromArray(2, $aOption));
+                $bIsQuery    = (bool) getFromArray('query', $aOption, getFromArray(3, $aOption));
+                $this->addOption($sLabel, $mValue, $bIsSelected, $bIsQuery);
+            }
         }
 
         return $this;
