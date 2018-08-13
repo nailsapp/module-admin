@@ -221,6 +221,16 @@ abstract class DefaultController extends Base
      */
     const RESTORE_ERROR_MESSAGE = 'Failed to restore item.';
 
+    /**
+     * Message displayed to user when an items are ordered successfully
+     */
+    const ORDER_SUCCESS_MESSAGE = 'Items ordered successfully.';
+
+    /**
+     * Message displayed to user when an item fails to be ordered
+     */
+    const ORDER_ERROR_MESSAGE = 'Failed to order items.';
+
     // --------------------------------------------------------------------------
 
     /**
@@ -1082,11 +1092,11 @@ abstract class DefaultController extends Base
                 $aItems = array_values((array) $oInput->post('order'));
                 foreach ($aItems as $iOrder => $iId) {
                     if (!$oModel->update($iId, ['order' => $iOrder])) {
-                        throw new \Exception('Failed to update item order. ' . $oModel->lastError());
+                        throw new NailsException(static::ORDER_ERROR_MESSAGE . ' ' . $oModel->lastError());
                     }
                 }
                 $oSession = Factory::service('Session', 'nailsapp/module-auth');
-                $oSession->setFlashData('success', 'Order saved.');
+                $oSession->setFlashData('success', static::ORDER_SUCCESS_MESSAGE);
                 redirect($this->aConfig['BASE_URL'] . '/sort');
             } catch (\Exception $e) {
                 $this->data['error'] = $e->getMessage();
