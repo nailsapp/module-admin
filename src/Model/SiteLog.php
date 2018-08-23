@@ -12,8 +12,8 @@
 
 namespace Nails\Admin\Model;
 
-use Nails\Factory;
 use Nails\Common\Model\Base;
+use Nails\Factory;
 
 class SiteLog extends Base
 {
@@ -28,7 +28,7 @@ class SiteLog extends Base
 
         // --------------------------------------------------------------------------
 
-        $config =& get_config();
+        $config        =& get_config();
         $this->logPath = $config['log_path'] != '' ? $config['log_path'] : APPPATH . 'logs/';
     }
 
@@ -38,10 +38,10 @@ class SiteLog extends Base
      * Get a list of log files
      * @return void
      */
-    public function getAll( $iPage = NULL, $iPerPage = NULL, array $aData = [], $bIncludeDeleted = false )
+    public function getAll($iPage = null, $iPerPage = null, array $aData = [], $bIncludeDeleted = false)
     {
         $dirMap        = directory_map($this->logPath, 0);
-        $logFiles      = array();
+        $logFiles      = [];
         $filenameRegex = '/^log\-(\d{4}\-\d{2}\-\d{2})\.php$/';
 
         foreach ($dirMap as $logFile) {
@@ -55,7 +55,7 @@ class SiteLog extends Base
         arsort($logFiles);
         $logFiles = array_values($logFiles);
 
-        $out = array();
+        $out = [];
 
         foreach ($logFiles as $file) {
 
@@ -80,8 +80,8 @@ class SiteLog extends Base
             return false;
         }
 
-        $fh  = fopen($this->logPath . $file, 'rb');
-        $out = array();
+        $fh      = fopen($this->logPath . $file, 'rb');
+        $out     = [];
         $counter = 0;
 
         while (!feof($fh)) {
@@ -105,7 +105,7 @@ class SiteLog extends Base
 
     protected function countLines($file)
     {
-        $fh = fopen($file, 'rb');
+        $fh    = fopen($file, 'rb');
         $lines = 0;
 
         while (!feof($fh)) {
@@ -123,6 +123,6 @@ class SiteLog extends Base
         fclose($fh);
 
         //  subtract 1, account for the opening <?php line
-        return $lines-1;
+        return $lines - 1;
     }
 }

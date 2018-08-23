@@ -17,6 +17,25 @@ use Nails\Factory;
 
 class Ckeditor extends BaseApi
 {
+    const REQUIRE_AUTH = true;
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Determines whether the user is authenticated or not
+     *
+     * @param string $sHttpMethod The HTTP Method protocol being used
+     * @param string $sMethod     The controller method being executed
+     *
+     * @return bool
+     */
+    public static function isAuthenticated($sHttpMethod = '', $sMethod = '')
+    {
+        return parent::isAuthenticated($sHttpMethod, $sMethod) && isAdmin();
+    }
+
+    // --------------------------------------------------------------------------
+
     /**
      * Returns the URL of the config to use for CKEditor instances
      * @return \Nails\Api\Factory\ApiResponse

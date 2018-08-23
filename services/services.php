@@ -39,11 +39,11 @@ return [
                 return new \Nails\Admin\Model\Help();
             }
         },
-        'Notes'     => function () {
-            if (class_exists('\App\Admin\Model\Notes')) {
-                return new \App\Admin\Model\Notes();
+        'Note'      => function () {
+            if (class_exists('\App\Admin\Model\Note')) {
+                return new \App\Admin\Model\Note();
             } else {
-                return new \Nails\Admin\Model\Notes();
+                return new \Nails\Admin\Model\Note();
             }
         },
         'SiteLog'   => function () {

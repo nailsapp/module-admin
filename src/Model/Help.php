@@ -12,7 +12,6 @@
 
 namespace Nails\Admin\Model;
 
-use Nails\Factory;
 use Nails\Common\Model\Base;
 
 class Help extends Base
@@ -23,7 +22,7 @@ class Help extends Base
     public function __construct()
     {
         parent::__construct();
-        $this->table       = NAILS_DB_PREFIX . 'admin_help_video';
+        $this->table      = NAILS_DB_PREFIX . 'admin_help_video';
         $this->tableAlias = 'hv';
     }
 
@@ -32,26 +31,28 @@ class Help extends Base
     /**
      * This method applies the conditionals which are common across the get_*()
      * methods and the count() method.
-     * @param array  $data Data passed from the calling method
+     *
+     * @param array $data Data passed from the calling method
+     *
      * @return void
      **/
-    protected function getCountCommon(array $data = array())
+    protected function getCountCommon(array $data = [])
     {
         if (!empty($data['keywords'])) {
 
             if (empty($data['or_like'])) {
 
-                $data['or_like'] = array();
+                $data['or_like'] = [];
             }
 
-            $data['or_like'][] = array(
+            $data['or_like'][] = [
                 'column' => $this->tableAlias . '.label',
-                'value'  => $data['keywords']
-            );
-            $data['or_like'][] = array(
+                'value'  => $data['keywords'],
+            ];
+            $data['or_like'][] = [
                 'column' => $this->tableAlias . '.description',
-                'value'  => $data['keywords']
-            );
+                'value'  => $data['keywords'],
+            ];
         }
 
         parent::getCountCommon($data);

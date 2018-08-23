@@ -1,4 +1,5 @@
 /* export Notes */
+
 /* globals $, jQuery */
 class Notes {
     /**
@@ -27,12 +28,16 @@ class Notes {
                                 modal: true,
                                 title: title,
                                 width: width,
-                                maxHeight: maxHeight
+                                maxHeight: maxHeight,
+                                position: {
+                                    my: 'center',
+                                    at: 'center',
+                                    of: window
+                                }
                             });
 
                         this.load(
                             $modal,
-                            $counter,
                             modelName,
                             modelProvider,
                             itemId
@@ -43,7 +48,7 @@ class Notes {
 
                 this.countNotes(modelName, modelProvider, itemId)
                     .done((count) => {
-                        $counter.text(count || '');
+                        this.setCounter(count);
                     });
             });
 
@@ -55,12 +60,11 @@ class Notes {
     /**
      * Load notes from the server
      * @param {jQuery} $modal The modal object
-     * @param {jQuery} $counter The counter object
      * @param {String} modelName The model name
      * @param {String} modelProvider The model provider
      * @param {Number} itemId The item's ID
      */
-    load($modal, $counter, modelName, modelProvider, itemId) {
+    load($modal, modelName, modelProvider, itemId) {
 
         $modal.html($('<p>').text('Loading...'));
 
@@ -68,23 +72,25 @@ class Notes {
             .done((response) => {
 
                 let $ul = $('<ul>').addClass('admin-notes');
+                let $empty = $('<li>')
+                    .addClass('admin-notes__empty')
+                    .append($('<p>').text('No notes recorded for this item'));
+
+                $ul.append($empty);
 
                 if (response.data.length) {
+                    $empty.hide();
                     for (let i = 0, j = response.data.length; i < j; i++) {
                         $ul.append(
-                            Notes.renderMessageItem(
+                            this.renderMessageItem(
+                                $modal,
+                                response.data[i].id,
                                 response.data[i].message,
                                 response.data[i].user,
                                 response.data[i].date
                             )
                         );
                     }
-                } else {
-                    $ul.append(
-                        $('<li>')
-                            .addClass('admin-notes__empty')
-                            .append($('<p>').text('No notes recorded for this item'))
-                    );
                 }
 
                 let $formItem = $('<li>');
@@ -93,25 +99,23 @@ class Notes {
                     .addClass('btn btn-block btn-primary')
                     .text('Add Note')
                     .on('click', () => {
-
                         this.saveNote(modelName, modelProvider, itemId, $textarea.val())
                             .done((response) => {
                                 $textarea.val('');
-                                $('.admin-notes__empty', $modal).remove();
+                                $('.admin-notes__empty', $modal).hide();
                                 $formItem
                                     .before(
-                                        Notes.renderMessageItem(
+                                        this.renderMessageItem(
+                                            $modal,
+                                            response.data.id,
                                             response.data.message,
                                             response.data.user,
                                             response.data.date
                                         )
                                     );
 
-                                $counter
-                                    .text($('.admin-notes__note', $modal).length || '');
-
-                                $modal
-                                    .dialog('option', 'position', 'center');
+                                this.setCounter(('.admin-notes__note', $modal).length)
+                                    .centerModal($modal, true);
                             });
                     });
 
@@ -122,8 +126,42 @@ class Notes {
                 );
 
                 $modal.html($ul);
+                this.centerModal($modal, true);
             });
     };
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Centers the modal in the screen
+     * @param {jQuery} $modal The modal object
+     * @param {boolean} scrollToBottom Whether tos croll the view to the bottom
+     * @return {Notes}
+     */
+    centerModal($modal, scrollToBottom) {
+        $modal
+            .dialog(
+                'option',
+                'position',
+                {
+                    my: 'center',
+                    at: 'center',
+                    of: window
+                }
+            );
+
+        if (scrollToBottom) {
+            $modal
+                .animate(
+                    {
+                        scrollTop: $modal.find('.admin-notes').outerHeight()
+                    },
+                    200
+                );
+        }
+
+        return this;
+    }
 
     // --------------------------------------------------------------------------
 
@@ -137,11 +175,11 @@ class Notes {
     countNotes(modelName, modelProvider, itemId) {
         let $deferred = new $.Deferred();
         $.ajax({
-                'url': window.SITE_URL + 'api/admin/notes/count',
+                'url': window.SITE_URL + 'api/admin/note/count',
                 'data': {
                     'model_name': modelName,
                     'model_provider': modelProvider,
-                    'id': itemId
+                    'item_id': itemId
                 }
             })
             .done((response) => {
@@ -167,11 +205,11 @@ class Notes {
     loadNotes(modelName, modelProvider, itemId) {
         let $deferred = new $.Deferred();
         $.ajax({
-                'url': window.SITE_URL + 'api/admin/notes',
+                'url': window.SITE_URL + 'api/admin/note',
                 'data': {
                     'model_name': modelName,
                     'model_provider': modelProvider,
-                    'id': itemId
+                    'item_id': itemId
                 }
             })
             .done((response) => {
@@ -198,12 +236,12 @@ class Notes {
     saveNote(modelName, modelProvider, itemId, message) {
         let $deferred = new $.Deferred();
         $.ajax({
-                'url': window.SITE_URL + 'api/admin/notes',
+                'url': window.SITE_URL + 'api/admin/note',
                 'method': 'POST',
                 'data': {
                     'model_name': modelName,
                     'model_provider': modelProvider,
-                    'id': itemId,
+                    'item_id': itemId,
                     'message': message
                 }
             })
@@ -221,26 +259,82 @@ class Notes {
     // --------------------------------------------------------------------------
 
     /**
-     * Compiles the message ite
+     * Delete a particular note
+     * @param {Number} id The ID of the note to delete
+     * @return {jQuery.Deferred}
+     */
+    deleteNote(id) {
+        let $deferred = new $.Deferred();
+        $.ajax({
+                'url': window.SITE_URL + 'api/admin/note/' + id,
+                'method': 'DELETE'
+            })
+            .done((response) => {
+                $deferred.resolve(response);
+            })
+            .fail((response) => {
+                Notes.showError(response.responseText);
+                $deferred.reject(response.responseText);
+            });
+
+        return $deferred.promise();
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Compiles the message item
+     * @param {Number} id The message ID
      * @param {String} message The message string
      * @param {Object} user The user object
      * @param {String} date The date string
      * @return {jQuery}
      */
-    static renderMessageItem(message, user, date) {
+    renderMessageItem($modal, id, message, user, date) {
+
+        let $li = $('<li>').addClass('admin-notes__note');
         let $message = $('<div>').addClass('admin-notes__note__message').html(message);
+        let $delete = $('<button>').addClass('admin-notes__note__delete').html('&times;');
         let $meta = $('<div>').addClass('admin-notes__note__meta');
         let $user = $('<span>').addClass('admin-notes__note__meta__user').html(user.first_name + ' ' + user.last_name);
         let $date = $('<span>').addClass('admin-notes__note__meta__date').html(date);
-        return $('<li>')
-            .addClass('admin-notes__note')
+
+        $delete
+            .on('click', () => {
+                this.deleteNote(id)
+                    .done(() => {
+                        $li.remove();
+                        this.centerModal($modal, false);
+                        let count = $('.admin-notes__note', $modal).length;
+                        this.setCounter(count);
+                        if (count === 0) {
+                            $('.admin-notes__empty', $modal).show();
+                        }
+                    });
+                return false;
+            });
+
+        return $li
             .append($message)
+            .append($delete)
             .append(
                 $meta
                     .append($user)
                     .append($date)
             );
     };
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Set the counter to a specific value
+     * @param {Number} count The value
+     * @return {Notes}
+     */
+    setCounter(count) {
+        $('.admin-notes__counter').text(count || '');
+        return this;
+    }
 
     // --------------------------------------------------------------------------
 

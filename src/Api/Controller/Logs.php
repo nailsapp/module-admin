@@ -18,6 +18,25 @@ use Nails\Factory;
 
 class Logs extends BaseApi
 {
+    const REQUIRE_AUTH = true;
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Determines whether the user is authenticated or not
+     *
+     * @param string $sHttpMethod The HTTP Method protocol being used
+     * @param string $sMethod     The controller method being executed
+     *
+     * @return bool
+     */
+    public static function isAuthenticated($sHttpMethod = '', $sMethod = '')
+    {
+        return parent::isAuthenticated($sHttpMethod, $sMethod) && isAdmin();
+    }
+
+    // --------------------------------------------------------------------------
+
     /**
      * Fetches site logs
      * @return \Nails\Api\Factory\ApiResponse

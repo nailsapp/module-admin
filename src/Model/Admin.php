@@ -12,8 +12,8 @@
 
 namespace Nails\Admin\Model;
 
-use Nails\Factory;
 use Nails\Common\Model\Base;
+use Nails\Factory;
 
 class Admin extends Base
 {
@@ -22,21 +22,27 @@ class Admin extends Base
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Admin constructor.
+     * @throws \Nails\Common\Exception\FactoryException
+     */
     public function __construct()
     {
         $this->oUserMeta   = Factory::model('UserMeta', 'nailsapp/module-auth');
-        $this->aJsonFields = array(
-            'nav_state'
-        );
+        $this->aJsonFields = [
+            'nav_state',
+        ];
     }
 
     // --------------------------------------------------------------------------
 
     /**
      * Sets a piece of admin data
-     * @param  string  $key    The key to set
-     * @param  mixed   $value  The value to set
-     * @param  mixed   $userId The user's ID, if null active user is used.
+     *
+     * @param  string $key    The key to set
+     * @param  mixed  $value  The value to set
+     * @param  mixed  $userId The user's ID, if null active user is used.
+     *
      * @return boolean
      */
     public function setAdminData($key, $value, $userId = null)
@@ -48,8 +54,10 @@ class Admin extends Base
 
     /**
      * Unsets a piece of admin data
-     * @param  string  $key    The key to set
-     * @param  mixed   $userId The user's ID, if null active user is used.
+     *
+     * @param  string $key    The key to set
+     * @param  mixed  $userId The user's ID, if null active user is used.
+     *
      * @return boolean
      */
     public function unsetAdminData($key, $userId = null)
@@ -61,10 +69,12 @@ class Admin extends Base
 
     /**
      * Handles the setting and unsetting of admin data
+     *
      * @param  string  $key    The key to set
      * @param  mixed   $value  The value to set
      * @param  mixed   $userId The user's ID, if null active user is used.
      * @param  boolean $set    Whether the data is being set or unset
+     *
      * @return boolean
      */
     protected function setUnsetAdminData($key, $value, $userId, $set)
@@ -101,8 +111,10 @@ class Admin extends Base
 
     /**
      * Gets items from the admin data, or the entire array of $key is null
-     * @param  string $key     The key to set
+     *
+     * @param  string $key    The key to set
      * @param  mixed  $userId The user's ID, if null active user is used.
+     *
      * @return mixed
      */
     public function getAdminData($key = null, $userId = null)
@@ -135,7 +147,7 @@ class Admin extends Base
 
             } else {
 
-                $data = array();
+                $data = [];
             }
 
             $this->setCache($cacheKey, $data);
@@ -166,7 +178,9 @@ class Admin extends Base
 
     /**
      * Completely clears out the admin array
-     * @param  mixed   $userId The user's ID, if null active user is used.
+     *
+     * @param  mixed $userId The user's ID, if null active user is used.
+     *
      * @return boolean
      */
     public function clearAdminData($userId)
@@ -177,9 +191,9 @@ class Admin extends Base
         $bResult = $this->oUserMeta->update(
             NAILS_DB_PREFIX . 'user_meta_admin',
             $userId,
-            array(
-                'nav_state' => null
-            )
+            [
+                'nav_state' => null,
+            ]
         );
 
         if ($bResult) {
@@ -193,7 +207,9 @@ class Admin extends Base
 
     /**
      * Extracts the user ID to use
+     *
      * @param  int $userId The User ID, or null for active user
+     *
      * @return int
      */
     protected function adminDataGetUserId($userId)

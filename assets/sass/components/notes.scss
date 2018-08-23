@@ -23,12 +23,38 @@
 
     &__note {
         border: 1px solid #ccc;
+        position: relative;
 
         &__message {
             padding: 1rem;
 
             > *:last-child {
                 margin-bottom: 0;
+            }
+        }
+
+        &__delete {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            border: 0;
+            background: #ccc;
+            color: #fff;
+            font-size: 0.75rem !important;
+            display: block;
+            height: 20px;
+            width: 20px;
+            line-height: 6px;
+            text-indent: 1px;
+            text-align: center;
+            opacity: 0.5;
+            padding: 0;
+            border-bottom-left-radius: 3px;
+            transition: all .2s;
+            &:hover {
+                opacity: 1;
+                background-color: #f2dede;
+                color: #a94442;
             }
         }
 

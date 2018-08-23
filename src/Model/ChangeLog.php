@@ -12,8 +12,8 @@
 
 namespace Nails\Admin\Model;
 
-use Nails\Factory;
 use Nails\Common\Model\Base;
+use Nails\Factory;
 
 class ChangeLog extends Base
 {
@@ -32,13 +32,13 @@ class ChangeLog extends Base
         // --------------------------------------------------------------------------
 
         //  Define data structure
-        $this->table        = NAILS_DB_PREFIX . 'admin_changelog';
+        $this->table      = NAILS_DB_PREFIX . 'admin_changelog';
         $this->tableAlias = 'acl';
 
         // --------------------------------------------------------------------------
 
         //  Set defaults
-        $this->changes   = array();
+        $this->changes   = [];
         $this->batchSave = true;
 
         // --------------------------------------------------------------------------
@@ -48,7 +48,7 @@ class ChangeLog extends Base
          * and save to the DB.
          */
 
-        $hook             = array();
+        $hook             = [];
         $hook['classref'] = &$this;
         $hook['method']   = 'save';
         $hook['params']   = '';
@@ -64,6 +64,7 @@ class ChangeLog extends Base
 
     /**
      * Adds a new changelog item
+     *
      * @param string  $verb     The verb, e.g "created"
      * @param string  $article
      * @param string  $item
@@ -75,8 +76,18 @@ class ChangeLog extends Base
      * @param mixed   $newValue The new value
      * @param boolean $strict   whether or not to compare $oldValue and $newValue strictly
      */
-    public function add($verb, $article, $item, $itemId, $title, $url = null, $field = null, $oldValue = null, $newValue = null, $strict = true)
-    {
+    public function add(
+        $verb,
+        $article,
+        $item,
+        $itemId,
+        $title,
+        $url = null,
+        $field = null,
+        $oldValue = null,
+        $newValue = null,
+        $strict = true
+    ) {
         /**
          * if the old_value and the new_value are the same then why are you logging
          * a change!? Lazy [read: efficient] dev.
@@ -124,7 +135,7 @@ class ChangeLog extends Base
 
         if (empty($this->changes[$key])) {
 
-            $this->changes[$key]            = array();
+            $this->changes[$key]            = [];
             $this->changes[$key]['user_id'] = activeUser('id') ? activeUser('id') : null;
             $this->changes[$key]['verb']    = $verb;
             $this->changes[$key]['article'] = $article;
@@ -132,7 +143,7 @@ class ChangeLog extends Base
             $this->changes[$key]['item_id'] = $itemId;
             $this->changes[$key]['title']   = $title;
             $this->changes[$key]['url']     = $url;
-            $this->changes[$key]['changes'] = array();
+            $this->changes[$key]['changes'] = [];
         }
 
         // --------------------------------------------------------------------------
@@ -202,17 +213,19 @@ class ChangeLog extends Base
      */
     public function clear()
     {
-        $this->changes = array();
+        $this->changes = [];
     }
 
     /**
      * Fetches all objects, optionally paginated.
-     * @param int    $iPage    The page number of the results, if null then no pagination
-     * @param int    $iPerPage How many items per page of paginated results
-     * @param mixed  $aData    Any data to pass to getCountCommon()
+     *
+     * @param int   $iPage    The page number of the results, if null then no pagination
+     * @param int   $iPerPage How many items per page of paginated results
+     * @param mixed $aData    Any data to pass to getCountCommon()
+     *
      * @return array
      **/
-    public function getAll($iPage = null, $iPerPage = null, array $aData = array(), $bIncludeDeleted = false)
+    public function getAll($iPage = null, $iPerPage = null, array $aData = [], $bIncludeDeleted = false)
     {
         //  If the first value is an array then treat as if called with getAll(null, null, $aData);
         //  @todo (Pablo - 2017-06-29) - Refactor how this join works (use expandable field)
@@ -228,7 +241,7 @@ class ChangeLog extends Base
                 'u.last_name',
                 'u.gender',
                 'u.profile_img',
-                'ue.email'
+                'ue.email',
             ];
         }
 
@@ -239,10 +252,12 @@ class ChangeLog extends Base
 
     /**
      * Applies common conditionals
+     *
      * @param array $data Data passed from the calling method
+     *
      * @return void
      **/
-    protected function getCountCommon(array $data = array())
+    protected function getCountCommon(array $data = [])
     {
         //  Join user tables
         $oDb = Factory::service('Database');
@@ -254,19 +269,19 @@ class ChangeLog extends Base
 
             if (empty($data['or_like'])) {
 
-                $data['or_like'] = array();
+                $data['or_like'] = [];
             }
 
             $toSlug = strtolower(str_replace(' ', '_', $data['keywords']));
 
-            $data['or_like'][] = array(
+            $data['or_like'][] = [
                 'column' => $this->tableAlias . '.type',
-                'value'  => $toSlug
-            );
-            $data['or_like'][] = array(
+                'value'  => $toSlug,
+            ];
+            $data['or_like'][] = [
                 'column' => 'ue.email',
-                'value'  => $data['keywords']
-            );
+                'value'  => $data['keywords'],
+            ];
         }
 
         parent::getCountCommon($data);
@@ -285,6 +300,7 @@ class ChangeLog extends Base
      * @param  array  $aIntegers Fields which should be cast as integers if numerical and not null
      * @param  array  $aBools    Fields which should be cast as booleans if not null
      * @param  array  $aFloats   Fields which should be cast as floats if not null
+     *
      * @return void
      */
     protected function formatObject(
@@ -306,11 +322,11 @@ class ChangeLog extends Base
 
         $oObj->user              = new \stdClass();
         $oObj->user->id          = $oObj->user_id;
-        $oObj->user->first_name  = isset( $oObj->first_name ) ? $oObj->first_name : '';
-        $oObj->user->last_name   = isset( $oObj->last_name ) ? $oObj->last_name : '';
-        $oObj->user->gender      = isset( $oObj->gender ) ? $oObj->gender : '';
-        $oObj->user->profile_img = isset( $oObj->profile_img ) ? $oObj->profile_img : '';
-        $oObj->user->email       = isset( $oObj->email ) ? $oObj->email : '';
+        $oObj->user->first_name  = isset($oObj->first_name) ? $oObj->first_name : '';
+        $oObj->user->last_name   = isset($oObj->last_name) ? $oObj->last_name : '';
+        $oObj->user->gender      = isset($oObj->gender) ? $oObj->gender : '';
+        $oObj->user->profile_img = isset($oObj->profile_img) ? $oObj->profile_img : '';
+        $oObj->user->email       = isset($oObj->email) ? $oObj->email : '';
 
         unset($oObj->user_id);
         unset($oObj->first_name);
