@@ -27,6 +27,7 @@ class Settings extends Base
 
     /**
      * Announces this controller's navGroups
+     *
      * @return \stdClass
      */
     public static function announce()
@@ -54,6 +55,7 @@ class Settings extends Base
 
     /**
      * Returns an array of permissions which can be configured for the user
+     *
      * @return array
      */
     public static function permissions()
@@ -74,6 +76,7 @@ class Settings extends Base
 
     /**
      * Manage Admin settings
+     *
      * @return void
      */
     public function admin()
@@ -139,6 +142,7 @@ class Settings extends Base
 
     /**
      * Manage Site settings
+     *
      * @return void
      */
     public function site()
@@ -155,8 +159,9 @@ class Settings extends Base
             $aSettings = [];
 
             if (userHasPermission('admin:admin:settings:site:customjscss')) {
-                $aSettings['site_custom_js']  = $oInput->post('site_custom_js');
-                $aSettings['site_custom_css'] = $oInput->post('site_custom_css');
+                $aSettings['site_custom_js']     = $oInput->post('site_custom_js');
+                $aSettings['site_custom_css']    = $oInput->post('site_custom_css');
+                $aSettings['site_custom_markup'] = $oInput->post('site_custom_markup');
             }
 
             if (userHasPermission('admin:admin:settings:site:analytics')) {
@@ -212,6 +217,7 @@ class Settings extends Base
 
     /**
      * Manage notifications
+     *
      * @return void
      */
     public function notifications()
@@ -318,6 +324,7 @@ class Settings extends Base
 
     /**
      * Configure modules which have settings described in their composer.json/config.json file
+     *
      * @return void
      */
     public function module()
@@ -329,6 +336,7 @@ class Settings extends Base
 
     /**
      * Configure skins which have settings described in their composer.json/config.json file
+     *
      * @return void
      */
     public function skin()
@@ -340,6 +348,7 @@ class Settings extends Base
 
     /**
      * Configure drivers which have settings described in their composer.json/config.json file
+     *
      * @return void
      */
     public function driver()

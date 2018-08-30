@@ -82,6 +82,16 @@ $oInput = \Nails\Factory::service('Input');
 
                     echo form_field_textarea($aField);
 
+                    // --------------------------------------------------------------------------
+
+                    $aField                = [];
+                    $aField['key']         = 'site_custom_markup';
+                    $aField['label']       = 'Markup';
+                    $aField['default']     = appSetting($aField['key'], 'site');
+                    $aField['placeholder'] = 'Specify any custom markup to include at the footof the page.';
+
+                    echo form_field_textarea($aField);
+
                     ?>
                 </div>
             </div>
