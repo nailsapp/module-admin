@@ -167,6 +167,11 @@ abstract class DefaultController extends Base
     const CONFIG_EDIT_FIELDSET_ORDER = [];
 
     /**
+     * Additional data to pass into the getAll call on the sort view
+     */
+    const CONFIG_SORT_DATA = [];
+
+    /**
      * When creating, this string is passed to supporting functions
      */
     const EDIT_MODE_CREATE = 'CREATE';
@@ -336,6 +341,7 @@ abstract class DefaultController extends Base
             'EDIT_READONLY_FIELDS'   => static::CONFIG_EDIT_READONLY_FIELDS,
             'EDIT_IGNORE_FIELDS'     => static::CONFIG_EDIT_IGNORE_FIELDS,
             'EDIT_DATA'              => static::CONFIG_EDIT_DATA,
+            'SORT_DATA'              => static::CONFIG_SORT_DATA,
             'FIELDSET_ORDER'         => static::CONFIG_EDIT_FIELDSET_ORDER,
             'ENABLE_NOTES'           => static::EDIT_ENABLE_NOTES,
         ];
@@ -1103,7 +1109,7 @@ abstract class DefaultController extends Base
             }
         }
 
-        $aItems              = $oModel->getAll();
+        $aItems              = $oModel->getAll($this->aConfig['SORT_DATA']);
         $this->data['items'] = $aItems;
         Helper::loadView('order');
     }
