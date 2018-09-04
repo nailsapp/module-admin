@@ -79,12 +79,12 @@ class Utilities extends Base
 
         $oInput = Factory::service('Input');
         if ($oInput->post('go')) {
-            $oRoutesModel = Factory::model('Routes');
-            if ($oRoutesModel->update()) {
+            $oRoutesService = Factory::service('Routes');
+            if ($oRoutesService->update()) {
                 $this->data['success'] = 'Routes rewritten successfully.';
             } else {
                 $this->data['error'] = 'There was a problem writing the routes. ';
-                $this->data['error'] .= $oRoutesModel->lastError();
+                $this->data['error'] .= $oRoutesService->lastError();
             }
         }
 
