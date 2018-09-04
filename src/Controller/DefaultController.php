@@ -1109,8 +1109,9 @@ abstract class DefaultController extends Base
             }
         }
 
-        $aItems              = $oModel->getAll($this->aConfig['SORT_DATA']);
-        $this->data['items'] = $aItems;
+        $aItems                    = $oModel->getAll($this->aConfig['SORT_DATA']);
+        $this->data['items']       = $aItems;
+        $this->data['page']->title = $this->aConfig['TITLE_PLURAL'] . ' &rsaquo; Sort';
         Helper::loadView('order');
     }
 }
