@@ -1122,7 +1122,7 @@ abstract class DefaultController extends Base
      * @return mixed
      * @throws \Nails\Common\Exception\FactoryException
      */
-    private function getItem($aData = [], $iSegment = 5)
+    protected function getItem($aData = [], $iSegment = 5)
     {
         $oUri    = Factory::service('Uri');
         $oModel  = $this->getModel();
