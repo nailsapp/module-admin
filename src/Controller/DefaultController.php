@@ -661,16 +661,10 @@ abstract class DefaultController extends Base
             unauthorised();
         }
 
-        $oDb     = Factory::service('Database');
-        $oUri    = Factory::service('Uri');
-        $oInput  = Factory::service('Input');
-        $oModel  = $this->getModel();
-        $iItemId = (int) $oUri->segment(5);
-        $oItem   = $oModel->getById($iItemId, $this->aConfig['EDIT_DATA']);
-
-        if (empty($oItem)) {
-            show_404();
-        }
+        $oDb    = Factory::service('Database');
+        $oInput = Factory::service('Input');
+        $oModel = $this->getModel();
+        $oItem  = $this->getItem($this->aConfig['EDIT_DATA']);
 
         // --------------------------------------------------------------------------
 
@@ -982,11 +976,9 @@ abstract class DefaultController extends Base
             unauthorised();
         }
 
-        $oDb     = Factory::service('Database');
-        $oUri    = Factory::service('Uri');
-        $oModel  = $this->getModel();
-        $iItemId = (int) $oUri->segment(5);
-        $oItem   = $oModel->getById($iItemId);
+        $oDb    = Factory::service('Database');
+        $oModel = $this->getModel();
+        $oItem  = $this->getItem();
 
         if (empty($oItem)) {
             show_404();
@@ -994,26 +986,28 @@ abstract class DefaultController extends Base
 
         try {
 
+            $oDb->trans_begin();
             $this->beforeDelete($oItem);
 
-            if (!$oModel->delete($iItemId)) {
+            if (!$oModel->delete($oItem->id)) {
                 throw new NailsException(static::DELETE_ERROR_MESSAGE . ' ' . $oModel->lastError());
             }
 
             $this->afterDelete($oItem);
+            $oDb->trans_commit();
 
             if ($this->aConfig['CAN_RESTORE']) {
-                $sRestoreLink = anchor($this->aConfig['BASE_URL'] . '/restore/' . $iItemId, 'Restore?');
+                $sRestoreLink = anchor($this->aConfig['BASE_URL'] . '/restore/' . $oItem->id, 'Restore?');
             } else {
                 $sRestoreLink = '';
             }
 
-            $oDb->trans_commit();
             $oSession = Factory::service('Session', 'nailsapp/module-auth');
             $oSession->setFlashData('success', static::DELETE_SUCCESS_MESSAGE . ' ' . $sRestoreLink);
             redirect($this->aConfig['BASE_URL']);
 
         } catch (\Exception $e) {
+            $oDb->trans_rollback();
             $oSession = Factory::service('Session', 'nailsapp/module-auth');
             $oSession->setFlashData('error', static::DELETE_ERROR_MESSAGE . ' ' . $e->getMessage());
             redirect($this->aConfig['BASE_URL']);
@@ -1041,7 +1035,7 @@ abstract class DefaultController extends Base
         $oDb     = Factory::service('Database');
         $oModel  = $this->getModel();
         $iItemId = (int) $oUri->segment(5);
-        $oItem   = $oModel->getAll(
+        $aItems  = $oModel->getAll(
             null,
             null,
             [
@@ -1052,12 +1046,14 @@ abstract class DefaultController extends Base
             true
         );
 
-        if (empty($oItem[0])) {
+        $oItem = reset($aItems);
+        if (empty($oItem)) {
             show_404();
         }
 
         try {
-            if (!$oModel->restore($iItemId)) {
+            $oDb->trans_begin();
+            if (!$oModel->restore($oItem->id)) {
                 throw new NailsException(static::RESTORE_ERROR_MESSAGE . ' ' . $oModel->lastError());
             }
 
@@ -1113,5 +1109,30 @@ abstract class DefaultController extends Base
         $this->data['items']       = $aItems;
         $this->data['page']->title = $this->aConfig['TITLE_PLURAL'] . ' &rsaquo; Sort';
         Helper::loadView('order');
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the item being requested, thorwing a 404 if it's not found
+     *
+     * @param array   $aData    Data to pass to the getById method
+     * @param integer $iSegment The URL segment contianing the ID
+     *
+     * @return mixed
+     * @throws \Nails\Common\Exception\FactoryException
+     */
+    private function getItem($aData = [], $iSegment = 5)
+    {
+        $oUri    = Factory::service('Uri');
+        $oModel  = $this->getModel();
+        $iItemId = (int) $oUri->segment($iSegment);
+        $oItem   = $oModel->getById($iItemId, $aData);
+
+        if (empty($oItem)) {
+            show_404();
+        }
+
+        return $oItem;
     }
 }
