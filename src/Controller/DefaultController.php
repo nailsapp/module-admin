@@ -681,11 +681,11 @@ abstract class DefaultController extends Base
                 $this->beforeCreateAndEdit(static::EDIT_MODE_EDIT, $oItem);
                 $this->beforeEdit($oItem);
 
-                if (!$oModel->update($iItemId, $this->getPostObject())) {
+                if (!$oModel->update($oItem->id, $this->getPostObject())) {
                     throw new NailsException(static::EDIT_ERROR_MESSAGE . ' ' . $oModel->lastError());
                 }
 
-                $oNewItem = $oModel->getById($iItemId);
+                $oNewItem = $oModel->getById($oItem->id);
                 $this->afterCreateAndEdit(static::EDIT_MODE_EDIT, $oNewItem, $oItem);
                 $this->afterEdit($oNewItem, $oItem);
                 $oDb->trans_commit();
@@ -702,7 +702,7 @@ abstract class DefaultController extends Base
 
                 $oSession = Factory::service('Session', 'nailsapp/module-auth');
                 $oSession->setFlashData('success', sprintf(static::EDIT_SUCCESS_MESSAGE, $sLink));
-                redirect($this->aConfig['BASE_URL'] . '/edit/' . $iItemId);
+                redirect($this->aConfig['BASE_URL'] . '/edit/' . $oItem->id);
 
             } catch (\Exception $e) {
                 $oDb->trans_rollback();
