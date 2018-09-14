@@ -44,10 +44,10 @@ class Users extends BaseApi
     public function getSearch()
     {
         $oInput     = Factory::service('Input');
-        $oUserModel = Factory::model('User', 'nailsapp/module-auth');
+        $oUserModel = Factory::model('User', 'nails/module-auth');
         $oResults   = $oUserModel->search($oInput->get('term'), 1, 50);
 
-        $oResponse = Factory::factory('ApiResponse', 'nailsapp/module-api');
+        $oResponse = Factory::factory('ApiResponse', 'nails/module-api');
         $oResponse->setData(array_map([$this, 'formatObject'], $oResults->data));
         return $oResponse;
     }

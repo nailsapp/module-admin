@@ -4,7 +4,7 @@
 
 Components can request the main admin controller to globally load any kind of Helper, JS or CSS asset. This is useful should a module wish to make a component available accross the whole of admin, even outside of it's own supplied panels.
 
-To do this you make use of the component's `data` property in `composer.json` (or `config.json` if the component is provided by the app). Simply place your desired assets in a property named `autoload`, namespaced under `nailsapp/module-admin`.
+To do this you make use of the component's `data` property in `composer.json` (or `config.json` if the component is provided by the app). Simply place your desired assets in a property named `autoload`, namespaced under `nails/module-admin`.
 
 The following is an example showing all options:
 
@@ -16,7 +16,7 @@ The following is an example showing all options:
         "moduleName": "myModule",
         "type": "module",
         "data": {
-            "nailsapp/module-admin": {
+            "nails/module-admin": {
                 "autoload": {
                     "helpers": [
                         "myHelper"

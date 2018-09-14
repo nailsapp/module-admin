@@ -1,5 +1,5 @@
 {
-    "name": "nailsapp/module-admin",
+    "name": "nails/module-admin",
     "keywords": ["Nails", "Shed Collective", "CodeIgniter", "Admin Module"],
     "homepage": "http://nailsapp.co.uk/modules/admin",
     "description": "This is the \"Admin\" module for Nails.",
@@ -27,10 +27,10 @@
     "prefer-stable": true,
     "require":
     {
-        "nailsapp/common": "dev-develop",
-        "nailsapp/module-auth": "dev-develop",
-        "nailsapp/module-api": "dev-develop",
-        "nailsapp/module-cdn": "dev-develop"
+        "nails/common": "dev-develop",
+        "nails/module-auth": "dev-develop",
+        "nails/module-api": "dev-develop",
+        "nails/module-cdn": "dev-develop"
     },
     "require-dev":
     {
@@ -48,10 +48,10 @@
             "type": "module",
             "namespace": "Nails\\Admin\\",
             "data": {
-                "nailsapp/module-api": {
+                "nails/module-api": {
                     "namespace": "admin"
                 },
-                "nailsapp/module-cdn": {
+                "nails/module-cdn": {
                     "permitted-image-dimensions": [
                         "30x30",
                         "35x35"

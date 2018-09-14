@@ -33,7 +33,7 @@ class Utilities extends Base
      */
     public static function announce()
     {
-        $oNavGroup = Factory::factory('Nav', 'nailsapp/module-admin');
+        $oNavGroup = Factory::factory('Nav', 'nails/module-admin');
         $oNavGroup->setLabel('Utilities');
         $oNavGroup->setIcon('fa-sliders');
 
@@ -106,7 +106,7 @@ class Utilities extends Base
             unauthorised();
         }
 
-        $oDataExport = Factory::service('DataExport', 'nailsapp/module-admin');
+        $oDataExport = Factory::service('DataExport', 'nails/module-admin');
         $aSources    = $oDataExport->getAllSources();
         $aFormats    = $oDataExport->getAllFormats();
 
@@ -146,7 +146,7 @@ class Utilities extends Base
                     $aOptions[$sKey] = getFromArray($sKey, $aPostedOptions);
                 }
 
-                $oDataExportModel = Factory::model('Export', 'nailsapp/module-admin');
+                $oDataExportModel = Factory::model('Export', 'nails/module-admin');
                 $aData            = [
                     'source'  => $oSelectedSource->slug,
                     'options' => json_encode($aOptions),
@@ -156,7 +156,7 @@ class Utilities extends Base
                     throw new \Exception('Failed to schedule export.');
                 }
 
-                $oSession = Factory::service('Session', 'nailsapp/module-auth');
+                $oSession = Factory::service('Session', 'nails/module-auth');
                 $oSession->setFlashData('success', 'Export scheduled');
                 redirect('admin/admin/utilities/export');
 
@@ -167,7 +167,7 @@ class Utilities extends Base
 
         // --------------------------------------------------------------------------
 
-        $oModel  = Factory::model('Export', 'nailsapp/module-admin');
+        $oModel  = Factory::model('Export', 'nails/module-admin');
         $aRecent = $oModel->getAll([
             'where' => [['created_by', activeUser('id')]],
             'sort'  => [['created', 'desc']],
@@ -213,7 +213,7 @@ class Utilities extends Base
         // --------------------------------------------------------------------------
 
         //  Cron running?
-        $sLastRun   = appSetting('data-export-cron-last-run', 'nailsapp/module-admin');
+        $sLastRun   = appSetting('data-export-cron-last-run', 'nails/module-admin');
         $bIsRunning = false;
         if ($sLastRun) {
             $oNow       = Factory::factory('DateTime');

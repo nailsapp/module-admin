@@ -42,7 +42,7 @@ class Ckeditor extends BaseApi
      */
     public function getConfigs()
     {
-        return Factory::factory('ApiResponse', 'nailsapp/module-api')
+        return Factory::factory('ApiResponse', 'nails/module-api')
                       ->setData([
                           'basic'   => $this->findConfig('ckeditor.config.basic.min.js'),
                           'default' => $this->findConfig('ckeditor.config.default.min.js'),

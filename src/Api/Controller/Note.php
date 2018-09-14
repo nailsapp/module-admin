@@ -12,7 +12,7 @@ class Note extends CrudController
 {
     const REQUIRE_AUTH          = true;
     const CONFIG_MODEL_NAME     = 'Note';
-    const CONFIG_MODEL_PROVIDER = 'nailsapp/module-admin';
+    const CONFIG_MODEL_PROVIDER = 'nails/module-admin';
     const CONFIG_LOOKUP_DATA    = ['expand' => ['created_by']];
 
     // --------------------------------------------------------------------------
@@ -72,7 +72,7 @@ class Note extends CrudController
             ['item_id', $iItemId],
         ];
 
-        return Factory::factory('ApiResponse', 'nailsapp/module-api')
+        return Factory::factory('ApiResponse', 'nails/module-api')
                       ->setData($this->oModel->countAll($aData));
     }
 

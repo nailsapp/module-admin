@@ -463,7 +463,7 @@ class AdminRouter extends BaseMiddle
         arraySortMulti($middle, 'label');
 
         //  Get user's prefs
-        $oAdminModel = Factory::model('Admin', 'nailsapp/module-admin');
+        $oAdminModel = Factory::model('Admin', 'nails/module-admin');
         $userNavPref = $oAdminModel->getAdminData('nav_state');
 
         if (!empty($userNavPref)) {
@@ -535,7 +535,7 @@ class AdminRouter extends BaseMiddle
 
         if (empty($sModule)) {
 
-            $oSession = Factory::service('Session', 'nailsapp/module-auth');
+            $oSession = Factory::service('Session', 'nails/module-auth');
             $oSession->keepFlashData();
             redirect('admin/admin/dashboard');
 

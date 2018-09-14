@@ -102,7 +102,7 @@ class IndexFilter
         if ($sLabel instanceof Option) {
             $this->aOptions[] = $sLabel;
         } else {
-            $this->aOptions[] = Factory::factory('IndexFilterOption', 'nailsapp/module-admin')
+            $this->aOptions[] = Factory::factory('IndexFilterOption', 'nails/module-admin')
                                        ->setLabel($sLabel)
                                        ->setValue($mValue)
                                        ->setIsSelected($bIsSelected)

@@ -1,9 +1,9 @@
 {
-  "name": "nailsapp-module-admin",
+  "name": "nails-module-admin",
   "version": "0.0.0",
   "description": "The Nails Admin Module",
   "main": "assets/js/admin.admin.min.js",
-  "repository": "https://github.com/nailsapp/module-admin",
+  "repository": "https://github.com/nails/module-admin",
   "author": "Pablo de la Peña <p@nailsapp.co.uk>",
   "license": "MIT",
   "devDependencies": {

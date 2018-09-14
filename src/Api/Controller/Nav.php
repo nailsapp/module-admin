@@ -52,9 +52,9 @@ class Nav extends BaseApi
             $oPref->{$sModule}->open = stringToBoolean($aOptions['open']);
         }
 
-        $oAdminModel = Factory::model('Admin', 'nailsapp/module-admin');
+        $oAdminModel = Factory::model('Admin', 'nails/module-admin');
         $oAdminModel->setAdminData('nav_state', $oPref);
-        return Factory::factory('ApiResponse', 'nailsapp/module-api');
+        return Factory::factory('ApiResponse', 'nails/module-api');
     }
 
     // --------------------------------------------------------------------------
@@ -65,8 +65,8 @@ class Nav extends BaseApi
      */
     public function postReset()
     {
-        $oAdminModel = Factory::model('Admin', 'nailsapp/module-admin');
+        $oAdminModel = Factory::model('Admin', 'nails/module-admin');
         $oAdminModel->unsetAdminData('nav_state');
-        return Factory::factory('ApiResponse', 'nailsapp/module-api');
+        return Factory::factory('ApiResponse', 'nails/module-api');
     }
 }

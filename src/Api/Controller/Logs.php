@@ -43,8 +43,8 @@ class Logs extends BaseApi
      */
     public function getSite()
     {
-        $oSiteLogModel = Factory::model('SiteLog', 'nailsapp/module-admin');
-        return Factory::factory('ApiResponse', 'nailsapp/module-api')
+        $oSiteLogModel = Factory::model('SiteLog', 'nails/module-admin');
+        return Factory::factory('ApiResponse', 'nails/module-api')
                       ->setData($oSiteLogModel->getAll());
     }
 }

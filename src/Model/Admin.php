@@ -28,7 +28,7 @@ class Admin extends Base
      */
     public function __construct()
     {
-        $this->oUserMeta   = Factory::model('UserMeta', 'nailsapp/module-auth');
+        $this->oUserMeta   = Factory::model('UserMeta', 'nails/module-auth');
         $this->aJsonFields = [
             'nav_state',
         ];

@@ -24,11 +24,11 @@ class Help extends Base
      */
     public static function announce()
     {
-        $oHelpModel = Factory::model('Help', 'nailsapp/module-admin');
+        $oHelpModel = Factory::model('Help', 'nails/module-admin');
 
         if (userHasPermission('admin:admin:help:view') && $oHelpModel->countAll()) {
 
-            $oNavGroup = Factory::factory('Nav', 'nailsapp/module-admin');
+            $oNavGroup = Factory::factory('Nav', 'nails/module-admin');
             $oNavGroup->setLabel('Dashboard');
             $oNavGroup->setIcon('fa-home');
             $oNavGroup->addAction('Help Videos');
@@ -73,7 +73,7 @@ class Help extends Base
 
         //  Get data
         $oInput      = Factory::service('Input');
-        $oHelpModel  = Factory::model('Help', 'nailsapp/module-admin');
+        $oHelpModel  = Factory::model('Help', 'nails/module-admin');
         $sTableAlias = $oHelpModel->getTableAlias();
 
         //  Get pagination and search/sort variables

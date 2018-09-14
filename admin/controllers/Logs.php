@@ -24,7 +24,7 @@ class Logs extends Base
      */
     public static function announce()
     {
-        $oNavGroup = Factory::factory('Nav', 'nailsapp/module-admin');
+        $oNavGroup = Factory::factory('Nav', 'nails/module-admin');
         $oNavGroup->setLabel('Logs');
         $oNavGroup->setIcon('fa-archive');
 
@@ -129,7 +129,7 @@ class Logs extends Base
         $sFile                     = $oUri->segment(6);
         $this->data['page']->title = 'Browse Logs &rsaquo; ' . $sFile;
 
-        $oSiteLogModel      = Factory::model('SiteLog', 'nailsapp/module-admin');
+        $oSiteLogModel      = Factory::model('SiteLog', 'nails/module-admin');
         $this->data['logs'] = $oSiteLogModel->readLog($sFile);
 
         if (!$this->data['logs']) {
@@ -247,7 +247,7 @@ class Logs extends Base
         // --------------------------------------------------------------------------
 
         $oInput          = Factory::service('Input');
-        $oChangeLogModel = Factory::model('ChangeLog', 'nailsapp/module-admin');
+        $oChangeLogModel = Factory::model('ChangeLog', 'nails/module-admin');
         $sTableAlias     = $oChangeLogModel->getTableAlias();
 
         // --------------------------------------------------------------------------

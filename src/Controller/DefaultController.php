@@ -395,7 +395,7 @@ abstract class DefaultController extends Base
 
         // --------------------------------------------------------------------------
 
-        $oNavGroup = Factory::factory('Nav', 'nailsapp/module-admin');
+        $oNavGroup = Factory::factory('Nav', 'nails/module-admin');
         $oNavGroup->setLabel($aConfig['SIDEBAR_GROUP']);
         $oNavGroup->setIcon($aConfig['SIDEBAR_ICON']);
 
@@ -627,7 +627,7 @@ abstract class DefaultController extends Base
                     $sLink = '';
                 }
 
-                $oSession = Factory::service('Session', 'nailsapp/module-auth');
+                $oSession = Factory::service('Session', 'nails/module-auth');
                 $oSession->setFlashData('success', sprintf(static::CREATE_SUCCESS_MESSAGE, $sLink));
 
                 redirect($this->aConfig['BASE_URL'] . '/edit/' . $oItem->id);
@@ -700,7 +700,7 @@ abstract class DefaultController extends Base
                     $sLink = '';
                 }
 
-                $oSession = Factory::service('Session', 'nailsapp/module-auth');
+                $oSession = Factory::service('Session', 'nails/module-auth');
                 $oSession->setFlashData('success', sprintf(static::EDIT_SUCCESS_MESSAGE, $sLink));
                 redirect($this->aConfig['BASE_URL'] . '/edit/' . $oItem->id);
 
@@ -1002,13 +1002,13 @@ abstract class DefaultController extends Base
                 $sRestoreLink = '';
             }
 
-            $oSession = Factory::service('Session', 'nailsapp/module-auth');
+            $oSession = Factory::service('Session', 'nails/module-auth');
             $oSession->setFlashData('success', static::DELETE_SUCCESS_MESSAGE . ' ' . $sRestoreLink);
             redirect($this->aConfig['BASE_URL']);
 
         } catch (\Exception $e) {
             $oDb->trans_rollback();
-            $oSession = Factory::service('Session', 'nailsapp/module-auth');
+            $oSession = Factory::service('Session', 'nails/module-auth');
             $oSession->setFlashData('error', static::DELETE_ERROR_MESSAGE . ' ' . $e->getMessage());
             redirect($this->aConfig['BASE_URL']);
         }
@@ -1058,13 +1058,13 @@ abstract class DefaultController extends Base
             }
 
             $oDb->trans_commit();
-            $oSession = Factory::service('Session', 'nailsapp/module-auth');
+            $oSession = Factory::service('Session', 'nails/module-auth');
             $oSession->setFlashData('success', static::RESTORE_SUCCESS_MESSAGE);
             redirect($this->aConfig['BASE_URL']);
 
         } catch (\Exception $e) {
             $oDb->trans_rollback();
-            $oSession = Factory::service('Session', 'nailsapp/module-auth');
+            $oSession = Factory::service('Session', 'nails/module-auth');
             $oSession->setFlashData('error', static::RESTORE_ERROR_MESSAGE . ' ' . $e->getMessage());
             redirect($this->aConfig['BASE_URL']);
         }
@@ -1097,7 +1097,7 @@ abstract class DefaultController extends Base
                         throw new NailsException(static::ORDER_ERROR_MESSAGE . ' ' . $oModel->lastError());
                     }
                 }
-                $oSession = Factory::service('Session', 'nailsapp/module-auth');
+                $oSession = Factory::service('Session', 'nails/module-auth');
                 $oSession->setFlashData('success', static::ORDER_SUCCESS_MESSAGE);
                 redirect($this->aConfig['BASE_URL'] . '/sort');
             } catch (\Exception $e) {

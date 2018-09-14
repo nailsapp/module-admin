@@ -24,7 +24,7 @@ class Dashboard extends Base
      */
     public static function announce()
     {
-        $oNavGroup = Factory::factory('Nav', 'nailsapp/module-admin');
+        $oNavGroup = Factory::factory('Nav', 'nails/module-admin');
         $oNavGroup->setLabel('Dashboard');
         $oNavGroup->setIcon('fa-home');
         $oNavGroup->addAction('Site Overview');

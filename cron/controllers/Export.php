@@ -21,10 +21,10 @@ class Export extends Base
         $this->writeLog('Generating exports');
 
         $oNow = Factory::factory('DateTime');
-        setAppSetting('data-export-cron-last-run', 'nailsapp/module-admin', $oNow->format('Y-m-d H:i:s'));
+        setAppSetting('data-export-cron-last-run', 'nails/module-admin', $oNow->format('Y-m-d H:i:s'));
 
-        $oService  = Factory::service('DataExport', 'nailsapp/module-admin');
-        $oModel    = Factory::model('Export', 'nailsapp/module-admin');
+        $oService  = Factory::service('DataExport', 'nails/module-admin');
+        $oModel    = Factory::model('Export', 'nails/module-admin');
         $aRequests = $oModel->getAll(['where' => [['status', $oModel::STATUS_PENDING]]]);
 
         if (!empty($aRequests)) {
@@ -53,7 +53,7 @@ class Export extends Base
             }
 
             //  Process each request
-            $oEmail = Factory::factory('EmailDataExport', 'nailsapp/module-admin');
+            $oEmail = Factory::factory('EmailDataExport', 'nails/module-admin');
             foreach ($aGroupedRequests as $oRequest) {
                 try {
                     $this->writeLog(

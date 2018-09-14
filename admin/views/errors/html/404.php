@@ -1,11 +1,11 @@
 <?php
 $oAsset = \Nails\Factory::service('Asset');
 $oAsset->clear();
-$oAsset->load('nails.min.css', 'nailsapp/common');
+$oAsset->load('nails.min.css', 'nails/common');
 $oView = \Nails\Factory::service('View');
 $oView->load('structure/header/blank');
 ?>
-    <div class="nailsapp-auth login u-center-screen">
+    <div class="nails-auth login u-center-screen">
         <div class="panel">
             <h1 class="panel__header text-center">
                 404 Page Not Found

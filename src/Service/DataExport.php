@@ -214,7 +214,7 @@ class DataExport
             $sFile = end($aFiles);
 
             //  Save to CDN
-            $oCdn    = Factory::service('Cdn', 'nailsapp/module-cdn');
+            $oCdn    = Factory::service('Cdn', 'nails/module-cdn');
             $oObject = $oCdn->objectCreate($sFile, 'data-export');
 
             if (empty($oObject)) {

@@ -266,7 +266,7 @@ class Helper
     public static function searchFilterObject($sColumn, $sLabel, $aOptions)
     {
         //  @todo (Pablo - 2018-04-10) - DonRemove this helper and use factories directly
-        $oFilter = Factory::factory('IndexFilter', 'nailsapp/module-admin')
+        $oFilter = Factory::factory('IndexFilter', 'nails/module-admin')
                           ->setLabel($sLabel)
                           ->setColumn($sColumn);
 
@@ -405,12 +405,12 @@ class Helper
     {
         if (is_numeric($mUser)) {
 
-            $oUserModel = Factory::model('User', 'nailsapp/module-auth');
+            $oUserModel = Factory::model('User', 'nails/module-auth');
             $oUser      = $oUserModel->getById($mUser);
 
         } elseif (is_string($mUser)) {
 
-            $oUserModel = Factory::model('User', 'nailsapp/module-auth');
+            $oUserModel = Factory::model('User', 'nails/module-auth');
             $oUser      = $oUserModel->getByEmail($mUser);
 
             if (empty($oUser)) {

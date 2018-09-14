@@ -186,7 +186,7 @@ class CustomFormat implements Format
 To export data programatically (e.g. in a cron job) you may use the `DataExport` service:
 
 ```
-$oDataExport = Factory::service('DataExport', 'nailsapp/module-admin');
+$oDataExport = Factory::service('DataExport', 'nails/module-admin');
 ```
 
 This model provides you with the following methods:

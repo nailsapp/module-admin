@@ -51,7 +51,7 @@ abstract class Base extends BaseMiddle
         $oEventService = Factory::service('Event');
 
         //  Call the ADMIN:STARTUP event, admin is constructing
-        $oEventService->trigger(Events::ADMIN_STARTUP, 'nailsapp/module-admin');
+        $oEventService->trigger(Events::ADMIN_STARTUP, 'nails/module-admin');
 
         // --------------------------------------------------------------------------
 
@@ -82,7 +82,7 @@ abstract class Base extends BaseMiddle
         }
 
         //  Helpers
-        Factory::helper('admin', 'nailsapp/module-admin');
+        Factory::helper('admin', 'nails/module-admin');
 
         //  Languages
         get_instance()->lang->load('admin/admin_generic');
@@ -122,8 +122,8 @@ abstract class Base extends BaseMiddle
 
         //  Local assets
         $oAsset->load('nails.admin.css', 'NAILS');
-        $oAsset->load('admin.css', 'nailsapp/module-admin');
-        $oAsset->load('admin.min.js', 'nailsapp/module-admin');
+        $oAsset->load('admin.css', 'nails/module-admin');
+        $oAsset->load('admin.min.js', 'nails/module-admin');
         $oAsset->load('nails.default.min.js', 'NAILS');
         $oAsset->load('nails.admin.js', 'NAILS');
         $oAsset->load('nails.forms.min.js', 'NAILS');
@@ -132,9 +132,9 @@ abstract class Base extends BaseMiddle
         //  See if installed components want to autoload anything
         $aComponents = _NAILS_GET_COMPONENTS();
         foreach ($aComponents as $oComponent) {
-            if (!empty($oComponent->data->{'nailsapp/module-admin'}->autoload)) {
+            if (!empty($oComponent->data->{'nails/module-admin'}->autoload)) {
 
-                $oAutoLoad = $oComponent->data->{'nailsapp/module-admin'}->autoload;
+                $oAutoLoad = $oComponent->data->{'nails/module-admin'}->autoload;
 
                 //  Libraries
                 if (!empty($oAutoLoad->services)) {
@@ -260,7 +260,7 @@ abstract class Base extends BaseMiddle
         // --------------------------------------------------------------------------
 
         //  Call the ADMIN:READY event, admin is all geared up and ready to go
-        $oEventService->trigger(Events::ADMIN_STARTUP, 'nailsapp/module-admin');
+        $oEventService->trigger(Events::ADMIN_STARTUP, 'nails/module-admin');
     }
 
     // --------------------------------------------------------------------------
