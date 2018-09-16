@@ -191,7 +191,7 @@ class DataExport
         try {
             foreach ($aSources as $oSource) {
                 //  Create a new file
-                $sFile    = $sTempDir . $oSource->getFilename() . '.' . $oFormat->instance->getFileExtension();
+                $sFile    = $sTempDir . $oSource->getFileName() . '.' . $oFormat->instance->getFileExtension();
                 $aFiles[] = $sFile;
                 $rFile    = fopen($sFile, 'w+');
                 //  Write to the file
