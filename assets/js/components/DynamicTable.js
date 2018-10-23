@@ -1,4 +1,5 @@
 /* export DynamicTable */
+
 /* globals Mustache, $, jQuery */
 class DynamicTable {
 
@@ -24,6 +25,8 @@ class DynamicTable {
      */
     init($table) {
 
+        $table.trigger('dynamic-table:starting');
+
         let $body = $table.find('.js-admin-dynamic-table__template');
         let data = $table.data('data') || [];
 
@@ -36,6 +39,8 @@ class DynamicTable {
         for (let i = 0, j = data.length; i < j; i++) {
             this.add($table, $body, data[i]);
         }
+
+        $table.trigger('dynamic-table:ready');
 
         return this;
     }
@@ -57,7 +62,7 @@ class DynamicTable {
 
         $table
             .on('click', '.js-admin-dynamic-table__remove', (e) => {
-                this.remove($(e.currentTarget).closest('tr'));
+                this.remove($table, $(e.currentTarget).closest('tr'));
                 return false;
             });
 
@@ -76,10 +81,30 @@ class DynamicTable {
     add($table, $body, data) {
         data = data || {};
         data.index = $table.data('index') || 0;
-        $body.append(
-            Mustache.render($table.data('template'), data)
-        );
+
+        let $row = $(Mustache.render($table.data('template'), data));
+
+        //  Set the value of any dropdowns
+        $('select', $row)
+            .each((index, item) => {
+                let $select = $(item);
+
+                //  Set value
+                //  We use this work-around because the Mustache template is static
+                if ($select[0].hasAttribute('data-dynamic-table-value')) {
+                    let value = $select.data('dynamic-table-value');
+                    $('option[value="' + value + '"]', $select).prop('selected', true);
+                }
+
+                //  Instanciate select2
+                $select
+                    .css('width', '100%')
+                    .select2();
+            });
+
+        $body.append($row);
         $table.data('index', data.index + 1);
+        $table.trigger('dynamic-table:add');
 
         return this;
     }
@@ -88,11 +113,13 @@ class DynamicTable {
 
     /**
      * Remove a row
+     * @param {jQuery} $table The table DOM element
      * @param {jQuery} $row The row DOM element
      * @return {DynamicTable}
      */
-    remove($row) {
+    remove($table, $row) {
         $row.remove();
+        $table.trigger('dynamic-table:add');
         return this;
     }
 }
