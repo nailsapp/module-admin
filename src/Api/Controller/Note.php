@@ -78,9 +78,19 @@ class Note extends CrudController
 
     // --------------------------------------------------------------------------
 
-    protected function validateUserInput($aData)
+    /**
+     * Validates user input; adds the model to the response
+     *
+     * @param array     $aData The user data to validate
+     * @param \stdClass $oItem The current object (when editing)
+     *
+     * @return array
+     * @throws ApiException
+     * @throws FactoryException
+     */
+    protected function validateUserInput($aData, $oItem = null)
     {
-        $aData = parent::validateUserInput($aData);
+        $aData = parent::validateUserInput($aData, $oItem);
 
         list($sModel) = $this->getModelClassAndId();
         $aData['model'] = $sModel;
