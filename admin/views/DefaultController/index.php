@@ -16,13 +16,46 @@ $oMustache = \Nails\Factory::service('Mustache');
             <thead>
                 <tr>
                     <?php
+                    //  @todo (Pablo - 2018-11-05) - Tidy this nesting up a little
                     foreach ($CONFIG['INDEX_FIELDS'] as $sField => $sLabel) {
+
+                        if ($sField === '{{DYNAMIC_FIELDS}}') {
+                            foreach ($CONFIG['INDEX_FIELDS_DYNAMIC'] as $sColumnName =>  $cRowValue) {
+                                $aAttr = [
+                                    'class' => ['field', 'field--' . $sColumnName],
+                                ];
+
+                                if (in_array($sColumnName, $CONFIG['INDEX_BOOL_FIELDS'])) {
+                                    $aAttr['width'] = 150;
+                                    $aAttr['class'] = 'boolean';
+                                } elseif (in_array($sColumnName, $CONFIG['INDEX_USER_FIELDS'])) {
+                                    $aAttr['width'] = 300;
+                                }
+
+                                $sAttr = '';
+                                foreach ($aAttr as $sKey => $mValue) {
+                                    if (is_array($mValue)) {
+                                        $sAttr = ' ' . $sKey . '="' . implode(' ', $mValue) . '"';
+                                    } else {
+                                        $sAttr = ' ' . $sKey . '="' . $mValue . '"';
+                                    }
+                                }
+                                ?>
+                                <th <?=$sAttr?>>
+                                    <?=$sColumnName?>
+                                </th>
+                                <?php
+                            }
+                            continue;
+                        }
+
                         $aAttr = [
                             'class' => ['field', 'field--' . $sField],
                         ];
 
                         if (in_array($sField, $CONFIG['INDEX_BOOL_FIELDS'])) {
                             $aAttr['width'] = 150;
+                            $aAttr['class'] = 'boolean';
                         } elseif (in_array($sField, $CONFIG['INDEX_USER_FIELDS'])) {
                             $aAttr['width'] = 300;
                         }
@@ -54,7 +87,22 @@ $oMustache = \Nails\Factory::service('Mustache');
                             <?php
 
                             foreach ($CONFIG['INDEX_FIELDS'] as $sField => $sLabel) {
-                                if (property_exists($oItem, $sField)) {
+                                if ($sField === '{{DYNAMIC_FIELDS}}') {
+
+                                    foreach ($CONFIG['INDEX_FIELDS_DYNAMIC'] as $sColumnName =>  $cRowValue) {
+
+                                        $sValue = $cRowValue($oItem);
+
+                                        if (in_array($sField, $CONFIG['INDEX_BOOL_FIELDS'])) {
+                                            echo Helper::loadBoolCell($sValue);
+                                        } elseif (in_array($sField, $CONFIG['INDEX_USER_FIELDS'])) {
+                                            echo Helper::loadUserCell($sValue);
+                                        } else {
+                                            echo Helper::loadCellAuto($sValue, 'field field--' . $sField);
+                                        }
+                                    }
+
+                                } elseif (property_exists($oItem, $sField)) {
 
                                     $sCellAdditional = '';
                                     if (classUses($CONFIG['MODEL_INSTANCE'], '\Nails\Common\Traits\Model\Nestable')) {

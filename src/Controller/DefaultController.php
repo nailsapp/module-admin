@@ -70,13 +70,16 @@ abstract class DefaultController extends Base
     const CONFIG_SORT_DIRECTION = 'asc';
 
     /**
-     * The fields to show on the index view
+     * The fields to show on the index view; the index {{DYNAMIC_FIELDS}}
+     * can be used to specify the location of any dynamically generated
+     * index view columns; see static::$aConfigIndexDynamicFields for details
      */
     const CONFIG_INDEX_FIELDS = [
-        'label'       => 'Label',
-        'created'     => 'Created',
-        'modified'    => 'Modified',
-        'modified_by' => 'Modified By',
+        'label'              => 'Label',
+        '{{DYNAMIC_FIELDS}}' => null,
+        'created'            => 'Created',
+        'modified'           => 'Modified',
+        'modified_by'        => 'Modified By',
     ];
 
     /**
@@ -269,7 +272,18 @@ abstract class DefaultController extends Base
     // --------------------------------------------------------------------------
 
     /**
+     * An array of callables which will be used to create additional columns on the index view.
+     * Each callable will be passed the item as its only argument.
+     *
+     * @var array
+     */
+    protected static $aConfigIndexDynamicFields = [];
+
+    // --------------------------------------------------------------------------
+
+    /**
      * Contains the configs for this controller
+     *
      * @var array
      */
     protected $aConfig;
@@ -278,6 +292,7 @@ abstract class DefaultController extends Base
 
     /**
      * DefaultController constructor.
+     *
      * @throws NailsException
      */
     public function __construct()
@@ -332,6 +347,7 @@ abstract class DefaultController extends Base
             'SORT_OPTIONS'           => static::CONFIG_SORT_OPTIONS,
             'SORT_DIRECTION'         => static::CONFIG_SORT_DIRECTION,
             'INDEX_FIELDS'           => static::CONFIG_INDEX_FIELDS,
+            'INDEX_FIELDS_DYNAMIC'   => &static::$aConfigIndexDynamicFields,
             'INDEX_HEADER_BUTTONS'   => static::CONFIG_INDEX_HEADER_BUTTONS,
             'INDEX_ROW_BUTTONS'      => array_merge(static::$aConfigIndexRowButtons, static::CONFIG_INDEX_ROW_BUTTONS),
             'INDEX_DATA'             => static::CONFIG_INDEX_DATA,
@@ -387,6 +403,7 @@ abstract class DefaultController extends Base
 
     /**
      * Announces this controller's navGroups
+     *
      * @throws NailsException
      */
     public static function announce()
@@ -410,6 +427,7 @@ abstract class DefaultController extends Base
 
     /**
      * Returns an array of extra permissions for this controller
+     *
      * @return array
      */
     public static function permissions()
@@ -442,6 +460,7 @@ abstract class DefaultController extends Base
 
     /**
      * Browse all items
+     *
      * @return void
      */
     public function index()
@@ -555,6 +574,7 @@ abstract class DefaultController extends Base
 
     /**
      * Any checkbox style filters to include on the index page
+     *
      * @return array
      */
     protected function indexCheckboxFilters()
@@ -566,6 +586,7 @@ abstract class DefaultController extends Base
 
     /**
      * Any dropdown style filters to include on the index page
+     *
      * @return array
      */
     protected function indexDropdownFilters()
@@ -577,6 +598,7 @@ abstract class DefaultController extends Base
 
     /**
      * Create a new item
+     *
      * @return void
      */
     public function create()
@@ -648,6 +670,7 @@ abstract class DefaultController extends Base
 
     /**
      * Edit an existing item
+     *
      * @return void
      */
     public function edit()
@@ -931,6 +954,7 @@ abstract class DefaultController extends Base
 
     /**
      * Extract data from post variable
+     *
      * @return array
      */
     protected function getPostObject()
@@ -963,6 +987,7 @@ abstract class DefaultController extends Base
 
     /**
      * Delete an item
+     *
      * @return void
      */
     public function delete()
@@ -1018,6 +1043,7 @@ abstract class DefaultController extends Base
 
     /**
      * Delete an item
+     *
      * @return void
      */
     public function restore()
@@ -1074,6 +1100,7 @@ abstract class DefaultController extends Base
 
     /**
      * Sort items into order
+     *
      * @return void
      */
     public function sort()
