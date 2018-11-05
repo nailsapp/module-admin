@@ -30,6 +30,7 @@ class Helper
      * @param  boolean $bReturnView    Whether to return the view or send it to the Output class
      *
      * @return mixed                  String when $bReturnView is true, void otherwise
+     * @throws \Nails\Common\Exception\FactoryException
      */
     public static function loadView($sViewFile, $bLoadStructure = true, $bReturnView = false)
     {
@@ -88,6 +89,7 @@ class Helper
      * @param  boolean $bHeaderRow The first element in the $mData resultset is a header row
      *
      * @return void
+     * @throws \Nails\Common\Exception\FactoryException
      */
     public static function loadCsv($mData, $sFilename = '', $bHeaderRow = true)
     {
@@ -192,6 +194,7 @@ class Helper
      * @param  boolean   $bReturnView Whether to return the view to the caller, or output to the browser
      *
      * @return mixed                  String when $bReturnView is true, void otherwise
+     * @throws \Nails\Common\Exception\FactoryException
      */
     public static function loadSearch($oSearchObj, $bReturnView = true)
     {
@@ -262,13 +265,14 @@ class Helper
      *                          = label, 1 = value, 2 = default check status
      *
      * @return \stdClass
+     * @throws \Nails\Common\Exception\FactoryException
      */
     public static function searchFilterObject($sColumn, $sLabel, $aOptions)
     {
         //  @todo (Pablo - 2018-04-10) - DonRemove this helper and use factories directly
         $oFilter = Factory::factory('IndexFilter', 'nails/module-admin')
-                          ->setLabel($sLabel)
-                          ->setColumn($sColumn);
+            ->setLabel($sLabel)
+            ->setColumn($sColumn);
 
         foreach ($aOptions as $sIndex => $mOption) {
 
@@ -297,7 +301,8 @@ class Helper
      *
      * @param  string  $sLabel   The label to give the option
      * @param  string  $sValue   The value to give the option (filters self::searchFilterObject's $sColumn parameter)
-     * @param  boolean $bChecked Whether the value si checked by default
+     * @param  boolean $bChecked Whether the value is checked by default
+     * @param bool     $bQuery   Whether the supplied value is an SQL query
      *
      * @return \stdClass
      */
@@ -335,6 +340,7 @@ class Helper
      * @param  boolean   $bReturnView       Whether to return the view to the caller, or output to the browser
      *
      * @return mixed                      String when $bReturnView is true, void otherwise
+     * @throws \Nails\Common\Exception\FactoryException
      */
     public static function loadPagination($oPaginationObject, $bReturnView = true)
     {
@@ -379,11 +385,14 @@ class Helper
      * @param string $sCellAdditional Any additional HTML to add to the cell (after the value)
      *
      * @return string
+     * @throws \Nails\Common\Exception\FactoryException
      */
     public static function loadCellAuto($mValue, $sCellClass = '', $sCellAdditional = '')
     {
         //  @todo - handle more field types
-        if (preg_match('/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/', $mValue)) {
+        if (is_bool($mValue)) {
+            return Helper::loadBoolCell($mValue);
+        } elseif (preg_match('/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/', $mValue)) {
             return Helper::loadDateTimeCell($mValue);
         } elseif (preg_match('/\d\d\d\d-\d\d-\d\d/', $mValue)) {
             return Helper::loadDateCell($mValue);
@@ -400,6 +409,7 @@ class Helper
      * @param  mixed $mUser The user object or the User's ID/email/username
      *
      * @return string
+     * @throws \Nails\Common\Exception\FactoryException
      */
     public static function loadUserCell($mUser)
     {
@@ -443,6 +453,7 @@ class Helper
      * @param  string $sNoData What to render if the date is invalid or empty
      *
      * @return string
+     * @throws \Nails\Common\Exception\FactoryException
      */
     public static function loadDateCell($sDate, $sNoData = '&mdash;')
     {
@@ -464,6 +475,7 @@ class Helper
      * @param  string $sNoData   What to render if the datetime is invalid or empty
      *
      * @return string
+     * @throws \Nails\Common\Exception\FactoryException
      */
     public static function loadDateTimeCell($sDateTime, $sNoData = '&mdash;')
     {
@@ -485,6 +497,7 @@ class Helper
      * @param  string $sDateTime A datetime to show (for truthy values only)
      *
      * @return string
+     * @throws \Nails\Common\Exception\FactoryException
      */
     public static function loadBoolCell($value, $sDateTime = null)
     {
@@ -507,6 +520,7 @@ class Helper
      * @param  string $sComponentType The type of component being loaded
      *
      * @return string
+     * @throws \Nails\Common\Exception\FactoryException
      */
     public static function loadSettingsComponentTable($sModel, $sProvider, $sComponentType = 'component')
     {
@@ -537,6 +551,7 @@ class Helper
      * @param  array  $sProvider The model provider
      *
      * @return string
+     * @throws \Nails\Common\Exception\FactoryException
      */
     public static function loadSettingsDriverTable($sModel, $sProvider)
     {
@@ -552,6 +567,7 @@ class Helper
      * @param  array  $sProvider The model provider
      *
      * @return string
+     * @throws \Nails\Common\Exception\FactoryException
      */
     public static function loadSettingsSkinTable($sModel, $sProvider)
     {
@@ -591,6 +607,7 @@ class Helper
 
     /**
      * Returns the admin header buttons
+     *
      * @return array
      */
     public static function getHeaderButtons()
@@ -608,18 +625,19 @@ class Helper
      * @param array  $aData   Data to populate the table with
      *
      * @return string
+     * @throws \Nails\Common\Exception\FactoryException
      */
     public static function dynamicTable($sKey, array $aFields, array $aData = [])
     {
         return Factory::service('View')
-                      ->load(
-                          'admin/_components/dynamic-table',
-                          [
-                              'sKey'    => $sKey,
-                              'aFields' => $aFields,
-                              'aData'   => $aData,
-                          ],
-                          true
-                      );
+            ->load(
+                'admin/_components/dynamic-table',
+                [
+                    'sKey'    => $sKey,
+                    'aFields' => $aFields,
+                    'aData'   => $aData,
+                ],
+                true
+            );
     }
 }
