@@ -26,8 +26,8 @@ $oMustache = \Nails\Factory::service('Mustache');
                                 ];
 
                                 if (in_array($sColumnName, $CONFIG['INDEX_BOOL_FIELDS'])) {
-                                    $aAttr['width'] = 150;
-                                    $aAttr['class'] = 'boolean';
+                                    $aAttr['width']   = 150;
+                                    $aAttr['class'][] = 'boolean';
                                 } elseif (in_array($sColumnName, $CONFIG['INDEX_USER_FIELDS'])) {
                                     $aAttr['width'] = 300;
                                 }
@@ -35,9 +35,9 @@ $oMustache = \Nails\Factory::service('Mustache');
                                 $sAttr = '';
                                 foreach ($aAttr as $sKey => $mValue) {
                                     if (is_array($mValue)) {
-                                        $sAttr = ' ' . $sKey . '="' . implode(' ', $mValue) . '"';
+                                        $sAttr .= ' ' . $sKey . '="' . implode(' ', $mValue) . '"';
                                     } else {
-                                        $sAttr = ' ' . $sKey . '="' . $mValue . '"';
+                                        $sAttr .= ' ' . $sKey . '="' . $mValue . '"';
                                     }
                                 }
                                 ?>
@@ -54,8 +54,8 @@ $oMustache = \Nails\Factory::service('Mustache');
                         ];
 
                         if (in_array($sField, $CONFIG['INDEX_BOOL_FIELDS'])) {
-                            $aAttr['width'] = 150;
-                            $aAttr['class'] = 'boolean';
+                            $aAttr['width']   = 150;
+                            $aAttr['class'][] = 'boolean';
                         } elseif (in_array($sField, $CONFIG['INDEX_USER_FIELDS'])) {
                             $aAttr['width'] = 300;
                         }
@@ -63,9 +63,9 @@ $oMustache = \Nails\Factory::service('Mustache');
                         $sAttr = '';
                         foreach ($aAttr as $sKey => $mValue) {
                             if (is_array($mValue)) {
-                                $sAttr = ' ' . $sKey . '="' . implode(' ', $mValue) . '"';
+                                $sAttr .= ' ' . $sKey . '="' . implode(' ', $mValue) . '"';
                             } else {
-                                $sAttr = ' ' . $sKey . '="' . $mValue . '"';
+                                $sAttr .= ' ' . $sKey . '="' . $mValue . '"';
                             }
                         }
                         ?>
