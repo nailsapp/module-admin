@@ -32,6 +32,13 @@ return [
                 return new \Nails\Admin\Model\Export();
             }
         },
+        'Handbook'  => function () {
+            if (class_exists('\App\Admin\Model\Handbook')) {
+                return new \App\Admin\Model\Handbook();
+            } else {
+                return new \Nails\Admin\Model\Handbook();
+            }
+        },
         'Help'      => function () {
             if (class_exists('\App\Admin\Model\Help')) {
                 return new \App\Admin\Model\Help();
