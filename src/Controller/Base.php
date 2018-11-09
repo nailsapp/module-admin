@@ -89,7 +89,7 @@ abstract class Base extends BaseMiddle
         // --------------------------------------------------------------------------
 
         //  Call the ADMIN:READY event, admin is all geared up and ready to go
-        $oEventService->trigger(Events::ADMIN_STARTUP, 'nails/module-admin');
+        $oEventService->trigger(Events::ADMIN_READY, 'nails/module-admin');
     }
 
     // --------------------------------------------------------------------------
