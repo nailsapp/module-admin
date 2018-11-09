@@ -14,6 +14,7 @@
 
 namespace Nails\Admin\Api\Controller;
 
+use Nails\Admin\Controller\BaseApi;
 use Nails\Factory;
 
 class Users extends BaseApi
@@ -39,6 +40,7 @@ class Users extends BaseApi
 
     /**
      * Searches users
+     *
      * @return \Nails\Api\Factory\ApiResponse
      */
     public function getSearch()
