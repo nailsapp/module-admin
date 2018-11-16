@@ -20,7 +20,7 @@
     <!--    NAILS JS GLOBALS    -->
     <script style="text/javascript">
         window.ENVIRONMENT      = '<?=\Nails\Environment::get()?>';
-        window.SITE_URL         = '<?=site_url('', isPageSecure())?>';
+        window.SITE_URL         = '<?=site_url('', \Nails\Functions::isPageSecure())?>';
         window.NAILS            = {};
         window.NAILS.URL        = '<?=NAILS_ASSETS_URL?>';
         window.NAILS.LANG       = {};
