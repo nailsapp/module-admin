@@ -175,7 +175,7 @@ abstract class Base extends BaseMiddle
         }
 
         //  Global JS
-        $sAdminJsPath = defined('APP_ADMIN_JS_PATH') ? APP_ADMIN_JS_PATH : FCPATH . 'assets/build/js/admin.min.js';
+        $sAdminJsPath = defined('APP_ADMIN_JS_PATH') ? APP_ADMIN_JS_PATH : NAILS_APP_PATH . 'assets/build/js/admin.min.js';
         $sAdminJsUrl  = defined('APP_ADMIN_JS_URL') ? APP_ADMIN_JS_URL : 'admin.min.js';
         if (file_exists($sAdminJsPath)) {
             $oAsset->load($sAdminJsUrl);
@@ -249,7 +249,7 @@ abstract class Base extends BaseMiddle
         }
 
         //  Global CSS
-        $sAdminCssPath = defined('APP_ADMIN_CSS_PATH') ? APP_ADMIN_CSS_PATH : FCPATH . 'assets/build/css/admin.min.css';
+        $sAdminCssPath = defined('APP_ADMIN_CSS_PATH') ? APP_ADMIN_CSS_PATH : NAILS_APP_PATH . 'assets/build/css/admin.min.css';
         $sAdminCssUrl  = defined('APP_ADMIN_CSS_URL') ? APP_ADMIN_CSS_URL : 'admin.min.css';
         if (file_exists($sAdminCssPath)) {
             $oAsset->load($sAdminCssUrl);

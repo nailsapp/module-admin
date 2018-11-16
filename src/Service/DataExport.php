@@ -38,7 +38,7 @@ class DataExport
                 (object) [
                     'slug'      => 'app',
                     'namespace' => 'App\\',
-                    'path'      => FCPATH,
+                    'path'      => NAILS_APP_PATH,
                 ],
             ],
             _NAILS_GET_COMPONENTS()
