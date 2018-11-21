@@ -84,7 +84,7 @@ class Logs extends Base
         if (method_exists($this, $sMethod)) {
             $this->{$sMethod}();
         } else {
-            show_404('', true);
+            show404('', true);
         }
     }
 
@@ -133,7 +133,7 @@ class Logs extends Base
         $this->data['logs'] = $oSiteLogModel->readLog($sFile);
 
         if (!$this->data['logs']) {
-            show_404();
+            show404();
         }
 
         Helper::loadView('site/view');

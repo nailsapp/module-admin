@@ -11,6 +11,7 @@
  */
 
 use Nails\Admin\Exception\RouterException;
+use Nails\Components;
 use Nails\Factory;
 
 // --------------------------------------------------------------------------
@@ -89,14 +90,14 @@ class AdminRouter extends BaseMiddle
     {
         //  When executing on the CLI we don't need to perform a few bit's of sense checking
         $oInput = Factory::service('Input');
-        if (!$oInput->isCli()) {
+        if (!$oInput::isCli()) {
 
             //  Is there an AdminIP whitelist?
             $whitelistIp = (array) appSetting('whitelist', 'admin');
 
             if ($whitelistIp) {
                 if (!isIpInRange($oInput->ipAddress(), $whitelistIp)) {
-                    show_404();
+                    show404();
                 }
             }
 
@@ -148,7 +149,7 @@ class AdminRouter extends BaseMiddle
         );
 
         //  Look in all enabled modules
-        $modules = _NAILS_GET_MODULES();
+        $modules = Components::modules();
 
         foreach ($modules as $module) {
             /**
@@ -549,11 +550,11 @@ class AdminRouter extends BaseMiddle
                 $oController = new $sControllerName();
                 $oController->$sMethod();
             } else {
-                show_404();
+                show404();
             }
 
         } else {
-            show_404();
+            show404();
         }
     }
 }

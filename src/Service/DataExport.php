@@ -12,16 +12,18 @@
 
 namespace Nails\Admin\Service;
 
+use Nails\Components;
 use Nails\Factory;
 
 /**
  * Class DataExport
+ *
  * @package Nails\Admin\Service
  */
 class DataExport
 {
-    protected $aSources    = [];
-    protected $aFormats    = [];
+    protected $aSources = [];
+    protected $aFormats = [];
     protected $aCacheFiles = [];
 
     // --------------------------------------------------------------------------
@@ -41,7 +43,7 @@ class DataExport
                     'path'      => NAILS_APP_PATH,
                 ],
             ],
-            _NAILS_GET_COMPONENTS()
+            Components::list()
         );
 
         foreach ($aComponents as $oComponent) {
@@ -92,6 +94,7 @@ class DataExport
 
     /**
      * Returns all the available sources
+     *
      * @return array
      */
     public function getAllSources()
@@ -123,6 +126,7 @@ class DataExport
 
     /**
      * Returns all the available formats
+     *
      * @return array
      */
     public function getAllFormats()

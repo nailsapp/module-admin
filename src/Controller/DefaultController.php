@@ -604,7 +604,7 @@ abstract class DefaultController extends Base
     public function create()
     {
         if (!static::CONFIG_CAN_CREATE) {
-            show_404();
+            show404();
         }
 
         $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':create';
@@ -676,7 +676,7 @@ abstract class DefaultController extends Base
     public function edit()
     {
         if (!static::CONFIG_CAN_EDIT) {
-            show_404();
+            show404();
         }
 
         $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':edit';
@@ -993,7 +993,7 @@ abstract class DefaultController extends Base
     public function delete()
     {
         if (!static::CONFIG_CAN_DELETE) {
-            show_404();
+            show404();
         }
 
         $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':delete';
@@ -1006,7 +1006,7 @@ abstract class DefaultController extends Base
         $oItem  = $this->getItem();
 
         if (empty($oItem)) {
-            show_404();
+            show404();
         }
 
         try {
@@ -1049,7 +1049,7 @@ abstract class DefaultController extends Base
     public function restore()
     {
         if (!$this->aConfig['CAN_RESTORE']) {
-            show_404();
+            show404();
         }
 
         $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':restore';
@@ -1074,7 +1074,7 @@ abstract class DefaultController extends Base
 
         $oItem = reset($aItems);
         if (empty($oItem)) {
-            show_404();
+            show404();
         }
 
         try {
@@ -1106,7 +1106,7 @@ abstract class DefaultController extends Base
     public function sort()
     {
         if (!static::CONFIG_CAN_EDIT) {
-            show_404();
+            show404();
         }
 
         $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':edit';
@@ -1157,7 +1157,7 @@ abstract class DefaultController extends Base
         $oItem   = $oModel->getById($iItemId, $aData);
 
         if (empty($oItem)) {
-            show_404();
+            show404();
         }
 
         return $oItem;

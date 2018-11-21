@@ -14,6 +14,7 @@ namespace Nails\Admin\Admin;
 
 use Nails\Admin\Controller\Base;
 use Nails\Admin\Helper;
+use Nails\Components;
 use Nails\Factory;
 
 class Settings extends Base
@@ -370,10 +371,10 @@ class Settings extends Base
         $oInput             = Factory::service('Input');
         $this->data['slug'] = $oInput->get('slug');
 
-        $oComponent = _NAILS_GET_COMPONENTS_BY_SLUG($this->data['slug']);
+        $oComponent = Components::getBySlug($this->data['slug']);
 
         if (empty($oComponent->data->settings)) {
-            show_404();
+            show404();
         }
 
         //  Move all the settings which aren't already in fieldsets/groups into groups

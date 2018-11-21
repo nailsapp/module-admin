@@ -14,6 +14,7 @@
 namespace Nails\Admin\Controller;
 
 use Nails\Admin\Events;
+use Nails\Components;
 use Nails\Factory;
 
 // --------------------------------------------------------------------------
@@ -129,6 +130,7 @@ abstract class Base extends BaseMiddle
 
     /**
      * Load all Admin orientated JS
+     *
      * @throws \Nails\Common\Exception\FactoryException
      */
     protected function loadJs()
@@ -145,8 +147,7 @@ abstract class Base extends BaseMiddle
         $oAsset->load('nails.api.min.js', 'NAILS');
 
         //  Component assets
-        $aComponents = _NAILS_GET_COMPONENTS();
-        foreach ($aComponents as $oComponent) {
+        foreach (Components::list() as $oComponent) {
             if (!empty($oComponent->data->{'nails/module-admin'}->autoload)) {
 
                 $oAutoLoad = $oComponent->data->{'nails/module-admin'}->autoload;
@@ -207,6 +208,7 @@ abstract class Base extends BaseMiddle
 
     /**
      * Load all Admin orientated CSS
+     *
      * @throws \Nails\Common\Exception\FactoryException
      */
     protected function loadCss()
@@ -218,8 +220,7 @@ abstract class Base extends BaseMiddle
         $oAsset->load('admin.css', 'nails/module-admin');
 
         //  Component assets
-        $aComponents = _NAILS_GET_COMPONENTS();
-        foreach ($aComponents as $oComponent) {
+        foreach (Components::list() as $oComponent) {
             if (!empty($oComponent->data->{'nails/module-admin'}->autoload)) {
 
                 $oAutoLoad = $oComponent->data->{'nails/module-admin'}->autoload;
@@ -260,6 +261,7 @@ abstract class Base extends BaseMiddle
 
     /**
      * Load services required by admin
+     *
      * @throws \Nails\Common\Exception\FactoryException
      */
     protected function loadLibraries()
@@ -311,12 +313,12 @@ abstract class Base extends BaseMiddle
 
     /**
      * Autoload component items
+     *
      * @throws \Nails\Common\Exception\FactoryException
      */
     protected function autoLoad()
     {
-        $aComponents = _NAILS_GET_COMPONENTS();
-        foreach ($aComponents as $oComponent) {
+        foreach (Components::list() as $oComponent) {
             if (!empty($oComponent->data->{'nails/module-admin'}->autoload)) {
 
                 $oAutoLoad = $oComponent->data->{'nails/module-admin'}->autoload;
@@ -363,6 +365,7 @@ abstract class Base extends BaseMiddle
 
     /**
      * Defines the admin controller
+     *
      * @return array
      */
     public static function announce()
@@ -374,6 +377,7 @@ abstract class Base extends BaseMiddle
 
     /**
      * Returns an array of permissions which can be configured for the user
+     *
      * @return array
      */
     public static function permissions()
