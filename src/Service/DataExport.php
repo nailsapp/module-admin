@@ -14,6 +14,7 @@ namespace Nails\Admin\Service;
 
 use Nails\Components;
 use Nails\Factory;
+use Nails\Admin\DataExport\SourceResponse;
 
 /**
  * Class DataExport
@@ -22,8 +23,8 @@ use Nails\Factory;
  */
 class DataExport
 {
-    protected $aSources = [];
-    protected $aFormats = [];
+    protected $aSources    = [];
+    protected $aFormats    = [];
     protected $aCacheFiles = [];
 
     // --------------------------------------------------------------------------
