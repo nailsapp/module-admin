@@ -179,11 +179,11 @@ class DataExport
             throw new \Exception('Invalid data format "' . $sFormatSlug . '"');
         }
 
-        $oSource = $oSource->instance->execute($aOptions);
-        if (!is_array($oSource)) {
-            $aSources = [$oSource];
+        $oSourceResponse = $oSource->instance->execute($aOptions);
+        if (!is_array($oSourceResponse)) {
+            $aSourceResponses = [$oSourceResponse];
         } else {
-            $aSources = $oSource;
+            $aSourceResponses = $oSourceResponse;
         }
 
         //  Create temporary working directory
@@ -193,14 +193,16 @@ class DataExport
         //  Process each file
         $aFiles = [];
         try {
-            foreach ($aSources as $oSource) {
+
+            foreach ($aSourceResponses as $oSourceResponse) {
+
                 //  Create a new file
-                $sFile    = $sTempDir . $oSource->getFileName() . '.' . $oFormat->instance->getFileExtension();
+                $sFile    = $sTempDir . $oSource->instance->getFileName() . '.' . $oFormat->instance->getFileExtension();
                 $aFiles[] = $sFile;
                 $rFile    = fopen($sFile, 'w+');
                 //  Write to the file
-                $oSource->reset();
-                $oFormat->instance->execute($oSource, $rFile);
+                $oSourceResponse->reset();
+                $oFormat->instance->execute($oSourceResponse, $rFile);
                 //  Close the file
                 fclose($rFile);
             }
