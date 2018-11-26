@@ -43,7 +43,7 @@ class DataExport
                     'path'      => NAILS_APP_PATH,
                 ],
             ],
-            Components::list()
+            Components::available()
         );
 
         foreach ($aComponents as $oComponent) {

@@ -147,7 +147,7 @@ abstract class Base extends BaseMiddle
         $oAsset->load('nails.api.min.js', 'NAILS');
 
         //  Component assets
-        foreach (Components::list() as $oComponent) {
+        foreach (Components::available() as $oComponent) {
             if (!empty($oComponent->data->{'nails/module-admin'}->autoload)) {
 
                 $oAutoLoad = $oComponent->data->{'nails/module-admin'}->autoload;
@@ -220,7 +220,7 @@ abstract class Base extends BaseMiddle
         $oAsset->load('admin.css', 'nails/module-admin');
 
         //  Component assets
-        foreach (Components::list() as $oComponent) {
+        foreach (Components::available() as $oComponent) {
             if (!empty($oComponent->data->{'nails/module-admin'}->autoload)) {
 
                 $oAutoLoad = $oComponent->data->{'nails/module-admin'}->autoload;
@@ -318,7 +318,7 @@ abstract class Base extends BaseMiddle
      */
     protected function autoLoad()
     {
-        foreach (Components::list() as $oComponent) {
+        foreach (Components::available() as $oComponent) {
             if (!empty($oComponent->data->{'nails/module-admin'}->autoload)) {
 
                 $oAutoLoad = $oComponent->data->{'nails/module-admin'}->autoload;
