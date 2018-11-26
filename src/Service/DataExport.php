@@ -196,6 +196,10 @@ class DataExport
 
             foreach ($aSourceResponses as $oSourceResponse) {
 
+                if (!($oSourceResponse instanceof SourceResponse)) {
+                    throw new \Exception('Source must return an instance of SourceResponse');
+                }
+
                 //  Create a new file
                 $sFile    = $sTempDir . $oSource->instance->getFileName() . '.' . $oFormat->instance->getFileExtension();
                 $aFiles[] = $sFile;
