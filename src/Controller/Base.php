@@ -231,7 +231,7 @@ abstract class Base extends BaseMiddle
 
                         if (is_string($mAsset)) {
                             $sAsset    = $mAsset;
-                            $sLocation = null;
+                            $sLocation = $oComponent->slug;
                         } else {
                             $sAsset    = !empty($mAsset[0]) ? $mAsset[0] : null;
                             $sLocation = !empty($mAsset[1]) ? $mAsset[1] : null;
