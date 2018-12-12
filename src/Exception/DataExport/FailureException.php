@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Controller Exists Exception
+ * Data Export FailuteException
  *
  * @package     Nails
  * @subpackage  module-admin
@@ -10,10 +10,10 @@
  * @link
  */
 
-namespace Nails\Admin\Exception\Console;
+namespace Nails\Admin\Exception\DataExport;
 
 use Nails\Admin\Exception\AdminException;
 
-class ControllerExistsException extends AdminException
+class FailureException extends AdminException
 {
 }

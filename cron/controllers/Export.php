@@ -11,6 +11,7 @@
 
 namespace Nails\Cron\Admin;
 
+use Nails\Admin\Exception\DataExport\FailureException;
 use Nails\Cron\Controller\Base;
 use Nails\Factory;
 
@@ -77,7 +78,7 @@ class Export extends Base
                         $oEmail->to($iRecipient)->send();
                     }
 
-                } catch (\Exception $e) {
+                } catch (FailureException $e) {
                     $this->writeLog('Exception: ' . $e->getMessage());
                     $oModel->setBatchStatus($oRequest->ids, $oModel::STATUS_FAILED, $e->getMessage());
 
