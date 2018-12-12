@@ -57,6 +57,7 @@ class Export extends Base
             $oEmail = Factory::factory('EmailDataExport', 'nails/module-admin');
             foreach ($aGroupedRequests as $oRequest) {
                 try {
+
                     $this->writeLog(
                         'Starting ' . $oRequest->source . '->' . $oRequest->format . ' (' . json_encode($oRequest->options) . ')'
                     );
@@ -79,18 +80,11 @@ class Export extends Base
                     }
 
                 } catch (FailureException $e) {
-                    $this->writeLog('Exception: ' . $e->getMessage());
-                    $oModel->setBatchStatus($oRequest->ids, $oModel::STATUS_FAILED, $e->getMessage());
-
-                    $oEmail
-                        ->data([
-                            'status' => $oModel::STATUS_FAILED,
-                            'error'  => $e->getMessage(),
-                        ]);
-
-                    foreach ($oRequest->recipients as $iRecipient) {
-                        $oEmail->to($iRecipient)->send();
-                    }
+                    $this->executionFailed($e, $oRequest, $oModel, $oEmail);
+                } catch (\Exception $e) {
+                    $this->executionFailed($e, $oRequest, $oModel, $oEmail);
+                    //  Let unexpected exceptions bubble up
+                    throw $e;
                 }
             }
 
@@ -99,5 +93,35 @@ class Export extends Base
         }
 
         $this->writeLog('Complete');
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Marks a request as failed, recording why it failed and informs the recipients
+     *
+     * @param \Exception                            $oException The exception whichw as thrown
+     * @param \stdClass                             $oRequest   The current request
+     * @param \Nails\Admin\Model\Export             $oModel     The data export model
+     * @param \Nails\Admin\Factory\Email\DataExport $oEmail     The email object
+     */
+    protected function executionFailed(
+        \Exception $oException,
+        \stdClass $oRequest,
+        \Nails\Admin\Model\Export $oModel,
+        \Nails\Admin\Factory\Email\DataExport $oEmail
+    ) {
+        $this->writeLog('Exception: ' . $oException->getMessage());
+        $oModel->setBatchStatus($oRequest->ids, $oModel::STATUS_FAILED, $oException->getMessage());
+
+        $oEmail
+            ->data([
+                'status' => $oModel::STATUS_FAILED,
+                'error'  => $oException->getMessage(),
+            ]);
+
+        foreach ($oRequest->recipients as $iRecipient) {
+            $oEmail->to($iRecipient)->send();
+        }
     }
 }
