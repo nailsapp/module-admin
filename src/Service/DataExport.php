@@ -23,8 +23,8 @@ use Nails\Admin\DataExport\SourceResponse;
  */
 class DataExport
 {
-    protected $aSources    = [];
-    protected $aFormats    = [];
+    protected $aSources = [];
+    protected $aFormats = [];
     protected $aCacheFiles = [];
 
     // --------------------------------------------------------------------------
@@ -36,18 +36,8 @@ class DataExport
     {
         $this->aSources = [];
         $this->aFormats = [];
-        $aComponents    = array_merge(
-            [
-                (object) [
-                    'slug'      => 'app',
-                    'namespace' => 'App\\',
-                    'path'      => NAILS_APP_PATH,
-                ],
-            ],
-            Components::available()
-        );
 
-        foreach ($aComponents as $oComponent) {
+        foreach (Components::available() as $oComponent) {
 
             $sPath             = $oComponent->path;
             $sNamespace        = $oComponent->namespace;
