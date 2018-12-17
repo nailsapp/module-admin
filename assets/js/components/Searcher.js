@@ -2,15 +2,30 @@
 
 /* globals $, jQuery */
 class Searcher {
+
     /**
      * Construct Searcher
      * @return {Searcher}
      */
     constructor() {
-        $('.js-searcher')
-            .each((index, element) => {
-                $(element).data('searcher', new SearcherInstance(element));
+        $(document)
+            .on('admin:js-searcher', (e, selector, options) => {
+                options = options || {};
+                $(selector)
+                    .each((index, element) => {
+                        $(element)
+                            .data(
+                                'searcher',
+                                new SearcherInstance(
+                                    element,
+                                    options
+                                )
+                            );
+                    });
             });
+
+        $(document)
+            .trigger('admin:js-searcher', ['.js-searcher'])
     }
 }
 
@@ -18,16 +33,26 @@ class SearcherInstance {
 
     /**
      * Construct SearcherInstance
+     *
      * @param {DOMElement} element
+     * @param {Object} options
      */
-    constructor(element) {
+    constructor(element, options) {
 
         this.$input = $(element);
-        this.api = this.$input.data('api');
-        this.isMultiple = this.$input.data('multiple') || false;
-        this.isClearable = this.$input.data('clearable') || true;
-        this.placeholder = this.$input.data('placeholder') || 'Search for an item';
-        this.minLength = this.$input.data('min-length') || 2;
+
+        //  Do not double init
+        if (this.$input.data('searcher') instanceof SearcherInstance) {
+            return;
+        }
+
+        this.api = this.$input.data('api') || options.api;
+        this.isMultiple = this.$input.data('multiple') || options.isMultiple || false;
+        this.isClearable = this.$input.data('clearable') || options.isClearable || true;
+        this.placeholder = this.$input.data('placeholder') || options.placeholder || 'Search for an item';
+        this.minLength = this.$input.data('min-length') || options.minLength || 2;
+        this.getParam = this.$input.data('get-param') || options.getParam || 'search';
+        this.formatter = options.formatter || null;
 
         if (this.api) {
 
@@ -42,10 +67,14 @@ class SearcherInstance {
                         dataType: 'json',
                         quietMillis: 250,
                         data: (term) => {
-                            return {search: term};
+                            let out = {};
+                            out[this.getParam] = term
+                            return out;
                         },
                         results: (response) => {
-                            return {'results': this.formatResults(response.data)};
+                            return {
+                                'results': this.formatResults(response.data)
+                            };
                         },
                         cache: true
                     },
@@ -53,9 +82,9 @@ class SearcherInstance {
                         let id = $(element).val();
                         if (id !== '' && this.isMultiple) {
                             $.ajax({
-                                    url: window.SITE_URL + 'api/' + this.api + '?ids=' + id,
-                                    dataType: 'json'
-                                })
+                                url: window.SITE_URL + 'api/' + this.api + '?ids=' + id,
+                                dataType: 'json'
+                            })
                                 .done((response) => {
                                     callback(this.formatResults(response.data));
                                 });
@@ -72,7 +101,7 @@ class SearcherInstance {
                 });
 
         } else {
-            console.warn('Element is configured as a Searcher but no model or provider has been defined', this.$input);
+            console.warn('Element is configured as a Searcher but no api has been defined', this.$input);
         }
     }
 
@@ -99,10 +128,14 @@ class SearcherInstance {
      * @return {{id: Number, text: String}}
      */
     formatResult(item) {
-        return {
-            'id': item.id,
-            'text': item.label
-        };
+        if (typeof this.formatter === 'function') {
+            return this.formatter.call(this, item)
+        } else {
+            return {
+                'id': item.id,
+                'text': item.label
+            };
+        }
     }
 }
 
