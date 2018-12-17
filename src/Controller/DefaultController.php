@@ -652,7 +652,11 @@ abstract class DefaultController extends Base
                 $oSession = Factory::service('Session', 'nails/module-auth');
                 $oSession->setFlashData('success', sprintf(static::CREATE_SUCCESS_MESSAGE, $sLink));
 
-                redirect($this->aConfig['BASE_URL'] . '/edit/' . $oItem->id);
+                if ($this->aConfig['CAN_EDIT']) {
+                    redirect($this->aConfig['BASE_URL'] . '/edit/' . $oItem->id);
+                } else {
+                    redirect($this->aConfig['BASE_URL']);
+                }
 
             } catch (\Exception $e) {
                 $oDb->trans_rollback();
