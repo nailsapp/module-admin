@@ -12,10 +12,10 @@ class SourceResponse
 
     // --------------------------------------------------------------------------
     /**
-     * The exported filename
+     * The exported file name
      * @var string
      */
-    protected $sFilename = '';
+    protected $sFileName = '';
 
     // --------------------------------------------------------------------------
 
@@ -78,27 +78,27 @@ class SourceResponse
     // --------------------------------------------------------------------------
 
     /**
-     * Sets the data set's filename
+     * Sets the data set's file name
      *
-     * @param string $sFilename The data set's filename
+     * @param string $sFileName The data set's file name
      *
      * @return $this
      */
-    public function setFilename($sFilename)
+    public function setFileName($sFileName)
     {
-        $this->sFilename = $sFilename;
+        $this->sFileName = $sFileName;
         return $this;
     }
 
     // --------------------------------------------------------------------------
 
     /**
-     * Returns the data set's filename
+     * Returns the data set's file name
      * @return string
      */
-    public function getFilename()
+    public function getFileName()
     {
-        return $this->sFilename;
+        return $this->sFileName;
     }
 
     // --------------------------------------------------------------------------
