@@ -12,6 +12,6 @@
 
 namespace Nails\Admin\Exception;
 
-class RouterException extends AdminException
+class HelperException extends AdminException
 {
 }
