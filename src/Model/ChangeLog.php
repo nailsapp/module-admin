@@ -47,14 +47,13 @@ class ChangeLog extends Base
          * Add a hook for after the controller is done so we can process the changes
          * and save to the DB.
          */
+        $aHook = [
+            'classref' => &$this,
+            'method'   => 'save',
+            'params'   => [],
+        ];
 
-        $hook             = [];
-        $hook['classref'] = &$this;
-        $hook['method']   = 'save';
-        $hook['params']   = '';
-
-        if ($GLOBALS['EXT']->add_hook('post_system', $hook) == false) {
-
+        if (get_instance()->hooks->addHook('post_system', $aHook) === false) {
             $this->batchSave = false;
             log_message('error', 'Admin_changelog_model could not set the post_controller hook to save items in batches.');
         }
