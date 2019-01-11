@@ -17,29 +17,32 @@ use Nails\Factory;
 
 class ChangeLog extends Base
 {
-    protected $changes;
-    protected $batchSave;
+    /**
+     * The chnages which are to be saved
+     *
+     * @var array
+     */
+    protected $aChanges;
+
+    /**
+     * Whether to save as a batch
+     *
+     * @var bool
+     */
+    protected $bBatchSave;
 
     // --------------------------------------------------------------------------
 
     /**
-     * Constructs the model
+     * ChangeLog constructor.
      */
     public function __construct()
     {
         parent::__construct();
 
-        // --------------------------------------------------------------------------
-
-        //  Define data structure
         $this->table      = NAILS_DB_PREFIX . 'admin_changelog';
-        $this->tableAlias = 'acl';
-
-        // --------------------------------------------------------------------------
-
-        //  Set defaults
-        $this->changes   = [];
-        $this->batchSave = true;
+        $this->aChanges   = [];
+        $this->bBatchSave = true;
 
         // --------------------------------------------------------------------------
 
@@ -54,7 +57,7 @@ class ChangeLog extends Base
         ];
 
         if (get_instance()->hooks->addHook('post_system', $aHook) === false) {
-            $this->batchSave = false;
+            $this->bBatchSave = false;
             log_message('error', 'Admin_changelog_model could not set the post_controller hook to save items in batches.');
         }
     }
@@ -64,62 +67,55 @@ class ChangeLog extends Base
     /**
      * Adds a new changelog item
      *
-     * @param string  $verb     The verb, e.g "created"
-     * @param string  $article
-     * @param string  $item
-     * @param string  $itemId   The item's ID (e.g the blog post's ID)
-     * @param string  $title    The title of the item (e.g the blog post's title)
-     * @param string  $url      The url to the item (e.g the blog post's URL)
-     * @param string  $field
-     * @param mixed   $oldValue The old value
-     * @param mixed   $newValue The new value
-     * @param boolean $strict   whether or not to compare $oldValue and $newValue strictly
+     * @param string  $sVerb     The verb, e.g "created"
+     * @param string  $sArticle
+     * @param string  $sItem
+     * @param integer $iItemId   The item's ID (e.g the blog post's ID)
+     * @param string  $sTitle    The title of the item (e.g the blog post's title)
+     * @param string  $sUrl      The url to the item (e.g the blog post's URL)
+     * @param string  $sField
+     * @param mixed   $mOldValue The old value
+     * @param mixed   $mNewValue The new value
+     * @param boolean $bStrict   whether or not to compare $mOldValue and $mNewValue strictly
+     *
+     * @return bool
+     * @throws \Nails\Common\Exception\FactoryException
+     * @throws \Nails\Common\Exception\ModelException
      */
     public function add(
-        $verb,
-        $article,
-        $item,
-        $itemId,
-        $title,
-        $url = null,
-        $field = null,
-        $oldValue = null,
-        $newValue = null,
-        $strict = true
+        $sVerb,
+        $sArticle,
+        $sItem,
+        $iItemId,
+        $sTitle,
+        $sUrl = null,
+        $sField = null,
+        $mOldValue = null,
+        $mNewValue = null,
+        $bStrict = true
     ) {
         /**
          * if the old_value and the new_value are the same then why are you logging
          * a change!? Lazy [read: efficient] dev.
          */
 
-        if (!is_null($field)) {
+        if (!is_null($sField)) {
 
-            if (!is_string($newValue)) {
-
-                $newValue = print_r($newValue, true);
+            if (!is_string($mNewValue)) {
+                $mNewValue = print_r($mNewValue, true);
             }
 
-            if (!is_string($oldValue)) {
-
-                $oldValue = print_r($oldValue, true);
+            if (!is_string($mOldValue)) {
+                $mOldValue = print_r($mOldValue, true);
             }
 
-            $newValue = trim($newValue);
-            $oldValue = trim($oldValue);
+            $mNewValue = trim($mNewValue);
+            $mOldValue = trim($mOldValue);
 
-            if ($strict) {
-
-                if ($newValue === $oldValue) {
-
-                    return false;
-                }
-
-            } else {
-
-                if ($newValue == $oldValue) {
-
-                    return false;
-                }
+            if ($bStrict && $mNewValue === $mOldValue) {
+                return false;
+            } elseif ($mNewValue == $mOldValue) {
+                return false;
             }
         }
 
@@ -129,20 +125,19 @@ class ChangeLog extends Base
          * Define the key for this change; keys should be common across identical
          * items so we can group changes of the same item together.
          */
+        $key = md5(activeUser('id') . '|' . $sVerb . '|' . $sArticle . '|' . $sItem . '|' . $iItemId . '|' . $sTitle . '|' . $sUrl);
 
-        $key = md5(activeUser('id') . '|' . $verb . '|' . $article . '|' . $item . '|' . $itemId . '|' . $title . '|' . $url);
-
-        if (empty($this->changes[$key])) {
-
-            $this->changes[$key]            = [];
-            $this->changes[$key]['user_id'] = activeUser('id') ? activeUser('id') : null;
-            $this->changes[$key]['verb']    = $verb;
-            $this->changes[$key]['article'] = $article;
-            $this->changes[$key]['item']    = $item;
-            $this->changes[$key]['item_id'] = $itemId;
-            $this->changes[$key]['title']   = $title;
-            $this->changes[$key]['url']     = $url;
-            $this->changes[$key]['changes'] = [];
+        if (empty($this->aChanges[$key])) {
+            $this->aChanges[$key] = [
+                'user_id' => activeUser('id') ? activeUser('id') : null,
+                'verb'    => $sVerb,
+                'article' => $sArticle,
+                'item'    => $sItem,
+                'item_id' => $iItemId,
+                'title'   => $sTitle,
+                'url'     => $sUrl,
+                'changes' => [],
+            ];
         }
 
         // --------------------------------------------------------------------------
@@ -151,22 +146,18 @@ class ChangeLog extends Base
          * Generate a subkey, so that multiple calls to the same field overwrite
          * each other
          */
-
-        if ($field) {
-
-            $subkey = md5($field);
-
-            $this->changes[$key]['changes'][$subkey]            = new \stdClass();
-            $this->changes[$key]['changes'][$subkey]->field     = $field;
-            $this->changes[$key]['changes'][$subkey]->old_value = $oldValue;
-            $this->changes[$key]['changes'][$subkey]->new_value = $newValue;
+        if ($sField) {
+            $this->aChanges[$key]['changes'][md5($sField)] = (object) [
+                'field'     => $sField,
+                'old_value' => $mOldValue,
+                'new_value' => $mNewValue,
+            ];
         }
 
         // --------------------------------------------------------------------------
 
         //  If we're not saving  in batches then save now
         if (!$this->batchSave) {
-
             $this->save();
         }
 
@@ -177,28 +168,29 @@ class ChangeLog extends Base
 
     /**
      * Save the changelog items
-     * @return void
+     *
+     * @throws \Nails\Common\Exception\FactoryException
+     * @throws \Nails\Common\Exception\ModelException
      */
     public function save()
     {
         //  Process all the items and save to the DB, then clean up
-        if ($this->changes) {
+        if ($this->aChanges) {
 
-            $this->changes = array_values($this->changes);
-            $oDate         = Factory::factory('DateTime');
+            $this->aChanges = array_values($this->aChanges);
+            $oDate          = Factory::factory('DateTime');
 
-            for ($i = 0; $i < count($this->changes); $i++) {
-
-                $this->changes[$i]['changes']     = array_values($this->changes[$i]['changes']);
-                $this->changes[$i]['changes']     = json_encode($this->changes[$i]['changes']);
-                $this->changes[$i]['created']     = $oDate->format('Y-m-d H:i:s');
-                $this->changes[$i]['created_by']  = activeUser('id');
-                $this->changes[$i]['modified']    = $oDate->format('Y-m-d H:i:s');
-                $this->changes[$i]['modified_by'] = activeUser('id');
+            for ($i = 0; $i < count($this->aChanges); $i++) {
+                $this->aChanges[$i]['changes']     = array_values($this->aChanges[$i]['changes']);
+                $this->aChanges[$i]['changes']     = json_encode($this->aChanges[$i]['changes']);
+                $this->aChanges[$i]['created']     = $oDate->format('Y-m-d H:i:s');
+                $this->aChanges[$i]['created_by']  = activeUser('id');
+                $this->aChanges[$i]['modified']    = $oDate->format('Y-m-d H:i:s');
+                $this->aChanges[$i]['modified_by'] = activeUser('id');
             }
 
             $oDb = Factory::service('Database');
-            $oDb->insert_batch($this->table, $this->changes);
+            $oDb->insert_batch($this->getTableName(), $this->aChanges);
         }
 
         $this->clear();
@@ -208,19 +200,21 @@ class ChangeLog extends Base
 
     /**
      * Clear all recorded changes
-     * @return void
      */
     public function clear()
     {
-        $this->changes = [];
+        $this->aChanges = [];
     }
+
+    // --------------------------------------------------------------------------
 
     /**
      * Fetches all objects, optionally paginated.
      *
-     * @param int   $iPage    The page number of the results, if null then no pagination
-     * @param int   $iPerPage How many items per page of paginated results
-     * @param mixed $aData    Any data to pass to getCountCommon()
+     * @param integer $iPage           The page number of the results, if null then no pagination
+     * @param integer $iPerPage        How many items per page of paginated results
+     * @param array   $aData           Any data to pass to getCountCommon()
+     * @param bool    $bIncludeDeleted Whetehr to include deleted items
      *
      * @return array
      **/
@@ -252,11 +246,11 @@ class ChangeLog extends Base
     /**
      * Applies common conditionals
      *
-     * @param array $data Data passed from the calling method
+     * @param array $aData Data passed from the calling method
      *
-     * @return void
+     * @throws \Nails\Common\Exception\FactoryException
      **/
-    protected function getCountCommon(array $data = [])
+    protected function getCountCommon(array $aData = [])
     {
         //  Join user tables
         $oDb = Factory::service('Database');
@@ -264,26 +258,25 @@ class ChangeLog extends Base
         $oDb->join(NAILS_DB_PREFIX . 'user_email ue', 'ue.user_id = ' . $this->tableAlias . '.user_id AND ue.is_primary = 1', 'LEFT');
 
         //  Searching?
-        if (!empty($data['keywords'])) {
+        if (!empty($aData['keywords'])) {
 
-            if (empty($data['or_like'])) {
-
-                $data['or_like'] = [];
+            if (empty($aData['or_like'])) {
+                $aData['or_like'] = [];
             }
 
-            $toSlug = strtolower(str_replace(' ', '_', $data['keywords']));
+            $toSlug = strtolower(str_replace(' ', '_', $aData['keywords']));
 
-            $data['or_like'][] = [
+            $aData['or_like'][] = [
                 'column' => $this->tableAlias . '.type',
                 'value'  => $toSlug,
             ];
-            $data['or_like'][] = [
+            $aData['or_like'][] = [
                 'column' => 'ue.email',
-                'value'  => $data['keywords'],
+                'value'  => $aData['keywords'],
             ];
         }
 
-        parent::getCountCommon($data);
+        parent::getCountCommon($aData);
     }
 
     // --------------------------------------------------------------------------
@@ -299,8 +292,6 @@ class ChangeLog extends Base
      * @param  array  $aIntegers Fields which should be cast as integers if numerical and not null
      * @param  array  $aBools    Fields which should be cast as booleans if not null
      * @param  array  $aFloats   Fields which should be cast as floats if not null
-     *
-     * @return void
      */
     protected function formatObject(
         &$oObj,
@@ -313,19 +304,18 @@ class ChangeLog extends Base
         parent::formatObject($oObj, $aData, $aIntegers, $aBools, $aFloats);
 
         if (!empty($oObj->item_id)) {
-
             $oObj->item_id = (int) $oObj->item_id;
         }
 
         $oObj->changes = @json_decode($oObj->changes);
-
-        $oObj->user              = new \stdClass();
-        $oObj->user->id          = $oObj->user_id;
-        $oObj->user->first_name  = isset($oObj->first_name) ? $oObj->first_name : '';
-        $oObj->user->last_name   = isset($oObj->last_name) ? $oObj->last_name : '';
-        $oObj->user->gender      = isset($oObj->gender) ? $oObj->gender : '';
-        $oObj->user->profile_img = isset($oObj->profile_img) ? $oObj->profile_img : '';
-        $oObj->user->email       = isset($oObj->email) ? $oObj->email : '';
+        $oObj->user    = (object) [
+            'id'          => $oObj->user_id,
+            'first_name'  => isset($oObj->first_name) ? $oObj->first_name : '',
+            'last_name'   => isset($oObj->last_name) ? $oObj->last_name : '',
+            'gender'      => isset($oObj->gender) ? $oObj->gender : '',
+            'profile_img' => isset($oObj->profile_img) ? $oObj->profile_img : '',
+            'email'       => isset($oObj->email) ? $oObj->email : '',
+        ];
 
         unset($oObj->user_id);
         unset($oObj->first_name);
