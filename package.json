@@ -7,7 +7,7 @@
   "author": "Pablo de la Peña <p@nailsapp.co.uk>",
   "license": "MIT",
   "devDependencies": {
-    "autoprefixer": "^9.4.4",
+    "autoprefixer": "^9.4.5",
     "css-loader": "^2.1.0",
     "mini-css-extract-plugin": "^0.5.0",
     "node-sass": "^4.11.0",
