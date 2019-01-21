@@ -84,6 +84,7 @@ class AdminRouter extends BaseMiddle
 
     /**
      * Initial touch point for admin, all requests are routed through here.
+     *
      * @return void
      */
     public function index()
@@ -134,6 +135,7 @@ class AdminRouter extends BaseMiddle
     /**
      * Searches modules and the app for valid admin controllers which the active
      * user has permission to access.
+     *
      * @return void
      */
     protected function findAdminControllers()
@@ -143,22 +145,18 @@ class AdminRouter extends BaseMiddle
             'admin',
             NAILS_PATH . 'module-admin/admin/controllers/',
             APPPATH . 'modules/admin/controllers/',
-            [
-                'adminRouter.php',
-            ]
+            ['adminRouter.php']
         );
 
         //  Look in all enabled modules
-        $modules = Components::modules();
+        foreach (Components::modules() as $module) {
 
-        foreach ($modules as $module) {
             /**
              * Skip the admin module. We use the moduleName rather than the component name
              * so that we don't inadvertently load up the admin module (or any module identifying
              * itself as admin) and listing all the files contained therein; we only want
              * admin/controllers.
              */
-
             if ($module->moduleName == 'admin') {
                 continue;
             }
@@ -262,6 +260,7 @@ class AdminRouter extends BaseMiddle
 
         //  If there's an app version of this controller than we'll use that one instead.
         if (is_file($appPath . $file)) {
+
             require_once $appPath . $file;
             $classPath = $appPath . $file;
             $className = 'App\Admin\\' . ucfirst($moduleName) . '\\' . ucfirst($fileName);
@@ -351,6 +350,7 @@ class AdminRouter extends BaseMiddle
     /**
      * Generates a "view friendly" array of the admin controllers, takes into
      * consideration the user's order and state preferences
+     *
      * @return void
      */
     public function prepAdminControllersNav()
@@ -524,6 +524,7 @@ class AdminRouter extends BaseMiddle
 
     /**
      * Routes the request to the appropriate controller
+     *
      * @return void
      */
     protected function routeRequest()
