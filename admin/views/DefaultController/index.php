@@ -20,9 +20,13 @@ $oMustache = \Nails\Factory::service('Mustache');
                     foreach ($CONFIG['INDEX_FIELDS'] as $sField => $sLabel) {
 
                         if ($sField === '{{DYNAMIC_FIELDS}}') {
-                            foreach ($CONFIG['INDEX_FIELDS_DYNAMIC'] as $sColumnName =>  $cRowValue) {
-                                $aAttr = [
-                                    'class' => ['field', 'field--' . $sColumnName],
+                            foreach ($CONFIG['INDEX_FIELDS_DYNAMIC'] as $sColumnName => $cRowValue) {
+
+                                $sNormalisedColumnName = strtolower($sColumnName);
+                                $sNormalisedColumnName = preg_replace('/[^a-z0-9 \-_]/', '', $sNormalisedColumnName);
+                                $sNormalisedColumnName = str_replace([' ', '_'], '-', $sNormalisedColumnName);
+                                $aAttr                 = [
+                                    'class' => ['field', 'field--' . $sNormalisedColumnName],
                                 ];
 
                                 if (in_array($sColumnName, $CONFIG['INDEX_BOOL_FIELDS'])) {
@@ -89,16 +93,20 @@ $oMustache = \Nails\Factory::service('Mustache');
                             foreach ($CONFIG['INDEX_FIELDS'] as $sField => $sLabel) {
                                 if ($sField === '{{DYNAMIC_FIELDS}}') {
 
-                                    foreach ($CONFIG['INDEX_FIELDS_DYNAMIC'] as $sColumnName =>  $cRowValue) {
+                                    foreach ($CONFIG['INDEX_FIELDS_DYNAMIC'] as $sColumnName => $cRowValue) {
 
                                         $sValue = $cRowValue($oItem);
+
+                                        $sNormalisedColumnName = strtolower($sColumnName);
+                                        $sNormalisedColumnName = preg_replace('/[^a-z0-9 \-_]/', '', $sNormalisedColumnName);
+                                        $sNormalisedColumnName = str_replace([' ', '_'], '-', $sNormalisedColumnName);
 
                                         if (in_array($sField, $CONFIG['INDEX_BOOL_FIELDS'])) {
                                             echo Helper::loadBoolCell($sValue);
                                         } elseif (in_array($sField, $CONFIG['INDEX_USER_FIELDS'])) {
                                             echo Helper::loadUserCell($sValue);
                                         } else {
-                                            echo Helper::loadCellAuto($sValue, 'field field--' . $sField);
+                                            echo Helper::loadCellAuto($sValue, 'field field--' . $sNormalisedColumnName);
                                         }
                                     }
 
@@ -183,13 +191,17 @@ $oMustache = \Nails\Factory::service('Mustache');
                                             continue;
                                         }
 
-                                        $sUrl   = $oMustache->render($sUrl, $oItem);
                                         $sLabel = $oMustache->render($sLabel, $oItem);
                                         $sClass = $oMustache->render($sClass, $oItem);
                                         $sAttr  = $oMustache->render($sAttr, $oItem);
+                                        $sUrl   = $oMustache->render($sUrl, $oItem);
+
+                                        if (!preg_match('/^(\/|https?:\/\/)/', $sUrl)) {
+                                            $sUrl = $CONFIG['BASE_URL'] . '/' . $sUrl;
+                                        }
 
                                         echo anchor(
-                                            $CONFIG['BASE_URL'] . '/' . $sUrl,
+                                            $sUrl,
                                             $sLabel,
                                             'class="btn btn-xs ' . $sClass . '" ' . $sAttr
                                         );
