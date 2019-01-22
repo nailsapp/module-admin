@@ -208,77 +208,42 @@ $oMustache = \Nails\Factory::service('Mustache');
                                 }
                             }
 
-                            ?>
-                            <td class="actions">
-                                <?php
+                            //  So that the "no actions" text shows when cell is empty
+                            echo '<td class="actions">';
+                            foreach ($CONFIG['INDEX_ROW_BUTTONS'] as $aButton) {
 
-                                if ($CONFIG['CAN_VIEW'] && property_exists($oItem, 'url')) {
+                                $sUrl   = getFromArray('url', $aButton);
+                                $sLabel = getFromArray('label', $aButton);
+                                $sClass = getFromArray('class', $aButton);
+                                $sAttr  = getFromArray('attr', $aButton);
+                                $sPerm  = getFromArray('permission', $aButton);
+                                $sPerm  = $sPerm ? 'admin:' . $CONFIG['PERMISSION'] . ':' . $sPerm : '';
+
+                                if (empty($CONFIG['PERMISSION']) || empty($sPerm) || userHasPermission($sPerm)) {
+
+                                    $cEnabled = getFromArray('enabled', $aButton);
+                                    if (is_callable($cEnabled) && !$cEnabled($oItem)) {
+                                        continue;
+                                    }
+
+                                    $sLabel = $oMustache->render($sLabel, $oItem);
+                                    $sClass = $oMustache->render($sClass, $oItem);
+                                    $sAttr  = $oMustache->render($sAttr, $oItem);
+                                    $sUrl   = $oMustache->render($sUrl, $oItem);
+
+                                    if (!preg_match('/^(\/|https?:\/\/)/', $sUrl)) {
+                                        $sUrl = $CONFIG['BASE_URL'] . '/' . $sUrl;
+                                    }
+
                                     echo anchor(
-                                        $oItem->url,
-                                        lang('action_view'),
-                                        'class="btn btn-xs btn-default" target="_blank"'
+                                        $sUrl,
+                                        $sLabel,
+                                        'class="btn btn-xs ' . $sClass . '" ' . $sAttr
                                     );
                                 }
-
-                                foreach ($CONFIG['INDEX_ROW_BUTTONS'] as $aButton) {
-                                    $sUrl   = getFromArray('url', $aButton);
-                                    $sLabel = getFromArray('label', $aButton);
-                                    $sClass = getFromArray('class', $aButton);
-                                    $sAttr  = getFromArray('attr', $aButton);
-                                    $sPerm  = getFromArray('permission', $aButton);
-                                    $sPerm  = $sPerm ? 'admin:' . $CONFIG['PERMISSION'] . ':' . $sPerm : '';
-
-                                    if (empty($CONFIG['PERMISSION']) || empty($sPerm) || userHasPermission($sPerm)) {
-
-                                        $cEnabled = getFromArray('enabled', $aButton);
-                                        if (is_callable($cEnabled) && !$cEnabled($oItem)) {
-                                            continue;
-                                        }
-
-                                        $sLabel = $oMustache->render($sLabel, $oItem);
-                                        $sClass = $oMustache->render($sClass, $oItem);
-                                        $sAttr  = $oMustache->render($sAttr, $oItem);
-                                        $sUrl   = $oMustache->render($sUrl, $oItem);
-
-                                        if (!preg_match('/^(\/|https?:\/\/)/', $sUrl)) {
-                                            $sUrl = $CONFIG['BASE_URL'] . '/' . $sUrl;
-                                        }
-
-                                        echo anchor(
-                                            $sUrl,
-                                            $sLabel,
-                                            'class="btn btn-xs ' . $sClass . '" ' . $sAttr
-                                        );
-                                    }
-                                }
-
-                                if ($CONFIG['CAN_EDIT']) {
-                                    if (empty($CONFIG['PERMISSION']) || userHasPermission('admin:' . $CONFIG['PERMISSION'] . ':edit')) {
-                                        echo anchor(
-                                            $CONFIG['BASE_URL'] . '/edit/' . $oItem->id,
-                                            lang('action_edit'),
-                                            'class="btn btn-xs btn-primary"'
-                                        );
-                                    }
-                                }
-
-                                if ($CONFIG['CAN_DELETE']) {
-                                    if (empty($CONFIG['PERMISSION']) || userHasPermission('admin:' . $CONFIG['PERMISSION'] . ':delete')) {
-                                        if ($CONFIG['CAN_RESTORE']) {
-                                            $sConfirm = 'You <strong>can</strong> undo this action.';
-                                        } else {
-                                            $sConfirm = 'You <strong>cannot</strong> undo this action.';
-                                        }
-                                        echo anchor(
-                                            $CONFIG['BASE_URL'] . '/delete/' . $oItem->id,
-                                            lang('action_delete'),
-                                            'class="btn btn-xs btn-danger confirm" data-body="' . $sConfirm . '"'
-                                        );
-                                    }
-                                }
-
-                                ?>
-                            </td>
+                            }
+                            echo '</td>';
+                            ?>
                         </tr>
                         <?php
                     }

@@ -310,6 +310,40 @@ abstract class DefaultController extends Base
 
         // --------------------------------------------------------------------------
 
+        $this->aConfig['INDEX_ROW_BUTTONS'] = array_merge(
+            $this->aConfig['INDEX_ROW_BUTTONS'],
+            [
+                [
+                    'url'     => '{{url}}',
+                    'label'   => lang('action_view'),
+                    'class'   => 'btn-default',
+                    'enabled' => function ($oItem) {
+                        return static::isViewButtonEnabled($oItem);
+                    },
+                ],
+                [
+                    'url'     => 'edit/{{id}}',
+                    'label'   => lang('action_edit'),
+                    'class'   => 'btn-primary',
+                    'enabled' => function ($oItem) {
+                        return static::isEditButtonEnabled($oItem);
+                    },
+                ],
+                //  @todo (Pablo - 2018-12-20) - Delete button: Better messaging
+                //  @todo (Pablo - 2019-01-22) - Delete button: Confirm delete
+                [
+                    'url'     => 'delete/{{id}}',
+                    'label'   => lang('action_delete'),
+                    'class'   => 'btn-danger',
+                    'enabled' => function ($oItem) {
+                        return static::isDeleteButtonEnabled($oItem);
+                    },
+                ],
+            ]
+        );
+
+        // --------------------------------------------------------------------------
+
         //  Model specific fields
         $oModel = $this->getModel();
 
@@ -1199,5 +1233,50 @@ abstract class DefaultController extends Base
             }
         }
         return false;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Determines whethr the "View" row button is enabled
+     *
+     * @param \stdClass $oItem The row item
+     *
+     * @return bool
+     */
+    protected static function isViewButtonEnabled($oItem)
+    {
+        return property_exists($oItem, 'url');
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Determines whethr the "Edit" row button is enabled
+     *
+     * @param \stdClass $oItem The row item
+     *
+     * @return bool
+     */
+    protected static function isEditButtonEnabled($oItem)
+    {
+        return static::CONFIG_CAN_EDIT &&
+            (empty(static::CONFIG_PERMISSION) || userHasPermission('admin:' . static::CONFIG_PERMISSION . ':edit'));
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Determines whethr the "Delete" row button is enabled
+     *
+     * @param \stdClass $oItem The row item
+     *
+     * @return bool
+     */
+    protected static function isDeleteButtonEnabled($oItem)
+    {
+        //  @todo (Pablo - 2018-12-20) - Prevent deletion of self
+        return static::CONFIG_CAN_DELETE &&
+            (empty(static::CONFIG_PERMISSION) || userHasPermission('admin:' . static::CONFIG_PERMISSION . ':delete'));
     }
 }
