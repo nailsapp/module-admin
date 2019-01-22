@@ -1,6 +1,7 @@
 <?php
 
 use Nails\Admin\Helper;
+use Nails\Admin\Controller\DefaultController;
 
 $oMustache = \Nails\Factory::service('Mustache');
 
@@ -17,51 +18,38 @@ $oMustache = \Nails\Factory::service('Mustache');
                 <tr>
                     <?php
                     //  @todo (Pablo - 2018-11-05) - Tidy this nesting up a little
-                    foreach ($CONFIG['INDEX_FIELDS'] as $sField => $sLabel) {
+                    foreach ($CONFIG['INDEX_FIELDS'] as $sLabel => $sProperty) {
 
-                        if ($sField === '{{DYNAMIC_FIELDS}}') {
-                            foreach ($CONFIG['INDEX_FIELDS_DYNAMIC'] as $sColumnName => $cRowValue) {
+                        $sNormalisedLabel = strtolower($sLabel);
+                        $sNormalisedLabel = preg_replace('/[^a-z0-9 \-_]/', '', $sNormalisedLabel);
+                        $sNormalisedLabel = str_replace([' ', '_'], '-', $sNormalisedLabel);
 
-                                $sNormalisedColumnName = strtolower($sColumnName);
-                                $sNormalisedColumnName = preg_replace('/[^a-z0-9 \-_]/', '', $sNormalisedColumnName);
-                                $sNormalisedColumnName = str_replace([' ', '_'], '-', $sNormalisedColumnName);
-                                $aAttr                 = [
-                                    'class' => ['field', 'field--' . $sNormalisedColumnName],
-                                ];
+                        $bIsBoolCell = DefaultController::inArray([
+                            $sProperty,
+                            $sNormalisedLabel,
+                        ], $CONFIG['INDEX_BOOL_FIELDS']);
 
-                                if (in_array($sColumnName, $CONFIG['INDEX_BOOL_FIELDS'])) {
-                                    $aAttr['width']   = 150;
-                                    $aAttr['class'][] = 'boolean';
-                                } elseif (in_array($sColumnName, $CONFIG['INDEX_USER_FIELDS'])) {
-                                    $aAttr['width'] = 300;
-                                }
+                        $bIsUserCell = DefaultController::inArray([
+                            $sProperty,
+                            $sNormalisedLabel,
+                        ], $CONFIG['INDEX_USER_FIELDS']);
 
-                                $sAttr = '';
-                                foreach ($aAttr as $sKey => $mValue) {
-                                    if (is_array($mValue)) {
-                                        $sAttr .= ' ' . $sKey . '="' . implode(' ', $mValue) . '"';
-                                    } else {
-                                        $sAttr .= ' ' . $sKey . '="' . $mValue . '"';
-                                    }
-                                }
-                                ?>
-                                <th <?=$sAttr?>>
-                                    <?=$sColumnName?>
-                                </th>
-                                <?php
-                            }
-                            continue;
-                        }
+                        $bIsCenteredCell = DefaultController::inArray([
+                            $sProperty,
+                            $sNormalisedLabel,
+                        ], $CONFIG['INDEX_CENTERED_FIELDS']);
 
                         $aAttr = [
-                            'class' => ['field', 'field--' . $sField],
+                            'class' => ['field', 'field--' . $sNormalisedLabel],
                         ];
 
-                        if (in_array($sField, $CONFIG['INDEX_BOOL_FIELDS'])) {
+                        if ($bIsBoolCell) {
                             $aAttr['width']   = 150;
                             $aAttr['class'][] = 'boolean';
-                        } elseif (in_array($sField, $CONFIG['INDEX_USER_FIELDS'])) {
+                        } elseif ($bIsUserCell) {
                             $aAttr['width'] = 300;
+                        } elseif ($bIsCenteredCell) {
+                            $aAttr['class'][] = 'text-center';
                         }
 
                         $sAttr = '';
@@ -90,28 +78,61 @@ $oMustache = \Nails\Factory::service('Mustache');
                         <tr>
                             <?php
 
-                            foreach ($CONFIG['INDEX_FIELDS'] as $sField => $sLabel) {
-                                if ($sField === '{{DYNAMIC_FIELDS}}') {
+                            foreach ($CONFIG['INDEX_FIELDS'] as $sLabel => $sProperty) {
 
-                                    foreach ($CONFIG['INDEX_FIELDS_DYNAMIC'] as $sColumnName => $cRowValue) {
+                                $sNormalisedLabel = strtolower($sLabel);
+                                $sNormalisedLabel = preg_replace('/[^a-z0-9 \-_]/', '', $sNormalisedLabel);
+                                $sNormalisedLabel = str_replace([' ', '_'], '-', $sNormalisedLabel);
 
-                                        $sValue = $cRowValue($oItem);
+                                $bIsBoolCell = DefaultController::inArray([
+                                    $sProperty,
+                                    $sNormalisedLabel,
+                                ], $CONFIG['INDEX_BOOL_FIELDS']);
 
-                                        $sNormalisedColumnName = strtolower($sColumnName);
-                                        $sNormalisedColumnName = preg_replace('/[^a-z0-9 \-_]/', '', $sNormalisedColumnName);
-                                        $sNormalisedColumnName = str_replace([' ', '_'], '-', $sNormalisedColumnName);
+                                $bIsUserCell = DefaultController::inArray([
+                                    $sProperty,
+                                    $sNormalisedLabel,
+                                ], $CONFIG['INDEX_USER_FIELDS']);
 
-                                        if (in_array($sField, $CONFIG['INDEX_BOOL_FIELDS'])) {
-                                            echo Helper::loadBoolCell($sValue);
-                                        } elseif (in_array($sField, $CONFIG['INDEX_USER_FIELDS'])) {
-                                            echo Helper::loadUserCell($sValue);
-                                        } else {
-                                            echo Helper::loadCellAuto($sValue, 'field field--' . $sNormalisedColumnName);
-                                        }
+                                $bIsNumeric = DefaultController::inArray([
+                                    $sProperty,
+                                    $sNormalisedLabel,
+                                ], $CONFIG['INDEX_NUMERIC_FIELDS']);
+
+                                $bIsCenteredCell = DefaultController::inArray([
+                                    $sProperty,
+                                    $sNormalisedLabel,
+                                ], $CONFIG['INDEX_CENTERED_FIELDS']);
+
+
+                                if (is_callable($sProperty)) {
+
+                                    $mValue   = $sProperty($oItem);
+                                    $aClasses = [];
+
+                                    if ($bIsNumeric && !$bIsUserCell) {
+                                        $mValue = number_format($mValue);
                                     }
 
-                                } elseif (property_exists($oItem, $sField)) {
+                                    if ($bIsCenteredCell) {
+                                        $aClasses[] = 'text-center';
+                                    }
 
+                                    if ($bIsBoolCell) {
+                                        echo Helper::loadBoolCell($mValue);
+                                    } elseif ($bIsUserCell) {
+                                        echo Helper::loadUserCell($mValue);
+                                    } else {
+                                        echo Helper::loadCellAuto(
+                                            $mValue,
+                                            trim('field field--' . $sNormalisedLabel . ' ' . implode(' ', $aClasses))
+                                        );
+                                    }
+
+                                } elseif (property_exists($oItem, $sProperty)) {
+
+                                    $mValue          = $oItem->{$sProperty};
+                                    $aClasses        = [];
                                     $sCellAdditional = '';
                                     if (classUses($CONFIG['MODEL_INSTANCE'], '\Nails\Common\Traits\Model\Nestable')) {
                                         $aBreadcrumbs = json_decode($oItem->breadcrumbs);
@@ -121,28 +142,37 @@ $oMustache = \Nails\Factory::service('Mustache');
                                         }
                                     }
 
-                                    if (in_array($sField, $CONFIG['INDEX_BOOL_FIELDS'])) {
-                                        echo Helper::loadBoolCell($oItem->{$sField});
-                                    } elseif (in_array($sField, $CONFIG['INDEX_USER_FIELDS'])) {
-                                        echo Helper::loadUserCell($oItem->{$sField});
+                                    if ($bIsNumeric && !$bIsUserCell) {
+                                        $mValue = number_format($mValue);
+                                    }
+
+                                    if ($bIsCenteredCell) {
+                                        $aClasses[] = 'text-center';
+                                    }
+
+                                    if ($bIsBoolCell) {
+                                        echo Helper::loadBoolCell($mValue);
+                                    } elseif ($bIsUserCell) {
+                                        echo Helper::loadUserCell($mValue);
                                     } else {
                                         echo Helper::loadCellAuto(
-                                            $oItem->{$sField},
-                                            'field field--' . $sField,
+                                            $mValue,
+                                            trim('field field--' . $sProperty . ' ' . implode(' ', $aClasses)),
                                             $sCellAdditional
                                         );
                                     }
 
-                                } elseif (strpos($sField, '.') !== false) {
+                                } elseif (strpos($sProperty, '.') !== false) {
 
                                     //  @todo (Pablo - 2018-08-08) - Handle arrays in expanded objects
-                                    $aField  = explode('.', $sField);
-                                    $sField1 = getFromArray(0, $aField);
-                                    $sField2 = getFromArray(1, $aField);
+                                    $aField     = explode('.', $sProperty);
+                                    $aClasses   = [];
+                                    $sProperty1 = getFromArray(0, $aField);
+                                    $sProperty2 = getFromArray(1, $aField);
 
-                                    if (property_exists($oItem, $sField1)) {
-                                        if (!empty($oItem->{$sField1}) && property_exists($oItem->{$sField1}, $sField2)) {
-                                            $mValue = $oItem->{$sField1}->{$sField2};
+                                    if (property_exists($oItem, $sProperty1)) {
+                                        if (!empty($oItem->{$sProperty1}) && property_exists($oItem->{$sProperty1}, $sProperty2)) {
+                                            $mValue = $oItem->{$sProperty1}->{$sProperty2};
                                         } else {
                                             $mValue = '<span class="text-muted">&mdash;</span>';
                                         }
@@ -150,14 +180,28 @@ $oMustache = \Nails\Factory::service('Mustache');
                                         $mValue = '<span class="text-muted">&mdash;</span>';
                                     }
 
-                                    echo Helper::loadCellAuto(
-                                        $mValue,
-                                        'field field--' . $sField
-                                    );
+                                    if ($bIsNumeric && !$bIsUserCell) {
+                                        $mValue = number_format($mValue);
+                                    }
+
+                                    if ($bIsCenteredCell) {
+                                        $aClasses[] = 'text-center';
+                                    }
+
+                                    if ($bIsBoolCell) {
+                                        echo Helper::loadBoolCell($mValue);
+                                    } elseif ($bIsUserCell) {
+                                        echo Helper::loadUserCell($mValue);
+                                    } else {
+                                        echo Helper::loadCellAuto(
+                                            $mValue,
+                                            trim('field field--' . $sProperty . ' ' . implode(' ', $aClasses))
+                                        );
+                                    }
 
                                 } else {
                                     ?>
-                                    <td class="field field--<?=$sField?>">
+                                    <td class="field field--<?=$sProperty?>">
                                         <span class="text-muted">&mdash;</span>
                                     </td>
                                     <?php

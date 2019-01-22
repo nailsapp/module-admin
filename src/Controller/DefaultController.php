@@ -59,9 +59,9 @@ abstract class DefaultController extends Base
      * The sorting options to give the user on the index view
      */
     const CONFIG_SORT_OPTIONS = [
-        'label'    => 'Label',
-        'created'  => 'Created',
-        'modified' => 'Modified',
+        'Label'    => 'label',
+        'Created'  => 'created',
+        'Modified' => 'modified',
     ];
 
     /**
@@ -70,16 +70,19 @@ abstract class DefaultController extends Base
     const CONFIG_SORT_DIRECTION = 'asc';
 
     /**
-     * The fields to show on the index view; the index {{DYNAMIC_FIELDS}}
-     * can be used to specify the location of any dynamically generated
-     * index view columns; see static::$aConfigIndexDynamicFields for details
+     * The fields to show on the index view;
+     *
+     * This array forms the basis for the $this->$aConfig['INDEX_FIELDS'] config.
+     * You are free to manipulate this after the constructor has been called.
+     *
+     * If you wish to create any dynamic fields then the element value can be a
+     * closure/callable which is passed $oItem as the one and only argument.
      */
     const CONFIG_INDEX_FIELDS = [
-        'label'              => 'Label',
-        '{{DYNAMIC_FIELDS}}' => null,
-        'created'            => 'Created',
-        'modified'           => 'Modified',
-        'modified_by'        => 'Modified By',
+        'Label'       => 'label',
+        'Created'     => 'created',
+        'Modified'    => 'modified',
+        'Modified By' => 'modified_by',
     ];
 
     /**
@@ -134,6 +137,20 @@ abstract class DefaultController extends Base
         'is_active',
         'is_published',
         'is_deleted',
+    ];
+
+    /**
+     * The fields on the index view which should be run through number_format
+     */
+    const CONFIG_INDEX_NUMERIC_FIELDS = [
+        'id',
+    ];
+
+    /**
+     * The fields on the index view which should be centered
+     */
+    const CONFIG_INDEX_CENTERED_FIELDS = [
+        'id',
     ];
 
     /**
@@ -272,16 +289,6 @@ abstract class DefaultController extends Base
     // --------------------------------------------------------------------------
 
     /**
-     * An array of callables which will be used to create additional columns on the index view.
-     * Each callable will be passed the item as its only argument.
-     *
-     * @var array
-     */
-    protected static $aConfigIndexDynamicFields = [];
-
-    // --------------------------------------------------------------------------
-
-    /**
      * Contains the configs for this controller
      *
      * @var array
@@ -308,11 +315,18 @@ abstract class DefaultController extends Base
 
         $this->aConfig['CAN_RESTORE'] = !$oModel->isDestructiveDelete();
         $this->aConfig['FIELDS']      = $oModel->describeFields();
-        $this->data['CONFIG']         = $this->aConfig;
+        $this->data['CONFIG']         = &$this->aConfig;
     }
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Returns the controllers config
+     *
+     * @return array
+     * @throws NailsException
+     * @throws \Nails\Common\Exception\FactoryException
+     */
     public static function getConfig()
     {
         //  Ensure required constants are set
@@ -347,12 +361,13 @@ abstract class DefaultController extends Base
             'SORT_OPTIONS'           => static::CONFIG_SORT_OPTIONS,
             'SORT_DIRECTION'         => static::CONFIG_SORT_DIRECTION,
             'INDEX_FIELDS'           => static::CONFIG_INDEX_FIELDS,
-            'INDEX_FIELDS_DYNAMIC'   => &static::$aConfigIndexDynamicFields,
             'INDEX_HEADER_BUTTONS'   => static::CONFIG_INDEX_HEADER_BUTTONS,
             'INDEX_ROW_BUTTONS'      => array_merge(static::$aConfigIndexRowButtons, static::CONFIG_INDEX_ROW_BUTTONS),
             'INDEX_DATA'             => static::CONFIG_INDEX_DATA,
             'INDEX_BOOL_FIELDS'      => static::CONFIG_INDEX_BOOL_FIELDS,
             'INDEX_USER_FIELDS'      => static::CONFIG_INDEX_USER_FIELDS,
+            'INDEX_NUMERIC_FIELDS'   => static::CONFIG_INDEX_NUMERIC_FIELDS,
+            'INDEX_CENTERED_FIELDS'  => static::CONFIG_INDEX_CENTERED_FIELDS,
             'CREATE_READONLY_FIELDS' => static::CONFIG_CREATE_READONLY_FIELDS,
             'EDIT_READONLY_FIELDS'   => static::CONFIG_EDIT_READONLY_FIELDS,
             'EDIT_IGNORE_FIELDS'     => static::CONFIG_EDIT_IGNORE_FIELDS,
@@ -364,7 +379,7 @@ abstract class DefaultController extends Base
 
         //  Additional fields
         if (classUses($oModel, 'Nails\Common\Traits\Model\Sortable')) {
-            $aConfig['SORT_OPTIONS']         = array_merge(['order' => 'Defined Order'], $aConfig['SORT_OPTIONS']);
+            $aConfig['SORT_OPTIONS']         = array_merge(['Defined Order' => 'order'], $aConfig['SORT_OPTIONS']);
             $aConfig['EDIT_IGNORE_FIELDS'][] = $oModel->getSortableColumn();
         }
 
@@ -477,16 +492,15 @@ abstract class DefaultController extends Base
         $aSortConfig = $this->aConfig['SORT_OPTIONS'];
 
         if (classUses($oModel, '\Nails\Common\Traits\Model\Nestable')) {
-            $aSortConfig = array_merge(['breadcrumbs' => 'Hierarchy'], $aSortConfig);
+            $aSortConfig = array_merge(['Hierarchy' => 'breadcrumbs'], $aSortConfig);
         }
 
         //  Get the first key (i.e the default sort)
-        reset($aSortConfig);
-        $sFirstKey = key($aSortConfig);
+        $sFirstKey = reset($aSortConfig);
 
         //  Prepare the sort options so they have the appropriate table alias
         $aSortCol = [];
-        foreach ($aSortConfig as $sColumn => $sLabel) {
+        foreach ($aSortConfig as $sLabel => $sColumn) {
             if (strpos($sColumn, '.') === false) {
                 $aSortCol[$sAlias . '.' . $sColumn] = $sLabel;
             } else {
@@ -1165,5 +1179,25 @@ abstract class DefaultController extends Base
         }
 
         return $oItem;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Checks an array for multiple keys
+     *
+     * @param array $aValues The values to check for
+     * @param array $aArray  the array to search
+     *
+     * @return bool
+     */
+    public static function inArray(array $aValues, array $aArray)
+    {
+        foreach ($aValues as $sValue) {
+            if (in_array($sValue, $aArray)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
