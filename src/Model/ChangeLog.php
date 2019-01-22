@@ -157,7 +157,7 @@ class ChangeLog extends Base
         // --------------------------------------------------------------------------
 
         //  If we're not saving  in batches then save now
-        if (!$this->batchSave) {
+        if (!$this->bBatchSave) {
             $this->save();
         }
 
