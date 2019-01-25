@@ -171,17 +171,44 @@ class Helper
         try {
             return $oView->load($sViewPath, $aViewData, $bReturnView);
         } catch (ViewNotFoundException $e) {
-            //  If it fails, and the controller is a default admin controller then
-            //  load up that view
-            $aParentClasses = class_parents($aCtrlData['currentRequest']['className']);
-            if (!in_array('Nails\\Admin\\Controller\\DefaultController', $aParentClasses)) {
+            //  If it fails, and the controller is a default admin controller then load up that view
+            $sClassName = $aCtrlData['currentRequest']['className'];
+            if (!classExtends($sClassName, 'Nails\\Admin\\Controller\\DefaultController')) {
                 throw new ViewNotFoundException(
                     $e->getMessage(),
                     $e->getCode()
                 );
             }
 
-            return $oView->load('admin/DefaultController/' . $sViewFile, $aViewData, $bReturnView);
+            //  Step through the class hierarchy and look there
+            $aParents = class_parents($sClassName);
+            foreach ($aParents as $sParent) {
+                try {
+
+                    if ($sParent !== 'Nails\\Admin\\Controller\\DefaultController') {
+
+                        $oReflection = new \ReflectionClass('\\' . $sParent);
+                        $sViewPath   = realpath(dirname($oReflection->getFileName()) . '/../views') . '/';
+                        $aClassBits  = explode('\\', $oReflection->getName());
+                        $sViewPath   .= end($aClassBits) . '/';
+
+                    } else {
+                        $sViewPath     = 'admin/DefaultController/';
+                        $bTriedDefault = true;
+                    };
+
+                    return $oView->load(
+                        $sViewPath . $sViewFile,
+                        $aViewData,
+                        $bReturnView
+                    );
+                } catch (ViewNotFoundException $e) {
+                    //  Allow the loop to continue, unless we've already tried the default views
+                    if (!empty($bTriedDefault)) {
+                        throw $e;
+                    }
+                }
+            }
         }
     }
 
