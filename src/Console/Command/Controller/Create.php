@@ -20,27 +20,28 @@ class Create extends BaseMaker
     /**
      * Configure the command
      */
-    protected function configure()
+    protected function configure(): void
     {
-        $this->setName('make:controller:admin');
-        $this->setDescription('Creates a new Admin controller');
-        $this->addArgument(
-            'modelName',
-            InputArgument::OPTIONAL,
-            'Define the name of the model on which to base the controller'
-        );
-        $this->addArgument(
-            'modelProvider',
-            InputArgument::OPTIONAL,
-            'Define the provider of the model',
-            'app'
-        );
-        $this->addOption(
-            'skip-check',
-            null,
-            InputOption::VALUE_OPTIONAL,
-            'Skip model check'
-        );
+        $this
+            ->setName('make:controller:admin')
+            ->setDescription('Creates a new Admin controller')
+            ->addArgument(
+                'modelName',
+                InputArgument::OPTIONAL,
+                'Define the name of the model on which to base the controller'
+            )
+            ->addArgument(
+                'modelProvider',
+                InputArgument::OPTIONAL,
+                'Define the provider of the model',
+                'app'
+            )
+            ->addOption(
+                'skip-check',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Skip model check'
+            );
     }
 
     // --------------------------------------------------------------------------
@@ -48,11 +49,12 @@ class Create extends BaseMaker
     /**
      * Executes the app
      *
-     * @param  InputInterface $oInput The Input Interface provided by Symfony
+     * @param  InputInterface  $oInput  The Input Interface provided by Symfony
      * @param  OutputInterface $oOutput The Output Interface provided by Symfony
+     *
      * @return int
      */
-    protected function execute(InputInterface $oInput, OutputInterface $oOutput)
+    protected function execute(InputInterface $oInput, OutputInterface $oOutput): int
     {
         parent::execute($oInput, $oOutput);
 
@@ -93,7 +95,7 @@ class Create extends BaseMaker
      * @throws \Exception
      * @return void
      */
-    private function createController()
+    private function createController(): void
     {
         $aFields  = $this->getArguments();
         $aCreated = [];
