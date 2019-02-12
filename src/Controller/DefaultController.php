@@ -164,6 +164,7 @@ abstract class DefaultController extends Base
     const CONFIG_EDIT_IGNORE_FIELDS = [
         'id',
         'slug',
+        'token',
         'is_deleted',
         'created',
         'created_by',
