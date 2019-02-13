@@ -156,9 +156,7 @@ class Utilities extends Base
                     throw new \Exception('Failed to schedule export.');
                 }
 
-                $oSession = Factory::service('Session', 'nails/module-auth');
-                $oSession->setFlashData('success', 'Export scheduled');
-                redirect('admin/admin/utilities/export');
+                $this->data['success'] = 'Export Scheduled';
 
             } catch (\Exception $e) {
                 $this->data['error'] = $e->getMessage();
