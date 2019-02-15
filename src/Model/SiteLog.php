@@ -29,7 +29,7 @@ class SiteLog extends Base
         // --------------------------------------------------------------------------
 
         $config        =& get_config();
-        $this->logPath = $config['log_path'] != '' ? $config['log_path'] : APPPATH . 'logs/';
+        $this->logPath = $config['log_path'] != '' ? $config['log_path'] : NAILS_APP_PATH . 'application/logs/';
     }
 
     // --------------------------------------------------------------------------
