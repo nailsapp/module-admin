@@ -193,6 +193,11 @@ abstract class DefaultController extends Base
     const CONFIG_SORT_DATA = [];
 
     /**
+     * Which column to use for the label when sorting
+     */
+    const CONFIG_SORT_LABEL = 'label';
+
+    /**
      * When creating, this string is passed to supporting functions
      */
     const EDIT_MODE_CREATE = 'CREATE';
@@ -408,6 +413,7 @@ abstract class DefaultController extends Base
             'EDIT_IGNORE_FIELDS'     => static::CONFIG_EDIT_IGNORE_FIELDS,
             'EDIT_DATA'              => static::CONFIG_EDIT_DATA,
             'SORT_DATA'              => static::CONFIG_SORT_DATA,
+            'SORT_LABEL'             => static::CONFIG_SORT_LABEL,
             'FIELDSET_ORDER'         => static::CONFIG_EDIT_FIELDSET_ORDER,
             'ENABLE_NOTES'           => static::EDIT_ENABLE_NOTES,
         ];
