@@ -144,7 +144,7 @@ class AdminRouter extends BaseMiddle
         $this->loadAdminControllers(
             'admin',
             NAILS_PATH . 'module-admin/admin/controllers/',
-            APPPATH . 'modules/admin/controllers/',
+            NAILS_APP_PATH . 'application/modules/admin/controllers/',
             ['adminRouter.php']
         );
 
@@ -164,7 +164,7 @@ class AdminRouter extends BaseMiddle
             $this->loadAdminControllers(
                 $module->moduleName,
                 $module->path . 'admin/controllers/',
-                APPPATH . 'modules/' . $module->moduleName . '/admin/controllers/'
+                NAILS_APP_PATH . 'application/modules/' . $module->moduleName . '/admin/controllers/'
             );
         }
 
@@ -205,7 +205,7 @@ class AdminRouter extends BaseMiddle
 
     protected function loadAppAdminControllers()
     {
-        $appControllerPath = APPPATH . 'modules/admin/controllers/';
+        $appControllerPath = NAILS_APP_PATH . 'application/modules/admin/controllers/';
 
         if (is_dir($appControllerPath)) {
 

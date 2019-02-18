@@ -100,8 +100,8 @@ abstract class Base extends BaseMiddle
         $oConfig = Factory::service('Config');
 
         $aPaths = [
-            APPPATH . 'config/admin.php',
-            APPPATH . 'modules/admin/config/admin.php',
+            NAILS_APP_PATH . 'application/config/admin.php',
+            NAILS_APP_PATH . 'application/modules/admin/config/admin.php',
         ];
 
         foreach ($aPaths as $sPath) {
