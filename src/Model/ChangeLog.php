@@ -58,7 +58,8 @@ class ChangeLog extends Base
 
         if (get_instance()->hooks->addHook('post_system', $aHook) === false) {
             $this->bBatchSave = false;
-            log_message('error', 'Admin_changelog_model could not set the post_controller hook to save items in batches.');
+            Factory::service('Logger')
+                ->line(get_class() . ' could not set the post_system hook to save items in batches.');
         }
     }
 
