@@ -12,6 +12,7 @@
 
 namespace Nails\Admin;
 
+use Nails\Common\Exception\NailsException;
 use Nails\Common\Exception\ViewNotFoundException;
 use Nails\Factory;
 
@@ -131,12 +132,7 @@ class Helper
             }
 
         } else {
-
-            $subject = 'Unsupported object type passed to ' . get_class() . '::loadCSV';
-            $message = 'An unsupported object was passed to ' . get_class() . '::loadCSV. A CSV ';
-            $message .= 'file could not be generated. Details are shown below:<br /><br />' . print_r($mData, true);
-
-            showFatalError($subject, $message);
+            throw new NailsException('Unsupported object type passed to ' . get_class() . '::loadCSV');
         }
     }
 
