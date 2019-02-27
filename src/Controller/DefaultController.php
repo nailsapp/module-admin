@@ -461,10 +461,10 @@ abstract class DefaultController extends Base
     /**
      * Announces this controller's navGroups
      *
-     * @return Nav
+     * @return array|Nav
      * @throws NailsException
      */
-    public static function announce(): ?Nav
+    public static function announce()
     {
         $aConfig = static::getConfig();
 
