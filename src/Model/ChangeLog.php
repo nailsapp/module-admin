@@ -230,7 +230,7 @@ class ChangeLog extends Base
 
         if (empty($aData['select'])) {
             $aData['select'] = [
-                $this->tableAlias . '.*',
+                $this->getTableAlias() . '.*',
                 'u.first_name',
                 'u.last_name',
                 'u.gender',
@@ -255,8 +255,8 @@ class ChangeLog extends Base
     {
         //  Join user tables
         $oDb = Factory::service('Database');
-        $oDb->join(NAILS_DB_PREFIX . 'user u', 'u.id = ' . $this->tableAlias . '.user_id', 'LEFT');
-        $oDb->join(NAILS_DB_PREFIX . 'user_email ue', 'ue.user_id = ' . $this->tableAlias . '.user_id AND ue.is_primary = 1', 'LEFT');
+        $oDb->join(NAILS_DB_PREFIX . 'user u', 'u.id = ' . $this->getTableAlias() . '.user_id', 'LEFT');
+        $oDb->join(NAILS_DB_PREFIX . 'user_email ue', 'ue.user_id = ' . $this->getTableAlias() . '.user_id AND ue.is_primary = 1', 'LEFT');
 
         //  Searching?
         if (!empty($aData['keywords'])) {
@@ -268,7 +268,7 @@ class ChangeLog extends Base
             $toSlug = strtolower(str_replace(' ', '_', $aData['keywords']));
 
             $aData['or_like'][] = [
-                'column' => $this->tableAlias . '.type',
+                'column' => $this->getTableAlias() . '.type',
                 'value'  => $toSlug,
             ];
             $aData['or_like'][] = [
