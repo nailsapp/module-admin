@@ -931,7 +931,7 @@ abstract class DefaultController extends Base
      * @throws ValidationException
      * @return void
      */
-    protected function runFormValidation($aOverrides = []): void
+    protected function runFormValidation(array $aOverrides = []): void
     {
         $oFormValidation      = Factory::service('FormValidation');
         $aRulesFormValidation = [];
@@ -986,7 +986,7 @@ abstract class DefaultController extends Base
      *
      * @return void
      */
-    protected function loadEditViewData($oItem = null): void
+    protected function loadEditViewData(\stdClass $oItem = null): void
     {
         //  Extract the fields into fieldsets
         $aFieldSets = array_combine(
