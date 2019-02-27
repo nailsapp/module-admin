@@ -12,6 +12,7 @@
 
 namespace Nails\Admin\Controller;
 
+use Nails\Admin\Factory\Nav;
 use Nails\Admin\Helper;
 use Nails\Common\Exception\NailsException;
 use Nails\Common\Exception\ValidationException;
@@ -367,7 +368,7 @@ abstract class DefaultController extends Base
      * @throws NailsException
      * @throws \Nails\Common\Exception\FactoryException
      */
-    public static function getConfig()
+    public static function getConfig(): array
     {
         //  Ensure required constants are set
         $aRequiredConstants = [
@@ -460,9 +461,10 @@ abstract class DefaultController extends Base
     /**
      * Announces this controller's navGroups
      *
+     * @return Nav
      * @throws NailsException
      */
-    public static function announce()
+    public static function announce(): ?Nav
     {
         $aConfig = static::getConfig();
 
@@ -486,7 +488,7 @@ abstract class DefaultController extends Base
      *
      * @return array
      */
-    public static function permissions()
+    public static function permissions(): array
     {
         $aPermissions = parent::permissions();
         $aConfig      = static::getConfig();
@@ -504,7 +506,13 @@ abstract class DefaultController extends Base
 
     // --------------------------------------------------------------------------
 
-    protected static function getModel()
+    /**
+     * Returns the model instance
+     *
+     * @return \Nails\Common\Model\Base
+     * @throws \Nails\Common\Exception\FactoryException
+     */
+    protected static function getModel(): \Nails\Common\Model\Base
     {
         return Factory::model(
             static::CONFIG_MODEL_NAME,
@@ -519,7 +527,7 @@ abstract class DefaultController extends Base
      *
      * @return void
      */
-    public function index()
+    public function index(): void
     {
         $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':browse';
         if (!empty($this->aConfig['PERMISSION']) && !userHasPermission($sPermissionStr)) {
@@ -632,7 +640,7 @@ abstract class DefaultController extends Base
      *
      * @return array
      */
-    protected function indexCheckboxFilters()
+    protected function indexCheckboxFilters(): array
     {
         return [];
     }
@@ -644,7 +652,7 @@ abstract class DefaultController extends Base
      *
      * @return array
      */
-    protected function indexDropdownFilters()
+    protected function indexDropdownFilters(): array
     {
         return [];
     }
@@ -656,7 +664,7 @@ abstract class DefaultController extends Base
      *
      * @return void
      */
-    public function create()
+    public function create(): void
     {
         if (!static::CONFIG_CAN_CREATE) {
             show404();
@@ -710,7 +718,7 @@ abstract class DefaultController extends Base
                 if ($this->aConfig['CAN_EDIT']) {
                     redirect($this->aConfig['BASE_URL'] . '/edit/' . $oItem->id);
                 } else {
-                    redirect($this->aConfig['BASE_URL']);
+                    $this->returnToIndex();
                 }
 
             } catch (\Exception $e) {
@@ -732,7 +740,7 @@ abstract class DefaultController extends Base
      *
      * @return void
      */
-    public function edit()
+    public function edit(): void
     {
         if (!static::CONFIG_CAN_EDIT) {
             show404();
@@ -817,7 +825,7 @@ abstract class DefaultController extends Base
      *
      * @return void
      */
-    protected function beforeCreateAndEdit($sMode, \stdClass $oItem = null)
+    protected function beforeCreateAndEdit($sMode, \stdClass $oItem = null): void
     {
     }
 
@@ -830,7 +838,7 @@ abstract class DefaultController extends Base
      *
      * @return void
      */
-    protected function beforeEdit(\stdClass $oItem = null)
+    protected function beforeEdit(\stdClass $oItem = null): void
     {
     }
 
@@ -841,7 +849,7 @@ abstract class DefaultController extends Base
      *
      * @return void
      */
-    protected function beforeCreate()
+    protected function beforeCreate(): void
     {
     }
 
@@ -854,7 +862,7 @@ abstract class DefaultController extends Base
      *
      * @return void
      */
-    protected function beforeDelete(\stdClass $oItem)
+    protected function beforeDelete(\stdClass $oItem): void
     {
     }
 
@@ -869,7 +877,7 @@ abstract class DefaultController extends Base
      *
      * @return void
      */
-    protected function afterCreateAndEdit($sMode, \stdClass $oNewItem, \stdClass $oOldItem = null)
+    protected function afterCreateAndEdit($sMode, \stdClass $oNewItem, \stdClass $oOldItem = null): void
     {
     }
 
@@ -883,7 +891,7 @@ abstract class DefaultController extends Base
      *
      * @return void
      */
-    protected function afterEdit(\stdClass $oNewItem, \stdClass $oOldItem = null)
+    protected function afterEdit(\stdClass $oNewItem, \stdClass $oOldItem = null): void
     {
     }
 
@@ -896,7 +904,7 @@ abstract class DefaultController extends Base
      *
      * @return void
      */
-    protected function afterCreate(\stdClass $oNewItem)
+    protected function afterCreate(\stdClass $oNewItem): void
     {
     }
 
@@ -909,7 +917,7 @@ abstract class DefaultController extends Base
      *
      * @return void
      */
-    protected function afterDelete(\stdClass $oItem)
+    protected function afterDelete(\stdClass $oItem): void
     {
     }
 
@@ -923,7 +931,7 @@ abstract class DefaultController extends Base
      * @throws ValidationException
      * @return void
      */
-    protected function runFormValidation($aOverrides = [])
+    protected function runFormValidation($aOverrides = []): void
     {
         $oFormValidation      = Factory::service('FormValidation');
         $aRulesFormValidation = [];
@@ -978,7 +986,7 @@ abstract class DefaultController extends Base
      *
      * @return void
      */
-    protected function loadEditViewData($oItem = null)
+    protected function loadEditViewData($oItem = null): void
     {
         //  Extract the fields into fieldsets
         $aFieldSets = array_combine(
@@ -1016,7 +1024,7 @@ abstract class DefaultController extends Base
      *
      * @return array
      */
-    protected function getPostObject()
+    protected function getPostObject(): array
     {
         $oInput = Factory::service('Input');
         $aOut   = [];
@@ -1049,7 +1057,7 @@ abstract class DefaultController extends Base
      *
      * @return void
      */
-    public function delete()
+    public function delete(): void
     {
         if (!static::CONFIG_CAN_DELETE) {
             show404();
@@ -1088,13 +1096,13 @@ abstract class DefaultController extends Base
 
             $oSession = Factory::service('Session', 'nails/module-auth');
             $oSession->setFlashData('success', static::DELETE_SUCCESS_MESSAGE . ' ' . $sRestoreLink);
-            redirect($this->aConfig['BASE_URL']);
+            $this->returnToIndex();
 
         } catch (\Exception $e) {
             $oDb->trans_rollback();
             $oSession = Factory::service('Session', 'nails/module-auth');
             $oSession->setFlashData('error', static::DELETE_ERROR_MESSAGE . ' ' . $e->getMessage());
-            redirect($this->aConfig['BASE_URL']);
+            $this->returnToIndex();
         }
     }
 
@@ -1105,7 +1113,7 @@ abstract class DefaultController extends Base
      *
      * @return void
      */
-    public function restore()
+    public function restore(): void
     {
         if (!$this->aConfig['CAN_RESTORE']) {
             show404();
@@ -1145,13 +1153,13 @@ abstract class DefaultController extends Base
             $oDb->trans_commit();
             $oSession = Factory::service('Session', 'nails/module-auth');
             $oSession->setFlashData('success', static::RESTORE_SUCCESS_MESSAGE);
-            redirect($this->aConfig['BASE_URL']);
+            $this->returnToIndex();
 
         } catch (\Exception $e) {
             $oDb->trans_rollback();
             $oSession = Factory::service('Session', 'nails/module-auth');
             $oSession->setFlashData('error', static::RESTORE_ERROR_MESSAGE . ' ' . $e->getMessage());
-            redirect($this->aConfig['BASE_URL']);
+            $this->returnToIndex();
         }
     }
 
@@ -1162,7 +1170,7 @@ abstract class DefaultController extends Base
      *
      * @return void
      */
-    public function sort()
+    public function sort(): void
     {
         if (!static::CONFIG_CAN_EDIT) {
             show404();
@@ -1232,7 +1240,7 @@ abstract class DefaultController extends Base
      *
      * @return bool
      */
-    public static function inArray(array $aValues, array $aArray)
+    public static function inArray(array $aValues, array $aArray): bool
     {
         foreach ($aValues as $sValue) {
             if (in_array($sValue, $aArray)) {
@@ -1251,7 +1259,7 @@ abstract class DefaultController extends Base
      *
      * @return bool
      */
-    protected static function isViewButtonEnabled($oItem)
+    protected static function isViewButtonEnabled($oItem): bool
     {
         return property_exists($oItem, 'url');
     }
@@ -1265,7 +1273,7 @@ abstract class DefaultController extends Base
      *
      * @return bool
      */
-    protected static function isEditButtonEnabled($oItem)
+    protected static function isEditButtonEnabled($oItem): bool
     {
         return static::CONFIG_CAN_EDIT &&
             (empty(static::CONFIG_PERMISSION) || userHasPermission('admin:' . static::CONFIG_PERMISSION . ':edit'));
@@ -1280,10 +1288,30 @@ abstract class DefaultController extends Base
      *
      * @return bool
      */
-    protected static function isDeleteButtonEnabled($oItem)
+    protected static function isDeleteButtonEnabled($oItem): bool
     {
         //  @todo (Pablo - 2018-12-20) - Prevent deletion of self
         return static::CONFIG_CAN_DELETE &&
             (empty(static::CONFIG_PERMISSION) || userHasPermission('admin:' . static::CONFIG_PERMISSION . ':delete'));
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the user to the index pagel if a referrer is available then go there instead
+     * This is useful for returning the user to a filtered view
+     *
+     * @throws \Nails\Common\Exception\FactoryException
+     */
+    protected function returnToIndex(): void
+    {
+        $oInput    = Factory::service('Input');
+        $sReferrer = $oInput->server('HTTP_REFERER');
+
+        if (!empty($sReferrer)) {
+            redirect($sReferrer);
+        } else {
+            redirect($this->aConfig['BASE_URL']);
+        }
     }
 }
