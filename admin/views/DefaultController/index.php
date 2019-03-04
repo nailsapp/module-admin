@@ -105,7 +105,7 @@ $oMustache = \Nails\Factory::service('Mustache');
                                 ], $CONFIG['INDEX_CENTERED_FIELDS']);
 
 
-                                if (is_callable($sProperty)) {
+                                if (is_object($sProperty) && ($sProperty instanceof \Closure)) {
 
                                     $mValue   = $sProperty($oItem);
                                     $aClasses = [];
@@ -222,7 +222,7 @@ $oMustache = \Nails\Factory::service('Mustache');
                                 if (empty($CONFIG['PERMISSION']) || empty($sPerm) || userHasPermission($sPerm)) {
 
                                     $cEnabled = getFromArray('enabled', $aButton);
-                                    if (is_callable($cEnabled) && !$cEnabled($oItem)) {
+                                    if (is_object($cEnabled) && ($cEnabled instanceof \Closure) && !$cEnabled($oItem)) {
                                         continue;
                                     }
 
