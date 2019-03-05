@@ -2,7 +2,7 @@
 > Documentation is a WIP.
 
 
-This module exposes the following events through the [Nails Events Service](https://github.com/nails/common/blob/master/docs/intro/events.md) in the `nails/module-invoice` namespace.
+This module exposes the following events through the [Nails Events Service](https://github.com/nails/common/blob/master/docs/intro/events.md) in the `nails/module-admin` namespace.
 
 > Remember you can see all events available to the application using `nails events`
 
