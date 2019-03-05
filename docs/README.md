@@ -9,3 +9,4 @@ This module provides a unified interface for modules to provide admin control pa
 - [Console](console/README.md)
 - [Controllers](controllers/README.md)
 - [Data Export](data-export/README.md)
+- [Events](events/README.md)

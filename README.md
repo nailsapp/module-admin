@@ -11,8 +11,9 @@ This module provides a unified interface for modules to provide admin control pa
 
 ## Documentation
 
-- [Assets](assets/README.md)
-    - [Auto-loading](assets/autoloading.md)
-- [Console](console/README.md)
-- [Controllers](controllers/README.md)
-- [Data Export](data-export/README.md)
+- [Assets](docs/assets/README.md)
+    - [Auto-loading](docs/assets/autoloading.md)
+- [Console](docs/console/README.md)
+- [Controllers](docs/controllers/README.md)
+- [Data Export](docs/data-export/README.md)
+- [Events](docs/events/README.md)
