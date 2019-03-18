@@ -3,6 +3,7 @@
 namespace Nails\Admin\Console\Command\Controller;
 
 use Nails\Admin\Exception\Console\ControllerExistsException;
+use Nails\Common\Exception\NailsException;
 use Nails\Console\Command\BaseMaker;
 use Nails\Factory;
 use Symfony\Component\Console\Input\InputArgument;
@@ -136,7 +137,7 @@ class Create extends BaseMaker
                     @unlink($sPath);
                 }
             }
-            throw new \Exception($e->getMessage());
+            throw new NailsException($e->getMessage());
         }
     }
 }

@@ -13,6 +13,7 @@
 namespace Nails\Admin\Factory;
 
 use Nails\Admin\Factory\IndexFilter\Option;
+use Nails\Common\Exception\NailsException;
 use Nails\Factory;
 
 class IndexFilter
@@ -81,7 +82,7 @@ class IndexFilter
                 return $this->{$this->aMethods[$sMethod]};
             }
         } else {
-            throw new \Exception('Call to undefined method ' . get_called_class() . '::' . $sMethod . '()');
+            throw new NailsException('Call to undefined method ' . get_called_class() . '::' . $sMethod . '()');
         }
     }
 

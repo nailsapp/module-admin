@@ -14,6 +14,7 @@ namespace Nails\Admin\Admin;
 
 use Nails\Admin\Controller\Base;
 use Nails\Admin\Helper;
+use Nails\Common\Exception\NailsException;
 use Nails\Factory;
 
 /**
@@ -123,19 +124,19 @@ class Utilities extends Base
                 $oFormValidation->set_message('required', lang('fv_required'));
 
                 if (!$oFormValidation->run()) {
-                    throw new \Exception(lang('fv_there_were_errors'));
+                    throw new NailsException(lang('fv_there_were_errors'));
                 }
 
                 //  Validate source
                 $oSelectedSource = $oDataExport->getSourceBySlug($oInput->post('source'));
                 if (empty($oSelectedSource)) {
-                    throw new \Exception('Invalid data source');
+                    throw new NailsException('Invalid data source');
                 }
 
                 //  Validate format
                 $oSelectedFormat = $oDataExport->getFormatBySlug($oInput->post('format'));
                 if (empty($oSelectedFormat)) {
-                    throw new \Exception('Invalid data format');
+                    throw new NailsException('Invalid data format');
                 }
 
                 //  Prepare options
@@ -153,7 +154,7 @@ class Utilities extends Base
                     'format'  => $oSelectedFormat->slug,
                 ];
                 if (!$oDataExportModel->create($aData)) {
-                    throw new \Exception('Failed to schedule export.');
+                    throw new NailsException('Failed to schedule export.');
                 }
 
                 $this->data['success'] = 'Export Scheduled';

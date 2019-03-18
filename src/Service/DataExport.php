@@ -12,6 +12,7 @@
 
 namespace Nails\Admin\Service;
 
+use Nails\Common\Exception\NailsException;
 use Nails\Components;
 use Nails\Factory;
 use Nails\Admin\DataExport\SourceResponse;
@@ -164,18 +165,18 @@ class DataExport
      * @param array  $aOptions    Additional options to pass to the source
      *
      * @return integer
-     * @throws \Exception
+     * @throws NailsException
      */
     public function export($sSourceSlug, $sFormatSlug, $aOptions = [])
     {
         $oSource = $this->getSourceBySlug($sSourceSlug);
         if (empty($oSource)) {
-            throw new \Exception('Invalid data source "' . $sSourceSlug . '"');
+            throw new NailsException('Invalid data source "' . $sSourceSlug . '"');
         }
 
         $oFormat = $this->getFormatBySlug($sFormatSlug);
         if (empty($oFormat)) {
-            throw new \Exception('Invalid data format "' . $sFormatSlug . '"');
+            throw new NailsException('Invalid data format "' . $sFormatSlug . '"');
         }
 
         $oSourceResponse = $oSource->instance->execute($aOptions);
@@ -196,7 +197,7 @@ class DataExport
             foreach ($aSourceResponses as $oSourceResponse) {
 
                 if (!($oSourceResponse instanceof SourceResponse)) {
-                    throw new \Exception('Source must return an instance of SourceResponse');
+                    throw new NailsException('Source must return an instance of SourceResponse');
                 }
 
                 //  Create a new file
@@ -227,7 +228,7 @@ class DataExport
             $oObject = $oCdn->objectCreate($sFile, 'data-export');
 
             if (empty($oObject)) {
-                throw new \Exception('Failed to upload exported file. ' . $oCdn->lastError());
+                throw new NailsException('Failed to upload exported file. ' . $oCdn->lastError());
             }
         } finally {
             //  Tidy up

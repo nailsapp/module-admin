@@ -12,6 +12,8 @@
 
 namespace Nails\Admin\Factory\IndexFilter;
 
+use Nails\Common\Exception\NailsException;
+
 class Option
 {
     /**
@@ -92,7 +94,7 @@ class Option
         } elseif (array_key_exists($sMethod, $this->aBoolMethods)) {
             return $this->handleMethodCall($this->aBoolMethods, $sMethod, (bool) reset($aArguments));
         } else {
-            throw new \Exception('Call to undefined method ' . get_called_class() . '::' . $sMethod . '()');
+            throw new NailsException('Call to undefined method ' . get_called_class() . '::' . $sMethod . '()');
         }
     }
 
