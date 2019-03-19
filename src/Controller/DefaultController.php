@@ -16,6 +16,7 @@ use Nails\Admin\Factory\Nav;
 use Nails\Admin\Helper;
 use Nails\Common\Exception\NailsException;
 use Nails\Common\Exception\ValidationException;
+use Nails\Common\Resource;
 use Nails\Factory;
 
 abstract class DefaultController extends Base
@@ -820,12 +821,12 @@ abstract class DefaultController extends Base
     /**
      * Executed before an item is edited
      *
-     * @param string    $sMode Whether the action was CREATE or EDIT
-     * @param \stdClass $oItem The old item, before it was edited
+     * @param string   $sMode Whether the action was CREATE or EDIT
+     * @param Resource $oItem The old item, before it was edited
      *
      * @return void
      */
-    protected function beforeCreateAndEdit($sMode, \stdClass $oItem = null): void
+    protected function beforeCreateAndEdit($sMode, Resource $oItem = null): void
     {
     }
 
@@ -834,11 +835,11 @@ abstract class DefaultController extends Base
     /**
      * Executed before an item is edited
      *
-     * @param \stdClass $oItem The old item, before it was edited
+     * @param Resource $oItem The old item, before it was edited
      *
      * @return void
      */
-    protected function beforeEdit(\stdClass $oItem = null): void
+    protected function beforeEdit(Resource $oItem = null): void
     {
     }
 
@@ -858,11 +859,11 @@ abstract class DefaultController extends Base
     /**
      * Executed before an item is deleted
      *
-     * @param \stdClass $oItem The item being deleted
+     * @param Resource $oItem The item being deleted
      *
      * @return void
      */
-    protected function beforeDelete(\stdClass $oItem): void
+    protected function beforeDelete(Resource $oItem): void
     {
     }
 
@@ -871,13 +872,13 @@ abstract class DefaultController extends Base
     /**
      * Executed after an item is edited
      *
-     * @param string    $sMode    Whether the action was CREATE or EDIT
-     * @param \stdClass $oNewItem The new item, after it was edited
-     * @param \stdClass $oOldItem The old item, before it was edited
+     * @param string   $sMode    Whether the action was CREATE or EDIT
+     * @param Resource $oNewItem The new item, after it was edited
+     * @param Resource $oOldItem The old item, before it was edited
      *
      * @return void
      */
-    protected function afterCreateAndEdit($sMode, \stdClass $oNewItem, \stdClass $oOldItem = null): void
+    protected function afterCreateAndEdit($sMode, Resource $oNewItem, Resource $oOldItem = null): void
     {
     }
 
@@ -886,12 +887,12 @@ abstract class DefaultController extends Base
     /**
      * Executed after an item is edited
      *
-     * @param \stdClass $oNewItem The new item, after it was edited
-     * @param \stdClass $oOldItem The old item, before it was edited
+     * @param Resource $oNewItem The new item, after it was edited
+     * @param Resource $oOldItem The old item, before it was edited
      *
      * @return void
      */
-    protected function afterEdit(\stdClass $oNewItem, \stdClass $oOldItem = null): void
+    protected function afterEdit(Resource $oNewItem, Resource $oOldItem = null): void
     {
     }
 
@@ -900,11 +901,11 @@ abstract class DefaultController extends Base
     /**
      * Executed after an item is created
      *
-     * @param \stdClass $oNewItem The new item
+     * @param Resource $oNewItem The new item
      *
      * @return void
      */
-    protected function afterCreate(\stdClass $oNewItem): void
+    protected function afterCreate(Resource $oNewItem): void
     {
     }
 
@@ -913,11 +914,11 @@ abstract class DefaultController extends Base
     /**
      * Executed after an item is deleted
      *
-     * @param \stdClass $oItem The deleted item
+     * @param Resource $oItem The deleted item
      *
      * @return void
      */
-    protected function afterDelete(\stdClass $oItem): void
+    protected function afterDelete(Resource $oItem): void
     {
     }
 
@@ -982,11 +983,11 @@ abstract class DefaultController extends Base
     /**
      * Load data for the edit/create view
      *
-     * @param  \stdClass $oItem The main item object
+     * @param  Resource $oItem The main item object
      *
      * @return void
      */
-    protected function loadEditViewData(\stdClass $oItem = null): void
+    protected function loadEditViewData(Resource $oItem = null): void
     {
         //  Extract the fields into fieldsets
         $aFieldSets = array_combine(
@@ -1255,7 +1256,7 @@ abstract class DefaultController extends Base
     /**
      * Determines whethr the "View" row button is enabled
      *
-     * @param \stdClass $oItem The row item
+     * @param Resource $oItem The row item
      *
      * @return bool
      */
@@ -1269,7 +1270,7 @@ abstract class DefaultController extends Base
     /**
      * Determines whethr the "Edit" row button is enabled
      *
-     * @param \stdClass $oItem The row item
+     * @param Resource $oItem The row item
      *
      * @return bool
      */
@@ -1284,7 +1285,7 @@ abstract class DefaultController extends Base
     /**
      * Determines whethr the "Delete" row button is enabled
      *
-     * @param \stdClass $oItem The row item
+     * @param Resource $oItem The row item
      *
      * @return bool
      */
