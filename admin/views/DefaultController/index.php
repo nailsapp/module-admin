@@ -136,9 +136,15 @@ $oMustache = \Nails\Factory::service('Mustache');
                                     $sCellAdditional = '';
                                     if (classUses($CONFIG['MODEL_INSTANCE'], '\Nails\Common\Traits\Model\Nestable')) {
                                         $aBreadcrumbs = json_decode($oItem->breadcrumbs);
-                                        if (!empty($aBreadcrumbs)) {
-                                            $aItems          = arrayExtractProperty($aBreadcrumbs, 'label');
-                                            $sCellAdditional = '<small>' . implode(' &rsaquo; ', $aItems) . '</small>';
+                                        if (!empty($aBreadcrumbs) && $sProperty === $CONFIG['MODEL_INSTANCE']->getColumn('label')) {
+                                            $mValue = '<span class="text-muted">╚</span>' . implode(
+                                                    ' ',
+                                                    [
+                                                        str_repeat('<span class="text-muted">═</span>', count($aBreadcrumbs) - 1),
+                                                        '&nbsp;',
+                                                        $mValue,
+                                                    ]
+                                                );
                                         }
                                     }
 
