@@ -105,8 +105,8 @@ class Settings extends Base
 
             if (!empty($aSettings)) {
 
-                $oAppSettingModel = Factory::model('AppSetting');
-                if ($oAppSettingModel->set($aSettings, 'admin')) {
+                $oAppSettingService = Factory::service('AppSetting');
+                if ($oAppSettingService->set($aSettings, 'admin')) {
                     $this->data['success'] = 'Admin settings have been saved.';
                 } else {
                     $this->data['error'] = 'There was a problem saving admin settings.';
@@ -179,8 +179,8 @@ class Settings extends Base
 
             if (!empty($aSettings)) {
 
-                $oAppSettingModel = Factory::model('AppSetting');
-                if ($oAppSettingModel->set($aSettings, 'site')) {
+                $oAppSettingService = Factory::service('AppSetting');
+                if ($oAppSettingService->set($aSettings, 'site')) {
                     $this->data['success'] = 'Site settings have been saved.';
                 } else {
                     $this->data['error'] = 'There was a problem saving site settings.';
@@ -428,18 +428,18 @@ class Settings extends Base
                 }
 
                 //  Begin transaction
-                $oAppSettingModel = Factory::model('AppSetting');
-                $oDb              = Factory::service('Database');
+                $oAppSettingService = Factory::service('AppSetting');
+                $oDb                = Factory::service('Database');
                 $oDb->trans_begin();
 
                 //  Normal settings
-                if (!$oAppSettingModel->set($aSettings, $oComponent->slug)) {
-                    $sError = $oAppSettingModel->lastError();
+                if (!$oAppSettingService->set($aSettings, $oComponent->slug)) {
+                    $sError = $oAppSettingService->lastError();
                 }
 
                 //  Encrypted settings
-                if (!$oAppSettingModel->set($aSettingsEncrypted, $oComponent->slug, null, true)) {
-                    $sError = $oAppSettingModel->lastError();
+                if (!$oAppSettingService->set($aSettingsEncrypted, $oComponent->slug, null, true)) {
+                    $sError = $oAppSettingService->lastError();
                 }
 
                 if (empty($sError)) {
