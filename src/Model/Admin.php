@@ -7,7 +7,7 @@
  * @subpackage  module-admin
  * @category    Model
  * @author      Nails Dev Team
- * @link
+ * @todo (Pablo - 2019-03-22) - This isn't really a model and should be moved to a service
  */
 
 namespace Nails\Admin\Model;
@@ -17,19 +17,20 @@ use Nails\Factory;
 
 class Admin extends Base
 {
-    protected $oUserMeta;
+    protected $oUserMetaService;
     protected $aJsonFields;
 
     // --------------------------------------------------------------------------
 
     /**
      * Admin constructor.
+     *
      * @throws \Nails\Common\Exception\FactoryException
      */
     public function __construct()
     {
-        $this->oUserMeta   = Factory::model('UserMeta', 'nails/module-auth');
-        $this->aJsonFields = [
+        $this->oUserMetaService = Factory::service('UserMeta', 'nails/module-auth');
+        $this->aJsonFields      = [
             'nav_state',
         ];
     }
@@ -100,7 +101,7 @@ class Admin extends Base
         }
 
         //  Save to the DB
-        $bResult = $this->oUserMeta->update(
+        $bResult = $this->oUserMetaService->update(
             NAILS_DB_PREFIX . 'user_meta_admin',
             $userId,
             $existing
@@ -133,7 +134,7 @@ class Admin extends Base
         } else {
 
 
-            $oRow = $this->oUserMeta->get(NAILS_DB_PREFIX . 'user_meta_admin', $userId);
+            $oRow = $this->oUserMetaService->get(NAILS_DB_PREFIX . 'user_meta_admin', $userId);
 
             if (!empty($oRow)) {
 
@@ -188,7 +189,7 @@ class Admin extends Base
         //  Get the user ID
         $userId = $this->adminDataGetUserId($userId);
 
-        $bResult = $this->oUserMeta->update(
+        $bResult = $this->oUserMetaService->update(
             NAILS_DB_PREFIX . 'user_meta_admin',
             $userId,
             [
