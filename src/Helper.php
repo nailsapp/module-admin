@@ -538,16 +538,16 @@ class Helper
     /**
      * Load the admin "settings component table" component
      *
-     * @param  string $sModel         The model to use
-     * @param  array  $sProvider      The model provider
-     * @param  string $sComponentType The type of component being loaded
+     * @param  string $sComponentService The component service to use
+     * @param  array  $sProvider         The model provider
+     * @param  string $sComponentType    The type of component being loaded
      *
      * @return string
      * @throws \Nails\Common\Exception\FactoryException
      */
-    public static function loadSettingsComponentTable($sModel, $sProvider, $sComponentType = 'component')
+    public static function loadSettingsComponentTable($sComponentService, $sProvider, $sComponentType = 'component')
     {
-        $oModel          = Factory::model($sModel, $sProvider);
+        $oModel          = Factory::service($sComponentService, $sProvider);
         $sKey            = $oModel->getSettingKey();
         $aComponents     = $oModel->getAll();
         $aEnabled        = (array) $oModel->getEnabledSlug();
@@ -570,15 +570,15 @@ class Helper
     /**
      * Alias to loadSettingsComponentTable()
      *
-     * @param  string $sModel    The model to use
-     * @param  array  $sProvider The model provider
+     * @param  string $sDriverService The driver service to use
+     * @param  array  $sProvider      The model provider
      *
      * @return string
      * @throws \Nails\Common\Exception\FactoryException
      */
-    public static function loadSettingsDriverTable($sModel, $sProvider)
+    public static function loadSettingsDriverTable($sDriverService, $sProvider)
     {
-        return self::loadSettingsComponentTable($sModel, $sProvider, 'driver');
+        return self::loadSettingsComponentTable($sDriverService, $sProvider, 'driver');
     }
 
     // --------------------------------------------------------------------------
@@ -586,15 +586,15 @@ class Helper
     /**
      * Alias to loadSettingsComponentTable()
      *
-     * @param  string $sModel    The model to use
-     * @param  array  $sProvider The model provider
+     * @param  string $sSkinService The skin service to use
+     * @param  array  $sProvider    The model provider
      *
      * @return string
      * @throws \Nails\Common\Exception\FactoryException
      */
-    public static function loadSettingsSkinTable($sModel, $sProvider)
+    public static function loadSettingsSkinTable($sSkinService, $sProvider)
     {
-        return self::loadSettingsComponentTable($sModel, $sProvider, 'skin');
+        return self::loadSettingsComponentTable($sSkinService, $sProvider, 'skin');
     }
 
     // --------------------------------------------------------------------------
