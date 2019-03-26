@@ -7,9 +7,6 @@ $oMustache = \Nails\Factory::service('Mustache');
 
 ?>
 <div class="group-defaultcontroller browse">
-    <p>
-        Manage <?=$CONFIG['TITLE_PLURAL']?>.
-    </p>
     <?=adminHelper('loadSearch', $search)?>
     <?=adminHelper('loadPagination', $pagination)?>
     <div class="table-responsive">
