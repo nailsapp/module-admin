@@ -337,12 +337,10 @@ abstract class DefaultController extends Base
                         return static::isEditButtonEnabled($oItem);
                     },
                 ],
-                //  @todo (Pablo - 2018-12-20) - Delete button: Better messaging
-                //  @todo (Pablo - 2019-01-22) - Delete button: Confirm delete
                 [
                     'url'     => 'delete/{{id}}',
                     'label'   => lang('action_delete'),
-                    'class'   => 'btn-danger',
+                    'class'   => 'btn-danger confirm',
                     'enabled' => function ($oItem) {
                         return static::isDeleteButtonEnabled($oItem);
                     },
