@@ -325,6 +325,7 @@ abstract class DefaultController extends Base
                     'url'     => '{{url}}',
                     'label'   => lang('action_view'),
                     'class'   => 'btn-default',
+                    'attr'    => 'target="_blank"',
                     'enabled' => function ($oItem) {
                         return static::isViewButtonEnabled($oItem);
                     },
@@ -981,7 +982,7 @@ abstract class DefaultController extends Base
     /**
      * Load data for the edit/create view
      *
-     * @param  Resource $oItem The main item object
+     * @param Resource $oItem The main item object
      *
      * @return void
      */
