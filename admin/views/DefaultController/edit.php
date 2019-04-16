@@ -40,7 +40,7 @@
                 foreach ($aFields as $oField) {
 
                     $aField            = (array) $oField;
-                    $aField['default'] = !empty($item) && property_exists($item, $oField->key) ? $item->{$oField->key} : '';
+                    $aField['default'] = !empty($item) && property_exists($item, $oField->key) ? $item->{$oField->key} : $aField['default'];
 
                     if (is_object($aField['default']) && property_exists($aField['default'], 'count') && property_exists($aField['default'], 'data')) {
                         $aField['default'] = $aField['default']->data;

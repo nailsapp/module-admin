@@ -19,6 +19,7 @@ use Nails\Common\Exception\NailsException;
 use Nails\Common\Exception\ValidationException;
 use Nails\Common\Resource;
 use Nails\Common\Service\Locale;
+use Nails\Common\Service\Uri;
 use Nails\Common\Traits\Model\Localised;
 use Nails\Common\Traits\Model\Nestable;
 use Nails\Factory;
@@ -165,9 +166,9 @@ abstract class DefaultController extends Base
     const CONFIG_CREATE_READONLY_FIELDS = [];
 
     /**
-     * The fields to ignore on the create/edit view
+     * The fields to ignore on the create view
      */
-    const CONFIG_EDIT_IGNORE_FIELDS = [
+    const CONFIG_CREATE_IGNORE_FIELDS = [
         'id',
         'slug',
         'token',
@@ -177,6 +178,11 @@ abstract class DefaultController extends Base
         'modified',
         'modified_by',
     ];
+
+    /**
+     * The fields to ignore on the edit view
+     */
+    const CONFIG_EDIT_IGNORE_FIELDS = self::CONFIG_CREATE_IGNORE_FIELDS;
 
     /**
      * Fields which should be marked as readonly when editing an item
@@ -322,9 +328,11 @@ abstract class DefaultController extends Base
 
         // --------------------------------------------------------------------------
 
+        $bIsLocalised = classUses($this->aConfig['MODEL_INSTANCE'], Localised::class);
+
         $this->aConfig['INDEX_ROW_BUTTONS'] = array_merge(
             $this->aConfig['INDEX_ROW_BUTTONS'],
-            [
+            array_filter([
                 [
                     'url'     => '{{url}}',
                     'label'   => lang('action_view'),
@@ -335,22 +343,30 @@ abstract class DefaultController extends Base
                     },
                 ],
                 [
-                    'url'     => 'edit/{{id}}',
+                    'url'     => $bIsLocalised ? 'edit/{{id}}/{{locale}}' : 'edit/{{id}}',
                     'label'   => lang('action_edit'),
                     'class'   => 'btn-primary',
                     'enabled' => function ($oItem) {
                         return static::isEditButtonEnabled($oItem);
                     },
                 ],
+                $bIsLocalised ? [
+                    'url'     => $bIsLocalised ? 'create/{{id}}' : 'create/{{id}}',
+                    'label'   => 'Create Version',
+                    'class'   => 'btn-warning',
+                    'enabled' => function ($oItem) {
+                        return static::isEditButtonEnabled($oItem);
+                    },
+                ] : null,
                 [
-                    'url'     => 'delete/{{id}}',
+                    'url'     => $bIsLocalised ? 'delete/{{id}}/{{locale}}' : 'delete/{{id}}',
                     'label'   => lang('action_delete'),
                     'class'   => 'btn-danger confirm',
                     'enabled' => function ($oItem) {
                         return static::isDeleteButtonEnabled($oItem);
                     },
                 ],
-            ]
+            ])
         );
 
         // --------------------------------------------------------------------------
@@ -414,6 +430,7 @@ abstract class DefaultController extends Base
             'INDEX_NUMERIC_FIELDS'   => static::CONFIG_INDEX_NUMERIC_FIELDS,
             'INDEX_CENTERED_FIELDS'  => static::CONFIG_INDEX_CENTERED_FIELDS,
             'CREATE_READONLY_FIELDS' => static::CONFIG_CREATE_READONLY_FIELDS,
+            'CREATE_IGNORE_FIELDS'   => static::CONFIG_CREATE_IGNORE_FIELDS,
             'EDIT_READONLY_FIELDS'   => static::CONFIG_EDIT_READONLY_FIELDS,
             'EDIT_IGNORE_FIELDS'     => static::CONFIG_EDIT_IGNORE_FIELDS,
             'EDIT_DATA'              => static::CONFIG_EDIT_DATA,
@@ -425,12 +442,14 @@ abstract class DefaultController extends Base
 
         //  Additional fields
         if (classUses($oModel, Sortable::class)) {
-            $aConfig['SORT_OPTIONS']         = array_merge(['Defined Order' => 'order'], $aConfig['SORT_OPTIONS']);
-            $aConfig['EDIT_IGNORE_FIELDS'][] = $oModel->getSortableColumn();
+            $aConfig['SORT_OPTIONS']           = array_merge(['Defined Order' => 'order'], $aConfig['SORT_OPTIONS']);
+            $aConfig['CREATE_IGNORE_FIELDS'][] = $oModel->getSortableColumn();
+            $aConfig['EDIT_IGNORE_FIELDS'][]   = $oModel->getSortableColumn();
         }
 
         if (classUses($oModel, Nestable::class)) {
-            $aConfig['EDIT_IGNORE_FIELDS'][] = $oModel->getBreadcrumbsColumn();
+            $aConfig['CREATE_IGNORE_FIELDS'][] = $oModel->getBreadcrumbsColumn();
+            $aConfig['EDIT_IGNORE_FIELDS'][]   = $oModel->getBreadcrumbsColumn();
         }
 
         //  Set defaults where appropriate
@@ -458,7 +477,9 @@ abstract class DefaultController extends Base
         }
 
         if (classUses($oModel, Localised::class)) {
-            $aConfig['INDEX_FIELDS'] = array_merge(
+            $aConfig['CREATE_READONLY_FIELDS'][] = 'locale';
+            $aConfig['EDIT_READONLY_FIELDS'][]   = 'locale';
+            $aConfig['INDEX_FIELDS']             = array_merge(
                 [
                     'Locale' => function ($oRow) {
                         /** @var Locale $oLocale */
@@ -739,7 +760,7 @@ abstract class DefaultController extends Base
 
         if ($oInput->post()) {
             try {
-                $this->runFormValidation();
+                $this->runFormValidation(static::EDIT_MODE_CREATE);
                 $oDb->trans_begin();
                 $this->beforeCreateAndEdit(static::EDIT_MODE_CREATE);
                 $this->beforeCreate();
@@ -767,7 +788,11 @@ abstract class DefaultController extends Base
                 $oSession->setFlashData('success', sprintf(static::CREATE_SUCCESS_MESSAGE, $sLink));
 
                 if ($this->aConfig['CAN_EDIT']) {
-                    redirect($this->aConfig['BASE_URL'] . '/edit/' . $oItem->id);
+                    if (classUses($oModel, Localised::class)) {
+                        redirect($this->aConfig['BASE_URL'] . '/edit/' . $oItem->id . '/' . $oItem->locale);
+                    } else {
+                        redirect($this->aConfig['BASE_URL'] . '/edit/' . $oItem->id);
+                    }
                 } else {
                     $this->returnToIndex();
                 }
@@ -775,6 +800,64 @@ abstract class DefaultController extends Base
             } catch (\Exception $e) {
                 $oDb->trans_rollback();
                 $this->data['error'] = $e->getMessage();
+            }
+        }
+
+        // --------------------------------------------------------------------------
+
+        $oUri        = Factory::service('Uri');
+        $iExistingId = (int) $oUri->segment(5) ?: null;
+        if (classUses($oModel, Localised::class) && !$iExistingId) {
+
+            /** @var Locale $oLocale */
+            $oLocale = Factory::service('Locale');
+            foreach ($this->aConfig['FIELDS'] as $oField) {
+                if ($oField->key === 'locale') {
+                    $oField->info .= ' New items must be created in ' .
+                        \Locale::getDisplayLanguage($oLocale->getDefautLocale()) .
+                        ' (' . $oLocale->getDefautLocale()->getRegion() . ').';
+                    break;
+                }
+            }
+
+        } else {
+
+            //  Validate the ID, and only allow creation of new locales
+            $aExisting = $oModel->getAll([
+                'NO_LOCALISE_FILTER' => true,
+                'where'              => [
+                    ['id', $iExistingId],
+                ],
+            ]);
+
+            if (empty($aExisting)) {
+                show404();
+            }
+
+            //  Test if new locales can be created, filter out existing locales from the options list
+            $aExistingLocales = arrayExtractProperty($aExisting, 'locale');
+            foreach ($this->aConfig['FIELDS'] as $oField) {
+                if ($oField->key === 'locale') {
+
+                    $aDiff = array_diff(
+                        array_keys($oField->options),
+                        array_values($aExistingLocales)
+                    );
+
+                    if (empty($aDiff)) {
+                        $oSession = Factory::service('Session', 'nails/module-auth');
+                        $oSession->setFlashData('error', 'No more variations of this item can be created.');
+                        $this->returnToIndex();
+                    }
+
+                    $oField->options = array_intersect_key(
+                        $oField->options,
+                        array_flip($aDiff)
+                    );
+
+                    unset($this->aConfig['CREATE_READONLY_FIELDS'][array_search('locale', $this->aConfig['CREATE_READONLY_FIELDS'])]);
+                    break;
+                }
             }
         }
 
@@ -817,7 +900,7 @@ abstract class DefaultController extends Base
         if ($oInput->post()) {
             try {
 
-                $this->runFormValidation();
+                $this->runFormValidation(static::EDIT_MODE_EDIT);
                 $oDb->trans_begin();
                 $this->beforeCreateAndEdit(static::EDIT_MODE_EDIT, $oItem);
                 $this->beforeEdit($oItem);
@@ -826,7 +909,13 @@ abstract class DefaultController extends Base
                     throw new NailsException(static::EDIT_ERROR_MESSAGE . ' ' . $oModel->lastError());
                 }
 
-                $oNewItem = $oModel->getById($oItem->id);
+                if (classUses($oModel, Localised::class)) {
+                    $oNewItem = $oModel->getById($oItem->id, [
+                        'USE_LOCALE' => $oInput->post('locale'),
+                    ]);
+                } else {
+                    $oNewItem = $oModel->getById($oItem->id);
+                }
                 $this->afterCreateAndEdit(static::EDIT_MODE_EDIT, $oNewItem, $oItem);
                 $this->afterEdit($oNewItem, $oItem);
                 $oDb->trans_commit();
@@ -843,7 +932,11 @@ abstract class DefaultController extends Base
 
                 $oSession = Factory::service('Session', 'nails/module-auth');
                 $oSession->setFlashData('success', sprintf(static::EDIT_SUCCESS_MESSAGE, $sLink));
-                redirect($this->aConfig['BASE_URL'] . '/edit/' . $oItem->id);
+                if (classUses($oModel, Localised::class)) {
+                    redirect($this->aConfig['BASE_URL'] . '/edit/' . $oItem->id . '/' . $oItem->locale);
+                } else {
+                    redirect($this->aConfig['BASE_URL'] . '/edit/' . $oItem->id);
+                }
 
             } catch (\Exception $e) {
                 $oDb->trans_rollback();
@@ -977,18 +1070,33 @@ abstract class DefaultController extends Base
     /**
      * Form validation for edit/create
      *
-     * @param array $aOverrides Any overrides for the fields; best to do this in the model's describeFields() method
+     * @param string $sMode      The mode in which the validation is being run
+     * @param array  $aOverrides Any overrides for the fields; best to do this in the model's describeFields() method
      *
-     * @throws ValidationException
      * @return void
+     * @throws ValidationException
      */
-    protected function runFormValidation(array $aOverrides = []): void
+    protected function runFormValidation(string $sMode, array $aOverrides = []): void
     {
+        $oModel               = $this::getModel();
         $oFormValidation      = Factory::service('FormValidation');
         $aRulesFormValidation = [];
         $aImplementedRules    = [];
 
-        foreach ($this->aConfig['FIELDS'] as $oField) {
+        foreach ($this->aConfig['FIELDS'] as &$oField) {
+
+            if ($sMode === static::EDIT_MODE_CREATE && classUses($oModel, Localised::class)) {
+                if ($oField->key == 'locale') {
+
+                    /** @var Locale $oLocale */
+                    $oLocale = Factory::service('Locale');
+                    /** @var Uri $oUri */
+                    $oUri = Factory::service('Uri');
+                    if (empty($oUri->segment(5))) {
+                        $oField->validation[] = 'is[' . $oLocale->getDefautLocale() . ']';
+                    }
+                }
+            }
 
             if (array_key_exists($oField->key, $aOverrides)) {
                 $sRules            = implode('|', $aOverrides[$oField->key]);
@@ -1051,8 +1159,14 @@ abstract class DefaultController extends Base
 
         foreach ($this->aConfig['FIELDS'] as $oField) {
 
-            if (in_array($oField->key, $this->aConfig['EDIT_IGNORE_FIELDS'])) {
-                continue;
+            if (empty($oItem)) {
+                if (in_array($oField->key, $this->aConfig['CREATE_IGNORE_FIELDS'])) {
+                    continue;
+                }
+            } else {
+                if (in_array($oField->key, $this->aConfig['EDIT_IGNORE_FIELDS'])) {
+                    continue;
+                }
             }
 
             $sFieldSet = getFromArray('fieldset', (array) $oField, 'Details');
@@ -1077,13 +1191,35 @@ abstract class DefaultController extends Base
      */
     protected function getPostObject(): array
     {
+        $oModel = static::getModel();
         $oInput = Factory::service('Input');
+        $oUri   = Factory::service('Uri');
         $aOut   = [];
+
+        if (classUses($oModel, Localised::class)) {
+            $iExistingId = $oUri->segment(5);
+            if ($oUri->segment(5)) {
+                $aOut['id'] = $oUri->segment(5);
+            }
+        }
 
         foreach ($this->aConfig['FIELDS'] as $oField) {
             if (in_array($oField->key, $this->aConfig['EDIT_IGNORE_FIELDS'])) {
                 continue;
             }
+
+            if (classUses($oModel, Localised::class) && $oField->key === 'locale') {
+
+                /** @var Locale $oLocale */
+                $oLocale        = Factory::service('Locale');
+                $oItemLocale    = Factory::factory('Locale');
+                $aOut['locale'] = $oLocale->setFromString(
+                    $oItemLocale,
+                    $oInput->post($oField->key)
+                );
+                continue;
+            }
+
             $aOut[$oField->key] = $oInput->post($oField->key);
 
             if ($oField->allow_null && empty($aOut[$oField->key])) {
@@ -1272,7 +1408,12 @@ abstract class DefaultController extends Base
         $oUri    = Factory::service('Uri');
         $oModel  = $this->getModel();
         $iItemId = (int) $oUri->segment($iSegment);
-        $oItem   = $oModel->getById($iItemId, $aData);
+
+        if (classUses($oModel, Localised::class)) {
+            $aData['USE_LOCALE'] = $oUri->segment($iSegment + 1);
+        }
+
+        $oItem = $oModel->getById($iItemId, $aData);
 
         if (empty($oItem)) {
             show404();
