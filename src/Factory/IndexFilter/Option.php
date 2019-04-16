@@ -18,36 +18,42 @@ class Option
 {
     /**
      * Stores an array of the getter/setters for the other properties
+     *
      * @var array
      */
     protected $aMethods = [];
 
     /**
      * Stores an array of the getter/setters for boolean properties
+     *
      * @var array
      */
     protected $aBoolMethods = [];
 
     /**
      * The label to give the option
+     *
      * @var string
      */
     protected $sLabel;
 
     /**
      * The value to give the option
+     *
      * @var mixed
      */
     protected $mValue;
 
     /**
      * Whether the item is selected or not
+     *
      * @var boolean
      */
     protected $bIsSelected;
 
     /**
      * If true, treat the value as the entire query
+     *
      * @var boolean
      */
     protected $bIsQuery;

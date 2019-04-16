@@ -20,24 +20,28 @@ class IndexFilter
 {
     /**
      * Stores an array of the getter/setters for the other properties
+     *
      * @var array
      */
     protected $aMethods = [];
 
     /**
      * The label to give the filter
+     *
      * @var string
      */
     protected $sLabel;
 
     /**
      * The column the filter acts on
+     *
      * @var string
      */
     protected $sColumn;
 
     /**
      * An array of options to present to the user
+     *
      * @var array
      */
     protected $aOptions = [];
@@ -104,10 +108,10 @@ class IndexFilter
             $this->aOptions[] = $sLabel;
         } else {
             $this->aOptions[] = Factory::factory('IndexFilterOption', 'nails/module-admin')
-                                       ->setLabel($sLabel)
-                                       ->setValue($mValue)
-                                       ->setIsSelected($bIsSelected)
-                                       ->setIsQuery($bIsQuery);
+                ->setLabel($sLabel)
+                ->setValue($mValue)
+                ->setIsSelected($bIsSelected)
+                ->setIsQuery($bIsQuery);
         }
 
         return $this;
