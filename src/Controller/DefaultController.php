@@ -14,9 +14,13 @@ namespace Nails\Admin\Controller;
 
 use Nails\Admin\Factory\Nav;
 use Nails\Admin\Helper;
+use Nails\Common\Exception\FactoryException;
 use Nails\Common\Exception\NailsException;
 use Nails\Common\Exception\ValidationException;
 use Nails\Common\Resource;
+use Nails\Common\Service\Locale;
+use Nails\Common\Traits\Model\Localised;
+use Nails\Common\Traits\Model\Nestable;
 use Nails\Factory;
 
 abstract class DefaultController extends Base
@@ -366,7 +370,7 @@ abstract class DefaultController extends Base
      *
      * @return array
      * @throws NailsException
-     * @throws \Nails\Common\Exception\FactoryException
+     * @throws FactoryException
      */
     public static function getConfig(): array
     {
@@ -420,12 +424,12 @@ abstract class DefaultController extends Base
         ];
 
         //  Additional fields
-        if (classUses($oModel, 'Nails\Common\Traits\Model\Sortable')) {
+        if (classUses($oModel, Sortable::class)) {
             $aConfig['SORT_OPTIONS']         = array_merge(['Defined Order' => 'order'], $aConfig['SORT_OPTIONS']);
             $aConfig['EDIT_IGNORE_FIELDS'][] = $oModel->getSortableColumn();
         }
 
-        if (classUses($oModel, 'Nails\Common\Traits\Model\Nestable')) {
+        if (classUses($oModel, Nestable::class)) {
             $aConfig['EDIT_IGNORE_FIELDS'][] = $oModel->getBreadcrumbsColumn();
         }
 
@@ -451,6 +455,20 @@ abstract class DefaultController extends Base
             $sClass  = lcfirst($aBits[count($aBits) - 1]);
 
             $aConfig['BASE_URL'] = 'admin/' . $sModule . '/' . $sClass;
+        }
+
+        if (classUses($oModel, Localised::class)) {
+            $aConfig['INDEX_FIELDS'] = array_merge(
+                [
+                    'Locale' => function ($oRow) {
+                        /** @var Locale $oLocale */
+                        $oLocale = Factory::service('Locale');
+                        $sFlag   = $oLocale::flagEmoji($oRow->locale);
+                        return $sFlag ? $sFlag : $oRow->locale;
+                    },
+                ],
+                $aConfig['INDEX_FIELDS']
+            );
         }
 
         return $aConfig;
@@ -510,7 +528,7 @@ abstract class DefaultController extends Base
      * Returns the model instance
      *
      * @return \Nails\Common\Model\Base
-     * @throws \Nails\Common\Exception\FactoryException
+     * @throws FactoryException
      */
     protected static function getModel(): \Nails\Common\Model\Base
     {
@@ -540,7 +558,7 @@ abstract class DefaultController extends Base
         $sAlias      = $oModel->getTableAlias();
         $aSortConfig = $this->aConfig['SORT_OPTIONS'];
 
-        if (classUses($oModel, '\Nails\Common\Traits\Model\Nestable')) {
+        if (classUses($oModel, Nestable::class)) {
             $aSortConfig = array_merge(['Hierarchy' => 'order'], $aSortConfig);
         }
 
@@ -577,6 +595,12 @@ abstract class DefaultController extends Base
 
         // --------------------------------------------------------------------------
 
+        if (classUses($oModel, Localised::class)) {
+            $aData['NO_LOCALISE_FILTER'] = true;
+        }
+
+        // --------------------------------------------------------------------------
+
         $iTotalRows               = $oModel->countAll($aData);
         $this->data['items']      = $oModel->getAll($iPage, $iPerPage, $aData);
         $this->data['pagination'] = Helper::paginationObject($iPage, $iPerPage, $iTotalRows);
@@ -602,7 +626,7 @@ abstract class DefaultController extends Base
 
         if (static::CONFIG_CAN_EDIT) {
             $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':edit';
-            $bIsSortable    = classUses($oModel, 'Nails\Common\Traits\Model\Sortable');
+            $bIsSortable    = classUses($oModel, Sortable::class);
             if ($bIsSortable && (empty($this->aConfig['PERMISSION']) || userHasPermission($sPermissionStr))) {
                 Helper::addHeaderButton($this->aConfig['BASE_URL'] . '/sort', 'Set Order');
             }
@@ -654,7 +678,34 @@ abstract class DefaultController extends Base
      */
     protected function indexDropdownFilters(): array
     {
-        return [];
+        $aFilters = [];
+        if (classUses($this::getModel(), Localised::class)) {
+
+            /** @var Locale $oLocale */
+            $oLocale = Factory::service('Locale');
+
+            $aOptions   = [];
+            $aOptions[] = Factory::factory('IndexFilterOption', 'nails/module-admin')
+                ->setLabel('All Locales');
+
+            foreach ($oLocale->getSupportedLocales() as $oSupportedLocale) {
+                $aOptions[] = Factory::factory('IndexFilterOption', 'nails/module-admin')
+                    ->setLabel(
+                        \Locale::getDisplayLanguage($oSupportedLocale) .
+                        ' (' . $oSupportedLocale->getRegion() . ')'
+                    )
+                    ->setValue(
+                        $oSupportedLocale->getLanguage() . '_' . $oSupportedLocale->getRegion()
+                    );
+            }
+
+            $aFilters[] = Factory::factory('IndexFilter', 'nails/module-admin')
+                ->setLabel('Locale')
+                ->setColumn('CONCAT(`language`, \'_\', `region`)')
+                ->addOptions($aOptions);
+        }
+
+        return $aFilters;
     }
 
     // --------------------------------------------------------------------------
@@ -1214,7 +1265,7 @@ abstract class DefaultController extends Base
      * @param integer $iSegment The URL segment contianing the ID
      *
      * @return mixed
-     * @throws \Nails\Common\Exception\FactoryException
+     * @throws FactoryException
      */
     protected function getItem($aData = [], $iSegment = 5)
     {
@@ -1301,7 +1352,7 @@ abstract class DefaultController extends Base
      * Returns the user to the index pagel if a referrer is available then go there instead
      * This is useful for returning the user to a filtered view
      *
-     * @throws \Nails\Common\Exception\FactoryException
+     * @throws FactoryException
      */
     protected function returnToIndex(): void
     {
