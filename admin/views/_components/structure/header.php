@@ -352,26 +352,56 @@
                             if (!empty($headerButtons)) {
 
                                 echo '<span class="header-buttons">';
-                                foreach ($headerButtons as $button) {
+                                foreach ($headerButtons as $aButton) {
 
-                                    $sConfirmClass = $button['confirmTitle'] || $button['confirmBody'] ? ' confirm' : '';
+                                    $aClasses = array_filter([
+                                        'btn',
+                                        'btn-xs',
+                                        'btn-' . $aButton['context'],
+                                        $aButton['confirmTitle'] || $aButton['confirmBody'] ? 'confirm' : '',
+                                        is_array($aButton['url']) ? 'dropdown-toggle' : '',
+                                    ]);
+                                    $aAttr  = array_filter([
+                                        'class="' . implode(' ', $aClasses) . '"',
+                                        $aButton['confirmTitle'] ? 'data-title="' . $aButton['confirmTitle'] . '"' : '',
+                                        $aButton['confirmBody'] ? 'data-body="' . $aButton['confirmBody'] . '"' : '',
+                                    ]);
 
-                                    $attr   = [];
-                                    $attr[] = 'class="btn btn-xs btn-' . $button['context'] . $sConfirmClass . '"';
-                                    $attr[] = $button['confirmTitle'] ? 'data-title="' . $button['confirmTitle'] . '"' : '';
-                                    $attr[] = $button['confirmBody'] ? 'data-body="' . $button['confirmBody'] . '"' : '';
+                                    if (is_array($aButton['url'])) {
 
-                                    $attr = array_filter($attr);
+                                        ?>
+                                        <div class="btn-group">
+                                            <button type="button" <?=implode(' ', $aAttr)?> data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <?=$aButton['label']?> <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <?php
+                                                foreach ($aButton['url'] as $sLabel => $sItemUrl) {
+                                                    ?>
+                                                    <li>
+                                                        <a href="<?=site_url($sItemUrl)?>">
+                                                            <?=$sLabel?>
+                                                        </a>
+                                                    </li>
+                                                    <?php
+                                                }
+                                                ?>
+                                            </ul>
+                                        </div>
+                                        <?php
 
-                                    if ($button['context'] === 'danger') {
-                                        $button['label'] = '<i class="fa fa-exclamation-triangle"></i>' . $button['label'];
+                                    } else {
+
+                                        if ($aButton['context'] === 'danger') {
+                                            $aButton['label'] = '<i class="fa fa-exclamation-triangle"></i>' . $aButton['label'];
+                                        }
+
+                                        echo anchor(
+                                                $aButton['url'],
+                                                $aButton['label'],
+                                                implode(' ', $aAttr)
+                                            ) . ' ';
                                     }
-
-                                    echo anchor(
-                                            $button['url'],
-                                            $button['label'],
-                                            implode(' ', $attr)
-                                        ) . ' ';
                                 }
                                 echo '</span>';
                             }

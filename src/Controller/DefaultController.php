@@ -90,7 +90,7 @@ abstract class DefaultController extends Base
     ];
 
     /**
-     * Any additional header buttons to add to the page.
+     * Any additional header buttons to add to the index page.
      */
     const CONFIG_INDEX_HEADER_BUTTONS = [];
 
@@ -195,6 +195,11 @@ abstract class DefaultController extends Base
      * Additional data to pass into the getAll call on the edit view
      */
     const CONFIG_EDIT_DATA = [];
+
+    /**
+     * Any additional header buttons to add to the edit page.
+     */
+    const CONFIG_EDIT_HEADER_BUTTONS = [];
 
     /**
      * Specify a specific order for fieldsets
@@ -452,32 +457,7 @@ abstract class DefaultController extends Base
 
         // --------------------------------------------------------------------------
 
-        if ($aConfig['CAN_CREATE'] && static::userCan('create')) {
-            Helper::addHeaderButton($aConfig['BASE_URL'] . '/create', 'Create');
-        }
-
-        if ($aConfig['CAN_EDIT'] && static::userCan('edit') && classUses($oModel, Sortable::class)) {
-            Helper::addHeaderButton($aConfig['BASE_URL'] . '/sort', 'Set Order');
-        }
-
-        // --------------------------------------------------------------------------
-
-        foreach ($aConfig['INDEX_HEADER_BUTTONS'] as $aButton) {
-
-            $sUrl          = getFromArray(0, $aButton);
-            $sLabel        = getFromArray(1, $aButton);
-            $sContext      = getFromArray(2, $aButton);
-            $sConfirmTitle = getFromArray(3, $aButton);
-            $sConfirmBody  = getFromArray(4, $aButton);
-
-            Helper::addHeaderButton(
-                $sUrl,
-                $sLabel,
-                $sContext,
-                $sConfirmTitle,
-                $sConfirmBody
-            );
-        }
+        static::addHeaderButtons($aConfig['INDEX_HEADER_BUTTONS']);
 
         // --------------------------------------------------------------------------
 
@@ -721,9 +701,7 @@ abstract class DefaultController extends Base
 
         // --------------------------------------------------------------------------
 
-        if ($aConfig['CAN_CREATE'] && static::userCan('create')) {
-            Helper::addHeaderButton($aConfig['BASE_URL'] . '/create', 'Create');
-        }
+        static::addHeaderButtons($aConfig['EDIT_HEADER_BUTTONS']);
 
         // --------------------------------------------------------------------------
 
@@ -970,6 +948,7 @@ abstract class DefaultController extends Base
             'INDEX_CENTERED_FIELDS'  => static::CONFIG_INDEX_CENTERED_FIELDS,
             'CREATE_READONLY_FIELDS' => static::CONFIG_CREATE_READONLY_FIELDS,
             'CREATE_IGNORE_FIELDS'   => static::CONFIG_CREATE_IGNORE_FIELDS,
+            'EDIT_HEADER_BUTTONS'    => static::CONFIG_EDIT_HEADER_BUTTONS,
             'EDIT_READONLY_FIELDS'   => static::CONFIG_EDIT_READONLY_FIELDS,
             'EDIT_IGNORE_FIELDS'     => static::CONFIG_EDIT_IGNORE_FIELDS,
             'EDIT_DATA'              => static::CONFIG_EDIT_DATA,
@@ -1003,6 +982,41 @@ abstract class DefaultController extends Base
                 ],
                 $aConfig['INDEX_FIELDS']
             );
+        }
+
+        // --------------------------------------------------------------------------
+
+        if ($aConfig['CAN_CREATE'] && static::userCan('create') && classUses($oModel, Localised::class)) {
+            $oItem = $this->getItem([], null, false, false);
+            if (!empty($oItem)) {
+                $aVersions = [];
+                foreach ($oItem->missing_locales as $oLocale) {
+                    $aVersions['Create ' . $oLocale->getDisplayLanguage()] = $aConfig['BASE_URL'] . '/create/' . $oItem->id . '/' . $oLocale;
+                }
+                $aConfig['EDIT_HEADER_BUTTONS'][] = [
+                    $aVersions,
+                    'Create Version',
+                    'btn btn-warning',
+                ];
+            }
+        }
+
+        if ($aConfig['CAN_CREATE'] && static::userCan('create')) {
+            $aConfig['INDEX_HEADER_BUTTONS'][] = [
+                $aConfig['BASE_URL'] . '/create',
+                'Create',
+            ];
+            $aConfig['EDIT_HEADER_BUTTONS'][]  = [
+                $aConfig['BASE_URL'] . '/create',
+                'Create',
+            ];
+        }
+
+        if ($aConfig['CAN_EDIT'] && static::userCan('edit') && classUses($oModel, Sortable::class)) {
+            $aConfig['INDEX_HEADER_BUTTONS'][] = [
+                $aConfig['BASE_URL'] . '/sort',
+                'Set Order',
+            ];
         }
 
         // --------------------------------------------------------------------------
@@ -1573,7 +1587,7 @@ abstract class DefaultController extends Base
      * @return mixed
      * @throws FactoryException
      */
-    protected function getItem(array $aData = [], int $iSegment = null, bool $bIncludeDeleted = false)
+    protected function getItem(array $aData = [], int $iSegment = null, bool $bIncludeDeleted = false, bool $b404 = true)
     {
         $iSegment = $iSegment ?? 5;
         $oUri     = Factory::service('Uri');
@@ -1599,7 +1613,7 @@ abstract class DefaultController extends Base
 
         $oItem = reset($aItems);
 
-        if (empty($oItem)) {
+        if ($b404 && empty($oItem)) {
             show404();
         }
 
@@ -1665,6 +1679,28 @@ abstract class DefaultController extends Base
             redirect($sReferrer);
         } else {
             redirect($this->getConfig()['BASE_URL']);
+        }
+    }
+
+    // --------------------------------------------------------------------------
+
+    protected function addHeaderButtons(array $aButtons): void
+    {
+        foreach ($aButtons as $aButton) {
+
+            $sUrl          = getFromArray(0, $aButton);
+            $sLabel        = getFromArray(1, $aButton);
+            $sContext      = getFromArray(2, $aButton);
+            $sConfirmTitle = getFromArray(3, $aButton);
+            $sConfirmBody  = getFromArray(4, $aButton);
+
+            Helper::addHeaderButton(
+                $sUrl,
+                $sLabel,
+                $sContext,
+                $sConfirmTitle,
+                $sConfirmBody
+            );
         }
     }
 }
