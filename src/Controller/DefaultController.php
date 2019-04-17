@@ -22,6 +22,7 @@ use Nails\Common\Service\Locale;
 use Nails\Common\Service\Uri;
 use Nails\Common\Traits\Model\Localised;
 use Nails\Common\Traits\Model\Nestable;
+use Nails\Common\Traits\Model\Sortable;
 use Nails\Factory;
 
 abstract class DefaultController extends Base
@@ -860,18 +861,48 @@ abstract class DefaultController extends Base
 
         $oModel = $this->getModel();
         $oInput = Factory::service('Input');
+        $oDb    = Factory::service('Database');
+
         if ($oInput->post()) {
             try {
+
+                $oDb->trans_begin();
                 $aItems = array_values((array) $oInput->post('order'));
                 foreach ($aItems as $iOrder => $iId) {
-                    if (!$oModel->update($iId, ['order' => $iOrder])) {
-                        throw new NailsException(static::ORDER_ERROR_MESSAGE . ' ' . $oModel->lastError());
+
+                    if (classUses($oModel, Localised::class)) {
+
+                        $aItems = $oModel->getAll([
+                            'NO_LOCALISE_FILTER' => true,
+                            'where'              => [
+                                ['id', $iId],
+                            ],
+                        ]);
+
+                        foreach ($aItems as $oItem) {
+                            if (!$oModel->update($iId, ['order' => $iOrder], $oItem->locale)) {
+                                throw new NailsException(
+                                    static::ORDER_ERROR_MESSAGE . ' ' . $oModel->lastError()
+                                );
+                            }
+                        }
+
+                    } elseif (!$oModel->update($iId, ['order' => $iOrder])) {
+                        throw new NailsException(
+                            static::ORDER_ERROR_MESSAGE . ' ' . $oModel->lastError()
+                        );
                     }
                 }
+
+                $oDb->trans_commit();
+
                 $oSession = Factory::service('Session', 'nails/module-auth');
                 $oSession->setFlashData('success', static::ORDER_SUCCESS_MESSAGE);
+
                 redirect($aConfig['BASE_URL'] . '/sort');
+
             } catch (\Exception $e) {
+                $oDb->trans_rollback();
                 $this->data['error'] = $e->getMessage();
             }
         }
@@ -966,9 +997,7 @@ abstract class DefaultController extends Base
             $aConfig['INDEX_FIELDS']             = array_merge(
                 [
                     'Locale' => function ($oRow) {
-                        /** @var Locale $oLocale */
-                        $oLocale = Factory::service('Locale');
-                        $sFlag   = $oLocale::flagEmoji($oRow->locale);
+                        $sFlag = $oRow->locale->getFlagEmoji();
                         return $sFlag ? '<span rel="tipsy" title="' . $oRow->locale->getDisplayLanguage() . '">' . $sFlag . '</span>' : $oRow->locale;
                     },
                 ],

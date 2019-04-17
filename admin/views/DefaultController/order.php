@@ -1,8 +1,24 @@
+<?php
+
+use Nails\Common\Traits\Model\Localised;
+
+$bIsLocalised = classUses($CONFIG['MODEL_INSTANCE'], Localised::class);
+
+?>
 <?=form_open()?>
 <table>
     <thead>
         <tr>
             <th width="50"></th>
+            <?php
+            if ($bIsLocalised) {
+                ?>
+                <th width="100" class="text-center">
+                    Available In
+                </th>
+                <?php
+            }
+            ?>
             <th>Item</th>
         </tr>
     </thead>
@@ -14,6 +30,23 @@
                 <td width="50" class="text-center handle">
                     <i class="fa fa-bars" aria-hidden="true"></i>
                 </td>
+                <?php
+                if ($bIsLocalised) {
+                    ?>
+                    <td width="100" class="text-center field--locale">
+                        <?php
+                        foreach ($oItem->available_locales as $oLocale) {
+                            ?>
+                            <span rel="tipsy" title="<?=$oLocale->getDisplayLanguage()?>">
+                                <?=$oLocale->getFlagEmoji()?>
+                            </span>
+                            <?php
+                        }
+                        ?>
+                    </td>
+                    <?php
+                }
+                ?>
                 <td>
                     <?php
 
