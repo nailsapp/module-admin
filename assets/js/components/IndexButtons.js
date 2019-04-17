@@ -1,4 +1,5 @@
 /* export IndexButtons */
+
 /* globals $, jQuery */
 class IndexButtons {
 
@@ -6,11 +7,16 @@ class IndexButtons {
      * Construct IndexButtons
      * @return {IndexButtons}
      */
-    constructor() {
+    constructor () {
         $('td.actions')
             .each((index, element) => {
                 let $buttons = $('> a', element);
-                if ($buttons.length > 3) {
+                let offsets = [];
+                $buttons.each((index, element) => {
+                    offsets.push(element.offsetTop);
+                })
+
+                if (Math.max(...offsets) !== Math.min(...offsets)) {
                     $buttons.addClass('btn-block');
                 }
             });
