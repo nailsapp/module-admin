@@ -1,7 +1,7 @@
 <?php
 
 use Nails\Admin\Helper;
-use Nails\Admin\Controller\DefaultController;
+use Nails\Common\Helper\ArrayHelper;
 
 $oMustache = \Nails\Factory::service('Mustache');
 
@@ -21,17 +21,17 @@ $oMustache = \Nails\Factory::service('Mustache');
                         $sNormalisedLabel = preg_replace('/[^a-z0-9 \-_]/', '', $sNormalisedLabel);
                         $sNormalisedLabel = str_replace([' ', '_'], '-', $sNormalisedLabel);
 
-                        $bIsBoolCell = DefaultController::inArray([
+                        $bIsBoolCell = ArrayHelper::inArray([
                             $sProperty,
                             $sNormalisedLabel,
                         ], $CONFIG['INDEX_BOOL_FIELDS']);
 
-                        $bIsUserCell = DefaultController::inArray([
+                        $bIsUserCell = ArrayHelper::inArray([
                             $sProperty,
                             $sNormalisedLabel,
                         ], $CONFIG['INDEX_USER_FIELDS']);
 
-                        $bIsCenteredCell = DefaultController::inArray([
+                        $bIsCenteredCell = ArrayHelper::inArray([
                             $sProperty,
                             $sNormalisedLabel,
                         ], $CONFIG['INDEX_CENTERED_FIELDS']);
@@ -64,7 +64,7 @@ $oMustache = \Nails\Factory::service('Mustache');
                         <?php
                     }
                     ?>
-                    <th class="actions" style="width:160px;">Actions</th>
+                    <th class="actions" style="width:175px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -81,22 +81,22 @@ $oMustache = \Nails\Factory::service('Mustache');
                                 $sNormalisedLabel = preg_replace('/[^a-z0-9 \-_]/', '', $sNormalisedLabel);
                                 $sNormalisedLabel = str_replace([' ', '_'], '-', $sNormalisedLabel);
 
-                                $bIsBoolCell = DefaultController::inArray([
+                                $bIsBoolCell = ArrayHelper::inArray([
                                     $sProperty,
                                     $sNormalisedLabel,
                                 ], $CONFIG['INDEX_BOOL_FIELDS']);
 
-                                $bIsUserCell = DefaultController::inArray([
+                                $bIsUserCell = ArrayHelper::inArray([
                                     $sProperty,
                                     $sNormalisedLabel,
                                 ], $CONFIG['INDEX_USER_FIELDS']);
 
-                                $bIsNumeric = DefaultController::inArray([
+                                $bIsNumeric = ArrayHelper::inArray([
                                     $sProperty,
                                     $sNormalisedLabel,
                                 ], $CONFIG['INDEX_NUMERIC_FIELDS']);
 
-                                $bIsCenteredCell = DefaultController::inArray([
+                                $bIsCenteredCell = ArrayHelper::inArray([
                                     $sProperty,
                                     $sNormalisedLabel,
                                 ], $CONFIG['INDEX_CENTERED_FIELDS']);
@@ -215,12 +215,32 @@ $oMustache = \Nails\Factory::service('Mustache');
                             echo '<td class="actions">';
                             foreach ($CONFIG['INDEX_ROW_BUTTONS'] as $aButton) {
 
-                                $sUrl   = getFromArray('url', $aButton);
+                                $sUrl = getFromArray('url', $aButton);
+                                if (is_object($sUrl) && ($sUrl instanceof \Closure)) {
+                                    $sUrl = $sUrl($oItem);
+                                }
+
                                 $sLabel = getFromArray('label', $aButton);
+                                if (is_object($sLabel) && ($sLabel instanceof \Closure)) {
+                                    $sLabel = $sLabel($oItem);
+                                }
+
                                 $sClass = getFromArray('class', $aButton);
-                                $sAttr  = getFromArray('attr', $aButton);
-                                $sPerm  = getFromArray('permission', $aButton);
-                                $sPerm  = $sPerm ? 'admin:' . $CONFIG['PERMISSION'] . ':' . $sPerm : '';
+                                if (is_object($sClass) && ($sClass instanceof \Closure)) {
+                                    $sClass = $sClass($oItem);
+                                }
+
+                                $sAttr = getFromArray('attr', $aButton);
+                                if (is_object($sAttr) && ($sAttr instanceof \Closure)) {
+                                    $sAttr = $sAttr($oItem);
+                                }
+
+                                $sPerm = getFromArray('permission', $aButton);
+                                if (is_object($sPerm) && ($sPerm instanceof \Closure)) {
+                                    $sPerm = $sPerm($oItem);
+                                }
+
+                                $sPerm = $sPerm ? 'admin:' . $CONFIG['PERMISSION'] . ':' . $sPerm : '';
 
                                 if (empty($CONFIG['PERMISSION']) || empty($sPerm) || userHasPermission($sPerm)) {
 
@@ -232,17 +252,46 @@ $oMustache = \Nails\Factory::service('Mustache');
                                     $sLabel = $oMustache->render($sLabel, $oItem);
                                     $sClass = $oMustache->render($sClass, $oItem);
                                     $sAttr  = $oMustache->render($sAttr, $oItem);
-                                    $sUrl   = $oMustache->render($sUrl, $oItem);
 
-                                    if (!preg_match('/^(\/|https?:\/\/)/', $sUrl)) {
-                                        $sUrl = $CONFIG['BASE_URL'] . '/' . $sUrl;
+
+                                    if (is_array($sUrl)) {
+                                        ?>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-xs dropdown-toggle <?=$sClass?>" <?=$sAttr?> data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <?=$sLabel?> <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <?php
+                                                foreach ($sUrl as $sLabel => $sItemUrl) {
+                                                    $sItemUrl = $oMustache->render($sItemUrl, $oItem);
+                                                    if (!preg_match('/^(\/|https?:\/\/)/', $sItemUrl)) {
+                                                        $sItemUrl = $CONFIG['BASE_URL'] . '/' . $sItemUrl;
+                                                    }
+                                                    ?>
+                                                    <li>
+                                                        <a href="<?=site_url($sItemUrl)?>">
+                                                            <?=$sLabel?>
+                                                        </a>
+                                                    </li>
+                                                    <?php
+                                                }
+                                                ?>
+                                            </ul>
+                                        </div>
+                                        <?php
+                                    } else {
+
+                                        $sUrl = $oMustache->render($sUrl, $oItem);
+                                        if (!preg_match('/^(\/|https?:\/\/)/', $sUrl)) {
+                                            $sUrl = $CONFIG['BASE_URL'] . '/' . $sUrl;
+                                        }
+
+                                        echo anchor(
+                                            $sUrl,
+                                            $sLabel,
+                                            'class="btn btn-xs ' . $sClass . '" ' . $sAttr
+                                        );
                                     }
-
-                                    echo anchor(
-                                        $sUrl,
-                                        $sLabel,
-                                        'class="btn btn-xs ' . $sClass . '" ' . $sAttr
-                                    );
                                 }
                             }
                             echo '</td>';

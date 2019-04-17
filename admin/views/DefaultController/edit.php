@@ -68,7 +68,6 @@
             <?php
             $i++;
         }
-
         ?>
     </section>
     <div class="admin-floating-controls">

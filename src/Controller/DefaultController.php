@@ -27,10 +27,6 @@ use Nails\Factory;
 abstract class DefaultController extends Base
 {
     /**
-     * The following constants are used to build the controller
-     */
-
-    /**
      * The model to use for this admin view (and which module provides it)
      */
     const CONFIG_MODEL_NAME     = '';
@@ -119,9 +115,14 @@ abstract class DefaultController extends Base
     const CONFIG_CAN_VIEW = true;
 
     /**
-     * Specify whether the controller supports item deletion (and restoration if possible)
+     * Specify whether the controller supports item deletion
      */
     const CONFIG_CAN_DELETE = true;
+
+    /**
+     * Specify whether the controller supports item restoration
+     */
+    const CONFIG_CAN_RESTORE = true;
 
     /**
      * Additional data to pass into the getAll call on the index view
@@ -257,7 +258,7 @@ abstract class DefaultController extends Base
     /**
      * Message displayed to user when an item is successfully restored
      */
-    const RESTORE_SUCCESS_MESSAGE = 'Item restore successfully.';
+    const RESTORE_SUCCESS_MESSAGE = 'Item restored successfully.';
 
     /**
      * Message displayed to user when an item fails to be restored
@@ -323,176 +324,7 @@ abstract class DefaultController extends Base
     public function __construct()
     {
         parent::__construct();
-
-        $this->aConfig = static::getConfig();
-
-        // --------------------------------------------------------------------------
-
-        $bIsLocalised = classUses($this->aConfig['MODEL_INSTANCE'], Localised::class);
-
-        $this->aConfig['INDEX_ROW_BUTTONS'] = array_merge(
-            $this->aConfig['INDEX_ROW_BUTTONS'],
-            array_filter([
-                [
-                    'url'     => '{{url}}',
-                    'label'   => lang('action_view'),
-                    'class'   => 'btn-default',
-                    'attr'    => 'target="_blank"',
-                    'enabled' => function ($oItem) {
-                        return static::isViewButtonEnabled($oItem);
-                    },
-                ],
-                [
-                    'url'     => $bIsLocalised ? 'edit/{{id}}/{{locale}}' : 'edit/{{id}}',
-                    'label'   => lang('action_edit'),
-                    'class'   => 'btn-primary',
-                    'enabled' => function ($oItem) {
-                        return static::isEditButtonEnabled($oItem);
-                    },
-                ],
-                $bIsLocalised ? [
-                    'url'     => $bIsLocalised ? 'create/{{id}}' : 'create/{{id}}',
-                    'label'   => 'Create Version',
-                    'class'   => 'btn-warning',
-                    'enabled' => function ($oItem) {
-                        return static::isEditButtonEnabled($oItem);
-                    },
-                ] : null,
-                [
-                    'url'     => $bIsLocalised ? 'delete/{{id}}/{{locale}}' : 'delete/{{id}}',
-                    'label'   => lang('action_delete'),
-                    'class'   => 'btn-danger confirm',
-                    'enabled' => function ($oItem) {
-                        return static::isDeleteButtonEnabled($oItem);
-                    },
-                ],
-            ])
-        );
-
-        // --------------------------------------------------------------------------
-
-        //  Model specific fields
-        $oModel = $this->getModel();
-
-        $this->aConfig['CAN_RESTORE'] = !$oModel->isDestructiveDelete();
-        $this->aConfig['FIELDS']      = $oModel->describeFields();
-        $this->data['CONFIG']         = &$this->aConfig;
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Returns the controllers config
-     *
-     * @return array
-     * @throws NailsException
-     * @throws FactoryException
-     */
-    public static function getConfig(): array
-    {
-        //  Ensure required constants are set
-        $aRequiredConstants = [
-            'CONFIG_MODEL_NAME',
-            'CONFIG_MODEL_PROVIDER',
-        ];
-        foreach ($aRequiredConstants as $sConstant) {
-            if (empty(constant('static::' . $sConstant))) {
-                throw new NailsException(
-                    'The constant "static::' . $sConstant . '" must be set in ' . get_called_class()
-                );
-            }
-        }
-
-        //  Build the config array
-        $oModel  = static::getModel();
-        $aConfig = [
-            'MODEL_NAME'             => static::CONFIG_MODEL_NAME,
-            'MODEL_PROVIDER'         => static::CONFIG_MODEL_PROVIDER,
-            'MODEL_INSTANCE'         => $oModel,
-            'CAN_CREATE'             => static::CONFIG_CAN_CREATE,
-            'CAN_EDIT'               => static::CONFIG_CAN_EDIT,
-            'CAN_VIEW'               => static::CONFIG_CAN_VIEW,
-            'CAN_DELETE'             => static::CONFIG_CAN_DELETE,
-            'PERMISSION'             => static::CONFIG_PERMISSION,
-            'TITLE_SINGLE'           => static::CONFIG_TITLE_SINGLE,
-            'TITLE_PLURAL'           => static::CONFIG_TITLE_PLURAL,
-            'SIDEBAR_GROUP'          => static::CONFIG_SIDEBAR_GROUP,
-            'SIDEBAR_ICON'           => static::CONFIG_SIDEBAR_ICON,
-            'BASE_URL'               => static::CONFIG_BASE_URL,
-            'SORT_OPTIONS'           => static::CONFIG_SORT_OPTIONS,
-            'SORT_DIRECTION'         => static::CONFIG_SORT_DIRECTION,
-            'INDEX_FIELDS'           => static::CONFIG_INDEX_FIELDS,
-            'INDEX_HEADER_BUTTONS'   => static::CONFIG_INDEX_HEADER_BUTTONS,
-            'INDEX_ROW_BUTTONS'      => array_merge(static::$aConfigIndexRowButtons, static::CONFIG_INDEX_ROW_BUTTONS),
-            'INDEX_DATA'             => static::CONFIG_INDEX_DATA,
-            'INDEX_BOOL_FIELDS'      => static::CONFIG_INDEX_BOOL_FIELDS,
-            'INDEX_USER_FIELDS'      => static::CONFIG_INDEX_USER_FIELDS,
-            'INDEX_NUMERIC_FIELDS'   => static::CONFIG_INDEX_NUMERIC_FIELDS,
-            'INDEX_CENTERED_FIELDS'  => static::CONFIG_INDEX_CENTERED_FIELDS,
-            'CREATE_READONLY_FIELDS' => static::CONFIG_CREATE_READONLY_FIELDS,
-            'CREATE_IGNORE_FIELDS'   => static::CONFIG_CREATE_IGNORE_FIELDS,
-            'EDIT_READONLY_FIELDS'   => static::CONFIG_EDIT_READONLY_FIELDS,
-            'EDIT_IGNORE_FIELDS'     => static::CONFIG_EDIT_IGNORE_FIELDS,
-            'EDIT_DATA'              => static::CONFIG_EDIT_DATA,
-            'SORT_DATA'              => static::CONFIG_SORT_DATA,
-            'SORT_LABEL'             => static::CONFIG_SORT_LABEL,
-            'FIELDSET_ORDER'         => static::CONFIG_EDIT_FIELDSET_ORDER,
-            'ENABLE_NOTES'           => static::EDIT_ENABLE_NOTES,
-        ];
-
-        //  Additional fields
-        if (classUses($oModel, Sortable::class)) {
-            $aConfig['SORT_OPTIONS']           = array_merge(['Defined Order' => 'order'], $aConfig['SORT_OPTIONS']);
-            $aConfig['CREATE_IGNORE_FIELDS'][] = $oModel->getSortableColumn();
-            $aConfig['EDIT_IGNORE_FIELDS'][]   = $oModel->getSortableColumn();
-        }
-
-        if (classUses($oModel, Nestable::class)) {
-            $aConfig['CREATE_IGNORE_FIELDS'][] = $oModel->getBreadcrumbsColumn();
-            $aConfig['EDIT_IGNORE_FIELDS'][]   = $oModel->getBreadcrumbsColumn();
-        }
-
-        //  Set defaults where appropriate
-        if (empty($aConfig['TITLE_SINGLE'])) {
-            $aConfig['TITLE_SINGLE'] = preg_replace('/([a-z])([A-Z])/', '$1 $2', static::CONFIG_MODEL_NAME);
-            $aConfig['TITLE_SINGLE'] = strtolower($aConfig['TITLE_SINGLE']);
-            $aConfig['TITLE_SINGLE'] = ucwords($aConfig['TITLE_SINGLE']);
-        }
-
-        if (empty($aConfig['TITLE_PLURAL'])) {
-            Factory::helper('inflector');
-            $aConfig['TITLE_PLURAL'] = pluralise(2, $aConfig['TITLE_SINGLE']);
-        }
-
-        if (empty($aConfig['SIDEBAR_GROUP'])) {
-            $aConfig['SIDEBAR_GROUP'] = $aConfig['TITLE_PLURAL'];
-        }
-
-        if (empty($aConfig['BASE_URL'])) {
-            $aBits   = explode('\\', get_called_class());
-            $sModule = strtolower($aBits[count($aBits) - 2]);
-            $sClass  = lcfirst($aBits[count($aBits) - 1]);
-
-            $aConfig['BASE_URL'] = 'admin/' . $sModule . '/' . $sClass;
-        }
-
-        if (classUses($oModel, Localised::class)) {
-            $aConfig['CREATE_READONLY_FIELDS'][] = 'locale';
-            $aConfig['EDIT_READONLY_FIELDS'][]   = 'locale';
-            $aConfig['INDEX_FIELDS']             = array_merge(
-                [
-                    'Locale' => function ($oRow) {
-                        /** @var Locale $oLocale */
-                        $oLocale = Factory::service('Locale');
-                        $sFlag   = $oLocale::flagEmoji($oRow->locale);
-                        return $sFlag ? $sFlag : $oRow->locale;
-                    },
-                ],
-                $aConfig['INDEX_FIELDS']
-            );
-        }
-
-        return $aConfig;
+        $this->getConfig();
     }
 
     // --------------------------------------------------------------------------
@@ -505,16 +337,14 @@ abstract class DefaultController extends Base
      */
     public static function announce()
     {
-        $aConfig = static::getConfig();
-
-        // --------------------------------------------------------------------------
-
         $oNavGroup = Factory::factory('Nav', 'nails/module-admin');
-        $oNavGroup->setLabel($aConfig['SIDEBAR_GROUP']);
-        $oNavGroup->setIcon($aConfig['SIDEBAR_ICON']);
+        $oNavGroup
+            ->setLabel(static::getSidebarGroup())
+            ->setIcon(static::CONFIG_SIDEBAR_ICON);
 
-        if (empty($aConfig['PERMISSION']) || userHasPermission('admin:' . $aConfig['PERMISSION'] . ':browse')) {
-            $oNavGroup->addAction('Manage ' . $aConfig['TITLE_PLURAL'], 'index');
+        if (static::userCan('browse')) {
+            $oNavGroup
+                ->addAction('Manage ' . static::getTitlePlural(), 'index');
         }
 
         return $oNavGroup;
@@ -530,9 +360,8 @@ abstract class DefaultController extends Base
     public static function permissions(): array
     {
         $aPermissions = parent::permissions();
-        $aConfig      = static::getConfig();
 
-        if (!empty($aConfig['PERMISSION'])) {
+        if (!empty(static::CONFIG_PERMISSION)) {
             $aPermissions['browse']  = 'Can browse items';
             $aPermissions['create']  = 'Can create items';
             $aPermissions['edit']    = 'Can edit items';
@@ -546,38 +375,22 @@ abstract class DefaultController extends Base
     // --------------------------------------------------------------------------
 
     /**
-     * Returns the model instance
-     *
-     * @return \Nails\Common\Model\Base
-     * @throws FactoryException
-     */
-    protected static function getModel(): \Nails\Common\Model\Base
-    {
-        return Factory::model(
-            static::CONFIG_MODEL_NAME,
-            static::CONFIG_MODEL_PROVIDER
-        );
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
      * Browse all items
      *
      * @return void
      */
     public function index(): void
     {
-        $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':browse';
-        if (!empty($this->aConfig['PERMISSION']) && !userHasPermission($sPermissionStr)) {
+        if (!static::userCan('browse')) {
             unauthorised();
         }
 
-        $oInput = Factory::service('Input');
-        $oModel = $this->getModel();
+        $oInput  = Factory::service('Input');
+        $oModel  = $this->getModel();
+        $aConfig = $this->getConfig();
 
         $sAlias      = $oModel->getTableAlias();
-        $aSortConfig = $this->aConfig['SORT_OPTIONS'];
+        $aSortConfig = $aConfig['SORT_OPTIONS'];
 
         if (classUses($oModel, Nestable::class)) {
             $aSortConfig = array_merge(['Hierarchy' => 'order'], $aSortConfig);
@@ -600,7 +413,7 @@ abstract class DefaultController extends Base
         $iPage      = $oInput->get('page') ? $oInput->get('page') : 0;
         $iPerPage   = $oInput->get('perPage') ? $oInput->get('perPage') : 50;
         $sSortOn    = $oInput->get('sortOn') ? $oInput->get('sortOn') : $sAlias . '.' . $sFirstKey;
-        $sSortOrder = $oInput->get('sortOrder') ? $oInput->get('sortOrder') : $this->aConfig['SORT_DIRECTION'];
+        $sSortOrder = $oInput->get('sortOrder') ? $oInput->get('sortOrder') : $aConfig['SORT_DIRECTION'];
         $sKeywords  = $oInput->get('keywords');
         $aCbFilters = $this->indexCheckboxFilters();
         $aDdFilters = $this->indexDropdownFilters();
@@ -612,7 +425,7 @@ abstract class DefaultController extends Base
                 'sort'      => [
                     [$sSortOn, $sSortOrder],
                 ],
-            ] + $this->aConfig['INDEX_DATA'];
+            ] + $aConfig['INDEX_DATA'];
 
         // --------------------------------------------------------------------------
 
@@ -638,24 +451,17 @@ abstract class DefaultController extends Base
 
         // --------------------------------------------------------------------------
 
-        if (static::CONFIG_CAN_CREATE) {
-            $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':create';
-            if (empty($this->aConfig['PERMISSION']) || userHasPermission($sPermissionStr)) {
-                Helper::addHeaderButton($this->aConfig['BASE_URL'] . '/create', 'Create');
-            }
+        if ($aConfig['CAN_CREATE'] && static::userCan('create')) {
+            Helper::addHeaderButton($aConfig['BASE_URL'] . '/create', 'Create');
         }
 
-        if (static::CONFIG_CAN_EDIT) {
-            $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':edit';
-            $bIsSortable    = classUses($oModel, Sortable::class);
-            if ($bIsSortable && (empty($this->aConfig['PERMISSION']) || userHasPermission($sPermissionStr))) {
-                Helper::addHeaderButton($this->aConfig['BASE_URL'] . '/sort', 'Set Order');
-            }
+        if ($aConfig['CAN_EDIT'] && static::userCan('edit') && classUses($oModel, Sortable::class)) {
+            Helper::addHeaderButton($aConfig['BASE_URL'] . '/sort', 'Set Order');
         }
 
         // --------------------------------------------------------------------------
 
-        foreach ($this->aConfig['INDEX_HEADER_BUTTONS'] as $aButton) {
+        foreach ($aConfig['INDEX_HEADER_BUTTONS'] as $aButton) {
 
             $sUrl          = getFromArray(0, $aButton);
             $sLabel        = getFromArray(1, $aButton);
@@ -674,59 +480,8 @@ abstract class DefaultController extends Base
 
         // --------------------------------------------------------------------------
 
-        $this->data['page']->title = $this->aConfig['TITLE_PLURAL'] . ' &rsaquo; Manage';
+        $this->data['page']->title = $aConfig['TITLE_PLURAL'] . ' &rsaquo; Manage';
         Helper::loadView('index');
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Any checkbox style filters to include on the index page
-     *
-     * @return array
-     */
-    protected function indexCheckboxFilters(): array
-    {
-        return [];
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Any dropdown style filters to include on the index page
-     *
-     * @return array
-     */
-    protected function indexDropdownFilters(): array
-    {
-        $aFilters = [];
-        if (classUses($this::getModel(), Localised::class)) {
-
-            /** @var Locale $oLocale */
-            $oLocale = Factory::service('Locale');
-
-            $aOptions   = [];
-            $aOptions[] = Factory::factory('IndexFilterOption', 'nails/module-admin')
-                ->setLabel('All Locales');
-
-            foreach ($oLocale->getSupportedLocales() as $oSupportedLocale) {
-                $aOptions[] = Factory::factory('IndexFilterOption', 'nails/module-admin')
-                    ->setLabel(
-                        \Locale::getDisplayLanguage($oSupportedLocale) .
-                        ' (' . $oSupportedLocale->getRegion() . ')'
-                    )
-                    ->setValue(
-                        $oSupportedLocale->getLanguage() . '_' . $oSupportedLocale->getRegion()
-                    );
-            }
-
-            $aFilters[] = Factory::factory('IndexFilter', 'nails/module-admin')
-                ->setLabel('Locale')
-                ->setColumn('CONCAT(`language`, \'_\', `region`)')
-                ->addOptions($aOptions);
-        }
-
-        return $aFilters;
     }
 
     // --------------------------------------------------------------------------
@@ -738,12 +493,10 @@ abstract class DefaultController extends Base
      */
     public function create(): void
     {
-        if (!static::CONFIG_CAN_CREATE) {
+        $aConfig = $this->getConfig();
+        if (!$aConfig['CAN_CREATE']) {
             show404();
-        }
-
-        $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':create';
-        if (!empty($this->aConfig['PERMISSION']) && !userHasPermission($sPermissionStr)) {
+        } elseif (!static::userCan('create')) {
             unauthorised();
         }
 
@@ -760,12 +513,26 @@ abstract class DefaultController extends Base
 
         if ($oInput->post()) {
             try {
+
                 $this->runFormValidation(static::EDIT_MODE_CREATE);
                 $oDb->trans_begin();
                 $this->beforeCreateAndEdit(static::EDIT_MODE_CREATE);
                 $this->beforeCreate();
 
-                $oItem = $oModel->create($this->getPostObject(), true);
+                if (classUses($oModel, Localised::class)) {
+
+                    /** @var Locale $oLocale */
+                    $oLocale = Factory::service('Locale');
+                    /** @var \Nails\Common\Factory\Locale $oItemLocale */
+                    $oItemLocale = Factory::factory('Locale');
+                    $oLocale->setFromString($oItemLocale, $oInput->post('locale'));
+
+                    $oItem = $oModel->create($this->getPostObject(), true, $oItemLocale);
+
+                } else {
+                    $oItem = $oModel->create($this->getPostObject(), true);
+                }
+
                 if (!$oItem) {
                     throw new NailsException(static::CREATE_ERROR_MESSAGE . ' ' . $oModel->lastError());
                 }
@@ -787,11 +554,11 @@ abstract class DefaultController extends Base
                 $oSession = Factory::service('Session', 'nails/module-auth');
                 $oSession->setFlashData('success', sprintf(static::CREATE_SUCCESS_MESSAGE, $sLink));
 
-                if ($this->aConfig['CAN_EDIT']) {
+                if ($aConfig['CAN_EDIT'] && static::userCan('edit')) {
                     if (classUses($oModel, Localised::class)) {
-                        redirect($this->aConfig['BASE_URL'] . '/edit/' . $oItem->id . '/' . $oItem->locale);
+                        redirect($aConfig['BASE_URL'] . '/edit/' . $oItem->id . '/' . $oItem->locale);
                     } else {
-                        redirect($this->aConfig['BASE_URL'] . '/edit/' . $oItem->id);
+                        redirect($aConfig['BASE_URL'] . '/edit/' . $oItem->id);
                     }
                 } else {
                     $this->returnToIndex();
@@ -805,22 +572,21 @@ abstract class DefaultController extends Base
 
         // --------------------------------------------------------------------------
 
-        $oUri        = Factory::service('Uri');
-        $iExistingId = (int) $oUri->segment(5) ?: null;
+        $oUri           = Factory::service('Uri');
+        $iExistingId    = (int) $oUri->segment(5) ?: null;
+        $sDesiredLocale = $oUri->segment(6) ?: null;
         if (classUses($oModel, Localised::class) && !$iExistingId) {
 
             /** @var Locale $oLocale */
             $oLocale = Factory::service('Locale');
-            foreach ($this->aConfig['FIELDS'] as $oField) {
+            foreach ($aConfig['FIELDS'] as $oField) {
                 if ($oField->key === 'locale') {
-                    $oField->info .= ' New items must be created in ' .
-                        \Locale::getDisplayLanguage($oLocale->getDefautLocale()) .
-                        ' (' . $oLocale->getDefautLocale()->getRegion() . ').';
+                    $oField->info .= ' New items must be created in ' . $oLocale->getDefautLocale()->getDisplayLanguage();
                     break;
                 }
             }
 
-        } else {
+        } elseif (classUses($oModel, Localised::class)) {
 
             //  Validate the ID, and only allow creation of new locales
             $aExisting = $oModel->getAll([
@@ -836,7 +602,7 @@ abstract class DefaultController extends Base
 
             //  Test if new locales can be created, filter out existing locales from the options list
             $aExistingLocales = arrayExtractProperty($aExisting, 'locale');
-            foreach ($this->aConfig['FIELDS'] as $oField) {
+            foreach ($aConfig['FIELDS'] as $oField) {
                 if ($oField->key === 'locale') {
 
                     $aDiff = array_diff(
@@ -855,6 +621,9 @@ abstract class DefaultController extends Base
                         array_flip($aDiff)
                     );
 
+                    $oField->default = $sDesiredLocale;
+
+
                     unset($this->aConfig['CREATE_READONLY_FIELDS'][array_search('locale', $this->aConfig['CREATE_READONLY_FIELDS'])]);
                     break;
                 }
@@ -863,7 +632,7 @@ abstract class DefaultController extends Base
 
         // --------------------------------------------------------------------------
 
-        $this->data['page']->title = $this->aConfig['TITLE_SINGLE'] . ' &rsaquo; Create';
+        $this->data['page']->title = $aConfig['TITLE_SINGLE'] . ' &rsaquo; Create';
         Helper::loadView('edit');
     }
 
@@ -876,19 +645,17 @@ abstract class DefaultController extends Base
      */
     public function edit(): void
     {
-        if (!static::CONFIG_CAN_EDIT) {
+        $aConfig = $this->getConfig();
+        if (!$aConfig['CAN_EDIT']) {
             show404();
-        }
-
-        $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':edit';
-        if (!empty($this->aConfig['PERMISSION']) && !userHasPermission($sPermissionStr)) {
+        } elseif (!static::userCan('edit')) {
             unauthorised();
         }
 
         $oDb    = Factory::service('Database');
         $oInput = Factory::service('Input');
         $oModel = $this->getModel();
-        $oItem  = $this->getItem($this->aConfig['EDIT_DATA']);
+        $oItem  = $this->getItem($aConfig['EDIT_DATA']);
 
         // --------------------------------------------------------------------------
 
@@ -905,7 +672,13 @@ abstract class DefaultController extends Base
                 $this->beforeCreateAndEdit(static::EDIT_MODE_EDIT, $oItem);
                 $this->beforeEdit($oItem);
 
-                if (!$oModel->update($oItem->id, $this->getPostObject())) {
+                if (classUses($oModel, Localised::class)) {
+                    $bResult = $oModel->update($oItem->id, $this->getPostObject(), $oItem->locale);
+                } else {
+                    $bResult = $oModel->update($oItem->id, $this->getPostObject());
+                }
+
+                if (!$bResult) {
                     throw new NailsException(static::EDIT_ERROR_MESSAGE . ' ' . $oModel->lastError());
                 }
 
@@ -932,10 +705,11 @@ abstract class DefaultController extends Base
 
                 $oSession = Factory::service('Session', 'nails/module-auth');
                 $oSession->setFlashData('success', sprintf(static::EDIT_SUCCESS_MESSAGE, $sLink));
+
                 if (classUses($oModel, Localised::class)) {
-                    redirect($this->aConfig['BASE_URL'] . '/edit/' . $oItem->id . '/' . $oItem->locale);
+                    redirect($aConfig['BASE_URL'] . '/edit/' . $oItem->id . '/' . $oItem->locale);
                 } else {
-                    redirect($this->aConfig['BASE_URL'] . '/edit/' . $oItem->id);
+                    redirect($aConfig['BASE_URL'] . '/edit/' . $oItem->id);
                 }
 
             } catch (\Exception $e) {
@@ -946,17 +720,547 @@ abstract class DefaultController extends Base
 
         // --------------------------------------------------------------------------
 
-        if (static::CONFIG_CAN_CREATE) {
-            $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':create';
-            if (empty($this->aConfig['PERMISSION']) || userHasPermission($sPermissionStr)) {
-                Helper::addHeaderButton($this->aConfig['BASE_URL'] . '/create', 'Create');
-            }
+        if ($aConfig['CAN_CREATE'] && static::userCan('create')) {
+            Helper::addHeaderButton($aConfig['BASE_URL'] . '/create', 'Create');
         }
 
         // --------------------------------------------------------------------------
 
-        $this->data['page']->title = $this->aConfig['TITLE_SINGLE'] . ' &rsaquo; Edit';
+        $this->data['page']->title = $aConfig['TITLE_SINGLE'] . ' &rsaquo; Edit';
         Helper::loadView('edit');
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Delete an item
+     *
+     * @return void
+     */
+    public function delete(): void
+    {
+        $aConfig = $this->getConfig();
+        if (!$aConfig['CAN_DELETE']) {
+            show404();
+        } elseif (!static::userCan('delete')) {
+            unauthorised();
+        }
+
+        $oDb    = Factory::service('Database');
+        $oModel = $this->getModel();
+        $oItem  = $this->getItem();
+
+        if (empty($oItem)) {
+            show404();
+        }
+
+        try {
+
+            $oDb->trans_begin();
+            $this->beforeDelete($oItem);
+
+            if (classUses($oModel, Localised::class)) {
+                $oModel->delete($oItem->id, $oItem->locale);
+            } elseif (!$oModel->delete($oItem->id)) {
+                throw new NailsException(static::DELETE_ERROR_MESSAGE . ' ' . $oModel->lastError());
+            }
+
+            $this->afterDelete($oItem);
+            $oDb->trans_commit();
+
+            if ($aConfig['CAN_RESTORE'] && static::userCan('restore')) {
+                if (classUses($oModel, Localised::class)) {
+                    $sRestoreLink = anchor(
+                        $aConfig['BASE_URL'] . '/restore/' . $oItem->id . '/' . $oItem->locale,
+                        'Restore?'
+                    );
+                } else {
+                    $sRestoreLink = anchor(
+                        $aConfig['BASE_URL'] . '/restore/' . $oItem->id,
+                        'Restore?'
+                    );
+                }
+            } else {
+                $sRestoreLink = '';
+            }
+
+            $oSession = Factory::service('Session', 'nails/module-auth');
+            $oSession->setFlashData('success', static::DELETE_SUCCESS_MESSAGE . ' ' . $sRestoreLink);
+            $this->returnToIndex();
+
+        } catch (\Exception $e) {
+            $oDb->trans_rollback();
+            $oSession = Factory::service('Session', 'nails/module-auth');
+            $oSession->setFlashData('error', static::DELETE_ERROR_MESSAGE . ' ' . $e->getMessage());
+            $this->returnToIndex();
+        }
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Restore an item
+     *
+     * @return void
+     */
+    public function restore(): void
+    {
+        $aConfig = $this->getConfig();
+        if (!$aConfig['CAN_RESTORE']) {
+            show404();
+        } elseif (!static::userCan('restore')) {
+            unauthorised();
+        }
+
+        $oUri     = Factory::service('Uri');
+        $oDb      = Factory::service('Database');
+        $oSession = Factory::service('Session', 'nails/module-auth');
+        $oModel   = $this->getModel();
+        $oItem    = $this->getItem([], null, true);
+
+        try {
+
+            $oDb->trans_begin();
+            if (classUses($oModel, Localised::class)) {
+                $bResult = $oModel->restore($oItem->id, $oItem->locale);
+            } else {
+                $bResult = $oModel->restore($oItem->id);
+            }
+
+            if (!$bResult) {
+                throw new NailsException(static::RESTORE_ERROR_MESSAGE . ' ' . $oModel->lastError());
+            }
+
+            $oDb->trans_commit();
+            $oSession->setFlashData('success', static::RESTORE_SUCCESS_MESSAGE);
+            $this->returnToIndex();
+
+        } catch (\Exception $e) {
+            $oDb->trans_rollback();
+            $oSession->setFlashData('error', static::RESTORE_ERROR_MESSAGE . ' ' . $e->getMessage());
+            $this->returnToIndex();
+        }
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Sort items into order
+     *
+     * @return void
+     */
+    public function sort(): void
+    {
+        $aConfig = $this->getConfig();
+        if (!$aConfig['CAN_EDIT']) {
+            show404();
+        } elseif (!static::userCan('edit')) {
+            unauthorised();
+        }
+
+        $oModel = $this->getModel();
+        $oInput = Factory::service('Input');
+        if ($oInput->post()) {
+            try {
+                $aItems = array_values((array) $oInput->post('order'));
+                foreach ($aItems as $iOrder => $iId) {
+                    if (!$oModel->update($iId, ['order' => $iOrder])) {
+                        throw new NailsException(static::ORDER_ERROR_MESSAGE . ' ' . $oModel->lastError());
+                    }
+                }
+                $oSession = Factory::service('Session', 'nails/module-auth');
+                $oSession->setFlashData('success', static::ORDER_SUCCESS_MESSAGE);
+                redirect($aConfig['BASE_URL'] . '/sort');
+            } catch (\Exception $e) {
+                $this->data['error'] = $e->getMessage();
+            }
+        }
+
+        $aItems                    = $oModel->getAll($aConfig['SORT_DATA']);
+        $this->data['items']       = $aItems;
+        $this->data['page']->title = $aConfig['TITLE_PLURAL'] . ' &rsaquo; Sort';
+        Helper::loadView('order');
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the controllers config
+     *
+     * @return array
+     * @throws NailsException
+     * @throws FactoryException
+     */
+    protected function &getConfig(): array
+    {
+        if (!empty($this->aConfig)) {
+            return $this->aConfig;
+        }
+
+        //  Ensure required constants are set
+        $aRequiredConstants = [
+            'CONFIG_MODEL_NAME',
+            'CONFIG_MODEL_PROVIDER',
+        ];
+        foreach ($aRequiredConstants as $sConstant) {
+            if (empty(constant('static::' . $sConstant))) {
+                throw new NailsException(
+                    'The constant "static::' . $sConstant . '" must be set in ' . get_called_class()
+                );
+            }
+        }
+
+        //  Build the config array
+        $oModel  = static::getModel();
+        $aConfig = [
+            'MODEL_NAME'             => static::CONFIG_MODEL_NAME,
+            'MODEL_PROVIDER'         => static::CONFIG_MODEL_PROVIDER,
+            'MODEL_INSTANCE'         => $oModel,
+            'CAN_CREATE'             => static::CONFIG_CAN_CREATE,
+            'CAN_EDIT'               => static::CONFIG_CAN_EDIT,
+            'CAN_VIEW'               => static::CONFIG_CAN_VIEW,
+            'CAN_DELETE'             => static::CONFIG_CAN_DELETE,
+            'CAN_RESTORE'            => static::CONFIG_CAN_RESTORE && !$oModel->isDestructiveDelete(),
+            'PERMISSION'             => static::CONFIG_PERMISSION,
+            'TITLE_SINGLE'           => static::getTitleSingle(),
+            'TITLE_PLURAL'           => static::getTitlePlural(),
+            'SIDEBAR_GROUP'          => static::getSidebarGroup(),
+            'SIDEBAR_ICON'           => static::CONFIG_SIDEBAR_ICON,
+            'BASE_URL'               => static::getBaseUrl(),
+            'SORT_OPTIONS'           => static::CONFIG_SORT_OPTIONS,
+            'SORT_DIRECTION'         => static::CONFIG_SORT_DIRECTION,
+            'INDEX_FIELDS'           => static::CONFIG_INDEX_FIELDS,
+            'INDEX_HEADER_BUTTONS'   => static::CONFIG_INDEX_HEADER_BUTTONS,
+            'INDEX_ROW_BUTTONS'      => array_merge(static::$aConfigIndexRowButtons, static::CONFIG_INDEX_ROW_BUTTONS),
+            'INDEX_DATA'             => static::CONFIG_INDEX_DATA,
+            'INDEX_BOOL_FIELDS'      => static::CONFIG_INDEX_BOOL_FIELDS,
+            'INDEX_USER_FIELDS'      => static::CONFIG_INDEX_USER_FIELDS,
+            'INDEX_NUMERIC_FIELDS'   => static::CONFIG_INDEX_NUMERIC_FIELDS,
+            'INDEX_CENTERED_FIELDS'  => static::CONFIG_INDEX_CENTERED_FIELDS,
+            'CREATE_READONLY_FIELDS' => static::CONFIG_CREATE_READONLY_FIELDS,
+            'CREATE_IGNORE_FIELDS'   => static::CONFIG_CREATE_IGNORE_FIELDS,
+            'EDIT_READONLY_FIELDS'   => static::CONFIG_EDIT_READONLY_FIELDS,
+            'EDIT_IGNORE_FIELDS'     => static::CONFIG_EDIT_IGNORE_FIELDS,
+            'EDIT_DATA'              => static::CONFIG_EDIT_DATA,
+            'SORT_DATA'              => static::CONFIG_SORT_DATA,
+            'SORT_LABEL'             => static::CONFIG_SORT_LABEL,
+            'FIELDSET_ORDER'         => static::CONFIG_EDIT_FIELDSET_ORDER,
+            'ENABLE_NOTES'           => static::EDIT_ENABLE_NOTES,
+            'FIELDS'                 => $oModel->describeFields(),
+        ];
+
+        if (classUses($oModel, Sortable::class)) {
+            $aConfig['SORT_OPTIONS']           = array_merge(['Defined Order' => 'order'], $aConfig['SORT_OPTIONS']);
+            $aConfig['CREATE_IGNORE_FIELDS'][] = $oModel->getSortableColumn();
+            $aConfig['EDIT_IGNORE_FIELDS'][]   = $oModel->getSortableColumn();
+        }
+
+        if (classUses($oModel, Nestable::class)) {
+            $aConfig['CREATE_IGNORE_FIELDS'][] = $oModel->getBreadcrumbsColumn();
+            $aConfig['EDIT_IGNORE_FIELDS'][]   = $oModel->getBreadcrumbsColumn();
+        }
+
+        if (classUses($oModel, Localised::class)) {
+            $aConfig['CREATE_READONLY_FIELDS'][] = 'locale';
+            $aConfig['EDIT_READONLY_FIELDS'][]   = 'locale';
+            $aConfig['INDEX_FIELDS']             = array_merge(
+                [
+                    'Locale' => function ($oRow) {
+                        /** @var Locale $oLocale */
+                        $oLocale = Factory::service('Locale');
+                        $sFlag   = $oLocale::flagEmoji($oRow->locale);
+                        return $sFlag ? '<span rel="tipsy" title="' . $oRow->locale->getDisplayLanguage() . '">' . $sFlag . '</span>' : $oRow->locale;
+                    },
+                ],
+                $aConfig['INDEX_FIELDS']
+            );
+        }
+
+        // --------------------------------------------------------------------------
+
+        $bIsLocalised = classUses(static::getModel(), Localised::class);
+
+        /** @var Locale $oLocale */
+        $oLocale = Factory::service('Locale');
+
+        $aConfig['INDEX_ROW_BUTTONS'] = array_merge(
+            $aConfig['INDEX_ROW_BUTTONS'],
+            array_filter([
+                [
+                    'url'     => '{{url}}',
+                    'label'   => lang('action_view'),
+                    'class'   => 'btn-default',
+                    'attr'    => 'target="_blank"',
+                    'enabled' => function ($oItem) {
+                        return static::isViewButtonEnabled($oItem);
+                    },
+                ],
+
+                //  Non-localised buttons
+                !$bIsLocalised ? [
+                    'url'     => 'edit/{{id}}',
+                    'label'   => lang('action_edit'),
+                    'class'   => 'btn-primary',
+                    'enabled' => function ($oItem) {
+                        return static::isEditButtonEnabled($oItem);
+                    },
+                ] : null,
+                !$bIsLocalised ? [
+                    'url'     => 'delete/{{id}}',
+                    'label'   => lang('action_delete'),
+                    'class'   => 'btn-danger confirm',
+                    'enabled' => function ($oItem) {
+                        return static::isDeleteButtonEnabled($oItem);
+                    },
+                ] : null,
+
+                //  Localised buttons
+                $bIsLocalised ? [
+                    'url'     => 'edit/{{id}}/{{locale}}',
+                    'label'   => lang('action_edit'),
+                    'class'   => 'btn-primary',
+                    'enabled' => function ($oItem) {
+                        return static::isEditButtonEnabled($oItem);
+                    },
+                ] : null,
+                $bIsLocalised ? [
+                    'url'   => function ($oItem) {
+                        $aOut = [];
+                        foreach ($oItem->missing_locales as $oLocale) {
+                            $aOut['Add ' . $oLocale->getDisplayLanguage()] = 'create/{{id}}/' . $oLocale;
+                        }
+                        return $aOut;
+                    },
+                    'label' => 'Create Version',
+                    'class' => function ($oItem) {
+                        if (!static::localisedItemCanBeCreated($oItem)) {
+                            return 'btn-warning btn-disabled';
+                        }
+                        return 'btn-warning';
+                    },
+                    'attr'  => function ($oItem) {
+                        if (!static::localisedItemCanBeCreated($oItem)) {
+                            //  @todo (Pablo - 2019-04-17) - Explicitly state why
+                            return 'rel="tipsy" title="A new version cannot be created; you may not have permission, ' .
+                                'or all supported locales exist already"';
+                        }
+                        return '';
+                    },
+                ] : null,
+                $bIsLocalised ? [
+                    'url'     => 'delete/{{id}}/{{locale}}',
+                    'label'   => lang('action_delete'),
+                    'class'   => function ($oItem) {
+                        if (!static::localisedItemCanBeDeleted($oItem)) {
+                            return 'btn-danger btn-disabled';
+                        }
+                        return 'btn-danger confirm';
+                    },
+                    'attr'    => function ($oItem) {
+                        if (!static::localisedItemCanBeDeleted($oItem)) {
+                            //  @todo (Pablo - 2019-04-17) - Explicitly state why
+                            return 'rel="tipsy" title="This item cannot be deleted; you may not have permission, ' .
+                                'or other locales may exist which need to be deleted first"';
+                        }
+                        return '';
+                    },
+                    'enabled' => function ($oItem) use ($oLocale) {
+                        return static::isDeleteButtonEnabled($oItem);
+                    },
+                ] : null,
+            ])
+        );
+
+        // --------------------------------------------------------------------------
+
+        $this->aConfig        =& $aConfig;
+        $this->data['CONFIG'] =& $this->aConfig;
+        return $this->aConfig;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Determines whether a user has permission to create a localised item
+     *
+     * @param Resource $oItem The item to test
+     *
+     * @return bool
+     */
+    protected static function localisedItemCanBeCreated(Resource $oItem)
+    {
+        //  New versions can only be created if the user has permissions and there is a remaining supported locale
+        if (static::CONFIG_CAN_CREATE && static::userCan('create')) {
+            return !empty($oItem->missing_locales);
+        }
+        return false;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Determines whether a localised item can be delted
+     *
+     * @param Resource $oItem The item to test
+     *
+     * @return bool
+     * @throws FactoryException
+     */
+    protected static function localisedItemCanBeDeleted(Resource $oItem)
+    {
+        /** @var Locale $oLocale */
+        $oLocale        = Factory::service('Locale');
+        $sDefaultLocale = (string) $oLocale->getDefautLocale();
+        $sItemLocale    = (string) $oItem->locale;
+        if ($sDefaultLocale !== $sItemLocale) {
+            return true;
+        } elseif ($sDefaultLocale === $sItemLocale && count($oItem->available_locales) === 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the string to use as the "single" title
+     *
+     * @return string
+     */
+    protected static function getTitleSingle(): string
+    {
+        if (!empty(static::CONFIG_TITLE_SINGLE)) {
+            return static::CONFIG_TITLE_SINGLE;
+        }
+
+        $sTitle = preg_replace('/([a-z])([A-Z])/', '$1 $2', static::CONFIG_MODEL_NAME);
+        $sTitle = strtolower($sTitle);
+        $sTitle = ucwords($sTitle);
+
+        return $sTitle;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the title to use as the "plural" title
+     *
+     * @return string
+     * @throws FactoryException
+     */
+    protected static function getTitlePlural(): string
+    {
+        Factory::helper('inflector');
+        return static::CONFIG_TITLE_PLURAL ?: pluralise(2, static::getTitleSingle());
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the value to use for the sidebar group
+     *
+     * @return string
+     * @throws FactoryException
+     */
+    protected static function getSidebarGroup(): string
+    {
+        return static::CONFIG_SIDEBAR_GROUP ?: static::getTitlePlural();
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the base URL
+     *
+     * @return string
+     */
+    protected static function getBaseUrl(): string
+    {
+        if (!empty(static::CONFIG_BASE_URL)) {
+            return static::CONFIG_BASE_URL;
+        }
+
+        $aBits   = explode('\\', get_called_class());
+        $sModule = strtolower($aBits[count($aBits) - 2]);
+        $sClass  = lcfirst($aBits[count($aBits) - 1]);
+        return 'admin/' . $sModule . '/' . $sClass;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Determines whether a user has permission to perform an action
+     *
+     * @param string $sPermission The permission to check
+     *
+     * @return bool
+     */
+    protected static function userCan(string $sPermission): bool
+    {
+        return empty(static::CONFIG_PERMISSION) || userHasPermission('admin:' . static::CONFIG_PERMISSION . ':' . $sPermission);
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the model instance
+     *
+     * @return \Nails\Common\Model\Base
+     * @throws FactoryException
+     */
+    protected static function getModel(): \Nails\Common\Model\Base
+    {
+        return Factory::model(
+            static::CONFIG_MODEL_NAME,
+            static::CONFIG_MODEL_PROVIDER
+        );
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Any checkbox style filters to include on the index page
+     *
+     * @return array
+     */
+    protected function indexCheckboxFilters(): array
+    {
+        return [];
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Any dropdown style filters to include on the index page
+     *
+     * @return array
+     */
+    protected function indexDropdownFilters(): array
+    {
+        $aFilters = [];
+        if (classUses(static::getModel(), Localised::class)) {
+
+            /** @var Locale $oLocale */
+            $oLocale = Factory::service('Locale');
+
+            $aOptions   = [];
+            $aOptions[] = Factory::factory('IndexFilterOption', 'nails/module-admin')
+                ->setLabel('All Locales');
+
+            foreach ($oLocale->getSupportedLocales() as $oSupportedLocale) {
+                $aOptions[] = Factory::factory('IndexFilterOption', 'nails/module-admin')
+                    ->setLabel($oSupportedLocale->getDisplayLanguage())
+                    ->setValue($oSupportedLocale->getLanguage() . '_' . $oSupportedLocale->getRegion());
+            }
+
+            $aFilters[] = Factory::factory('IndexFilter', 'nails/module-admin')
+                ->setLabel('Locale')
+                ->setColumn('CONCAT(`language`, \'_\', `region`)')
+                ->addOptions($aOptions);
+        }
+
+        return $aFilters;
     }
 
     // --------------------------------------------------------------------------
@@ -1078,12 +1382,13 @@ abstract class DefaultController extends Base
      */
     protected function runFormValidation(string $sMode, array $aOverrides = []): void
     {
-        $oModel               = $this::getModel();
+        $aConfig              = $this->getConfig();
+        $oModel               = static::getModel();
         $oFormValidation      = Factory::service('FormValidation');
         $aRulesFormValidation = [];
         $aImplementedRules    = [];
 
-        foreach ($this->aConfig['FIELDS'] as &$oField) {
+        foreach ($aConfig['FIELDS'] as &$oField) {
 
             if ($sMode === static::EDIT_MODE_CREATE && classUses($oModel, Localised::class)) {
                 if ($oField->key == 'locale') {
@@ -1148,23 +1453,24 @@ abstract class DefaultController extends Base
     protected function loadEditViewData(Resource $oItem = null): void
     {
         //  Extract the fields into fieldsets
+        $aConfig    = $this->getConfig();
         $aFieldSets = array_combine(
-            $this->aConfig['FIELDSET_ORDER'],
+            $aConfig['FIELDSET_ORDER'],
             array_pad(
                 [],
-                count($this->aConfig['FIELDSET_ORDER']),
+                count($aConfig['FIELDSET_ORDER']),
                 []
             )
         );
 
-        foreach ($this->aConfig['FIELDS'] as $oField) {
+        foreach ($aConfig['FIELDS'] as $oField) {
 
             if (empty($oItem)) {
-                if (in_array($oField->key, $this->aConfig['CREATE_IGNORE_FIELDS'])) {
+                if (in_array($oField->key, $aConfig['CREATE_IGNORE_FIELDS'])) {
                     continue;
                 }
             } else {
-                if (in_array($oField->key, $this->aConfig['EDIT_IGNORE_FIELDS'])) {
+                if (in_array($oField->key, $aConfig['EDIT_IGNORE_FIELDS'])) {
                     continue;
                 }
             }
@@ -1191,32 +1497,14 @@ abstract class DefaultController extends Base
      */
     protected function getPostObject(): array
     {
-        $oModel = static::getModel();
-        $oInput = Factory::service('Input');
-        $oUri   = Factory::service('Uri');
-        $aOut   = [];
+        $aConfig = $this->getConfig();
+        $oModel  = static::getModel();
+        $oInput  = Factory::service('Input');
+        $oUri    = Factory::service('Uri');
+        $aOut    = [];
 
-        if (classUses($oModel, Localised::class)) {
-            $iExistingId = $oUri->segment(5);
-            if ($oUri->segment(5)) {
-                $aOut['id'] = $oUri->segment(5);
-            }
-        }
-
-        foreach ($this->aConfig['FIELDS'] as $oField) {
-            if (in_array($oField->key, $this->aConfig['EDIT_IGNORE_FIELDS'])) {
-                continue;
-            }
-
-            if (classUses($oModel, Localised::class) && $oField->key === 'locale') {
-
-                /** @var Locale $oLocale */
-                $oLocale        = Factory::service('Locale');
-                $oItemLocale    = Factory::factory('Locale');
-                $aOut['locale'] = $oLocale->setFromString(
-                    $oItemLocale,
-                    $oInput->post($oField->key)
-                );
+        foreach ($aConfig['FIELDS'] as $oField) {
+            if (in_array($oField->key, $aConfig['EDIT_IGNORE_FIELDS'])) {
                 continue;
             }
 
@@ -1234,162 +1522,15 @@ abstract class DefaultController extends Base
             }
         }
 
+        if (classUses($oModel, Localised::class)) {
+            $iExistingId = $oUri->segment(5);
+            if ($oUri->segment(5)) {
+                $aOut['id'] = $oUri->segment(5);
+            }
+            unset($aOut['locale']);
+        }
+
         return $aOut;
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Delete an item
-     *
-     * @return void
-     */
-    public function delete(): void
-    {
-        if (!static::CONFIG_CAN_DELETE) {
-            show404();
-        }
-
-        $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':delete';
-        if (!empty($this->aConfig['PERMISSION']) && !userHasPermission($sPermissionStr)) {
-            unauthorised();
-        }
-
-        $oDb    = Factory::service('Database');
-        $oModel = $this->getModel();
-        $oItem  = $this->getItem();
-
-        if (empty($oItem)) {
-            show404();
-        }
-
-        try {
-
-            $oDb->trans_begin();
-            $this->beforeDelete($oItem);
-
-            if (!$oModel->delete($oItem->id)) {
-                throw new NailsException(static::DELETE_ERROR_MESSAGE . ' ' . $oModel->lastError());
-            }
-
-            $this->afterDelete($oItem);
-            $oDb->trans_commit();
-
-            if ($this->aConfig['CAN_RESTORE']) {
-                $sRestoreLink = anchor($this->aConfig['BASE_URL'] . '/restore/' . $oItem->id, 'Restore?');
-            } else {
-                $sRestoreLink = '';
-            }
-
-            $oSession = Factory::service('Session', 'nails/module-auth');
-            $oSession->setFlashData('success', static::DELETE_SUCCESS_MESSAGE . ' ' . $sRestoreLink);
-            $this->returnToIndex();
-
-        } catch (\Exception $e) {
-            $oDb->trans_rollback();
-            $oSession = Factory::service('Session', 'nails/module-auth');
-            $oSession->setFlashData('error', static::DELETE_ERROR_MESSAGE . ' ' . $e->getMessage());
-            $this->returnToIndex();
-        }
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Delete an item
-     *
-     * @return void
-     */
-    public function restore(): void
-    {
-        if (!$this->aConfig['CAN_RESTORE']) {
-            show404();
-        }
-
-        $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':restore';
-        if (!empty($this->aConfig['PERMISSION']) && !userHasPermission($sPermissionStr)) {
-            unauthorised();
-        }
-
-        $oUri    = Factory::service('Uri');
-        $oDb     = Factory::service('Database');
-        $oModel  = $this->getModel();
-        $iItemId = (int) $oUri->segment(5);
-        $aItems  = $oModel->getAll(
-            null,
-            null,
-            [
-                'where' => [
-                    ['id', $iItemId],
-                ],
-            ],
-            true
-        );
-
-        $oItem = reset($aItems);
-        if (empty($oItem)) {
-            show404();
-        }
-
-        try {
-            $oDb->trans_begin();
-            if (!$oModel->restore($oItem->id)) {
-                throw new NailsException(static::RESTORE_ERROR_MESSAGE . ' ' . $oModel->lastError());
-            }
-
-            $oDb->trans_commit();
-            $oSession = Factory::service('Session', 'nails/module-auth');
-            $oSession->setFlashData('success', static::RESTORE_SUCCESS_MESSAGE);
-            $this->returnToIndex();
-
-        } catch (\Exception $e) {
-            $oDb->trans_rollback();
-            $oSession = Factory::service('Session', 'nails/module-auth');
-            $oSession->setFlashData('error', static::RESTORE_ERROR_MESSAGE . ' ' . $e->getMessage());
-            $this->returnToIndex();
-        }
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Sort items into order
-     *
-     * @return void
-     */
-    public function sort(): void
-    {
-        if (!static::CONFIG_CAN_EDIT) {
-            show404();
-        }
-
-        $sPermissionStr = 'admin:' . $this->aConfig['PERMISSION'] . ':edit';
-        if (!empty($this->aConfig['PERMISSION']) && !userHasPermission($sPermissionStr)) {
-            unauthorised();
-        }
-
-        $oModel = $this->getModel();
-        $oInput = Factory::service('Input');
-        if ($oInput->post()) {
-            try {
-                $aItems = array_values((array) $oInput->post('order'));
-                foreach ($aItems as $iOrder => $iId) {
-                    if (!$oModel->update($iId, ['order' => $iOrder])) {
-                        throw new NailsException(static::ORDER_ERROR_MESSAGE . ' ' . $oModel->lastError());
-                    }
-                }
-                $oSession = Factory::service('Session', 'nails/module-auth');
-                $oSession->setFlashData('success', static::ORDER_SUCCESS_MESSAGE);
-                redirect($this->aConfig['BASE_URL'] . '/sort');
-            } catch (\Exception $e) {
-                $this->data['error'] = $e->getMessage();
-            }
-        }
-
-        $aItems                    = $oModel->getAll($this->aConfig['SORT_DATA']);
-        $this->data['items']       = $aItems;
-        $this->data['page']->title = $this->aConfig['TITLE_PLURAL'] . ' &rsaquo; Sort';
-        Helper::loadView('order');
     }
 
     // --------------------------------------------------------------------------
@@ -1403,17 +1544,31 @@ abstract class DefaultController extends Base
      * @return mixed
      * @throws FactoryException
      */
-    protected function getItem($aData = [], $iSegment = 5)
+    protected function getItem(array $aData = [], int $iSegment = null, bool $bIncludeDeleted = false)
     {
-        $oUri    = Factory::service('Uri');
-        $oModel  = $this->getModel();
-        $iItemId = (int) $oUri->segment($iSegment);
+        $iSegment = $iSegment ?? 5;
+        $oUri     = Factory::service('Uri');
+        $oModel   = $this->getModel();
+        $iItemId  = (int) $oUri->segment($iSegment);
 
-        if (classUses($oModel, Localised::class)) {
+        if (classUses($oModel, Localised::class) && $oUri->segment($iSegment + 1)) {
             $aData['USE_LOCALE'] = $oUri->segment($iSegment + 1);
         }
 
-        $oItem = $oModel->getById($iItemId, $aData);
+        if (!array_key_exists('where', $aData)) {
+            $aData['where'] = [];
+        }
+
+        $aData['where'][] = ['id', $iItemId];
+
+        $aItems = $oModel->getAll(
+            null,
+            null,
+            $aData,
+            $bIncludeDeleted
+        );
+
+        $oItem = reset($aItems);
 
         if (empty($oItem)) {
             show404();
@@ -1425,27 +1580,7 @@ abstract class DefaultController extends Base
     // --------------------------------------------------------------------------
 
     /**
-     * Checks an array for multiple keys
-     *
-     * @param array $aValues The values to check for
-     * @param array $aArray  the array to search
-     *
-     * @return bool
-     */
-    public static function inArray(array $aValues, array $aArray): bool
-    {
-        foreach ($aValues as $sValue) {
-            if (in_array($sValue, $aArray)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Determines whethr the "View" row button is enabled
+     * Determines whether the "View" row button is enabled
      *
      * @param Resource $oItem The row item
      *
@@ -1459,7 +1594,7 @@ abstract class DefaultController extends Base
     // --------------------------------------------------------------------------
 
     /**
-     * Determines whethr the "Edit" row button is enabled
+     * Determines whether the "Edit" row button is enabled
      *
      * @param Resource $oItem The row item
      *
@@ -1467,14 +1602,13 @@ abstract class DefaultController extends Base
      */
     protected static function isEditButtonEnabled($oItem): bool
     {
-        return static::CONFIG_CAN_EDIT &&
-            (empty(static::CONFIG_PERMISSION) || userHasPermission('admin:' . static::CONFIG_PERMISSION . ':edit'));
+        return static::CONFIG_CAN_EDIT && static::userCan('edit');
     }
 
     // --------------------------------------------------------------------------
 
     /**
-     * Determines whethr the "Delete" row button is enabled
+     * Determines whether the "Delete" row button is enabled
      *
      * @param Resource $oItem The row item
      *
@@ -1482,9 +1616,7 @@ abstract class DefaultController extends Base
      */
     protected static function isDeleteButtonEnabled($oItem): bool
     {
-        //  @todo (Pablo - 2018-12-20) - Prevent deletion of self
-        return static::CONFIG_CAN_DELETE &&
-            (empty(static::CONFIG_PERMISSION) || userHasPermission('admin:' . static::CONFIG_PERMISSION . ':delete'));
+        return static::CONFIG_CAN_DELETE && static::userCan('delete');
     }
 
     // --------------------------------------------------------------------------
@@ -1503,7 +1635,7 @@ abstract class DefaultController extends Base
         if (!empty($sReferrer)) {
             redirect($sReferrer);
         } else {
-            redirect($this->aConfig['BASE_URL']);
+            redirect($this->getConfig()['BASE_URL']);
         }
     }
 }
