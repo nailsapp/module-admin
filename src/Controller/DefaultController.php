@@ -1570,7 +1570,6 @@ abstract class DefaultController extends Base
             if ($oUri->segment(5)) {
                 $aOut['id'] = $oUri->segment(5);
             }
-            unset($aOut['locale']);
         }
 
         return $aOut;
