@@ -219,7 +219,7 @@ class ChangeLog extends Base
      *
      * @return array
      **/
-    public function getAll($iPage = null, $iPerPage = null, array $aData = [], $bIncludeDeleted = false)
+    public function getAll($iPage = null, $iPerPage = null, array $aData = [], $bIncludeDeleted = false): array
     {
         //  If the first value is an array then treat as if called with getAll(null, null, $aData);
         //  @todo (Pablo - 2017-06-29) - Refactor how this join works (use expandable field)
