@@ -12,7 +12,7 @@ namespace App\DataExport\Source;
 
 use Nails\Admin\DataExport\SourceResponse;
 use Nails\Admin\Interfaces\DataExport\Source;
-use Nails\Common\Exception\NailsException;
+use Nails\Common\Exception\FactoryException;
 use Nails\Factory;
 
 class {{CLASS_NAME}} implements Source
@@ -84,6 +84,7 @@ class {{CLASS_NAME}} implements Source
      * @param array $aOptions The options, in key/value form
      *
      * @return SourceResponse|array
+     * @throws FactoryException
      */
     public function execute($aOptions = [])
     {
