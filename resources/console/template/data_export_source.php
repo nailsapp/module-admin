@@ -88,9 +88,9 @@ class {{CLASS_NAME}} implements Source
      */
     public function execute($aOptions = [])
     {
-        $oResponse = Factory::factory('DataExportSourceResponse', 'nails/module-admin');
+        $oResponse = Factory::factory('DataExportSourceResponse', 'nails/module-admin')
+            ->setFileName($this->getFileName());
 
-        // $oResponse->setFields()
         // $oResponse->setData($aData)
         // $oResponse->setSource($oSource);
 
