@@ -2,59 +2,67 @@
 
 namespace Nails\Admin\Interfaces\DataExport;
 
+use Nails\Admin\DataExport\SourceResponse;
+
 /**
  * Interface Source
+ *
  * @package Nails\Admin\Interfaces\DataExport
  */
 interface Source
 {
     /**
      * Returns the source's label
+     *
      * @return string
      */
-    public function getLabel();
+    public function getLabel(): string;
 
     // --------------------------------------------------------------------------
 
     /**
      * Returns the source's filename
+     *
      * @return string
      */
-    public function getFileName();
+    public function getFileName(): string;
 
     // --------------------------------------------------------------------------
 
     /**
      * Returns the source's description
+     *
      * @return string
      */
-    public function getDescription();
+    public function getDescription(): string;
 
     // --------------------------------------------------------------------------
 
     /**
      * Returns an array of additional options for the export
+     *
      * @return array
      */
-    public function getOptions();
+    public function getOptions(): array;
 
     // --------------------------------------------------------------------------
 
     /**
      * Provides an opportunity for the source to decide whether it is available or not to the user
+     *
      * @return bool
      */
-    public function isEnabled();
+    public function isEnabled(): bool;
 
     // --------------------------------------------------------------------------
 
     /**
-     * Performs the export; must return a \Nails\Admin\DataExport\SourceResponse object,
+     * Performs the export; must return a SourceResponse object,
      * or an array of these objects.
      *
      * @param array $aOptions The options, in key/value form
      *
-     * @return \Nails\Admin\DataExport\SourceResponse|array
+     * @return SourceResponse|array
      */
     public function execute($aOptions = []);
 }
