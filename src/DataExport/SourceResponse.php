@@ -6,6 +6,7 @@ class SourceResponse
 {
     /**
      * The human-friendly label
+     *
      * @var string
      */
     protected $sLabel = '';
@@ -13,6 +14,7 @@ class SourceResponse
     // --------------------------------------------------------------------------
     /**
      * The exported file name
+     *
      * @var string
      */
     protected $sFileName = '';
@@ -21,6 +23,7 @@ class SourceResponse
 
     /**
      * The field names
+     *
      * @var array
      */
     protected $aFields = [];
@@ -29,6 +32,7 @@ class SourceResponse
 
     /**
      * The rows of data, if not using $oSource
+     *
      * @var array
      */
     protected $aData = [];
@@ -37,7 +41,8 @@ class SourceResponse
 
     /**
      * A data resource if not using $aData
-     * @var \PDOStatement
+     *
+     * @var \PDOStatement|\CI_DB_mysqli_result
      */
     protected $oSource;
 
@@ -45,6 +50,7 @@ class SourceResponse
 
     /**
      * A function which formats each row
+     *
      * @var callable
      */
     protected $cFormatter;
@@ -68,6 +74,7 @@ class SourceResponse
 
     /**
      * Returns the data set's label
+     *
      * @return string
      */
     public function getLabel()
@@ -94,6 +101,7 @@ class SourceResponse
 
     /**
      * Returns the data set's file name
+     *
      * @return string
      */
     public function getFileName()
@@ -120,6 +128,7 @@ class SourceResponse
 
     /**
      * Returns the field array
+     *
      * @return array
      */
     public function getFields()
@@ -146,6 +155,7 @@ class SourceResponse
 
     /**
      * Returns the data array
+     *
      * @return array
      */
     public function getData()
@@ -158,7 +168,7 @@ class SourceResponse
     /**
      * Set the resource
      *
-     * @param \PDOStatement $oSource The data source
+     * @param \PDOStatement|\CI_DB_mysqli_result $oSource The data source
      *
      * @return $this
      */
@@ -173,7 +183,8 @@ class SourceResponse
 
     /**
      * Returns the source
-     * @return \PDOStatement
+     *
+     * @return \PDOStatement|\CI_DB_mysqli_result
      */
     public function getSource()
     {
@@ -215,6 +226,7 @@ class SourceResponse
 
     /**
      * Returns the next item in the data set, passing it to the formatter, if defined
+     *
      * @return \stdClass
      */
     public function getNextItem()
