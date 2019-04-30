@@ -1,4 +1,5 @@
 /* export Sortable */
+
 /* globals $, jQuery */
 class Sortable {
 
@@ -8,7 +9,7 @@ class Sortable {
      */
     constructor() {
         $('.js-admin-sortable')
-            .each(function() {
+            .each(function () {
 
                 let $item = $(this);
                 let handle = $item.data('handle') || null;
@@ -21,24 +22,27 @@ class Sortable {
                         axis: axis,
                         containment: containment,
                         forceHelperSize: true,
-                        helper: function(e, tr) {
+                        helper: function (e, tr) {
                             let $originals = tr.children();
                             let $helper = tr.clone();
                             $helper
                                 .children()
-                                .each(function(index) {
+                                .each(function (index) {
                                     // Set helper cell sizes to match the original sizes
                                     $(this).width($originals.eq(index).outerWidth());
                                 });
                             return $helper;
                         },
-                        stop: function() {
-                            $item
-                                .find('.js-admin-sortable__order')
-                                .each(function(index) {
-                                    $(this).val(index);
-                                });
+                        stop: function () {
+                            $item.trigger('sortable:sort');
                         }
+                    })
+                    .on('sortable:sort', () => {
+                        $item
+                            .find('.js-admin-sortable__order')
+                            .each(function (index) {
+                                $(this).val(index);
+                            });
                     });
             });
 
