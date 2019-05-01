@@ -52,7 +52,7 @@ abstract class Base extends BaseMiddle
         $oEventService = Factory::service('Event');
 
         //  Call the ADMIN:STARTUP event, admin is constructing
-        $oEventService->trigger(Events::ADMIN_STARTUP, 'nails/module-admin');
+        $oEventService->trigger(Events::ADMIN_STARTUP, Events::getEventNamespace());
 
         // --------------------------------------------------------------------------
 
@@ -90,7 +90,7 @@ abstract class Base extends BaseMiddle
         // --------------------------------------------------------------------------
 
         //  Call the ADMIN:READY event, admin is all geared up and ready to go
-        $oEventService->trigger(Events::ADMIN_READY, 'nails/module-admin');
+        $oEventService->trigger(Events::ADMIN_READY, Events::getEventNamespace());
     }
 
     // --------------------------------------------------------------------------

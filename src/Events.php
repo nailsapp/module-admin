@@ -24,4 +24,16 @@ class Events extends Base
      * Fired when admin is ready but before the controller is executed
      */
     const ADMIN_READY = 'ADMIN:READY';
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the namespace for events fired by this module
+     *
+     * @return stirng
+     */
+    public static function getEventNamespace(): string
+    {
+        return 'nails/module-admin';
+    }
 }
