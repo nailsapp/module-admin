@@ -192,6 +192,11 @@ abstract class DefaultController extends Base
     const CONFIG_EDIT_READONLY_FIELDS = [];
 
     /**
+     * Any additional fields which should be included in the view
+     */
+    const CONFIG_EDIT_EXTRA_FIELDS = [];
+
+    /**
      * Additional data to pass into the getAll call on the edit view
      */
     const CONFIG_EDIT_DATA = [];
@@ -604,7 +609,6 @@ abstract class DefaultController extends Base
 
                     $oField->default = $sDesiredLocale;
 
-
                     unset($this->aConfig['CREATE_READONLY_FIELDS'][array_search('locale', $this->aConfig['CREATE_READONLY_FIELDS'])]);
                     break;
                 }
@@ -951,6 +955,7 @@ abstract class DefaultController extends Base
             'EDIT_HEADER_BUTTONS'    => static::CONFIG_EDIT_HEADER_BUTTONS,
             'EDIT_READONLY_FIELDS'   => static::CONFIG_EDIT_READONLY_FIELDS,
             'EDIT_IGNORE_FIELDS'     => static::CONFIG_EDIT_IGNORE_FIELDS,
+            'EDIT_EXTRA_FIELDS'      => static::CONFIG_EDIT_EXTRA_FIELDS,
             'EDIT_DATA'              => static::CONFIG_EDIT_DATA,
             'SORT_DATA'              => static::CONFIG_SORT_DATA,
             'SORT_LABEL'             => static::CONFIG_SORT_LABEL,
@@ -1506,7 +1511,17 @@ abstract class DefaultController extends Base
             )
         );
 
-        foreach ($aConfig['FIELDS'] as $oField) {
+        $aFields = array_merge(
+            $aConfig['FIELDS'],
+            array_map(
+                function ($aItem) {
+                    return (object) $aItem;
+                },
+                $aConfig['EDIT_EXTRA_FIELDS']
+            )
+        );
+
+        foreach ($aFields as $oField) {
 
             if (empty($oItem)) {
                 if (in_array($oField->key, $aConfig['CREATE_IGNORE_FIELDS'])) {
