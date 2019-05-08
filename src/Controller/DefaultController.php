@@ -192,11 +192,6 @@ abstract class DefaultController extends Base
     const CONFIG_EDIT_READONLY_FIELDS = [];
 
     /**
-     * Any additional fields which should be included in the view
-     */
-    const CONFIG_EDIT_EXTRA_FIELDS = [];
-
-    /**
      * Additional data to pass into the getAll call on the edit view
      */
     const CONFIG_EDIT_DATA = [];
@@ -955,7 +950,6 @@ abstract class DefaultController extends Base
             'EDIT_HEADER_BUTTONS'    => static::CONFIG_EDIT_HEADER_BUTTONS,
             'EDIT_READONLY_FIELDS'   => static::CONFIG_EDIT_READONLY_FIELDS,
             'EDIT_IGNORE_FIELDS'     => static::CONFIG_EDIT_IGNORE_FIELDS,
-            'EDIT_EXTRA_FIELDS'      => static::CONFIG_EDIT_EXTRA_FIELDS,
             'EDIT_DATA'              => static::CONFIG_EDIT_DATA,
             'SORT_DATA'              => static::CONFIG_SORT_DATA,
             'SORT_LABEL'             => static::CONFIG_SORT_LABEL,
@@ -1496,9 +1490,94 @@ abstract class DefaultController extends Base
      *
      * @param Resource $oItem The main item object
      *
-     * @return void
+     * @throws FactoryException
+     * @throws NailsException
      */
     protected function loadEditViewData(Resource $oItem = null): void
+    {
+        $aConfig = $this->getConfig();
+        $aFields = $aConfig['FIELDS'];
+        foreach ($aFields as $oField) {
+            $this->loadEditViewDataSetDefaultValue($oField, $oItem);
+            $this->loadEditViewDataSetRequired($oField);
+            $this->loadEditViewDataSetReadOnly($oField, $oItem);
+        }
+
+        $this->data['aFieldSets'] = $this->loadEditViewDataSetFieldsets($aFields);
+        $this->data['item']       = $oItem;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Sets the "default" property for a field in the edit view
+     *
+     * @param \stdClass     $oField The field being set
+     * @param Resource|null $oItem  The item being edited
+     */
+    protected function loadEditViewDataSetDefaultValue(\stdClass &$oField, Resource $oItem = null)
+    {
+        if ($oField->default instanceof \Closure) {
+
+            $oField->default = call_user_func($oField->default, $oItem);
+
+        } elseif (!is_null($oItem) && property_exists($oItem, $oField->key)) {
+
+            if ($oItem->{$oField->key} instanceof Resource\ExpandableField) {
+                $oField->default = $oItem->{$oField->key}->data;
+            } else {
+                $oField->default = $oItem->{$oField->key};
+            }
+        }
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Sets the "required" property for a field in the edit view
+     *
+     * @param \stdClass $oField The field being set
+     */
+    protected function loadEditViewDataSetRequired(\stdClass &$oField)
+    {
+        if (!property_exists($oField, 'required')) {
+            $oField->required = in_array('required', $oField->validation);
+        }
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Sets the "required" property for a field in the edit view
+     *
+     * @param \stdClass     $oField The field being set
+     * @param Resource|null $oItem  The item being edited
+     *
+     * @throws FactoryException
+     * @throws NailsException
+     */
+    protected function loadEditViewDataSetReadOnly(\stdClass &$oField, Resource $oItem = null)
+    {
+        $aConfig = $this->getConfig();
+        if (!is_null($oItem)) {
+            $oField->readonly = in_array($oField->key, $aConfig['EDIT_READONLY_FIELDS']);
+        } else {
+            $oField->readonly = in_array($oField->key, $aConfig['CREATE_READONLY_FIELDS']);
+        }
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Organises fields into their fieldsets
+     *
+     * @param \stdClass[] $aFields The fields being organised
+     *
+     * @return \stdClass[]
+     * @throws FactoryException
+     * @throws NailsException
+     */
+    protected function loadEditViewDataSetFieldsets(array $aFields): array
     {
         //  Extract the fields into fieldsets
         $aConfig    = $this->getConfig();
@@ -1511,16 +1590,7 @@ abstract class DefaultController extends Base
             )
         );
 
-        $aFields = array_merge(
-            $aConfig['FIELDS'],
-            array_map(
-                function ($aItem) {
-                    return (object) $aItem;
-                },
-                $aConfig['EDIT_EXTRA_FIELDS']
-            )
-        );
-
+        //  Organsie fields into the fieldsets
         foreach ($aFields as $oField) {
 
             if (empty($oItem)) {
@@ -1542,8 +1612,7 @@ abstract class DefaultController extends Base
             $aFieldSets[$sFieldSet][] = $oField;
         }
 
-        $this->data['aFieldSets'] = array_filter($aFieldSets);
-        $this->data['item']       = $oItem;
+        return array_filter($aFieldSets);
     }
 
     // --------------------------------------------------------------------------

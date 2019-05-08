@@ -4,7 +4,6 @@
     <input type="hidden" name="activeTab" value="<?=set_value('activeTab')?>" id="activeTab"/>
     <ul class="tabs">
         <?php
-
         $i = 0;
         foreach ($aFieldSets as $sFieldSet => $aFields) {
             if (empty($i)) {
@@ -21,7 +20,6 @@
             <?php
             $i++;
         }
-
         ?>
     </ul>
     <section class="tabs">
@@ -36,33 +34,13 @@
             ?>
             <div class="tab-page tab-<?=$i?> <?=$sActive?> fieldset">
                 <?php
-
                 foreach ($aFields as $oField) {
-
-                    $aField            = (array) $oField;
-                    $aField['default'] = !empty($item) && property_exists($item, $oField->key) ? $item->{$oField->key} : $aField['default'];
-
-                    if (is_object($aField['default']) && property_exists($aField['default'], 'count') && property_exists($aField['default'], 'data')) {
-                        $aField['default'] = $aField['default']->data;
-                    }
-
-                    if (!array_key_exists('required', $aFieldSets)) {
-                        $aField['required'] = in_array('required', $oField->validation);
-                    }
-
-                    if (!empty($item)) {
-                        $aField['readonly'] = in_array($oField->key, $CONFIG['EDIT_READONLY_FIELDS']);
+                    if (is_callable('form_field_' . $oField->type)) {
+                        echo call_user_func('form_field_' . $oField->type, (array) $oField);
                     } else {
-                        $aField['readonly'] = in_array($oField->key, $CONFIG['CREATE_READONLY_FIELDS']);
-                    }
-
-                    if (is_callable('form_field_' . $aField['type'])) {
-                        echo call_user_func('form_field_' . $aField['type'], $aField);
-                    } else {
-                        echo form_field($aField);
+                        echo form_field((array) $oField);
                     }
                 }
-
                 ?>
             </div>
             <?php
