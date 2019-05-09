@@ -17,6 +17,7 @@ use Nails\Admin\Helper;
 use Nails\Common\Exception\FactoryException;
 use Nails\Common\Exception\NailsException;
 use Nails\Common\Exception\ValidationException;
+use Nails\Common\Factory\Model\Field;
 use Nails\Common\Resource;
 use Nails\Common\Service\Locale;
 use Nails\Common\Service\Uri;
@@ -1512,10 +1513,10 @@ abstract class DefaultController extends Base
     /**
      * Sets the "default" property for a field in the edit view
      *
-     * @param \stdClass     $oField The field being set
+     * @param Field         $oField The field being set
      * @param Resource|null $oItem  The item being edited
      */
-    protected function loadEditViewDataSetDefaultValue(\stdClass &$oField, Resource $oItem = null)
+    protected function loadEditViewDataSetDefaultValue(Field &$oField, Resource $oItem = null)
     {
         if ($oField->default instanceof \Closure) {
 
@@ -1536,9 +1537,9 @@ abstract class DefaultController extends Base
     /**
      * Sets the "required" property for a field in the edit view
      *
-     * @param \stdClass $oField The field being set
+     * @param Field $oField The field being set
      */
-    protected function loadEditViewDataSetRequired(\stdClass &$oField)
+    protected function loadEditViewDataSetRequired(Field &$oField)
     {
         if (!property_exists($oField, 'required')) {
             $oField->required = in_array('required', $oField->validation);
@@ -1550,13 +1551,13 @@ abstract class DefaultController extends Base
     /**
      * Sets the "required" property for a field in the edit view
      *
-     * @param \stdClass     $oField The field being set
+     * @param Field         $oField The field being set
      * @param Resource|null $oItem  The item being edited
      *
      * @throws FactoryException
      * @throws NailsException
      */
-    protected function loadEditViewDataSetReadOnly(\stdClass &$oField, Resource $oItem = null)
+    protected function loadEditViewDataSetReadOnly(Field &$oField, Resource $oItem = null)
     {
         $aConfig = $this->getConfig();
         if (!is_null($oItem)) {
@@ -1571,9 +1572,9 @@ abstract class DefaultController extends Base
     /**
      * Organises fields into their fieldsets
      *
-     * @param \stdClass[] $aFields The fields being organised
+     * @param Field[] $aFields The fields being organised
      *
-     * @return \stdClass[]
+     * @return Field[]
      * @throws FactoryException
      * @throws NailsException
      */
@@ -1603,7 +1604,7 @@ abstract class DefaultController extends Base
                 }
             }
 
-            $sFieldSet = getFromArray('fieldset', (array) $oField, 'Details');
+            $sFieldSet = $oField->fieldset;
 
             if (!array_key_exists($sFieldSet, $aFieldSets)) {
                 $aFieldSets[$sFieldSet] = [];
