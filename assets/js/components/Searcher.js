@@ -46,13 +46,13 @@ class SearcherInstance {
             return;
         }
 
-        this.api = this.$input.data('api') || options.api;
-        this.isMultiple = this.$input.data('multiple') || options.isMultiple || false;
-        this.isClearable = this.$input.data('clearable') || options.isClearable || true;
-        this.placeholder = this.$input.data('placeholder') || options.placeholder || 'Search for an item';
-        this.minLength = this.$input.data('min-length') || options.minLength || 2;
-        this.getParam = this.$input.data('get-param') || options.getParam || 'search';
-        this.formatter = options.formatter || null;
+        this.api = this.coalesce(this.$input.data('api'), options.api);
+        this.isMultiple = this.coalesce(this.$input.data('multiple'), options.isMultiple, false);
+        this.isClearable = this.coalesce(this.$input.data('clearable'), options.isClearable, true);
+        this.placeholder = this.coalesce(this.$input.data('placeholder'), options.placeholder, 'Search for an item');
+        this.minLength = this.coalesce(this.$input.data('min-length'), options.minLength, 2);
+        this.getParam = this.coalesce(this.$input.data('get-param'), options.getParam, 'search');
+        this.formatter = this.coalesce(options.formatter, null);
 
         if (this.api) {
 
@@ -136,6 +136,23 @@ class SearcherInstance {
                 'text': item.label
             };
         }
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Implements null coalesce operator type functionality
+     * hat-tip: https://stackoverflow.com/a/22265471/789224
+     * @return {null|any}
+     */
+    coalesce() {
+        var len = arguments.length;
+        for (let i = 0; i < len; i++) {
+            if (arguments[i] !== null && arguments[i] !== undefined) {
+                return arguments[i];
+            }
+        }
+        return null;
     }
 }
 
