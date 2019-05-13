@@ -50,7 +50,7 @@ $bIsLocalised = classUses($CONFIG['MODEL_INSTANCE'], Localised::class);
                 <td>
                     <?php
 
-                    if (is_callable($CONFIG['SORT_LABEL'])) {
+                    if ($CONFIG['SORT_LABEL'] instanceof \Closure) {
                         echo call_user_func($CONFIG['SORT_LABEL'], $oItem);
                     } elseif (property_exists($oItem, $CONFIG['SORT_LABEL'])) {
                         echo $oItem->{$CONFIG['SORT_LABEL']};
