@@ -25,7 +25,11 @@ class Searcher {
             });
 
         $(document)
-            .trigger('admin:js-searcher', ['.js-searcher'])
+            .on('admin:refresh-ui', () => {
+                $(document)
+                    .trigger('admin:js-searcher', ['.js-searcher']);
+            })
+            .trigger('admin:js-searcher', ['.js-searcher']);
     }
 }
 

@@ -106,6 +106,7 @@ class DynamicTable {
         $table.data('index', data.index + 1);
         $table.trigger('dynamic-table:add');
         $table.find('.js-admin-sortable').trigger('sortable:sort');
+        $(document).trigger('admin:refresh-ui');
 
         return this;
     }
@@ -122,6 +123,7 @@ class DynamicTable {
         $row.remove();
         $table.trigger('dynamic-table:remove');
         $table.find('.js-admin-sortable').trigger('sortable:sort');
+        $(document).trigger('admin:refresh-ui');
         return this;
     }
 }
