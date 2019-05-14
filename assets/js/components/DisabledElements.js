@@ -9,8 +9,8 @@ class DisabledElements {
      */
     constructor() {
 
-        $(document, '.btn-disabled')
-            .on('click', () => {
+        $(document)
+            .on('click', '.btn-disabled', () => {
                 return false;
             });
 
