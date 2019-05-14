@@ -57,6 +57,7 @@ class SearcherInstance {
         if (this.api) {
 
             this.$input
+                .removeClass('js-searcher')
                 .select2({
                     placeholder: this.placeholder,
                     minimumInputLength: this.minLength,
