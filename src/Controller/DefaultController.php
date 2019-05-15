@@ -967,7 +967,9 @@ abstract class DefaultController extends Base
 
         if (classUses($oModel, Nestable::class)) {
             $aConfig['CREATE_IGNORE_FIELDS'][] = $oModel->getBreadcrumbsColumn();
+            $aConfig['CREATE_IGNORE_FIELDS'][] = $oModel->getOrderColumn();
             $aConfig['EDIT_IGNORE_FIELDS'][]   = $oModel->getBreadcrumbsColumn();
+            $aConfig['EDIT_IGNORE_FIELDS'][]   = $oModel->getOrderColumn();
         }
 
         if (classUses($oModel, Localised::class)) {
