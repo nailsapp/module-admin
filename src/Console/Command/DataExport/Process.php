@@ -77,7 +77,7 @@ class Process extends Base
 
         if (!empty($aRequests)) {
 
-            Factory::helper('Inflector');
+            Factory::helper('inflector');
             $this->oOutput->writeln('Processing ' . count($aRequests) . ' ' . pluralise(count($aRequests), 'request'));
             $this->oOutput->writeln('Marking as <info>RUNNING</info>');
             $oModel->setBatchStatus($aRequests, $oModel::STATUS_RUNNING);
