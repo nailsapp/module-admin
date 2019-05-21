@@ -24,9 +24,6 @@ class SiteLog extends Base
     public function __construct()
     {
         parent::__construct();
-        Factory::helper('directory');
-
-        // --------------------------------------------------------------------------
 
         $config        =& get_config();
         $this->logPath = $config['log_path'] != '' ? $config['log_path'] : NAILS_APP_PATH . 'application/logs/';
@@ -40,7 +37,7 @@ class SiteLog extends Base
      */
     public function getAll($iPage = null, $iPerPage = null, array $aData = [], $bIncludeDeleted = false): array
     {
-        $dirMap        = directory_map($this->logPath, 0);
+        $dirMap        = directoryMap($this->logPath, 0);
         $logFiles      = [];
         $filenameRegex = '/^log\-(\d{4}\-\d{2}\-\d{2})\.php$/';
 

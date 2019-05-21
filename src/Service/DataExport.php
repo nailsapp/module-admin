@@ -42,16 +42,8 @@ class DataExport
 
             $sPath             = $oComponent->path;
             $sNamespace        = $oComponent->namespace;
-            $aComponentSources = [];
-            $aComponentFormats = [];
-
-            if (is_dir($sPath . 'src/DataExport/Source')) {
-                $aComponentSources = array_filter((array) directory_map($sPath . 'src/DataExport/Source'));
-            }
-
-            if (is_dir($sPath . 'src/DataExport/Format')) {
-                $aComponentFormats = array_filter((array) directory_map($sPath . 'src/DataExport/Format'));
-            }
+            $aComponentSources = array_filter((array) directoryMap($sPath . 'src/DataExport/Source'));
+            $aComponentFormats = array_filter((array) directoryMap($sPath . 'src/DataExport/Format'));
 
             foreach ($aComponentSources as $sSource) {
 

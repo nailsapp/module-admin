@@ -72,12 +72,6 @@ class AdminRouter extends BaseMiddle
             'Utilities',
             'Settings',
         ];
-
-        /**
-         * Load helpers we'll need
-         */
-
-        Factory::helper('directory');
     }
 
     // --------------------------------------------------------------------------
@@ -186,18 +180,13 @@ class AdminRouter extends BaseMiddle
      */
     protected function loadAdminControllers($moduleName, $controllerPath, $appPath, $ignore = [])
     {
-        //  Does a path exist? Don't pollute the array with empty modules
-        if (is_dir($controllerPath)) {
-            //  Look for controllers
-            $files = directory_map($controllerPath, 1);
-
-            foreach ($files as $file) {
-                if (in_array($file, $ignore)) {
-                    continue;
-                }
-
-                $this->loadAdminController($file, $moduleName, $controllerPath, $appPath);
+        $files = directoryMap($controllerPath, 1);
+        foreach ($files as $file) {
+            if (in_array($file, $ignore)) {
+                continue;
             }
+
+            $this->loadAdminController($file, $moduleName, $controllerPath, $appPath);
         }
     }
 
