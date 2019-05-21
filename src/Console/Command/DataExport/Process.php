@@ -1,25 +1,72 @@
 <?php
 
-/**
- * Cron controller responsible for generating admin exports
- *
- * @package     Nails
- * @subpackage  module-admin
- * @category    Controller
- * @author      Nails Dev Team
- */
+namespace Nails\Admin\Console\Command\DataExport;
 
-namespace Nails\Cron\Admin;
-
-use Nails\Admin\Exception\DataExport\FailureException;
-use Nails\Cron\Controller\Base;
+use Nails\Console\Command\Base;
 use Nails\Factory;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
-class Export extends Base
+class Process extends Base
 {
-    public function index()
+    /**
+     * Configure the command
+     */
+    protected function configure(): void
     {
-        $this->writeLog('Generating exports');
+        $this
+            ->setName('admin:dataexport')
+            ->setDescription('Processes pending data exports');
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Executes the app
+     *
+     * @param InputInterface  $oInput  The Input Interface provided by Symfony
+     * @param OutputInterface $oOutput The Output Interface provided by Symfony
+     *
+     * @return int
+     */
+    protected function execute(InputInterface $oInput, OutputInterface $oOutput): int
+    {
+        parent::execute($oInput, $oOutput);
+
+        // --------------------------------------------------------------------------
+
+        try {
+
+            $this->banner('Nails Admin Data Export');
+            $this->process();
+
+        } catch (\Exception $e) {
+            return $this->abort(
+                self::EXIT_CODE_FAILURE,
+                [$e->getMessage()]
+            );
+        }
+
+        // --------------------------------------------------------------------------
+
+        //  Cleaning up
+        $oOutput->writeln('');
+        $oOutput->writeln('<comment>Cleaning up...</comment>');
+
+        // --------------------------------------------------------------------------
+
+        //  And we're done
+        $oOutput->writeln('');
+        $oOutput->writeln('Complete!');
+
+        return self::EXIT_CODE_SUCCESS;
+    }
+
+    // --------------------------------------------------------------------------
+
+    protected function process()
+    {
+        $this->oOutput->writeln('Generating exports');
 
         $oNow = Factory::factory('DateTime');
         setAppSetting('data-export-cron-last-run', 'nails/module-admin', $oNow->format('Y-m-d H:i:s'));
@@ -30,8 +77,9 @@ class Export extends Base
 
         if (!empty($aRequests)) {
 
-            $this->writeLog(count($aRequests) . ' requests');
-            $this->writeLog('Marking as "RUNNING"');
+            Factory::helper('Inflector');
+            $this->oOutput->writeln('Processing ' . count($aRequests) . ' ' . pluralise(count($aRequests), 'request'));
+            $this->oOutput->writeln('Marking as <info>RUNNING</info>');
             $oModel->setBatchStatus($aRequests, $oModel::STATUS_RUNNING);
 
             //  Group identical requests
@@ -58,16 +106,16 @@ class Export extends Base
             foreach ($aGroupedRequests as $oRequest) {
                 try {
 
-                    $this->writeLog(
-                        'Starting ' . $oRequest->source . '->' . $oRequest->format . ' (' . json_encode($oRequest->options) . ')'
+                    $this->oOutput->writeln(
+                        'Starting <info>' . $oRequest->source . '->' . $oRequest->format . '</info> (<info>' . json_encode($oRequest->options) . '</info>)'
                     );
                     $oModel->setBatchDownloadId(
                         $oRequest->ids,
                         $oService->export($oRequest->source, $oRequest->format, $oRequest->options)
                     );
                     $oModel->setBatchStatus($oRequest->ids, $oModel::STATUS_COMPLETE);
-                    $this->writeLog('Completed ' . $oRequest->source . '->' . $oRequest->format);
-                    $this->writeLog('Sending emails');
+                    $this->oOutput->writeln('Completed <info>' . $oRequest->source . '->' . $oRequest->format . '</info>');
+                    $this->oOutput->writeln('Sending emails');
 
                     $oEmail
                         ->data([
@@ -79,20 +127,14 @@ class Export extends Base
                         $oEmail->to($iRecipient)->send();
                     }
 
-                } catch (FailureException $e) {
-                    $this->executionFailed($e, $oRequest, $oModel, $oEmail);
                 } catch (\Exception $e) {
                     $this->executionFailed($e, $oRequest, $oModel, $oEmail);
-                    //  Let unexpected exceptions bubble up
-                    throw $e;
                 }
             }
 
         } else {
-            $this->writeLog('Nothing to do');
+            $this->oOutput->writeln('Nothing to do');
         }
-
-        $this->writeLog('Complete');
     }
 
     // --------------------------------------------------------------------------
@@ -100,7 +142,7 @@ class Export extends Base
     /**
      * Marks a request as failed, recording why it failed and informs the recipients
      *
-     * @param \Exception                            $oException The exception whichw as thrown
+     * @param \Exception                            $oException The exception which was thrown
      * @param \stdClass                             $oRequest   The current request
      * @param \Nails\Admin\Model\Export             $oModel     The data export model
      * @param \Nails\Admin\Factory\Email\DataExport $oEmail     The email object
@@ -111,7 +153,8 @@ class Export extends Base
         \Nails\Admin\Model\Export $oModel,
         \Nails\Admin\Factory\Email\DataExport $oEmail
     ) {
-        $this->writeLog('Exception: ' . $oException->getMessage());
+
+        $this->oOutput->writeln('<error>' . get_class($oException) . ': ' . $oException->getMessage() . '</error>');
         $oModel->setBatchStatus($oRequest->ids, $oModel::STATUS_FAILED, $oException->getMessage());
 
         $oEmail

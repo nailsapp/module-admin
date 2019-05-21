@@ -24,7 +24,7 @@ class Create extends BaseMaker
     protected function configure(): void
     {
         $this
-            ->setName('make:dataexport')
+            ->setName('make:admin:dataexport')
             ->setDescription('Creates a new Admin DataExport Source')
             ->addArgument(
                 'name',
