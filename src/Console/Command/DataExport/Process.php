@@ -2,6 +2,9 @@
 
 namespace Nails\Admin\Console\Command\DataExport;
 
+use DateTime;
+use Nails\Admin\Model\Export;
+use Nails\Admin\Service\DataExport;
 use Nails\Console\Command\Base;
 use Nails\Factory;
 use Symfony\Component\Console\Input\InputInterface;
@@ -68,10 +71,13 @@ class Process extends Base
     {
         $this->oOutput->writeln('Generating exports');
 
+        /** @var DateTime $oNow */
         $oNow = Factory::factory('DateTime');
         setAppSetting('data-export-cron-last-run', 'nails/module-admin', $oNow->format('Y-m-d H:i:s'));
 
-        $oService  = Factory::service('DataExport', 'nails/module-admin');
+        /** @var DataExport $oService */
+        $oService = Factory::service('DataExport', 'nails/module-admin');
+        /** @var Export $oModel */
         $oModel    = Factory::model('Export', 'nails/module-admin');
         $aRequests = $oModel->getAll(['where' => [['status', $oModel::STATUS_PENDING]]]);
 
@@ -115,7 +121,15 @@ class Process extends Base
                     );
                     $oModel->setBatchStatus($oRequest->ids, $oModel::STATUS_COMPLETE);
                     $this->oOutput->writeln('Completed <info>' . $oRequest->source . '->' . $oRequest->format . '</info>');
-                    $this->oOutput->writeln('Sending emails');
+
+                } catch (\Exception $e) {
+                    $this->executionFailed($e, $oRequest, $oModel, $oEmail);
+                }
+
+                //  Send emails in a different try/catch block so if it fails it doesn't mark the report as failed
+                $this->oOutput->writeln('Sending emails');
+
+                try {
 
                     $oEmail
                         ->data([
@@ -124,11 +138,12 @@ class Process extends Base
                         ]);
 
                     foreach ($oRequest->recipients as $iRecipient) {
+                        $this->oOutput->writeln('Sending email to user #<info>' . $iRecipient . '</info>');
                         $oEmail->to($iRecipient)->send();
                     }
 
                 } catch (\Exception $e) {
-                    $this->executionFailed($e, $oRequest, $oModel, $oEmail);
+                    $this->oOutput->writeln('<error>Email failed to send: ' . $e->getMessage() . '</error>');
                 }
             }
 
