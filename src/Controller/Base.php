@@ -142,7 +142,7 @@ abstract class Base extends BaseMiddle
         //  Module assets
         $oAsset->load('admin.min.js', 'nails/module-admin');
         $oAsset->load('nails.default.min.js', 'NAILS');
-        $oAsset->load('nails.admin.js', 'NAILS');
+        $oAsset->load('nails.admin.min.js', 'NAILS');
         $oAsset->load('nails.forms.min.js', 'NAILS');
         $oAsset->load('nails.api.min.js', 'NAILS');
 

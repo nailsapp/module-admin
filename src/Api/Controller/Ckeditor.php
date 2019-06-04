@@ -38,15 +38,16 @@ class Ckeditor extends BaseApi
 
     /**
      * Returns the URL of the config to use for CKEditor instances
+     *
      * @return \Nails\Api\Factory\ApiResponse
      */
     public function getConfigs()
     {
         return Factory::factory('ApiResponse', 'nails/module-api')
-                      ->setData([
-                          'basic'   => $this->findConfig('ckeditor.config.basic.min.js'),
-                          'default' => $this->findConfig('ckeditor.config.default.min.js'),
-                      ]);
+            ->setData([
+                'basic'   => $this->findConfig('ckeditor.config.basic.min.js'),
+                'default' => $this->findConfig('ckeditor.config.default.min.js'),
+            ]);
     }
 
     // --------------------------------------------------------------------------
