@@ -12,10 +12,11 @@
 
 namespace Nails\Admin\Service;
 
+use Nails\Admin\DataExport\SourceResponse;
+use Nails\Cdn\Service\Cdn;
 use Nails\Common\Exception\NailsException;
 use Nails\Components;
 use Nails\Factory;
-use Nails\Admin\DataExport\SourceResponse;
 
 /**
  * Class DataExport
@@ -24,8 +25,8 @@ use Nails\Admin\DataExport\SourceResponse;
  */
 class DataExport
 {
-    protected $aSources = [];
-    protected $aFormats = [];
+    protected $aSources    = [];
+    protected $aFormats    = [];
     protected $aCacheFiles = [];
 
     // --------------------------------------------------------------------------
@@ -215,9 +216,15 @@ class DataExport
             }
             $sFile = end($aFiles);
 
-            //  Save to CDN
+            /** @var Cdn $oCdn */
             $oCdn    = Factory::service('Cdn', 'nails/module-cdn');
-            $oObject = $oCdn->objectCreate($sFile, 'data-export');
+            $oObject = $oCdn->objectCreate(
+                $sFile,
+                'data-export',
+                [
+                    'no-md5-check' => true,
+                ]
+            );
 
             if (empty($oObject)) {
                 throw new NailsException('Failed to upload exported file. ' . $oCdn->lastError());
