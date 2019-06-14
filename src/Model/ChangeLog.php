@@ -251,7 +251,7 @@ class ChangeLog extends Base
      *
      * @throws \Nails\Common\Exception\FactoryException
      **/
-    protected function getCountCommon(array $aData = [])
+    protected function getCountCommon(array $aData = []): void
     {
         //  Join user tables
         $oDb = Factory::service('Database');
