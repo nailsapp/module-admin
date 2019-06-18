@@ -158,7 +158,8 @@ class Logs extends Base
 
         // --------------------------------------------------------------------------
 
-        $sTableAlias = $this->event->getTableAlias();
+        $oEvent      = Factory::service('Event', 'nails/module-event');
+        $sTableAlias = $oEvent->getTableAlias();
 
         // --------------------------------------------------------------------------
 
@@ -192,15 +193,15 @@ class Logs extends Base
         if ($oInput->get('dl') && userHasPermission('admin:admin:logs:event:download')) {
 
             //  Get all items for the search, the view will iterate over the resultset
-            $oEvents = $this->event->getAllRawQuery(null, null, $aData);
+            $oEvents = $oEvent->getAllRawQuery(null, null, $aData);
 
             Helper::loadCsv($oEvents, 'export-events-' . toUserDatetime(null, 'Y-m-d_h-i-s') . '.csv');
 
         } else {
 
             //  Get the items for the page
-            $iTotalRows           = $this->event->countAll($aData);
-            $this->data['events'] = $this->event->getAll($iPage, $iPerPage, $aData);
+            $iTotalRows           = $oEvent->countAll($aData);
+            $this->data['events'] = $oEvent->getAll($iPage, $iPerPage, $aData);
 
             //  Set Search and Pagination objects for the view
             $this->data['search']     = Helper::searchObject(true, $aSortColumns, $sSortOn, $sSortOrder, $iPerPage, $sKeywords);
