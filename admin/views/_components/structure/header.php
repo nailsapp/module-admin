@@ -25,7 +25,7 @@
         <script type="text/javascript">
             /* jshint ignore:start */
             window.ENVIRONMENT = '<?=\Nails\Environment::get()?>';
-            window.SITE_URL = '<?=site_url('', \Nails\Functions::isPageSecure())?>';
+            window.SITE_URL = '<?=siteUrl('', \Nails\Functions::isPageSecure())?>';
             window.NAILS = {};
             window.NAILS.URL = '<?=NAILS_ASSETS_URL?>';
             window.NAILS.LANG = {};
@@ -97,7 +97,7 @@
         <div class="header">
             <div class="app-name">
                 <b class="fa fa-bars " id="mobileMenuBurger"></b>
-                <a href="<?=site_url('admin')?>">
+                <a href="<?=siteUrl('admin')?>">
                 <span class="app-name admin-branding-text-primary">
                     <?=APP_NAME?>
                 </span>
@@ -271,7 +271,7 @@
 
                                             ?>
                                             <li>
-                                                <a href="<?=site_url('admin/' . $url)?>">
+                                                <a href="<?=siteUrl('admin/' . $url)?>">
                                                     <?php
 
                                                     echo $methodDetails->label;
@@ -379,7 +379,7 @@
                                                 foreach ($aButton['url'] as $sLabel => $sItemUrl) {
                                                     ?>
                                                     <li>
-                                                        <a href="<?=site_url($sItemUrl)?>">
+                                                        <a href="<?=siteUrl($sItemUrl)?>">
                                                             <?=$sLabel?>
                                                         </a>
                                                     </li>

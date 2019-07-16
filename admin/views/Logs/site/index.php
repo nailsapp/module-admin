@@ -45,7 +45,7 @@
             {{lines}}
         </td>
         <td class="actions">
-            <a href="<?=site_url('admin/admin/logs/site/view/{{file}}')?>" class="btn btn-xs btn-success">
+            <a href="<?=siteUrl('admin/admin/logs/site/view/{{file}}')?>" class="btn btn-xs btn-success">
                 View
             </a>
         </td>

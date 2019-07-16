@@ -29,7 +29,7 @@
     echo Factory::factory('Pagination')
         ->initialize([
             //  The base URL is the current URI plus any existing GET params
-            'base_url'             => site_url(uri_string()) . '?' . http_build_query($aParams),
+            'base_url'             => siteUrl(uri_string()) . '?' . http_build_query($aParams),
 
             //  Other customisations
             'total_rows'           => $totalRows,

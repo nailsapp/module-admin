@@ -63,9 +63,9 @@ class Ckeditor extends BaseApi
     {
         //  @todo (Pablo - 2018-07-13) - The paths and URLs should probably be determined by the Asset service
         if (file_exists(NAILS_APP_PATH . 'assets/build/js/' . $sFile)) {
-            return site_url('assets/build/js/' . $sFile);
+            return siteUrl('assets/build/js/' . $sFile);
         } elseif (file_exists(NAILS_APP_PATH . 'assets/js/' . $sFile)) {
-            return site_url('assets/js/' . $sFile);
+            return siteUrl('assets/js/' . $sFile);
         } else {
             return NAILS_ASSETS_URL . 'js/' . $sFile;
         }

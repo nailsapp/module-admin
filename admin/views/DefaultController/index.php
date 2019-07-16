@@ -269,7 +269,7 @@ $oMustache = \Nails\Factory::service('Mustache');
                                                     }
                                                     ?>
                                                     <li>
-                                                        <a href="<?=site_url($sItemUrl)?>">
+                                                        <a href="<?=siteUrl($sItemUrl)?>">
                                                             <?=$sLabel?>
                                                         </a>
                                                     </li>

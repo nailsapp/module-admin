@@ -20,7 +20,7 @@
     <!--    NAILS JS GLOBALS    -->
     <script style="text/javascript">
         window.ENVIRONMENT      = '<?=\Nails\Environment::get()?>';
-        window.SITE_URL         = '<?=site_url('', \Nails\Functions::isPageSecure())?>';
+        window.SITE_URL         = '<?=siteUrl('', \Nails\Functions::isPageSecure())?>';
         window.NAILS            = {};
         window.NAILS.URL        = '<?=NAILS_ASSETS_URL?>';
         window.NAILS.LANG       = {};
@@ -149,7 +149,7 @@
                                     foreach ($aButton['url'] as $sLabel => $sItemUrl) {
                                         ?>
                                         <li>
-                                            <a href="<?=site_url($sItemUrl)?>">
+                                            <a href="<?=siteUrl($sItemUrl)?>">
                                                 <?=$sLabel?>
                                             </a>
                                         </li>
