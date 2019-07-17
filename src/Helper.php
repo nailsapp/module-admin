@@ -12,8 +12,10 @@
 
 namespace Nails\Admin;
 
+use Nails\Common\Exception\FactoryException;
 use Nails\Common\Exception\NailsException;
 use Nails\Common\Exception\ViewNotFoundException;
+use Nails\Common\Service\Input;
 use Nails\Factory;
 
 class Helper
@@ -26,12 +28,12 @@ class Helper
      * Loads a view in admin taking into account the module being accessed. Passes controller
      * data and optionally loads the header and footer views.
      *
-     * @param  string  $sViewFile      The view to load
-     * @param  boolean $bLoadStructure Whether or not to include the header and footers in the output
-     * @param  boolean $bReturnView    Whether to return the view or send it to the Output class
+     * @param string  $sViewFile      The view to load
+     * @param boolean $bLoadStructure Whether or not to include the header and footers in the output
+     * @param boolean $bReturnView    Whether to return the view or send it to the Output class
      *
      * @return mixed                  String when $bReturnView is true, void otherwise
-     * @throws \Nails\Common\Exception\FactoryException
+     * @throws FactoryException
      */
     public static function loadView($sViewFile, $bLoadStructure = true, $bReturnView = false)
     {
@@ -85,12 +87,12 @@ class Helper
      * Generates a CSV and sends to the browser, if a filename is given then it's
      * sent as a download
      *
-     * @param  mixed   $mData      The data to render, either an array or a DB query object
-     * @param  string  $sFilename  The filename to give the file if downloading
-     * @param  boolean $bHeaderRow The first element in the $mData resultset is a header row
+     * @param mixed   $mData      The data to render, either an array or a DB query object
+     * @param string  $sFilename  The filename to give the file if downloading
+     * @param boolean $bHeaderRow The first element in the $mData resultset is a header row
      *
      * @return void
-     * @throws \Nails\Common\Exception\FactoryException
+     * @throws FactoryException
      */
     public static function loadCsv($mData, $sFilename = '', $bHeaderRow = true)
     {
@@ -141,13 +143,13 @@ class Helper
     /**
      * Load a single view taking into account the module being accessed.
      *
-     * @param  string  $sViewFile   The view to load
-     * @param  array   $aViewData   The data to pass to the view
-     * @param  boolean $bReturnView Whether to return the view or send it to the Output class
-     *
-     * @throws \Exception
+     * @param string  $sViewFile   The view to load
+     * @param array   $aViewData   The data to pass to the view
+     * @param boolean $bReturnView Whether to return the view or send it to the Output class
      *
      * @return mixed               String when $bReturnView is true, void otherwise
+     * @throws \Exception
+     *
      */
     public static function loadInlineView($sViewFile, $aViewData = [], $bReturnView = false)
     {
@@ -213,11 +215,11 @@ class Helper
     /**
      * Loads the admin "search" component
      *
-     * @param  \stdClass $oSearchObj  An object as created by self::searchObject();
-     * @param  boolean   $bReturnView Whether to return the view to the caller, or output to the browser
+     * @param \stdClass $oSearchObj  An object as created by self::searchObject();
+     * @param boolean   $bReturnView Whether to return the view to the caller, or output to the browser
      *
      * @return mixed                  String when $bReturnView is true, void otherwise
-     * @throws \Nails\Common\Exception\FactoryException
+     * @throws FactoryException
      */
     public static function loadSearch($oSearchObj, $bReturnView = true)
     {
@@ -242,14 +244,14 @@ class Helper
     /**
      * Creates a standard object designed for use with self::loadSearch()
      *
-     * @param  boolean $bSearchable     Whether the result set is keyword searchable
-     * @param  array   $aSortColumns    An array of columns to sort results by
-     * @param  string  $sSortOn         The column to sort on
-     * @param  string  $sSortOrder      The order to sort results in
-     * @param  integer $iPerPage        The number of results to show per page
-     * @param  string  $sKeywords       Keywords to apply to the search result
-     * @param  array   $aCheckboxFilter An array of filters to filter the results by, presented as checkboxes
-     * @param  array   $aDropdownFilter An array of filters to filter the results by, presented as a dropdown
+     * @param boolean $bSearchable     Whether the result set is keyword searchable
+     * @param array   $aSortColumns    An array of columns to sort results by
+     * @param string  $sSortOn         The column to sort on
+     * @param string  $sSortOrder      The order to sort results in
+     * @param integer $iPerPage        The number of results to show per page
+     * @param string  $sKeywords       Keywords to apply to the search result
+     * @param array   $aCheckboxFilter An array of filters to filter the results by, presented as checkboxes
+     * @param array   $aDropdownFilter An array of filters to filter the results by, presented as a dropdown
      *
      * @return \stdClass
      */
@@ -281,14 +283,14 @@ class Helper
      * Creates a standard object designed for use with self::searchObject()'s
      * $checkboxFilter and $dropdownFilter parameters
      *
-     * @param  string $sColumn  The name of the column to filter on, leave blank if you do not wish to use Nails's
+     * @param string $sColumn   The name of the column to filter on, leave blank if you do not wish to use Nails's
      *                          automatic filtering
-     * @param  string $sLabel   The label to give the filter group
-     * @param  array  $aOptions An array of options for the dropdown, either key => value pairs or a 3 element array: 0
+     * @param string $sLabel    The label to give the filter group
+     * @param array  $aOptions  An array of options for the dropdown, either key => value pairs or a 3 element array: 0
      *                          = label, 1 = value, 2 = default check status
      *
      * @return \stdClass
-     * @throws \Nails\Common\Exception\FactoryException
+     * @throws FactoryException
      */
     public static function searchFilterObject($sColumn, $sLabel, $aOptions)
     {
@@ -322,10 +324,10 @@ class Helper
     /**
      * Creates a standard object which is an option for self::searchFilterObject()
      *
-     * @param  string  $sLabel   The label to give the option
-     * @param  string  $sValue   The value to give the option (filters self::searchFilterObject's $sColumn parameter)
-     * @param  boolean $bChecked Whether the value is checked by default
-     * @param bool     $bQuery   Whether the supplied value is an SQL query
+     * @param string  $sLabel   The label to give the option
+     * @param string  $sValue   The value to give the option (filters self::searchFilterObject's $sColumn parameter)
+     * @param boolean $bChecked Whether the value is checked by default
+     * @param bool    $bQuery   Whether the supplied value is an SQL query
      *
      * @return \stdClass
      */
@@ -344,8 +346,8 @@ class Helper
     /**
      * Returns a value from a filter object at a specific key
      *
-     * @param  \stdClass $oFilterObj The filter object to search
-     * @param  integer   $iKey       The key to inspect
+     * @param \stdClass $oFilterObj The filter object to search
+     * @param integer   $iKey       The key to inspect
      *
      * @return mixed                  Mixed on success, null on failure
      */
@@ -359,11 +361,11 @@ class Helper
     /**
      * Loads the admin "pagination" component
      *
-     * @param  \stdClass $oPaginationObject An object as created by self::paginationObject();
-     * @param  boolean   $bReturnView       Whether to return the view to the caller, or output to the browser
+     * @param \stdClass $oPaginationObject An object as created by self::paginationObject();
+     * @param boolean   $bReturnView       Whether to return the view to the caller, or output to the browser
      *
      * @return mixed                      String when $bReturnView is true, void otherwise
-     * @throws \Nails\Common\Exception\FactoryException
+     * @throws FactoryException
      */
     public static function loadPagination($oPaginationObject, $bReturnView = true)
     {
@@ -383,9 +385,9 @@ class Helper
     /**
      * Creates a standard object designed for use with self::loadPagination();
      *
-     * @param  integer $iPage      The current page number
-     * @param  integer $iPerPage   The number of results per page
-     * @param  integer $iTotalRows The total number of results in the result set
+     * @param integer $iPage      The current page number
+     * @param integer $iPerPage   The number of results per page
+     * @param integer $iTotalRows The total number of results in the result set
      *
      * @return \stdClass
      */
@@ -408,7 +410,7 @@ class Helper
      * @param string $sCellAdditional Any additional HTML to add to the cell (after the value)
      *
      * @return string
-     * @throws \Nails\Common\Exception\FactoryException
+     * @throws FactoryException
      */
     public static function loadCellAuto($mValue, $sCellClass = '', $sCellAdditional = '')
     {
@@ -429,10 +431,10 @@ class Helper
     /**
      * Load the admin "user" table cell component
      *
-     * @param  mixed $mUser The user object or the User's ID/email/username
+     * @param mixed $mUser The user object or the User's ID/email/username
      *
      * @return string
-     * @throws \Nails\Common\Exception\FactoryException
+     * @throws FactoryException
      */
     public static function loadUserCell($mUser)
     {
@@ -472,11 +474,11 @@ class Helper
     /**
      * Load the admin "date" table cell component
      *
-     * @param  string $sDate   The date to render
-     * @param  string $sNoData What to render if the date is invalid or empty
+     * @param string $sDate   The date to render
+     * @param string $sNoData What to render if the date is invalid or empty
      *
      * @return string
-     * @throws \Nails\Common\Exception\FactoryException
+     * @throws FactoryException
      */
     public static function loadDateCell($sDate, $sNoData = '&mdash;')
     {
@@ -494,11 +496,11 @@ class Helper
     /**
      * Load the admin "dateTime" table cell component
      *
-     * @param  string $sDateTime The dateTime to render
-     * @param  string $sNoData   What to render if the datetime is invalid or empty
+     * @param string $sDateTime The dateTime to render
+     * @param string $sNoData   What to render if the datetime is invalid or empty
      *
      * @return string
-     * @throws \Nails\Common\Exception\FactoryException
+     * @throws FactoryException
      */
     public static function loadDateTimeCell($sDateTime, $sNoData = '&mdash;')
     {
@@ -516,11 +518,11 @@ class Helper
     /**
      * Load the admin "boolean" table cell component
      *
-     * @param  string $value     The value to 'truthy' test
-     * @param  string $sDateTime A datetime to show (for truthy values only)
+     * @param string $value     The value to 'truthy' test
+     * @param string $sDateTime A datetime to show (for truthy values only)
      *
      * @return string
-     * @throws \Nails\Common\Exception\FactoryException
+     * @throws FactoryException
      */
     public static function loadBoolCell($value, $sDateTime = null)
     {
@@ -538,12 +540,12 @@ class Helper
     /**
      * Load the admin "settings component table" component
      *
-     * @param  string $sComponentService The component service to use
-     * @param  array  $sProvider         The model provider
-     * @param  string $sComponentType    The type of component being loaded
+     * @param string $sComponentService The component service to use
+     * @param array  $sProvider         The model provider
+     * @param string $sComponentType    The type of component being loaded
      *
      * @return string
-     * @throws \Nails\Common\Exception\FactoryException
+     * @throws FactoryException
      */
     public static function loadSettingsComponentTable($sComponentService, $sProvider, $sComponentType = 'component')
     {
@@ -570,11 +572,11 @@ class Helper
     /**
      * Alias to loadSettingsComponentTable()
      *
-     * @param  string $sDriverService The driver service to use
-     * @param  array  $sProvider      The model provider
+     * @param string $sDriverService The driver service to use
+     * @param array  $sProvider      The model provider
      *
      * @return string
-     * @throws \Nails\Common\Exception\FactoryException
+     * @throws FactoryException
      */
     public static function loadSettingsDriverTable($sDriverService, $sProvider)
     {
@@ -586,11 +588,11 @@ class Helper
     /**
      * Alias to loadSettingsComponentTable()
      *
-     * @param  string $sSkinService The skin service to use
-     * @param  array  $sProvider    The model provider
+     * @param string $sSkinService The skin service to use
+     * @param array  $sProvider    The model provider
      *
      * @return string
-     * @throws \Nails\Common\Exception\FactoryException
+     * @throws FactoryException
      */
     public static function loadSettingsSkinTable($sSkinService, $sProvider)
     {
@@ -648,7 +650,7 @@ class Helper
      * @param array  $aData   Data to populate the table with
      *
      * @return string
-     * @throws \Nails\Common\Exception\FactoryException
+     * @throws FactoryException
      */
     public static function dynamicTable($sKey, array $aFields, array $aData = [])
     {
@@ -662,5 +664,78 @@ class Helper
                 ],
                 true
             );
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Convinience method for generating tabbed views
+     *
+     * @param array  $aTabs  The tab config ['label' => '', 'content' => 'string|callable()']
+     * @param string $sGroup The group name, useful if more than one tab group appears on a page
+     *
+     * @return string
+     * @throws FactoryException
+     */
+    public static function tabs(array $aTabs = [], $sGroup = ''): string
+    {
+        /** @var Input $oInput */
+        $oInput = Factory::service('Input');
+
+        $i      = 0;
+        $sGroup = $sGroup ? 'activeTab-' . $sGroup : '';
+
+        foreach ($aTabs as &$aTab) {
+
+            $aTab['label']   = getFromArray('label', $aTab);
+            $aTab['slug']    = url_title($aTab['label'], '-', true);
+            $aTab['content'] = getFromArray('content', $aTab);
+
+            if ($oInput->post($sGroup) == 'tab-' . $aTab['slug']) {
+                $aTab['active'] = 'active';
+            } elseif ($i === 0 && !$oInput->post($sGroup)) {
+                $aTab['active'] = 'active';
+            } else {
+                $aTab['active'] = '';
+            }
+
+            $i++;
+        }
+
+        ob_start();
+        ?>
+        <input type="hidden" name="<?=$sGroup?>" value="<?=set_value($sGroup)?>" id="<?=$sGroup?>"/>
+        <ul class="tabs" data-tabgroup="<?=$sGroup?>" data-active-tab-input="#<?=$sGroup?>">
+            <?php
+            foreach ($aTabs as &$aTab) {
+                ?>
+                <li class="tab <?=$aTab['active']?>">
+                    <a href="#" data-tab="tab-<?=$aTab['slug']?>">
+                        <?=$aTab['label']?>
+                    </a>
+                </li>
+                <?php
+            }
+            ?>
+        </ul>
+        <section class="tabs" data-tabgroup="<?=$sGroup?>">
+            <?php
+            foreach ($aTabs as &$aTab) {
+                ?>
+                <div class="tab-page tab-<?=$aTab['slug']?> <?=$aTab['active']?> fieldset">
+                    <?php
+                    if (is_callable($aTab['content'])) {
+                        echo $aTab['content']();
+                    } else {
+                        echo $aTab['content'];
+                    }
+                    ?>
+                </div>
+                <?php
+            }
+            ?>
+        </section>
+        <?php
+        return ob_get_clean();
     }
 }
