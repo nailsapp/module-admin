@@ -15,6 +15,7 @@ namespace Nails\Admin\Service;
 use Nails\Admin\DataExport\SourceResponse;
 use Nails\Cdn\Service\Cdn;
 use Nails\Common\Exception\NailsException;
+use Nails\Common\Service\FileCache;
 use Nails\Components;
 use Nails\Factory;
 
@@ -180,7 +181,9 @@ class DataExport
         }
 
         //  Create temporary working directory
-        $sTempDir = CACHE_PATH . 'data-export-' . md5(microtime(true)) . mt_rand() . '/';
+        /** @var FileCache $oFileCache */
+        $oFileCache = Factory::service('FileCache');
+        $sTempDir   = $oFileCache->getDir() . 'data-export-' . md5(microtime(true)) . mt_rand() . '/';
         mkdir($sTempDir);
 
         //  Process each file
