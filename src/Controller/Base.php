@@ -83,12 +83,6 @@ abstract class Base extends BaseMiddle
 
         // --------------------------------------------------------------------------
 
-        //  @todo (Pablo - 2017-06-08) - Remove this
-        \Nails\Common\Controller\Base::backwardsCompatibility($this);
-        static::backwardsCompatibility($this);
-
-        // --------------------------------------------------------------------------
-
         //  Call the ADMIN:READY event, admin is all geared up and ready to go
         $oEventService->trigger(Events::ADMIN_READY, Events::getEventNamespace());
     }
@@ -346,20 +340,6 @@ abstract class Base extends BaseMiddle
                 }
             }
         }
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Provides some backwards compatability
-     *
-     * @param \stdClass $oBindTo The class to bind to
-     */
-    public static function backwardsCompatibility(&$oBindTo)
-    {
-        //  @todo (Pablo - 2017-06-08) - Try and remove these dependencies
-        $oBindTo->load =& get_instance()->load;
-        $oBindTo->lang =& get_instance()->lang;
     }
 
     // --------------------------------------------------------------------------
