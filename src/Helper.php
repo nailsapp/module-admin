@@ -683,7 +683,7 @@ class Helper
         $oInput = Factory::service('Input');
 
         $i      = 0;
-        $sGroup = $sGroup ? 'activeTab-' . $sGroup : '';
+        $sGroup = $sGroup ? 'tab-group-' . $sGroup : 'tab-group';
 
         foreach ($aTabs as &$aTab) {
 
