@@ -20,5 +20,8 @@
     "build": "webpack -p",
     "build-dev": "webpack",
     "watch": "webpack --watch"
+  },
+  "dependencies": {
+    "mustache": "^3.0.1"
   }
 }
