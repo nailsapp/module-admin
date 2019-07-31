@@ -2,7 +2,7 @@
 
 //  @todo (Pablo - 2019-07-29) - Support sorting of elements
 
-import Mustach from 'Mustache';
+import Mustach from 'mustache';
 
 /* globals $, jQuery */
 class Repeater {
