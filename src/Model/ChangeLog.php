@@ -12,6 +12,8 @@
 
 namespace Nails\Admin\Model;
 
+use Nails\Common\Exception\FactoryException;
+use Nails\Common\Exception\ModelException;
 use Nails\Common\Model\Base;
 use Nails\Factory;
 
@@ -77,11 +79,12 @@ class ChangeLog extends Base
      * @param string  $sField
      * @param mixed   $mOldValue The old value
      * @param mixed   $mNewValue The new value
-     * @param boolean $bStrict   whether or not to compare $mOldValue and $mNewValue strictly
+     * @param boolean $bStrict   Whether or not to compare $mOldValue and $mNewValue strictly
+     * @param boolean $bForce    Whether to force the changelog (i.e do not discard identical values)
      *
      * @return bool
-     * @throws \Nails\Common\Exception\FactoryException
-     * @throws \Nails\Common\Exception\ModelException
+     * @throws FactoryException
+     * @throws ModelException
      */
     public function add(
         $sVerb,
@@ -93,7 +96,8 @@ class ChangeLog extends Base
         $sField = null,
         $mOldValue = null,
         $mNewValue = null,
-        $bStrict = true
+        $bStrict = true,
+        $bForce = false
     ) {
         /**
          * if the old_value and the new_value are the same then why are you logging
@@ -113,9 +117,9 @@ class ChangeLog extends Base
             $mNewValue = trim($mNewValue);
             $mOldValue = trim($mOldValue);
 
-            if ($bStrict && $mNewValue === $mOldValue) {
+            if (!$bForce && $bStrict && $mNewValue === $mOldValue) {
                 return false;
-            } elseif ($mNewValue == $mOldValue) {
+            } elseif (!$bForce && $mNewValue == $mOldValue) {
                 return false;
             }
         }
@@ -170,8 +174,8 @@ class ChangeLog extends Base
     /**
      * Save the changelog items
      *
-     * @throws \Nails\Common\Exception\FactoryException
-     * @throws \Nails\Common\Exception\ModelException
+     * @throws FactoryException
+     * @throws ModelException
      */
     public function save()
     {
@@ -249,7 +253,7 @@ class ChangeLog extends Base
      *
      * @param array $aData Data passed from the calling method
      *
-     * @throws \Nails\Common\Exception\FactoryException
+     * @throws FactoryException
      **/
     protected function getCountCommon(array $aData = []): void
     {
@@ -288,11 +292,11 @@ class ChangeLog extends Base
      * The getAll() method iterates over each returned item with this method so as to
      * correctly format the output. Use this to cast integers and booleans and/or organise data into objects.
      *
-     * @param  object $oObj      A reference to the object being formatted.
-     * @param  array  $aData     The same data array which is passed to _getcount_common, for reference if needed
-     * @param  array  $aIntegers Fields which should be cast as integers if numerical and not null
-     * @param  array  $aBools    Fields which should be cast as booleans if not null
-     * @param  array  $aFloats   Fields which should be cast as floats if not null
+     * @param object $oObj      A reference to the object being formatted.
+     * @param array  $aData     The same data array which is passed to _getcount_common, for reference if needed
+     * @param array  $aIntegers Fields which should be cast as integers if numerical and not null
+     * @param array  $aBools    Fields which should be cast as booleans if not null
+     * @param array  $aFloats   Fields which should be cast as floats if not null
      */
     protected function formatObject(
         &$oObj,
