@@ -6,7 +6,7 @@ use Nails\Common\Helper\ArrayHelper;
 $oMustache = \Nails\Factory::service('Mustache');
 
 ?>
-<div class="group-defaultcontroller browse">
+<div class="group-defaultcontroller browse" <?=$CONFIG['INDEX_PAGE_ID'] ? 'id="' . $CONFIG['INDEX_PAGE_ID'] . '"' : ''?>>
     <?=adminHelper('loadSearch', $search)?>
     <?=adminHelper('loadPagination', $pagination)?>
     <div class="table-responsive">

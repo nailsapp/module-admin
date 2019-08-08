@@ -1,4 +1,4 @@
-<div class="group-defaultcontroller edit">
+<div class="group-defaultcontroller edit" <?=$CONFIG['EDIT_PAGE_ID'] ? 'id="' . $CONFIG['EDIT_PAGE_ID'] . '"' : ''?>>
     <?php $oInput = \Nails\Factory::service('Input'); ?>
     <?=form_open()?>
     <input type="hidden" name="activeTab" value="<?=set_value('activeTab')?>" id="activeTab"/>

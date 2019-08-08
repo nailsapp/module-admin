@@ -164,6 +164,11 @@ abstract class DefaultController extends Base
     ];
 
     /**
+     * The ID to give the index page
+     */
+    const CONFIG_INDEX_PAGE_ID = '';
+
+    /**
      * Fields which should be marked as readonly when creating an item
      */
     const CONFIG_CREATE_READONLY_FIELDS = [];
@@ -206,6 +211,11 @@ abstract class DefaultController extends Base
      * Specify a specific order for fieldsets
      */
     const CONFIG_EDIT_FIELDSET_ORDER = [];
+
+    /**
+     * The ID to give the edit page
+     */
+    const CONFIG_EDIT_PAGE_ID = '';
 
     /**
      * Additional data to pass into the getAll call on the sort view
@@ -946,12 +956,14 @@ abstract class DefaultController extends Base
             'INDEX_USER_FIELDS'      => static::CONFIG_INDEX_USER_FIELDS,
             'INDEX_NUMERIC_FIELDS'   => static::CONFIG_INDEX_NUMERIC_FIELDS,
             'INDEX_CENTERED_FIELDS'  => static::CONFIG_INDEX_CENTERED_FIELDS,
+            'INDEX_PAGE_ID'          => static::CONFIG_INDEX_PAGE_ID,
             'CREATE_READONLY_FIELDS' => static::CONFIG_CREATE_READONLY_FIELDS,
             'CREATE_IGNORE_FIELDS'   => static::CONFIG_CREATE_IGNORE_FIELDS,
             'EDIT_HEADER_BUTTONS'    => static::CONFIG_EDIT_HEADER_BUTTONS,
             'EDIT_READONLY_FIELDS'   => static::CONFIG_EDIT_READONLY_FIELDS,
             'EDIT_IGNORE_FIELDS'     => static::CONFIG_EDIT_IGNORE_FIELDS,
             'EDIT_DATA'              => static::CONFIG_EDIT_DATA,
+            'EDIT_PAGE_ID'           => static::CONFIG_EDIT_PAGE_ID,
             'SORT_DATA'              => static::CONFIG_SORT_DATA,
             'SORT_LABEL'             => static::CONFIG_SORT_LABEL,
             'FIELDSET_ORDER'         => static::CONFIG_EDIT_FIELDSET_ORDER,
