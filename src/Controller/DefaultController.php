@@ -1700,7 +1700,7 @@ abstract class DefaultController extends Base
             $aData['where'] = [];
         }
 
-        $aData['where'][] = ['id', $iItemId];
+        $aData['where'][] = [$oModel->getTableAlias() . '.' . $oModel->getColumn('id'), $iItemId];
 
         $aItems = $oModel->getAll(
             null,
