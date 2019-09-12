@@ -14,6 +14,7 @@ namespace Nails\Admin\Controller;
 
 use Nails\Admin\Factory\Nav;
 use Nails\Admin\Helper;
+use Nails\Auth;
 use Nails\Common\Exception\FactoryException;
 use Nails\Common\Exception\NailsException;
 use Nails\Common\Exception\ValidationException;
@@ -543,7 +544,7 @@ abstract class DefaultController extends Base
                     $sLink = '';
                 }
 
-                $oSession = Factory::service('Session', 'nails/module-auth');
+                $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
                 $oSession->setFlashData('success', sprintf(static::CREATE_SUCCESS_MESSAGE, $sLink));
 
                 if ($aConfig['CAN_EDIT'] && static::userCan('edit')) {
@@ -603,7 +604,7 @@ abstract class DefaultController extends Base
                     );
 
                     if (empty($aDiff)) {
-                        $oSession = Factory::service('Session', 'nails/module-auth');
+                        $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
                         $oSession->setFlashData('error', 'No more variations of this item can be created.');
                         $this->returnToIndex();
                     }
@@ -694,7 +695,7 @@ abstract class DefaultController extends Base
                     $sLink = '';
                 }
 
-                $oSession = Factory::service('Session', 'nails/module-auth');
+                $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
                 $oSession->setFlashData('success', sprintf(static::EDIT_SUCCESS_MESSAGE, $sLink));
 
                 if (classUses($oModel, Localised::class)) {
@@ -773,13 +774,13 @@ abstract class DefaultController extends Base
                 $sRestoreLink = '';
             }
 
-            $oSession = Factory::service('Session', 'nails/module-auth');
+            $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
             $oSession->setFlashData('success', static::DELETE_SUCCESS_MESSAGE . ' ' . $sRestoreLink);
             $this->returnToIndex();
 
         } catch (\Exception $e) {
             $oDb->trans_rollback();
-            $oSession = Factory::service('Session', 'nails/module-auth');
+            $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
             $oSession->setFlashData('error', static::DELETE_ERROR_MESSAGE . ' ' . $e->getMessage());
             $this->returnToIndex();
         }
@@ -803,7 +804,7 @@ abstract class DefaultController extends Base
 
         $oUri     = Factory::service('Uri');
         $oDb      = Factory::service('Database');
-        $oSession = Factory::service('Session', 'nails/module-auth');
+        $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
         $oModel   = $this->getModel();
         $oItem    = $this->getItem([], null, true);
 
@@ -884,7 +885,7 @@ abstract class DefaultController extends Base
 
                 $oDb->trans_commit();
 
-                $oSession = Factory::service('Session', 'nails/module-auth');
+                $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
                 $oSession->setFlashData('success', static::ORDER_SUCCESS_MESSAGE);
 
                 redirect($aConfig['BASE_URL'] . '/sort');

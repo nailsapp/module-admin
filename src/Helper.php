@@ -12,6 +12,7 @@
 
 namespace Nails\Admin;
 
+use Nails\Auth;
 use Nails\Common\Exception\FactoryException;
 use Nails\Common\Exception\NailsException;
 use Nails\Common\Exception\ViewNotFoundException;
@@ -440,12 +441,12 @@ class Helper
     {
         if (is_numeric($mUser)) {
 
-            $oUserModel = Factory::model('User', 'nails/module-auth');
+            $oUserModel = Factory::model('User', Auth\Constants::MODULE_SLUG);
             $oUser      = $oUserModel->getById($mUser);
 
         } elseif (is_string($mUser)) {
 
-            $oUserModel = Factory::model('User', 'nails/module-auth');
+            $oUserModel = Factory::model('User', Auth\Constants::MODULE_SLUG);
             $oUser      = $oUserModel->getByEmail($mUser);
 
             if (empty($oUser)) {

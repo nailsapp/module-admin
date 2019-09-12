@@ -11,6 +11,7 @@
  */
 
 use Nails\Admin\Exception\RouterException;
+use Nails\Auth;
 use Nails\Components;
 use Nails\Factory;
 
@@ -171,10 +172,10 @@ class AdminRouter extends BaseMiddle
     /**
      * Looks for admin controllers in specific locations
      *
-     * @param  string $moduleName     The name of the module currently being searched
-     * @param  string $controllerPath The full path to the controllers
-     * @param  string $appPath        If the app can extend these controllers, this is where it will place the file
-     * @param  array  $ignore         An array of filenames to ignore
+     * @param string $moduleName     The name of the module currently being searched
+     * @param string $controllerPath The full path to the controllers
+     * @param string $appPath        If the app can extend these controllers, this is where it will place the file
+     * @param array  $ignore         An array of filenames to ignore
      *
      * @return void
      */
@@ -226,10 +227,10 @@ class AdminRouter extends BaseMiddle
     /**
      * Loads a specific admin controller
      *
-     * @param  string $file           The file to load
-     * @param  string $moduleName     The name of the module currently being searched
-     * @param  string $controllerPath The full path to the controller
-     * @param  string $appPath        If the app can extend this controllers, this is where it will place the file
+     * @param string $file           The file to load
+     * @param string $moduleName     The name of the module currently being searched
+     * @param string $controllerPath The full path to the controller
+     * @param string $appPath        If the app can extend this controllers, this is where it will place the file
      *
      * @return void
      */
@@ -270,7 +271,7 @@ class AdminRouter extends BaseMiddle
     /**
      * Determines whether the file being loaded has an acceptable filename.
      *
-     * @param  String $file The filename to test
+     * @param String $file The filename to test
      *
      * @return boolean
      */
@@ -285,13 +286,13 @@ class AdminRouter extends BaseMiddle
     /**
      * Attempts to load an AdminClass
      *
-     * @param  string $fileName   The filename of the class being loaded
-     * @param  string $className  The name of the class being loaded
-     * @param  string $classPath  The path of the class being loaded
-     * @param  string $moduleName The name of the module to which this class belongs
+     * @param string $fileName   The filename of the class being loaded
+     * @param string $className  The name of the class being loaded
+     * @param string $classPath  The path of the class being loaded
+     * @param string $moduleName The name of the module to which this class belongs
      *
-     * @throws RouterException
      * @return boolean
+     * @throws RouterException
      */
     protected function loadAdminClass($fileName, $className, $classPath, $moduleName)
     {
@@ -526,7 +527,7 @@ class AdminRouter extends BaseMiddle
 
         if (empty($sModule)) {
 
-            $oSession = Factory::service('Session', 'nails/module-auth');
+            $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
             $oSession->keepFlashData();
             redirect('admin/admin/dashboard');
 
