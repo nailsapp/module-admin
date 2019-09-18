@@ -13,6 +13,7 @@
 namespace Nails\Admin\Service;
 
 use Nails\Admin\DataExport\SourceResponse;
+use Nails\Cdn\Constants;
 use Nails\Cdn\Service\Cdn;
 use Nails\Common\Exception\NailsException;
 use Nails\Common\Service\FileCache;
@@ -220,7 +221,7 @@ class DataExport
             $sFile = end($aFiles);
 
             /** @var Cdn $oCdn */
-            $oCdn    = Factory::service('Cdn', 'nails/module-cdn');
+            $oCdn    = Factory::service('Cdn', Constants::MODULE_SLUG);
             $oObject = $oCdn->objectCreate(
                 $sFile,
                 'data-export',
