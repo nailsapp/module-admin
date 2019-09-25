@@ -22,6 +22,7 @@
     "watch": "webpack --watch"
   },
   "dependencies": {
-    "mustache": "^3.1.0"
+    "clipboard": "^2.0",
+    "mustache": "^3.1"
   }
 }
