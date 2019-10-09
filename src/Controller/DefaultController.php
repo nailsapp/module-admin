@@ -1494,7 +1494,7 @@ abstract class DefaultController extends Base
             }
         }
 
-        if (!$oFormValidation->run()) {
+        if (!$oFormValidation->run($this)) {
             throw new ValidationException(lang('fv_there_were_errors'));
         }
     }
