@@ -104,7 +104,7 @@ class DynamicTable {
 
         $body.append($row);
         $table.data('index', data.index + 1);
-        $table.trigger('dynamic-table:add');
+        $table.trigger('dynamic-table:add', [$row]);
         $table.find('.js-admin-sortable').trigger('sortable:sort');
         $(document).trigger('admin:refresh-ui');
 
