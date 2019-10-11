@@ -1,4 +1,3 @@
-<hr/>
 <div class="search clearfix">
     <div class="mask">
         <b class="fa fa-refresh fa-2x"></b>
