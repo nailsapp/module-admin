@@ -14,11 +14,13 @@ namespace Nails\Admin\Admin;
 
 use Nails\Admin\Controller\Base;
 use Nails\Admin\Helper;
+use Nails\Admin\Service\DataExport;
 use Nails\Common\Exception\NailsException;
 use Nails\Factory;
 
 /**
  * Class Utilities
+ *
  * @package Nails\Admin\Admin
  */
 class Utilities extends Base
@@ -30,6 +32,7 @@ class Utilities extends Base
 
     /**
      * Announces this controller's navGroups
+     *
      * @return \stdClass
      */
     public static function announce()
@@ -53,6 +56,7 @@ class Utilities extends Base
 
     /**
      * Returns an array of permissions which can be configured for the user
+     *
      * @return array
      */
     public static function permissions(): array
@@ -68,6 +72,7 @@ class Utilities extends Base
 
     /**
      * Rewrite the app's routes
+     *
      * @return void
      */
     public function rewrite_routes()
@@ -99,6 +104,7 @@ class Utilities extends Base
 
     /**
      * Export data
+     *
      * @return void
      */
     public function export()
@@ -107,6 +113,7 @@ class Utilities extends Base
             unauthorised();
         }
 
+        /** @var DataExport $oDataExport */
         $oDataExport = Factory::service('DataExport', 'nails/module-admin');
         $aSources    = $oDataExport->getAllSources();
         $aFormats    = $oDataExport->getAllFormats();

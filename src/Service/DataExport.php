@@ -29,8 +29,6 @@ use Nails\Factory;
  */
 class DataExport
 {
-    protected $aSources    = [];
-    protected $aFormats    = [];
     /**
      * The default data format to use
      *
@@ -40,6 +38,25 @@ class DataExport
 
     // --------------------------------------------------------------------------
 
+    /**
+     * The available sources
+     *
+     * @var Source[]
+     */
+    protected $aSources = [];
+
+    /**
+     * The available formats
+     *
+     * @var Format[]
+     */
+    protected $aFormats = [];
+
+    /**
+     * Any generated cache files
+     *
+     * @var array
+     */
     protected $aCacheFiles = [];
 
     // --------------------------------------------------------------------------
@@ -101,9 +118,9 @@ class DataExport
     /**
      * Returns all the available sources
      *
-     * @return array
+     * @return Source[]
      */
-    public function getAllSources()
+    public function getAllSources(): array
     {
         return $this->aSources;
     }
@@ -113,11 +130,11 @@ class DataExport
     /**
      * Returns a specific source by its slug
      *
-     * @param $sSlug
+     * @param string|null $sSlug The source's slug
      *
-     * @return \stdClass|null
+     * @return Source|null
      */
-    public function getSourceBySlug($sSlug)
+    public function getSourceBySlug(string $sSlug = null): ?Source
     {
         foreach ($this->aSources as $oSource) {
             if ($sSlug === $oSource->slug) {
@@ -133,9 +150,9 @@ class DataExport
     /**
      * Returns all the available formats
      *
-     * @return array
+     * @return Format[]
      */
-    public function getAllFormats()
+    public function getAllFormats(): array
     {
         return $this->aFormats;
     }
@@ -145,11 +162,11 @@ class DataExport
     /**
      * Returns a specific format by its slug
      *
-     * @param $sSlug
+     * @param string|null $sSlug The format's slug
      *
      * @return \stdClass|null
      */
-    public function getFormatBySlug($sSlug)
+    public function getFormatBySlug($sSlug): ?Format
     {
         foreach ($this->aFormats as $oFormat) {
             if ($sSlug === $oFormat->slug) {
@@ -170,10 +187,10 @@ class DataExport
      * @param string $sFormatSlug The slug of the format to use
      * @param array  $aOptions    Additional options to pass to the source
      *
-     * @return integer
+     * @return int
      * @throws NailsException
      */
-    public function export($sSourceSlug, $sFormatSlug, $aOptions = [])
+    public function export($sSourceSlug, $sFormatSlug, $aOptions = []): int
     {
         $oSource = $this->getSourceBySlug($sSourceSlug);
         if (empty($oSource)) {
