@@ -228,10 +228,11 @@ class Utilities extends Base
         // --------------------------------------------------------------------------
 
         //  Set view data
-        $this->data['page']->title = 'Export Data';
-        $this->data['aSources']    = $aSources;
-        $this->data['aFormats']    = $aFormats;
-        $this->data['aRecent']     = $aRecent;
+        $this->data['page']->title    = 'Export Data';
+        $this->data['aSources']       = $aSources;
+        $this->data['aFormats']       = $aFormats;
+        $this->data['aRecent']        = $aRecent;
+        $this->data['sDefaultFormat'] = $oDataExport::DEFAULT_FORMAT;
 
         // --------------------------------------------------------------------------
 

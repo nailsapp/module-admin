@@ -55,6 +55,7 @@
             'label'    => 'Format',
             'required' => true,
             'class'    => 'select2',
+            'default'  => $sDefaultFormat,
             'options'  => [],
         ];
 

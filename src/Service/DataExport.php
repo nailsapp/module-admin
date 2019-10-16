@@ -31,6 +31,15 @@ class DataExport
 {
     protected $aSources    = [];
     protected $aFormats    = [];
+    /**
+     * The default data format to use
+     *
+     * @var string
+     */
+    const DEFAULT_FORMAT = 'nails/module-admin::Csv';
+
+    // --------------------------------------------------------------------------
+
     protected $aCacheFiles = [];
 
     // --------------------------------------------------------------------------
