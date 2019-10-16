@@ -54,6 +54,22 @@ return [
             }
         },
     ],
+    'resources' => [
+        'DataExportFormat' => function ($mObj) {
+            if (class_exists('\App\Admin\Resource\DataExport\Format')) {
+                return new \App\Admin\Resource\DataExport\Format($mObj);
+            } else {
+                return new \Nails\Admin\Resource\DataExport\Format($mObj);
+            }
+        },
+        'DataExportSource' => function ($mObj) {
+            if (class_exists('\App\Admin\Resource\DataExport\Source')) {
+                return new \App\Admin\Resource\DataExport\Source($mObj);
+            } else {
+                return new \Nails\Admin\Resource\DataExport\Source($mObj);
+            }
+        },
+    ],
     'factories' => [
         'EmailDataExport'          => function () {
             if (class_exists('\App\Admin\Factory\Email\DataExport')) {

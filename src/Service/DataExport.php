@@ -13,6 +13,8 @@
 namespace Nails\Admin\Service;
 
 use Nails\Admin\DataExport\SourceResponse;
+use Nails\Admin\Resource\DataExport\Format;
+use Nails\Admin\Resource\DataExport\Source;
 use Nails\Cdn\Constants;
 use Nails\Cdn\Service\Cdn;
 use Nails\Common\Exception\NailsException;
@@ -54,13 +56,13 @@ class DataExport
                 $oInstance = new $sClass();
 
                 if ($oInstance->isEnabled()) {
-                    $this->aSources[] = (object) [
+                    $this->aSources[] = new Source([
                         'slug'        => $oComponent->slug . '::' . basename($sSource, '.php'),
                         'label'       => $oInstance->getLabel(),
                         'description' => $oInstance->getDescription(),
                         'options'     => $oInstance->getOptions(),
                         'instance'    => $oInstance,
-                    ];
+                    ]);
                 }
             }
 
@@ -69,12 +71,12 @@ class DataExport
                 $sClass    = $sNamespace . 'DataExport\\Format\\' . basename($sFormat, '.php');
                 $oInstance = new $sClass();
 
-                $this->aFormats[] = (object) [
+                $this->aFormats[] = new Format([
                     'slug'        => $oComponent->slug . '::' . basename($sFormat, '.php'),
                     'label'       => $oInstance->getLabel(),
                     'description' => $oInstance->getDescription(),
                     'instance'    => $oInstance,
-                ];
+                ]);
             }
         }
 
