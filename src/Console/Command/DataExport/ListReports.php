@@ -116,7 +116,7 @@ class ListReports extends Base
 
         /** @var Format $oFormat */
         foreach ($oExportService->getAllFormats() as $oFormat) {
-            $this->oOutput->writeln('<info>' . $oFormat->label . '</info>');
+            $this->oOutput->writeln('<info>' . $oFormat->label . ' [' . $oFormat->slug . ']</info>');
             $this->oOutput->writeln($oFormat->description);
             $this->oOutput->writeln('');
         }
