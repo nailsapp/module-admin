@@ -10,6 +10,11 @@ use Nails\Factory;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Class Process
+ *
+ * @package Nails\Admin\Console\Command\DataExport
+ */
 class Process extends Base
 {
     /**
@@ -18,7 +23,7 @@ class Process extends Base
     protected function configure(): void
     {
         $this
-            ->setName('admin:dataexport')
+            ->setName('admin:dataexport:process')
             ->setDescription('Processes pending data exports');
     }
 
@@ -40,7 +45,7 @@ class Process extends Base
 
         try {
 
-            $this->banner('Nails Admin Data Export');
+            $this->banner('Nails Admin Data Export: Process');
             $this->process();
 
         } catch (\Exception $e) {

@@ -37,5 +37,5 @@ class DataExport extends Base
      *
      * @var string
      */
-    const CONSOLE_COMMAND = 'admin:dataexport';
+    const CONSOLE_COMMAND = 'admin:dataexport:process';
 }
