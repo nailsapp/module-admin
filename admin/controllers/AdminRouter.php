@@ -32,6 +32,9 @@ if (class_exists('\App\Admin\Controller\BaseRouter')) {
 
 // --------------------------------------------------------------------------
 
+/**
+ * Class AdminRouter
+ */
 class AdminRouter extends BaseMiddle
 {
     protected $adminControllers;
@@ -489,6 +492,27 @@ class AdminRouter extends BaseMiddle
         $this->adminControllersNav = array_merge($stickyTop, $middle, $stickyBottom);
 
         //  Set the open states of the modules
+        $this->setSidebarOpenStates($userNavPref);
+
+        /**
+         * Finally, now that everything has been sorted, go through all the groupings
+         * and sort their methods alphabetically so there's some feeling of order in
+         * amongst all this chaos.
+         */
+        $this->sortSidebarActions();
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Sets the open states for each sidebar modukle
+     *
+     * @param $userNavPref
+     *
+     * @return AdminRouter
+     */
+    protected function setSidebarOpenStates($userNavPref): AdminRouter
+    {
         if (!empty($userNavPref)) {
             foreach ($userNavPref as $groupMd5 => $state) {
                 for ($i = 0; $i < count($this->adminControllersNav); $i++) {
@@ -499,15 +523,53 @@ class AdminRouter extends BaseMiddle
             }
         }
 
-        /**
-         * Finally, now that everything has been sorted, go through all the groupings
-         * and sort their methods alphabetically so there's some feeling of order in
-         * amongst all this chaos.
-         */
+        return $this;
+    }
 
+    // --------------------------------------------------------------------------
+
+    /**
+     * Sorts the sidebar actions into a defined order
+     *
+     * @return $this
+     */
+    protected function sortSidebarActions(): AdminRouter
+    {
         foreach ($this->adminControllersNav as $grouping) {
-            arraySortMulti($grouping->actions, 'order');
+
+            $aUnordered = [];
+            $aOrdered   = [];
+            foreach ($grouping->actions as $oAction) {
+                if (is_null($oAction->order)) {
+                    $aUnordered[] = $oAction;
+                } else {
+                    if (!array_key_exists($oAction->order, $aOrdered)) {
+                        $aOrdered[$oAction->order] = [];
+                    }
+                    $aOrdered[$oAction->order][] = $oAction;
+                }
+            }
+
+            //  Ensure ordered items are ordered by priority, then label
+            ksort($aOrdered);
+            foreach ($aOrdered as $aItems) {
+                arraySortMulti($aItems, 'label');
+            }
+
+            //  Ensure unordered items are ordered by labe;
+            arraySortMulti($aUnordered, 'label');
+
+            //  Merge everything together
+            $aFinal = [];
+            foreach ($aOrdered as $aItems) {
+                $aFinal = array_merge($aFinal, $aItems);
+            }
+            $aFinal = array_merge($aFinal, $aUnordered);
+
+            $grouping->actions = $aFinal;
         }
+
+        return $this;
     }
 
     // --------------------------------------------------------------------------

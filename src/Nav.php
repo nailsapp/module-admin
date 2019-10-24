@@ -10,8 +10,13 @@
  * @link
  */
 
-namespace Nails\Admin;
+namespace Nails\Admin\Factory;
 
+/**
+ * Class Nav
+ *
+ * @package Nails\Admin\Factory
+ */
 class Nav
 {
     protected $label;
@@ -52,6 +57,7 @@ class Nav
 
     /**
      * Returns the navGroup's label
+     *
      * @return string
      */
     public function getLabel()
@@ -78,6 +84,7 @@ class Nav
 
     /**
      * Returns the navGroup's icon
+     *
      * @return string
      */
     public function getIcon()
@@ -89,6 +96,7 @@ class Nav
 
     /**
      * Returns the navGroup's actions
+     *
      * @return array
      */
     public function getActions()
@@ -113,12 +121,7 @@ class Nav
         $this->actions[$url]         = new \stdClass();
         $this->actions[$url]->label  = $label;
         $this->actions[$url]->alerts = !is_array($alerts) ? [$alerts] : $alerts;
-
-        if (is_null($order)) {
-            $this->actions[$url]->order = count($this->actions);
-        } else {
-            $this->actions[$url]->order = $order;
-        }
+        $this->actions[$url]->order  = $order;
 
         return $this;
     }
@@ -128,7 +131,7 @@ class Nav
     /**
      * Removes a action
      *
-     * @param  string $url The URL/key of the action to remove
+     * @param string $url The URL/key of the action to remove
      *
      * @return Nav
      */
