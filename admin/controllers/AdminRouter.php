@@ -539,14 +539,14 @@ class AdminRouter extends BaseMiddle
 
             $aUnordered = [];
             $aOrdered   = [];
-            foreach ($grouping->actions as $oAction) {
+            foreach ($grouping->actions as $sKey => $oAction) {
                 if (is_null($oAction->order)) {
-                    $aUnordered[] = $oAction;
+                    $aUnordered[$sKey] = $oAction;
                 } else {
                     if (!array_key_exists($oAction->order, $aOrdered)) {
                         $aOrdered[$oAction->order] = [];
                     }
-                    $aOrdered[$oAction->order][] = $oAction;
+                    $aOrdered[$oAction->order][$sKey] = $oAction;
                 }
             }
 
