@@ -5,23 +5,46 @@
  *
  * @package     Nails
  * @subpackage  module-admin
- * @category    NavAlert
+ * @category    Factory
  * @author      Nails Dev Team
  * @link
  */
 
 namespace Nails\Admin\Factory\Nav;
 
+/**
+ * Class Alert
+ *
+ * @package Nails\Admin\Factory\Nav
+ */
 class Alert
 {
+    /**
+     * The Alert's value
+     *
+     * @var string
+     */
     protected $sValue;
+
+    /**
+     * The Alert's severity
+     *
+     * @var string
+     */
     protected $sSeverity;
+
+    /**
+     * The Alert's label
+     *
+     * @var string
+     */
     protected $sLabel;
 
     // --------------------------------------------------------------------------
 
     /**
      * Constructs the alert with defaults
+     *
      * @param string $sValue    The value, what's shown to the user
      * @param string $sSeverity The severity of the alert
      * @param string $sLabel    What's shown when the alert is moused-over
@@ -37,7 +60,9 @@ class Alert
 
     /**
      * Sets the value
+     *
      * @param  string $sValue The value for the indicator
+     *
      * @return $this
      */
     public function setValue($sValue)
@@ -50,6 +75,7 @@ class Alert
 
     /**
      * Returns the current value
+     *
      * @return string
      */
     public function getValue()
@@ -61,7 +87,9 @@ class Alert
 
     /**
      * Sets the severity
+     *
      * @param  string $sSeverity The severity for the indicator [info|danger|success|warning]
+     *
      * @return $this
      */
     public function setSeverity($sSeverity)
@@ -74,6 +102,7 @@ class Alert
 
     /**
      * Returns the current severity
+     *
      * @return string
      */
     public function getSeverity()
@@ -85,7 +114,9 @@ class Alert
 
     /**
      * Sets the label
+     *
      * @param  string $sLabel The label for the indicator
+     *
      * @return $this
      */
     public function setLabel($sLabel)
@@ -98,6 +129,7 @@ class Alert
 
     /**
      * Returns the current label
+     *
      * @return string
      */
     public function getLabel()
