@@ -12,26 +12,35 @@
 
 namespace Nails\Admin\Model;
 
+use Nails\Common\Events;
 use Nails\Common\Exception\FactoryException;
 use Nails\Common\Exception\ModelException;
 use Nails\Common\Model\Base;
+use Nails\Common\Service\Event;
 use Nails\Factory;
 
+/**
+ * Class ChangeLog
+ *
+ * @package Nails\Admin\Model
+ */
 class ChangeLog extends Base
 {
+    /**
+     * The table this model represents
+     *
+     * @var string
+     */
+    const TABLE = NAILS_DB_PREFIX . 'admin_changelog';
+
+    // --------------------------------------------------------------------------
+
     /**
      * The chnages which are to be saved
      *
      * @var array
      */
-    protected $aChanges;
-
-    /**
-     * Whether to save as a batch
-     *
-     * @var bool
-     */
-    protected $bBatchSave;
+    protected $aChanges = [];
 
     // --------------------------------------------------------------------------
 
@@ -42,27 +51,14 @@ class ChangeLog extends Base
     {
         parent::__construct();
 
-        $this->table      = NAILS_DB_PREFIX . 'admin_changelog';
-        $this->aChanges   = [];
-        $this->bBatchSave = true;
+        /** @var Event $oEventService */
+        $oEventService = Factory::service('Event');
+        $oEventService->subscribe(
+            Events::SYSTEM_SHUTDOWN,
+            Events::getEventNamespace(),
+            [$this, 'save']
+        );
 
-        // --------------------------------------------------------------------------
-
-        /**
-         * Add a hook for after the controller is done so we can process the changes
-         * and save to the DB.
-         */
-        $aHook = [
-            'classref' => &$this,
-            'method'   => 'save',
-            'params'   => [],
-        ];
-
-        if (get_instance()->hooks->addHook('post_system', $aHook) === false) {
-            $this->bBatchSave = false;
-            Factory::service('Logger')
-                ->line(get_class() . ' could not set the post_system hook to save items in batches.');
-        }
     }
 
     // --------------------------------------------------------------------------
@@ -157,13 +153,6 @@ class ChangeLog extends Base
                 'old_value' => $mOldValue,
                 'new_value' => $mNewValue,
             ];
-        }
-
-        // --------------------------------------------------------------------------
-
-        //  If we're not saving  in batches then save now
-        if (!$this->bBatchSave) {
-            $this->save();
         }
 
         return true;
