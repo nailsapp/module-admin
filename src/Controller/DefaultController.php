@@ -733,7 +733,7 @@ abstract class DefaultController extends Base
                 }
 
                 if (classUses($oModel, Localised::class)) {
-                    $oItem = $this->getItem(
+                    $oNewItem = $this->getItem(
                         array_merge(
                             $aConfig['EDIT_DATA'],
                             ['USE_LOCALE' => $oInput->post('locale')]
@@ -937,7 +937,6 @@ abstract class DefaultController extends Base
                                 throw new NailsException(
                                     static::ORDER_ERROR_MESSAGE . ' ' . $oModel->lastError()
                                 );
-                                $this->addToChangeLog($oNewItem, $oItem);
                             }
                         }
 
@@ -947,6 +946,8 @@ abstract class DefaultController extends Base
                         );
                     }
                 }
+
+                //  @todo (Pablo - 2019-10-30) - Add changelog support here
 
                 $oDb->trans_commit();
 
@@ -2044,9 +2045,9 @@ abstract class DefaultController extends Base
     /**
      * Flattens the object suitable for the change log
      *
-     * @param mixed  $mItem   The item to flattem
-     * @param string $sPrefix The prefix to give the key
-     * @param null   $iDepth  The depth of the array
+     * @param mixed  $mItem        The item to flattem
+     * @param string $sPrefix      The prefix to give the key
+     * @param null|integer $iDepth The depth of the array
      *
      * @return array
      */
