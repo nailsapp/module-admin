@@ -14,11 +14,14 @@ namespace Nails\Admin\Controller;
 
 use Nails\Admin\Factory\Nav;
 use Nails\Admin\Helper;
+use Nails\Admin\Model\ChangeLog;
 use Nails\Auth;
 use Nails\Common\Exception\FactoryException;
+use Nails\Common\Exception\ModelException;
 use Nails\Common\Exception\NailsException;
 use Nails\Common\Exception\ValidationException;
 use Nails\Common\Factory\Model\Field;
+use Nails\Common\Helper\ArrayHelper;
 use Nails\Common\Resource;
 use Nails\Common\Service\Locale;
 use Nails\Common\Service\Uri;
@@ -27,6 +30,11 @@ use Nails\Common\Traits\Model\Nestable;
 use Nails\Common\Traits\Model\Sortable;
 use Nails\Factory;
 
+/**
+ * Class DefaultController
+ *
+ * @package Nails\Admin\Controller
+ */
 abstract class DefaultController extends Base
 {
     /**
@@ -239,6 +247,16 @@ abstract class DefaultController extends Base
     const EDIT_MODE_EDIT = 'EDIT';
 
     /**
+     * When deleting, this string is passed to supporting functions
+     */
+    const EDIT_MODE_DELETE = 'DELETE';
+
+    /**
+     * When restoring, this string is passed to supporting functions
+     */
+    const EDIT_MODE_RESTORE = 'RESTORE';
+
+    /**
      * Enable or disable the "Notes" feature
      */
     const EDIT_ENABLE_NOTES = true;
@@ -293,6 +311,36 @@ abstract class DefaultController extends Base
      */
     const ORDER_ERROR_MESSAGE = 'Failed to order items.';
 
+    /**
+     * Whether to record updates in the admin change log
+     */
+    const CHANGELOG_ENABLED = true;
+
+    /**
+     * The name to use when creating changelog items, defaults to the resource class name
+     */
+    const CHANGELOG_ENTITY_NAME = null;
+
+    /**
+     * An array of fields to ignore when processing change log updates
+     */
+    const CHANGELOG_FIELDS_IGNORE = [
+        'id',
+        'is_deleted',
+        'created',
+        'created_by',
+        'modified',
+        'modified_by',
+    ];
+
+    /**
+     * An array of fields to redact/mask when processing changelog updates
+     */
+    const CHANGELOG_FIELDS_REDACT = [
+        'password',
+        'label',
+    ];
+
     // --------------------------------------------------------------------------
 
     /**
@@ -335,6 +383,15 @@ abstract class DefaultController extends Base
     // --------------------------------------------------------------------------
 
     /**
+     * The ChangeLog model instance
+     *
+     * @var ChangeLog
+     */
+    protected $oChangeLogModel;
+
+    // --------------------------------------------------------------------------
+
+    /**
      * DefaultController constructor.
      *
      * @throws NailsException
@@ -343,6 +400,7 @@ abstract class DefaultController extends Base
     {
         parent::__construct();
         $this->getConfig();
+        $this->oChangeLogModel = Factory::model('ChangeLog', 'nails/module-admin');
     }
 
     // --------------------------------------------------------------------------
@@ -532,6 +590,7 @@ abstract class DefaultController extends Base
 
                 $this->afterCreateAndEdit(static::EDIT_MODE_CREATE, $oItem);
                 $this->afterCreate($oItem);
+                $this->addToChangeLog(static::EDIT_MODE_CREATE, $oItem);
                 $oDb->trans_commit();
 
                 if (property_exists($oItem, 'url')) {
@@ -675,14 +734,18 @@ abstract class DefaultController extends Base
                 }
 
                 if (classUses($oModel, Localised::class)) {
-                    $oNewItem = $oModel->getById($oItem->id, [
-                        'USE_LOCALE' => $oInput->post('locale'),
-                    ]);
+                    $oItem = $this->getItem(
+                        array_merge(
+                            $aConfig['EDIT_DATA'],
+                            ['USE_LOCALE' => $oInput->post('locale')]
+                        )
+                    );
                 } else {
-                    $oNewItem = $oModel->getById($oItem->id);
+                    $oNewItem = $this->getItem($aConfig['EDIT_DATA']);
                 }
                 $this->afterCreateAndEdit(static::EDIT_MODE_EDIT, $oNewItem, $oItem);
                 $this->afterEdit($oNewItem, $oItem);
+                $this->addToChangeLog(static::EDIT_MODE_EDIT, $oNewItem, $oItem);
                 $oDb->trans_commit();
 
                 if (property_exists($oNewItem, 'url')) {
@@ -756,6 +819,7 @@ abstract class DefaultController extends Base
             }
 
             $this->afterDelete($oItem);
+            $this->addToChangeLog(static::EDIT_MODE_DELETE, $oItem);
             $oDb->trans_commit();
 
             if ($aConfig['CAN_RESTORE'] && static::userCan('restore')) {
@@ -821,6 +885,7 @@ abstract class DefaultController extends Base
                 throw new NailsException(static::RESTORE_ERROR_MESSAGE . ' ' . $oModel->lastError());
             }
 
+            $this->addToChangeLog(static::EDIT_MODE_RESTORE, $oItem);
             $oDb->trans_commit();
             $oSession->setFlashData('success', static::RESTORE_SUCCESS_MESSAGE);
             $this->returnToIndex();
@@ -873,6 +938,7 @@ abstract class DefaultController extends Base
                                 throw new NailsException(
                                     static::ORDER_ERROR_MESSAGE . ' ' . $oModel->lastError()
                                 );
+                                $this->addToChangeLog($oNewItem, $oItem);
                             }
                         }
 
@@ -1783,6 +1849,11 @@ abstract class DefaultController extends Base
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Adds buttons to the header area
+     *
+     * @param array $aButtons the buttons to add
+     */
     protected function addHeaderButtons(array $aButtons): void
     {
         foreach ($aButtons as $aButton) {
@@ -1801,5 +1872,223 @@ abstract class DefaultController extends Base
                 $sConfirmBody
             );
         }
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Adds an appropriate action to the ChangeLog
+     *
+     * @param string               $sMode    The update mode
+     * @param Resource\Entity      $oItem    The current version of the item
+     * @param Resource\Entity|null $oOldItem the old version of the item
+     *
+     * @throws FactoryException
+     * @throws ModelException
+     */
+    protected function addToChangeLog(
+        string $sMode,
+        Resource\Entity $oItem,
+        Resource\Entity $oOldItem = null
+    ): void {
+
+        if (static::CHANGELOG_ENABLED) {
+            switch ($sMode) {
+                case static::EDIT_MODE_CREATE:
+                    $this->addToChangeLogCreate($oItem);
+                    break;
+                case static::EDIT_MODE_EDIT:
+                    $this->addToChangeLogEdit($oItem, $oOldItem);
+                    break;
+                case static::EDIT_MODE_DELETE:
+                    $this->addToChangeLogDelete($oItem);
+                    break;
+                case static::EDIT_MODE_RESTORE:
+                    $this->addToChangeLogRestore($oItem);
+                    break;
+            }
+        }
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Adds a "Create" item to the ChangeLog
+     *
+     * @param Resource\Entity $oItem The item which was created
+     *
+     * @throws FactoryException
+     * @throws ModelException
+     */
+    protected function addToChangeLogCreate(Resource\Entity $oItem): void
+    {
+        $this
+            ->oChangeLogModel
+            ->add(
+                'created',
+                'a',
+                static::CHANGELOG_ENTITY_NAME ?? get_class($oItem),
+                $oItem->id,
+                $oItem->label ?? 'Item #' . $oItem->id,
+                $this->aConfig['BASE_URL'] . 'edit/' . $oItem->id
+            );
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Adds an "Update" item to the ChangeLog
+     *
+     * @param Resource\Entity      $oItem    The new item
+     * @param Resource\Entity|null $oOldItem The old item
+     */
+    protected function addToChangeLogEdit(Resource\Entity $oItem, Resource\Entity $oOldItem = null): void
+    {
+        $aNew = $this->changeLogFlattenObject($oItem);
+        $aOld = $this->changeLogFlattenObject($oOldItem);
+
+        $aSameKeys    = array_keys(array_intersect_key($aNew, $aOld));
+        $aAddedKeys   = array_keys(array_diff_key($aNew, $aOld));
+        $aRemovedKeys = array_keys(array_diff_key($aOld, $aNew));
+
+        $aChangeData = [];
+        foreach ($aSameKeys as $sKey) {
+            $aChangeData[$sKey] = [
+                getFromArray($sKey, $aOld),
+                getFromArray($sKey, $aNew),
+            ];
+        }
+        foreach ($aAddedKeys as $sKey) {
+            $aChangeData[$sKey] = [
+                getFromArray($sKey, $aOld),
+                getFromArray($sKey, $aNew),
+            ];
+        }
+        foreach ($aRemovedKeys as $sKey) {
+            $aChangeData[$sKey] = [
+                getFromArray($sKey, $aOld),
+                getFromArray($sKey, $aNew),
+            ];
+        }
+
+        foreach ($aChangeData as $sKey => $aValues) {
+
+            list ($sOldValue, $sNewValue) = $aValues;
+            $bForce = false;
+            if (in_array($sKey, static::CHANGELOG_FIELDS_REDACT)) {
+                $bForce    = $sOldValue !== $sNewValue;
+                $sOldValue = '[REDACTED]';
+                $sNewValue = '[REDACTED]';
+            }
+
+            $this
+                ->oChangeLogModel
+                ->add(
+                    'updated',
+                    'a',
+                    static::CHANGELOG_ENTITY_NAME ?? get_class($oItem),
+                    $oItem->id,
+                    $oItem->label ?? 'Item #' . $oItem->id,
+                    $this->aConfig['BASE_URL'] . 'edit/' . $oItem->id,
+                    $sKey,
+                    $sOldValue,
+                    $sNewValue,
+                    false,
+                    $bForce
+                );
+        }
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Adds a "Delete" item to the ChangeLog
+     *
+     * @param Resource\Entity $oItem The deleted item
+     */
+    protected function addToChangeLogDelete(Resource\Entity $oItem): void
+    {
+        $this
+            ->oChangeLogModel
+            ->add(
+                'deleted',
+                'a',
+                static::CHANGELOG_ENTITY_NAME ?? get_class($oItem),
+                $oItem->id,
+                $oItem->label ?? 'Item #' . $oItem->id
+            );
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Adds a "Restore" item to the ChangeLog
+     *
+     * @param Resource\Entity $oItem The restored item
+     */
+    protected function addToChangeLogRestore(Resource\Entity $oItem): void
+    {
+        $this
+            ->oChangeLogModel
+            ->add(
+                'restored',
+                'a',
+                static::CHANGELOG_ENTITY_NAME ?? get_class($oItem),
+                $oItem->id,
+                $oItem->label ?? 'Item #' . $oItem->id,
+                $this->aConfig['BASE_URL'] . 'edit/' . $oItem->id
+            );
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Flattens the object suitable for the change log
+     *
+     * @param mixed  $mItem   The item to flattem
+     * @param string $sPrefix The prefix to give the key
+     * @param null   $iDepth  The depth of the array
+     *
+     * @return array
+     */
+    protected function changeLogFlattenObject($mItem, string $sPrefix = '', $iDepth = null): array
+    {
+        $sPrefix = $sPrefix ? $sPrefix . '.' : '';
+        $aOut    = [];
+
+        foreach ($mItem as $sKey => $mValue) {
+
+            if (in_array($sKey, static::CHANGELOG_FIELDS_IGNORE)) {
+                continue;
+            }
+
+            if ($mValue instanceof Resource\ExpandableField) {
+
+                foreach ($mValue->data as $iIndex => $mArrayValue) {
+                    $aOut = array_merge(
+                        $aOut,
+                        $this->changeLogFlattenObject($mValue->data, $sPrefix . $sKey, $iIndex)
+                    );
+                }
+
+            } elseif (is_object($mValue)) {
+
+                $aOut = array_merge($aOut, $this->changeLogFlattenObject($mValue, $sPrefix . $sKey));
+
+            } elseif (is_array($mValue)) {
+
+                foreach ($mValue as $iIndex => $mArrayValue) {
+                    $aOut = array_merge(
+                        $aOut,
+                        $this->changeLogFlattenObject($mValue, $sPrefix . $sKey, $iIndex)
+                    );
+                }
+
+            } else {
+                $aOut[$sPrefix . ($iDepth !== null ? $iDepth : '') . $sKey] = (string) $mValue;
+            }
+        }
+
+        return $aOut;
     }
 }
