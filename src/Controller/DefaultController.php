@@ -338,7 +338,6 @@ abstract class DefaultController extends Base
      */
     const CHANGELOG_FIELDS_REDACT = [
         'password',
-        'label',
     ];
 
     // --------------------------------------------------------------------------
