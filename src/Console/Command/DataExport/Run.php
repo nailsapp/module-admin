@@ -3,6 +3,8 @@
 namespace Nails\Admin\Console\Command\DataExport;
 
 use Nails\Admin\Service\DataExport;
+use Nails\Common\Exception\FactoryException;
+use Nails\Common\Exception\NailsException;
 use Nails\Console\Command\Base;
 use Nails\Console\Exception\ConsoleException;
 use Nails\Factory;
@@ -32,9 +34,6 @@ class Run extends Base
      */
     protected function configure(): void
     {
-        /** @var DataExport $oExportService */
-        $this->oExportService = Factory::service('DataExport', 'nails/module-admin');
-
         $this
             ->setName('admin:dataexport:run')
             ->setDescription('Generates a new report')
@@ -47,33 +46,14 @@ class Run extends Base
                 'format',
                 'f',
                 InputOption::VALUE_OPTIONAL,
-                'The format to export as, see <info>admin:dataexport:list</info>.',
-                $this->oExportService::DEFAULT_FORMAT
+                'The format to export as, see <info>admin:dataexport:list</info>.'
+            )
+            ->addOption(
+                'opt',
+                'o',
+                InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
+                'Options to pass to the report'
             );
-
-        $aArgs = getFromArray('argv', $_SERVER ?? []);
-        $sSlug = getFromArray(2, $aArgs);
-
-        $oSource = $this->oExportService->getSourceBySlug($sSlug);
-        if (!empty($oSource)) {
-            foreach ($oSource->options as $aOption) {
-
-                $sLabel = getFromArray(['label', 'key'], $aOption);
-
-                if (!empty($aOption['options'])) {
-                    $sLabel .= ' [<comment>' . implode('</comment>|<comment>', array_keys($aOption['options'])) . '</comment>]';
-                }
-
-                $this
-                    ->addOption(
-                        'opt-' . getFromArray('key', $aOption),
-                        null,
-                        InputOption::VALUE_OPTIONAL,
-                        'Report option: ' . $sLabel,
-                        getFromArray('default', $aOption)
-                    );
-            }
-        }
     }
 
     // --------------------------------------------------------------------------
@@ -94,6 +74,9 @@ class Run extends Base
 
         try {
 
+            /** @var DataExport $oExportService */
+            $this->oExportService = Factory::service('DataExport', 'nails/module-admin');
+
             $this->banner('Nails Admin Data Export: Run');
             $this->process();
 
@@ -109,8 +92,15 @@ class Run extends Base
         return self::EXIT_CODE_SUCCESS;
     }
 
-    // --------------------------------------------------------------------------
+    // -------------------------
 
+    /**
+     * Processes the requested export
+     *
+     * @throws ConsoleException
+     * @throws FactoryException
+     * @throws NailsException
+     */
     protected function process()
     {
         /** @var DataExport $oExportService */
@@ -122,9 +112,17 @@ class Run extends Base
             throw new ConsoleException('"' . $sSlug . '" is not a valid data export source.');
         }
 
+        $aUserOptions = [];
+        foreach ($this->oInput->getOption('opt') as $sOption) {
+            preg_match('/([^=]+)=(.*)/', $sOption, $aMatches);
+            if (!empty($aMatches)) {
+                $aUserOptions[$aMatches[1]] = $aMatches[2];
+            }
+        }
+
         $aOptions = [];
         foreach ($oSource->options as $aOption) {
-            $aOptions[$aOption['key']] = $this->oInput->getOption('opt-' . $aOption['key']);
+            $aOptions[$aOption['key']] = getFromArray($aOption['key'], $aUserOptions);;
         }
 
         $aOptions = array_filter($aOptions);
@@ -132,13 +130,13 @@ class Run extends Base
         if (empty($aOptions)) {
             $this->oOutput->writeln('Beginning report generation...');
         } else {
-            $this->oOutput->writeln('Beginning report generation using the follwing options:');
+            $this->oOutput->writeln('Beginning report generation using the following options:');
             $this->keyValueList($aOptions);
         }
 
         $iResult = $oExportService->export(
             $oSource->slug,
-            $this->oInput->getOption('format'),
+            $this->oInput->getOption('format') ?? $this->oExportService::DEFAULT_FORMAT,
             $aOptions
         );
 

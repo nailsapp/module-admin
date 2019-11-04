@@ -2,15 +2,12 @@
 
 namespace Nails\Admin\Console\Command\DataExport;
 
-use DateTime;
-use Nails\Admin\Model\Export;
 use Nails\Admin\Resource\DataExport\Format;
 use Nails\Admin\Resource\DataExport\Source;
 use Nails\Admin\Service\DataExport;
 use Nails\Console\Command\Base;
 use Nails\Factory;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -90,7 +87,11 @@ class ListReports extends Base
 
             $aKeyValues = [];
             foreach ($oSource->options as $aOption) {
-                $aKeyValues['@param <info>$' . $aOption['key'] . '</info>'] = $aOption['label'];
+
+                $sKey   = '@option <info>--opt="' . $aOption['key'] . '=<comment>{value}</comment>"</info>';
+                $sLabel = $aOption['label'] . (!empty($aOption['default']) ? ' <comment>(default: ' . $aOption['default'] . ')</comment>' : '');
+
+                $aKeyValues[$sKey] = $sLabel;
             }
             $this->keyValueList($aKeyValues, false, false, '');
             $this->oOutput->writeln('');
