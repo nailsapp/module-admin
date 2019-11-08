@@ -24,5 +24,6 @@ class Migration7 extends Base
     public function execute()
     {
         $this->query("ALTER TABLE `{{NAILS_DB_PREFIX}}admin_changelog` CHANGE `changes` `changes` MEDIUMTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL;");
+        $this->query("ALTER TABLE `{{NAILS_DB_PREFIX}}admin_changelog` CHANGE `title` `title` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;");
     }
 }
