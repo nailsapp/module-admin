@@ -7,7 +7,9 @@
         $iCountPage = $page ?: 1;
         $iStart     = $iCountPage * $perPage - $perPage;
         $iEnd       = $iStart + $perPage;
-        $iStart++;
+        if ($totalRows > 0) {
+            $iStart++;
+        }
         if ($iEnd > $totalRows) {
             $iEnd = $totalRows;
         }
