@@ -65,6 +65,11 @@ abstract class DefaultController extends Base
     const CONFIG_SIDEBAR_ICON = '';
 
     /**
+     * The format for the sidebar link
+     */
+    const CONFIG_SIDEBAR_FORMAT = 'Manage %s';
+
+    /**
      * the base URL for this controller
      */
     const CONFIG_BASE_URL = '';
@@ -419,7 +424,10 @@ abstract class DefaultController extends Base
 
         if (static::userCan('browse')) {
             $oNavGroup
-                ->addAction('Manage ' . static::getTitlePlural(), 'index');
+                ->addAction(
+                    sprintf(static::CONFIG_SIDEBAR_FORMAT, static::getTitlePlural()),
+                    'index'
+                );
         }
 
         return $oNavGroup;
