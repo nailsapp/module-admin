@@ -13,27 +13,38 @@
 namespace Nails\Admin\Admin;
 
 use Nails\Admin\Controller\Base;
+use Nails\Admin\Factory\Nav;
 use Nails\Admin\Helper;
+use Nails\Admin\Model\ChangeLog;
+use Nails\Admin\Model\SiteLog;
+use Nails\Common\Exception\FactoryException;
+use Nails\Common\Service\Asset;
+use Nails\Common\Service\Input;
+use Nails\Common\Service\Uri;
 use Nails\Factory;
 
+/**
+ * Class Logs
+ *
+ * @package Nails\Admin\Admin
+ */
 class Logs extends Base
 {
     /**
      * Announces this controller's navGroups
-     * @return stdClass
+     *
+     * @return Nav
      */
     public static function announce()
     {
+        /** @var Nav $oNavGroup */
         $oNavGroup = Factory::factory('Nav', 'nails/module-admin');
-        $oNavGroup->setLabel('Logs');
-        $oNavGroup->setIcon('fa-archive');
+        $oNavGroup
+            ->setLabel('Logs')
+            ->setIcon('fa-archive');
 
         if (userHasPermission('admin:admin:logs:site:browse')) {
             $oNavGroup->addAction('Browse Site Logs', 'site');
-        }
-
-        if (userHasPermission('admin:admin:logs:event:browse')) {
-            $oNavGroup->addAction('Browse Event Logs', 'event');
         }
 
         if (userHasPermission('admin:admin:logs:change:browse')) {
@@ -47,6 +58,7 @@ class Logs extends Base
 
     /**
      * Returns an array of permissions which can be configured for the user
+     *
      * @return array
      */
     public static function permissions(): array
@@ -54,8 +66,6 @@ class Logs extends Base
         $aPermissions = parent::permissions();
 
         $aPermissions['site:browse']     = 'Can browse site logs';
-        $aPermissions['event:browse']    = 'Can browse event logs';
-        $aPermissions['event:download']  = 'Can download event logs';
         $aPermissions['change:browse']   = 'Can browse change logs';
         $aPermissions['change:download'] = 'Can download change logs';
 
@@ -66,7 +76,8 @@ class Logs extends Base
 
     /**
      * Route site log pages
-     * @throws \Nails\Common\Exception\FactoryException
+     *
+     * @throws FactoryException
      */
     public function site()
     {
@@ -76,15 +87,16 @@ class Logs extends Base
 
         // --------------------------------------------------------------------------
 
-        Factory::helper('string');
-        $oUri    = Factory::service('Uri');
+        /** @var Uri $oUri */
+        $oUri = Factory::service('Uri');
+
         $sMethod = $oUri->segment(5) ? $oUri->segment(5) : 'index';
         $sMethod = 'site' . underscoreToCamelcase(strtolower($sMethod), false);
 
         if (method_exists($this, $sMethod)) {
             $this->{$sMethod}();
         } else {
-            show404('', true);
+            show404();
         }
     }
 
@@ -92,7 +104,6 @@ class Logs extends Base
 
     /**
      * Browse site log files
-     * @return void
      */
     protected function siteIndex()
     {
@@ -104,6 +115,7 @@ class Logs extends Base
 
         $this->data['page']->title = 'Browse Logs';
 
+        /** @var Asset $oAsset */
         $oAsset = Factory::service('Asset');
         $oAsset->library('MUSTACHE');
         $oAsset->load('nails.admin.logs.site.min.js', 'NAILS');
@@ -125,12 +137,14 @@ class Logs extends Base
 
         // --------------------------------------------------------------------------
 
-        $oUri                      = Factory::service('Uri');
+        /** @var Uri $oUri */
+        $oUri = Factory::service('Uri');
+        /** @var SiteLog $oSiteLogModel */
+        $oSiteLogModel = Factory::model('SiteLog', 'nails/module-admin');
+
         $sFile                     = $oUri->segment(6);
         $this->data['page']->title = 'Browse Logs &rsaquo; ' . $sFile;
-
-        $oSiteLogModel      = Factory::model('SiteLog', 'nails/module-admin');
-        $this->data['logs'] = $oSiteLogModel->readLog($sFile);
+        $this->data['logs']        = $oSiteLogModel->readLog($sFile);
 
         if (!$this->data['logs']) {
             show404();
@@ -142,97 +156,7 @@ class Logs extends Base
     // --------------------------------------------------------------------------
 
     /**
-     * Browse Site Events
-     * @return void
-     */
-    public function event()
-    {
-        if (!userHasPermission('admin:admin:logs:event:browse')) {
-            unauthorised();
-        }
-
-        // --------------------------------------------------------------------------
-
-        //  Set method info
-        $this->data['page']->title = 'Browse Events';
-
-        // --------------------------------------------------------------------------
-
-        $oEvent      = Factory::service('Event', 'nails/module-event');
-        $sTableAlias = $oEvent->getTableAlias();
-
-        // --------------------------------------------------------------------------
-
-        //  Get pagination and search/sort variables
-        $oInput     = Factory::service('Input');
-        $iPage      = (int) $oInput->get('page') ?: 0;
-        $iPerPage   = (int) $oInput->get('perPage') ?: 50;
-        $sSortOn    = $oInput->get('sortOn') ?: $sTableAlias . '.created';
-        $sSortOrder = $oInput->get('sortOrder') ?: 'desc';
-        $sKeywords  = $oInput->get('keywords') ?: '';
-
-        // --------------------------------------------------------------------------
-
-        //  Define the sortable columns
-        $aSortColumns = [
-            $sTableAlias . '.created' => 'Created',
-            $sTableAlias . '.type'    => 'Type',
-        ];
-
-        // --------------------------------------------------------------------------
-
-        //  Define the $aData variable for the queries
-        $aData = [
-            'sort'     => [
-                [$sSortOn, $sSortOrder],
-            ],
-            'keywords' => $sKeywords,
-        ];
-
-        //  Are we downloading? Or viewing?
-        if ($oInput->get('dl') && userHasPermission('admin:admin:logs:event:download')) {
-
-            //  Get all items for the search, the view will iterate over the resultset
-            $oEvents = $oEvent->getAllRawQuery(null, null, $aData);
-
-            Helper::loadCsv($oEvents, 'export-events-' . toUserDatetime(null, 'Y-m-d_h-i-s') . '.csv');
-
-        } else {
-
-            //  Get the items for the page
-            $iTotalRows           = $oEvent->countAll($aData);
-            $this->data['events'] = $oEvent->getAll($iPage, $iPerPage, $aData);
-
-            //  Set Search and Pagination objects for the view
-            $this->data['search']     = Helper::searchObject(true, $aSortColumns, $sSortOn, $sSortOrder, $iPerPage, $sKeywords);
-            $this->data['pagination'] = Helper::paginationObject($iPage, $iPerPage, $iTotalRows);
-
-            //  Add the header button for downloading
-            if (userHasPermission('admin:admin:logs:event:download')) {
-
-                //  Build the query string, so that the same search is applies
-                $oInput               = Factory::service('Input');
-                $aParams              = [];
-                $aParams['dl']        = true;
-                $aParams['sortOn']    = $oInput->get('sortOn');
-                $aParams['sortOrder'] = $oInput->get('sortOrder');
-                $aParams['keywords']  = $oInput->get('keywords');
-
-                $aParams = array_filter($aParams);
-                $aParams = http_build_query($aParams);
-
-                Helper::addHeaderButton('admin/admin/logs/event?' . $aParams, 'Download As CSV');
-            }
-
-            Helper::loadView('event/index');
-        }
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
      * Browse Admin Changelog
-     * @return void
      */
     public function changelog()
     {
@@ -247,9 +171,12 @@ class Logs extends Base
 
         // --------------------------------------------------------------------------
 
-        $oInput          = Factory::service('Input');
+        /** @var Input $oInput */
+        $oInput = Factory::service('Input');
+        /** @var ChangeLog $oChangeLogModel */
         $oChangeLogModel = Factory::model('ChangeLog', 'nails/module-admin');
-        $sTableAlias     = $oChangeLogModel->getTableAlias();
+
+        $sTableAlias = $oChangeLogModel->getTableAlias();
 
         // --------------------------------------------------------------------------
 
