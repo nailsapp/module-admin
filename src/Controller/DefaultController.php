@@ -1804,7 +1804,7 @@ abstract class DefaultController extends Base
      */
     protected static function isViewButtonEnabled($oItem): bool
     {
-        return property_exists($oItem, 'url');
+        return static::CONFIG_CAN_VIEW && property_exists($oItem, 'url');
     }
 
     // --------------------------------------------------------------------------
@@ -2053,9 +2053,9 @@ abstract class DefaultController extends Base
     /**
      * Flattens the object suitable for the change log
      *
-     * @param mixed  $mItem        The item to flattem
-     * @param string $sPrefix      The prefix to give the key
-     * @param null|integer $iDepth The depth of the array
+     * @param mixed        $mItem   The item to flattem
+     * @param string       $sPrefix The prefix to give the key
+     * @param null|integer $iDepth  The depth of the array
      *
      * @return array
      */
