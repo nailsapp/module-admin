@@ -1938,7 +1938,7 @@ abstract class DefaultController extends Base
                 static::CHANGELOG_ENTITY_NAME ?? get_class($oItem),
                 $oItem->id,
                 $oItem->label ?? 'Item #' . $oItem->id,
-                $this->aConfig['BASE_URL'] . 'edit/' . $oItem->id
+                $this->aConfig['BASE_URL'] . '/edit/' . $oItem->id
             );
     }
 
@@ -1997,7 +1997,7 @@ abstract class DefaultController extends Base
                     static::CHANGELOG_ENTITY_NAME ?? get_class($oItem),
                     $oItem->id,
                     $oItem->label ?? 'Item #' . $oItem->id,
-                    $this->aConfig['BASE_URL'] . 'edit/' . $oItem->id,
+                    $this->aConfig['BASE_URL'] . '/edit/' . $oItem->id,
                     $sKey,
                     $sOldValue,
                     $sNewValue,
@@ -2044,7 +2044,7 @@ abstract class DefaultController extends Base
                 static::CHANGELOG_ENTITY_NAME ?? get_class($oItem),
                 $oItem->id,
                 $oItem->label ?? 'Item #' . $oItem->id,
-                $this->aConfig['BASE_URL'] . 'edit/' . $oItem->id
+                $this->aConfig['BASE_URL'] . '/edit/' . $oItem->id
             );
     }
 
