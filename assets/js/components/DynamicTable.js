@@ -84,9 +84,21 @@ class DynamicTable {
 
         let $row = $(Mustache.render($table.data('template'), data));
 
+        //  Set the value of any checkboxes
+        $('input[type=checkbox]', $row)
+            .each((index, item) => {
+
+                let $checkbox = $(item);
+
+                if ($checkbox[0].hasAttribute('data-dynamic-table-checked')) {
+                    $checkbox.prop('checked', $checkbox.attr('data-dynamic-table-checked'))
+                }
+            });
+
         //  Set the value of any dropdowns
         $('select', $row)
             .each((index, item) => {
+
                 let $select = $(item);
 
                 //  Set value
