@@ -18,6 +18,7 @@ use Nails\Admin\Resource\DataExport\Source;
 use Nails\Cdn\Constants;
 use Nails\Cdn\Service\Cdn;
 use Nails\Common\Exception\NailsException;
+use Nails\Common\Helper\Directory;
 use Nails\Common\Service\FileCache;
 use Nails\Components;
 use Nails\Factory;
@@ -71,14 +72,19 @@ class DataExport
 
         foreach (Components::available() as $oComponent) {
 
-            $sPath             = $oComponent->path;
-            $sNamespace        = $oComponent->namespace;
-            $aComponentSources = array_filter((array) directoryMap($sPath . 'src/DataExport/Source'));
-            $aComponentFormats = array_filter((array) directoryMap($sPath . 'src/DataExport/Format'));
+            $sPath      = $oComponent->path;
+            $sNamespace = $oComponent->namespace;
+
+            $aComponentSources = Directory::map($sPath . 'src/DataExport/Source', null, false);
+            $aComponentFormats = Directory::map($sPath . 'src/DataExport/Format', null, false);
 
             foreach ($aComponentSources as $sSource) {
 
-                $sClass    = $sNamespace . 'DataExport\\Source\\' . basename($sSource, '.php');
+                $sClass = $sNamespace . implode('\\', array_merge(
+                        ['DataExport', 'Source'],
+                        explode(DIRECTORY_SEPARATOR, rtrim($sSource, '.php'))
+                    ));
+
                 $oInstance = new $sClass();
 
                 if ($oInstance->isEnabled()) {
@@ -94,7 +100,11 @@ class DataExport
 
             foreach ($aComponentFormats as $sFormat) {
 
-                $sClass    = $sNamespace . 'DataExport\\Format\\' . basename($sFormat, '.php');
+                $sClass = $sNamespace . implode('\\', array_merge(
+                        ['DataExport', 'Format'],
+                        explode(DIRECTORY_SEPARATOR, rtrim($sFormat, '.php'))
+                    ));
+
                 $oInstance = new $sClass();
 
                 $this->aFormats[] = new Format([

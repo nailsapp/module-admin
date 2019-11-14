@@ -13,6 +13,7 @@
         <table>
             <thead>
                 <tr>
+                    <th class="file">File</th>
                     <th class="date">Date</th>
                     <th class="lines">Entries</th>
                     <th class="actions">Actions</th>
@@ -38,6 +39,9 @@
 </script>
 <script type="text/template" id="templateLogRow">
     <tr>
+        <td class="label">
+            {{file}}
+        </td>
         <td class="date">
             {{date}}
         </td>
@@ -45,7 +49,7 @@
             {{lines}}
         </td>
         <td class="actions">
-            <a href="<?=siteUrl('admin/admin/logs/site/view/{{file}}')?>" class="btn btn-xs btn-success">
+            <a href="<?=siteUrl('admin/admin/logs/site/view?log={{file}}')?>" class="btn btn-xs btn-success">
                 View
             </a>
         </td>

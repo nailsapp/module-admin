@@ -184,7 +184,7 @@ class AdminRouter extends BaseMiddle
      */
     protected function loadAdminControllers($moduleName, $controllerPath, $appPath, $ignore = [])
     {
-        $files = directoryMap($controllerPath, 1);
+        $files = \Nails\Common\Helper\Directory::map($controllerPath, 1, false);
         foreach ($files as $file) {
             if (in_array($file, $ignore)) {
                 continue;
@@ -200,28 +200,25 @@ class AdminRouter extends BaseMiddle
     {
         $appControllerPath = NAILS_APP_PATH . 'application/modules/admin/controllers/';
 
-        if (is_dir($appControllerPath)) {
+        //  Look for controllers
+        $files = \Nails\Common\Helper\Directory::map($appControllerPath, 1, false);
 
-            //  Look for controllers
-            $files = directory_map($appControllerPath, 1);
+        foreach ($files as $file) {
 
-            foreach ($files as $file) {
-
-                //  Valid Admin file?
-                if (!$this->isValidAdminFile($file)) {
-                    continue;
-                }
-
-                $fileName = substr($file, 0, strpos($file, '.php'));
-
-                //  Valid file, load it up and define the full class path and name
-                require_once $appControllerPath . $file;
-                $classPath = $appControllerPath . $file;
-                $className = 'App\Admin\\App\\' . ucfirst($fileName);
-
-                //  Load and process the class
-                $this->loadAdminClass($fileName, $className, $classPath, 'app');
+            //  Valid Admin file?
+            if (!$this->isValidAdminFile($file)) {
+                continue;
             }
+
+            $fileName = substr($file, 0, strpos($file, '.php'));
+
+            //  Valid file, load it up and define the full class path and name
+            require_once $appControllerPath . $file;
+            $classPath = $appControllerPath . $file;
+            $className = 'App\Admin\\App\\' . ucfirst($fileName);
+
+            //  Load and process the class
+            $this->loadAdminClass($fileName, $className, $classPath, 'app');
         }
     }
 

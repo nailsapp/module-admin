@@ -12,114 +12,131 @@
 
 namespace Nails\Admin\Model;
 
+use Nails\Common\Helper\Directory;
 use Nails\Common\Model\Base;
+use Nails\Common\Service\Logger;
 use Nails\Factory;
 
+/**
+ * Class SiteLog
+ *
+ * @package Nails\Admin\Model
+ */
 class SiteLog extends Base
 {
-    protected $logPath;
+    /**
+     * The log directory
+     *
+     * @var string
+     */
+    protected $sLogPath;
 
     // --------------------------------------------------------------------------
 
+    /**
+     * SiteLog constructor.
+     *
+     * @throws \Nails\Common\Exception\FactoryException
+     */
     public function __construct()
     {
         parent::__construct();
 
-        $config        =& get_config();
-        $this->logPath = $config['log_path'] != '' ? $config['log_path'] : NAILS_APP_PATH . 'application/logs/';
+        /** @var Logger $oLogger */
+        $oLogger = Factory::service('Logger');
+
+        $this->sLogPath = $oLogger->getDir();
     }
 
     // --------------------------------------------------------------------------
 
     /**
      * Get a list of log files
+     *
      * @return void
      */
     public function getAll($iPage = null, $iPerPage = null, array $aData = [], $bIncludeDeleted = false): array
     {
-        $dirMap        = directoryMap($this->logPath, 0);
-        $logFiles      = [];
-        $filenameRegex = '/^log\-(\d{4}\-\d{2}\-\d{2})\.php$/';
+        $aLogFiles = Directory::map($this->sLogPath, null, false);
 
-        foreach ($dirMap as $logFile) {
+        arsort($aLogFiles);
+        $aLogFiles = array_values($aLogFiles);
+        $aOut      = [];
 
-            if (preg_match($filenameRegex, $logFile)) {
-
-                $logFiles[] = $logFile;
-            }
+        foreach ($aLogFiles as $sFile) {
+            $aOut[] = (object) [
+                'date'  => (\DateTime::createFromFormat('U', filectime($this->sLogPath . $sFile)))->format('Y-m-d H:i:s'),
+                'file'  => $sFile,
+                'lines' => $this->countLines($this->sLogPath . $sFile),
+            ];
         }
 
-        arsort($logFiles);
-        $logFiles = array_values($logFiles);
-
-        $out = [];
-
-        foreach ($logFiles as $file) {
-
-            $temp        = new \stdClass();
-            $temp->date  = preg_replace($filenameRegex, '$1', $file);
-            $temp->file  = $file;
-            $temp->lines = $this->countLines($this->logPath . $file);
-
-            $out[] = $temp;
-        }
-
-        return $out;
+        return $aOut;
     }
 
     // --------------------------------------------------------------------------
 
-    public function readLog($file)
+    /**
+     * @param string $sFile The log file to read
+     *
+     * @return array|null
+     */
+    public function readLog(string $sFile): ?array
     {
-        if (!is_file($this->logPath . $file)) {
-
+        if (!is_file($this->sLogPath . $sFile)) {
             $this->setError('Not a valid log file.');
-            return false;
+            return null;
         }
 
-        $fh      = fopen($this->logPath . $file, 'rb');
-        $out     = [];
-        $counter = 0;
+        $fh       = fopen($this->sLogPath . $sFile, 'rb');
+        $aOut     = [];
+        $iCounter = 0;
 
         while (!feof($fh)) {
 
-            $counter++;
-            $line = trim(fgets($fh));
+            $iCounter++;
+            $sLine = trim(fgets($fh));
 
-            if ($counter == 1 || empty($line)) {
+            if ($iCounter == 1 || empty($sLine)) {
 
                 continue;
             }
-            $out[] = $line;
+            $aOut[] = $sLine;
         }
 
         fclose($fh);
 
-        return $out;
+        return $aOut;
     }
 
     // --------------------------------------------------------------------------
 
-    protected function countLines($file)
+    /**
+     * Counts the number of lines in the log file
+     *
+     * @param string $sFile The log file to count
+     *
+     * @return int
+     */
+    protected function countLines($sFile): int
     {
-        $fh    = fopen($file, 'rb');
-        $lines = 0;
+        $fh     = fopen($sFile, 'rb');
+        $iLines = 0;
 
         while (!feof($fh)) {
 
             $line = fgets($fh);
 
             if (empty($line)) {
-
                 continue;
             }
 
-            $lines++;
+            $iLines++;
         }
 
         fclose($fh);
 
         //  subtract 1, account for the opening <?php line
-        return $lines - 1;
+        return $iLines - 1;
     }
 }

@@ -137,12 +137,12 @@ class Logs extends Base
 
         // --------------------------------------------------------------------------
 
-        /** @var Uri $oUri */
-        $oUri = Factory::service('Uri');
+        /** @var Input $oUri */
+        $oInput = Factory::service('Input');
         /** @var SiteLog $oSiteLogModel */
         $oSiteLogModel = Factory::model('SiteLog', 'nails/module-admin');
 
-        $sFile                     = $oUri->segment(6);
+        $sFile                     = $oInput->get('log');
         $this->data['page']->title = 'Browse Logs &rsaquo; ' . $sFile;
         $this->data['logs']        = $oSiteLogModel->readLog($sFile);
 
