@@ -20,6 +20,15 @@ $bIsLocalised = classUses($CONFIG['MODEL_INSTANCE'], Localised::class);
             }
             ?>
             <th>Item</th>
+            <?php
+            foreach ($CONFIG['SORT_COLUMNS'] as $sLabel => $sProperty) {
+                ?>
+                <th>
+                    <?=$sLabel?>
+                </th>
+                <?php
+            }
+            ?>
         </tr>
     </thead>
     <tbody class="js-admin-sortable" data-handle=".handle">
@@ -80,6 +89,39 @@ $bIsLocalised = classUses($CONFIG['MODEL_INSTANCE'], Localised::class);
                     ?>
                     <input type="hidden" name="order[]" value="<?=$oItem->id?>">
                 </td>
+                <?php
+                foreach ($CONFIG['SORT_COLUMNS'] as $sLabel => $sProperty) {
+
+                    echo '<td>';
+                    if ($sProperty instanceof \Closure) {
+                        echo call_user_func($sProperty, $oItem);
+                    } elseif (property_exists($oItem, $sProperty)) {
+                        echo $oItem->{$sProperty};
+                    } elseif (strpos($sProperty, '.') !== false) {
+
+                        //  @todo (Pablo - 2018-08-08) - Handle arrays in expanded objects
+                        $aField     = explode('.', $sProperty);
+                        $aClasses   = [];
+                        $sProperty1 = getFromArray(0, $aField);
+                        $sProperty2 = getFromArray(1, $aField);
+
+                        if (property_exists($oItem, $sProperty1)) {
+
+                            if (!empty($oItem->{$sProperty1}) && property_exists($oItem->{$sProperty1}, $sProperty2)) {
+                                echo $oItem->{$sProperty1}->{$sProperty2};
+                            } else {
+                                echo '<span class="text-muted">&mdash;</span>';
+                            }
+                        } else {
+                            echo '<span class="text-muted">&mdash;</span>';
+                        }
+
+                    } else {
+                        echo '<span class="text-muted">&mdash;</span>';
+                    }
+                    echo '</td>';
+                }
+                ?>
             </tr>
             <?php
         }

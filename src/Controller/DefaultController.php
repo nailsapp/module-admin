@@ -242,6 +242,11 @@ abstract class DefaultController extends Base
     const CONFIG_SORT_LABEL = 'label';
 
     /**
+     * Any additional columns to add to the sort view
+     */
+    const CONFIG_SORT_COLUMNS = [];
+
+    /**
      * When creating, this string is passed to supporting functions
      */
     const EDIT_MODE_CREATE = 'CREATE';
@@ -1041,6 +1046,7 @@ abstract class DefaultController extends Base
             'EDIT_PAGE_ID'           => static::CONFIG_EDIT_PAGE_ID,
             'SORT_DATA'              => static::CONFIG_SORT_DATA,
             'SORT_LABEL'             => static::CONFIG_SORT_LABEL,
+            'SORT_COLUMNS'           => static::CONFIG_SORT_COLUMNS,
             'FIELDSET_ORDER'         => static::CONFIG_EDIT_FIELDSET_ORDER,
             'ENABLE_NOTES'           => static::EDIT_ENABLE_NOTES,
             'FIELDS'                 => $oModel->describeFields(),
