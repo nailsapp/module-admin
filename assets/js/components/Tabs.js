@@ -164,7 +164,7 @@ class Group {
         }
 
         //  If theres an "active tab" input, go to that one
-        if (this.input.length) {
+        if (this.input.length && this.input[0].value.length) {
             this.goTo(this.input[0].value);
             return this;
         }
