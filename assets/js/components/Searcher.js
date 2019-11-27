@@ -7,13 +7,14 @@ class Searcher {
      * Construct Searcher
      * @return {Searcher}
      */
-    constructor() {
+    constructor(adminController) {
         $(document)
             .on('admin:js-searcher', (e, selector, options) => {
                 options = options || {};
                 $(selector)
                     .each((index, element) => {
                         $(element)
+                            .add('processed')
                             .data(
                                 'searcher',
                                 new SearcherInstance(
@@ -24,12 +25,11 @@ class Searcher {
                     });
             });
 
-        $(document)
-            .on('admin:refresh-ui', () => {
+        adminController
+            .onRefreshUi(() => {
                 $(document)
-                    .trigger('admin:js-searcher', ['.js-searcher']);
-            })
-            .trigger('admin:js-searcher', ['.js-searcher']);
+                    .trigger('admin:js-searcher', ['.js-searcher:not(.processed)']);
+            });
     }
 }
 

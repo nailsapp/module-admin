@@ -6,8 +6,25 @@ class Notes {
      * Construct Notes
      * @return {Notes}
      */
-    constructor() {
-        $('.js-admin-notes')
+    constructor(adminController) {
+
+        adminController
+            .onRefreshUi(() => {
+                this.init();
+            });
+
+        return this;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Initialise notes
+     * @returns {Notes}
+     */
+    init() {
+        $('.js-admin-notes:not(.processed)')
+            .addClass('processed')
             .each((index, element) => {
 
                 let $btn = $(element);
@@ -175,13 +192,13 @@ class Notes {
     countNotes(modelName, modelProvider, itemId) {
         let $deferred = new $.Deferred();
         $.ajax({
-                'url': window.SITE_URL + 'api/admin/note/count',
-                'data': {
-                    'model_name': modelName,
-                    'model_provider': modelProvider,
-                    'item_id': itemId
-                }
-            })
+            'url': window.SITE_URL + 'api/admin/note/count',
+            'data': {
+                'model_name': modelName,
+                'model_provider': modelProvider,
+                'item_id': itemId
+            }
+        })
             .done((response) => {
                 $deferred.resolve(response.data);
             })
@@ -205,13 +222,13 @@ class Notes {
     loadNotes(modelName, modelProvider, itemId) {
         let $deferred = new $.Deferred();
         $.ajax({
-                'url': window.SITE_URL + 'api/admin/note',
-                'data': {
-                    'model_name': modelName,
-                    'model_provider': modelProvider,
-                    'item_id': itemId
-                }
-            })
+            'url': window.SITE_URL + 'api/admin/note',
+            'data': {
+                'model_name': modelName,
+                'model_provider': modelProvider,
+                'item_id': itemId
+            }
+        })
             .done((response) => {
                 $deferred.resolve(response);
             })
@@ -236,15 +253,15 @@ class Notes {
     saveNote(modelName, modelProvider, itemId, message) {
         let $deferred = new $.Deferred();
         $.ajax({
-                'url': window.SITE_URL + 'api/admin/note',
-                'method': 'POST',
-                'data': {
-                    'model_name': modelName,
-                    'model_provider': modelProvider,
-                    'item_id': itemId,
-                    'message': message
-                }
-            })
+            'url': window.SITE_URL + 'api/admin/note',
+            'method': 'POST',
+            'data': {
+                'model_name': modelName,
+                'model_provider': modelProvider,
+                'item_id': itemId,
+                'message': message
+            }
+        })
             .done((response) => {
                 $deferred.resolve(response);
             })
@@ -266,9 +283,9 @@ class Notes {
     deleteNote(id) {
         let $deferred = new $.Deferred();
         $.ajax({
-                'url': window.SITE_URL + 'api/admin/note/' + id,
-                'method': 'DELETE'
-            })
+            'url': window.SITE_URL + 'api/admin/note/' + id,
+            'method': 'DELETE'
+        })
             .done((response) => {
                 $deferred.resolve(response);
             })

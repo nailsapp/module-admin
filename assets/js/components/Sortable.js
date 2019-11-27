@@ -7,8 +7,25 @@ class Sortable {
      * Construct Sortable
      * @return {Sortable}
      */
-    constructor() {
-        $('.js-admin-sortable')
+    constructor(adminController) {
+
+        adminController
+            .onRefreshUi(() => {
+                this.init();
+            });
+
+        return this;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Initialise
+     * @returns {Sortable}
+     */
+    init() {
+        $('.js-admin-sortable:not(.processed)')
+            .addClass('processed')
             .each(function () {
 
                 let $item = $(this);

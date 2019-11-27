@@ -7,12 +7,16 @@ class DynamicTable {
      * Construct DynamicTable
      * @return {DynamicTable}
      */
-    constructor() {
-
-        $('.js-admin-dynamic-table')
-            .each((index, element) => {
-                this.init($(element));
+    constructor(adminController) {
+        adminController
+            .onRefreshUi(() => {
+                $('.js-admin-dynamic-table:not(.ready)')
+                    .addClass('ready')
+                    .each((index, element) => {
+                        this.init($(element));
+                    });
             });
+
         return this;
     }
 
@@ -118,7 +122,7 @@ class DynamicTable {
         $table.data('index', data.index + 1);
         $table.trigger('dynamic-table:add', [$row]);
         $table.find('.js-admin-sortable').trigger('sortable:sort');
-        $(document).trigger('admin:refresh-ui');
+        this.adminController.refreshUi();
 
         return this;
     }
@@ -135,7 +139,7 @@ class DynamicTable {
         $row.remove();
         $table.trigger('dynamic-table:remove');
         $table.find('.js-admin-sortable').trigger('sortable:sort');
-        $(document).trigger('admin:refresh-ui');
+        this.adminController.refreshUi();
         return this;
     }
 }

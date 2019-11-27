@@ -7,7 +7,21 @@ class IndexButtons {
      * Construct IndexButtons
      * @return {IndexButtons}
      */
-    constructor () {
+    constructor(adminController) {
+
+        adminController
+            .onRefreshUi(() => {
+                this.init();
+            });
+
+        return this;
+    }
+
+    /**
+     * Inits the index buttoins
+     * @returns {IndexButtons}
+     */
+    init() {
         $('td.actions')
             .each((index, element) => {
                 let $buttons = $('> .btn, > .btn-group', element);
@@ -19,6 +33,9 @@ class IndexButtons {
                 if (Math.max(...offsets) !== Math.min(...offsets)) {
                     $buttons.addClass('btn-block');
                     $buttons.filter('.btn-group').find('> .btn').addClass('btn-block');
+                } else {
+                    $buttons.removeClass('btn-block');
+                    $buttons.filter('.btn-group').find('> .btn').removeClass('btn-block');
                 }
             });
         return this;

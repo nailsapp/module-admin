@@ -9,7 +9,7 @@ class CopyToClipboard {
      * Construct CopyToClipboard
      * @return {CopyToClipboard}
      */
-    constructor() {
+    constructor(adminController) {
         $(document)
             .on('admin:js-copy-to-clipboard', (e, selector) => {
                 $(selector)
@@ -27,18 +27,14 @@ class CopyToClipboard {
                     });
             });
 
-        $(document)
-            .on('admin:refresh-ui', () => {
+        adminController
+            .onRefreshUi(() => {
                 $(document)
                     .trigger(
                         'admin:js-copy-to-clipboard',
                         ['.js-copy-to-clipboard']
                     );
-            })
-            .trigger(
-                'admin:js-copy-to-clipboard',
-                ['.js-copy-to-clipboard']
-            );
+            });
     }
 }
 

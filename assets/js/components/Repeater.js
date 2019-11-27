@@ -11,10 +11,27 @@ class Repeater {
      * Construct Repeater
      * @return {Repeater}
      */
-    constructor() {
+    constructor(adminController) {
+
+        adminController
+            .onRefreshUi(() => {
+                this.init();
+            });
+
+        return this;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Initialise
+     * @returns {Repeater}
+     */
+    init() {
 
         this.repeaters = [];
-        $('.js-admin-repeater')
+        $('.js-admin-repeater:not(.processed)')
+            .addClass('processed')
             .each((index, element) => {
 
                 let $element = $(element);
