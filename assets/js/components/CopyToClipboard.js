@@ -12,6 +12,7 @@ class CopyToClipboard {
     constructor(adminController) {
         $(document)
             .on('admin:js-copy-to-clipboard', (e, selector) => {
+                CopyToClipboard.log('Initiating new copy buttons');
                 $(selector)
                     .addClass('js-copy-to-clipboard--initiated')
                     .each((index, element) => {
@@ -36,6 +37,42 @@ class CopyToClipboard {
                     );
             });
     }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Write a log to the console
+     * @param  {String} message The message to log
+     * @param  {mixed}  payload Any additional data to display in the console
+     * @return {void}
+     */
+    static log(message, payload) {
+        if (typeof (console.log) === 'function') {
+            if (payload !== undefined) {
+                console.log('CopyToClipboard:', message, payload);
+            } else {
+                console.log('CopyToClipboard:', message);
+            }
+        }
+    };
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Write a warning to the console
+     * @param  {String} message The message to warn
+     * @param  {mixed}  payload Any additional data to display in the console
+     * @return {void}
+     */
+    static warn(message, payload) {
+        if (typeof (console.warn) === 'function') {
+            if (payload !== undefined) {
+                console.warn('CopyToClipboard:', message, payload);
+            } else {
+                console.warn('CopyToClipboard:', message);
+            }
+        }
+    };
 }
 
 class CopyToClipboardInstance {
@@ -66,13 +103,21 @@ class CopyToClipboardInstance {
         this.clipboardJs = new ClipboardJS(element);
         this.clipboardJs
             .on('success', (e) => {
+                CopyToClipboard.log('Item copied!');
                 this.showIcon();
+                e.clearSelection();
+            })
+            .on('error', (e) => {
+                CopyToClipboard.warn('Error', e);
                 e.clearSelection();
             });
     }
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Shows the "copied" icon
+     */
     showIcon() {
 
         this.$icon.remove();
@@ -98,10 +143,22 @@ class CopyToClipboardInstance {
         }, 600);
     }
 
+    // --------------------------------------------------------------------------
+
+    /**
+     * Calculates the left offset
+     * @returns {number}
+     */
     calcOffsetLeft() {
         return this.$el.offset().left + (this.$el.outerWidth() / 2) - (this.$icon.outerWidth() / 2);
     }
 
+    // --------------------------------------------------------------------------
+
+    /**
+     * Calculates the top offset
+     * @returns {number}
+     */
     calcOffsetTop() {
         return this.$el.offset().top - this.$icon.outerHeight() - 5;
     }
