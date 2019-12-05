@@ -8,7 +8,8 @@ class DynamicTable {
      * @return {DynamicTable}
      */
     constructor(adminController) {
-        adminController
+        this.adminController = adminController;
+        this.adminController
             .onRefreshUi(() => {
                 $('.js-admin-dynamic-table:not(.ready)')
                     .addClass('ready')
