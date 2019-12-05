@@ -37,6 +37,11 @@ if (class_exists('\App\Admin\Controller\Base')) {
 
 // --------------------------------------------------------------------------
 
+/**
+ * Class Base
+ *
+ * @package Nails\Admin\Controller
+ */
 abstract class Base extends BaseMiddle
 {
     public $data;
@@ -178,25 +183,32 @@ abstract class Base extends BaseMiddle
         }
 
         //  Inline assets
-        $sJs = 'var _nails,_nails_admin,_nails_api, _nails_forms;';
+        $aJs = [
 
-        $sJs .= 'if (typeof(NAILS_JS) === \'function\'){';
-        $sJs .= '_nails = new NAILS_JS();';
-        $sJs .= '}';
+            //  @todo (Pablo - 2019-12-05) - Remove these items (move into module-admin/admin.js as components)
+            'var _nails,_nails_admin,_nails_api, _nails_forms;',
 
-        $sJs .= 'if (typeof(NAILS_API) === \'function\'){';
-        $sJs .= '_nails_api = new NAILS_API();';
-        $sJs .= '}';
+            'if (typeof(NAILS_JS) === "function"){',
+            '_nails = new NAILS_JS();',
+            '}',
 
-        $sJs .= 'if (typeof(NAILS_Admin) === \'function\'){';
-        $sJs .= '_nails_admin = new NAILS_Admin();';
-        $sJs .= '}';
+            'if (typeof(NAILS_API) === "function"){',
+            '_nails_api = new NAILS_API();',
+            '}',
 
-        $sJs .= 'if (typeof(NAILS_Forms) === \'function\'){';
-        $sJs .= '_nails_forms = new NAILS_Forms();';
-        $sJs .= '}';
+            'if (typeof(NAILS_Admin) === "function"){',
+            '_nails_admin = new NAILS_Admin();',
+            '}',
 
-        $oAsset->inline($sJs, 'JS');
+            'if (typeof(NAILS_Forms) === "function"){',
+            '_nails_forms = new NAILS_Forms();',
+            '}',
+
+            //  Trigger a UI Refresh, most JS components should use this to bind ti and render items
+            'window.NAILS.ADMIN.refreshUi();',
+        ];
+
+        $oAsset->inline(implode(PHP_EOL, $aJs), 'JS');
     }
 
     // --------------------------------------------------------------------------

@@ -116,5 +116,3 @@ window.NAILS.ADMIN.registerPlugin(
     'Tabs',
     new Tabs(window.NAILS.ADMIN)
 );
-
-window.NAILS.ADMIN.refreshUi();
