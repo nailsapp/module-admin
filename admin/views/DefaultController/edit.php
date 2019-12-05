@@ -25,7 +25,7 @@ foreach ($aFieldSets as $sLabel => $aFields) {
 
 ?>
 <div class="group-defaultcontroller edit" <?=$CONFIG['EDIT_PAGE_ID'] ? 'id="' . $CONFIG['EDIT_PAGE_ID'] . '"' : ''?>>
-    <?
+    <?php
     echo form_open();
     echo Helper::tabs($aTabs);
     ?>
