@@ -304,7 +304,8 @@ abstract class Base extends BaseMiddle
         $oAsset->load('bootstrap/js/dropdown.js', 'NAILS-BOWER');
 
         //  Fontawesome
-        $oAsset->load('fontawesome/css/font-awesome.min.css', 'NAILS-BOWER');
+        $oAsset->load('fontawesome/css/fontawesome.css', 'NAILS-BOWER');
+        $oAsset->load('fontawesome/css/solid.css', 'NAILS-BOWER');
 
         //  Asset libraries
         $oAsset->library('jqueryui');
