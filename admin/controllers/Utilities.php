@@ -39,7 +39,7 @@ class Utilities extends Base
     {
         $oNavGroup = Factory::factory('Nav', 'nails/module-admin');
         $oNavGroup->setLabel('Utilities');
-        $oNavGroup->setIcon('fa-sliders');
+        $oNavGroup->setIcon('fa-sliders-h');
 
         if (userHasPermission('admin:admin:utilities:rewriteRoutes')) {
             $oNavGroup->addAction('Rewrite Routes', 'rewrite_routes');
