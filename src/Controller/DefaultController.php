@@ -608,7 +608,7 @@ abstract class DefaultController extends Base
                 if (property_exists($oItem, 'url')) {
                     $sLink = anchor(
                         $oItem->url,
-                        'View &nbsp;<span class="fa fa-external-link"></span>',
+                        'View &nbsp;<span class="fa fa-external-link-alt"></span>',
                         'class="btn btn-success btn-xs pull-right" target="_blank"'
                     );
                 } else {
@@ -763,7 +763,7 @@ abstract class DefaultController extends Base
                 if (property_exists($oNewItem, 'url')) {
                     $sLink = anchor(
                         $oNewItem->url,
-                        'View &nbsp;<span class="fa fa-external-link"></span>',
+                        'View &nbsp;<span class="fa fa-external-link-alt"></span>',
                         'class="btn btn-success btn-xs pull-right" target="_blank"'
                     );
                 } else {
