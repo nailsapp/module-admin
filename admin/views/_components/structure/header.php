@@ -219,7 +219,7 @@
 
                                 //  Sorting handle
                                 if ($module->sortable) {
-                                    echo '<span class="handle admin-branding-background-primary fa fa-navicon"></span>';
+                                    echo '<span class="handle admin-branding-background-primary fa fa-bars"></span>';
                                 }
 
                                 //  Icon
