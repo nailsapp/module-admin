@@ -63,7 +63,7 @@ class Sortable {
                     });
 
                 if (handle) {
-                    handle.addClass('js-admin-sortable__handle');
+                    $item.find(handle).addClass('js-admin-sortable__handle');
                 }
             });
 
