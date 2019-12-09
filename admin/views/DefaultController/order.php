@@ -1,8 +1,10 @@
 <?php
 
 use Nails\Common\Traits\Model\Localised;
+use Nails\Common\Traits\Model\Nestable;
 
 $bIsLocalised = classUses($CONFIG['MODEL_INSTANCE'], Localised::class);
+$bIsNestable  = classUses($CONFIG['MODEL_INSTANCE'], Nestable::class);
 
 ?>
 <?=form_open()?>
@@ -58,6 +60,20 @@ $bIsLocalised = classUses($CONFIG['MODEL_INSTANCE'], Localised::class);
                 ?>
                 <td>
                     <?php
+
+                    //  @todo (Pablo - 2019-12-09) - Support strict nestable sorting, i.e maintain parent/child
+                    if ($bIsNestable) {
+
+                        $sBreadcrumbsColumn = $CONFIG['MODEL_INSTANCE']->getBreadcrumbsColumn();
+                        $aBreadcrumbs       = json_decode($oItem->breadcrumbs) ?? [];
+
+                        if (!empty($aBreadcrumbs)) {
+
+                            echo '<span class="text-muted">╚</span>';
+                            echo str_repeat('<span class="text-muted">═</span>', count($aBreadcrumbs) - 1);
+                            echo '&nbsp;';
+                        }
+                    }
 
                     if ($CONFIG['SORT_LABEL'] instanceof \Closure) {
                         echo call_user_func($CONFIG['SORT_LABEL'], $oItem);
