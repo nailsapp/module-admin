@@ -139,7 +139,7 @@
 
                 echo anchor(
                     $adminRecovery->loginUrl,
-                    '<span class="fa fa-sign-out"></span>',
+                    '<span class="fa fa-sign-out-alt"></span>',
                     'class="admin-branding-text-primary"'
                 );
 
