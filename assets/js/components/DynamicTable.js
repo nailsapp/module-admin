@@ -38,6 +38,7 @@ class DynamicTable {
         $table.data('template', $body.html());
         $table.data('index', 0);
         $body.empty();
+        $body.removeClass('js-admin-dynamic-table__template');
 
         this.bindEvents($table, $body);
 
