@@ -61,6 +61,10 @@ class Sortable {
                                 $(this).val(index);
                             });
                     });
+
+                if (handle) {
+                    handle.addClass('js-admin-sortable__handle');
+                }
             });
 
         return this;

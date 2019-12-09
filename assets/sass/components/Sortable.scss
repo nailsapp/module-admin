@@ -1,0 +1,15 @@
+.js-admin-sortable {
+    &__handle {
+        cursor: move; /* fallback if grab cursor is unsupported */
+        cursor: grab;
+        cursor: -moz-grab;
+        cursor: -webkit-grab;
+
+        &:active {
+            cursor: move !important; /* fallback if grab cursor is unsupported */
+            cursor: grabbing !important;
+            cursor: -moz-grabbing !important;
+            cursor: -webkit-grabbing !important;
+        }
+    }
+}
