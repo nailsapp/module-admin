@@ -1035,20 +1035,31 @@ abstract class DefaultController extends Base
             show404();
         }
 
+        /** @var Database $oDb */
+        $oDb = Factory::service('Database');
         /** @var Session $oSession */
         $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
 
         try {
 
-            $iNewId = $oModel->copy($oItem->id);
-            if (empty($iNewId)) {
+            $oDb->trans_begin();
+            $this->beforeCreateAndEdit(static::EDIT_MODE_CREATE);
+            $this->beforeCreate();
+
+            $oNewItem = $oModel->copy($oItem->id);
+            if (empty($oNewItem)) {
                 throw new \Exception($oModel->lastError());
             }
 
             //  @todo (Pablo - 2019-12-10) - Add support for classes which implement Localised trait
 
+            $this->afterCreateAndEdit(static::EDIT_MODE_CREATE, $oNewItem);
+            $this->afterCreate($oNewItem);
+            $this->addToChangeLog(static::EDIT_MODE_CREATE, $oNewItem);
+            $oDb->trans_commit();
+
             $oSession->setFlashData('success', static::COPY_SUCCESS_MESSAGE);
-            redirect($aConfig['BASE_URL'] . '/edit/' . $iNewId);
+            redirect($aConfig['BASE_URL'] . '/edit/' . $oNewItem->id);
 
         } catch (\Exception $e) {
             $oSession->setFlashData('error', 'Failed to copy item. ' . $e->getMessage());
