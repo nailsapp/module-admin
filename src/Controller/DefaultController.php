@@ -12,10 +12,13 @@
 
 namespace Nails\Admin\Controller;
 
+use Nails\Admin\Factory\IndexFilter;
+use Nails\Admin\Factory\IndexFilter\Option;
 use Nails\Admin\Factory\Nav;
 use Nails\Admin\Helper;
 use Nails\Admin\Model\ChangeLog;
 use Nails\Auth;
+use Nails\Auth\Service\Session;
 use Nails\Common\Exception\FactoryException;
 use Nails\Common\Exception\ModelException;
 use Nails\Common\Exception\NailsException;
@@ -23,8 +26,12 @@ use Nails\Common\Exception\ValidationException;
 use Nails\Common\Factory\Model\Field;
 use Nails\Common\Helper\ArrayHelper;
 use Nails\Common\Resource;
+use Nails\Common\Service\Database;
+use Nails\Common\Service\FormValidation;
+use Nails\Common\Service\Input;
 use Nails\Common\Service\Locale;
 use Nails\Common\Service\Uri;
+use Nails\Common\Traits\Model\Copyable;
 use Nails\Common\Traits\Model\Localised;
 use Nails\Common\Traits\Model\Nestable;
 use Nails\Common\Traits\Model\Sortable;
@@ -322,6 +329,11 @@ abstract class DefaultController extends Base
     const ORDER_ERROR_MESSAGE = 'Failed to order items.';
 
     /**
+     * Message displayed to user when an item is successfully copied
+     */
+    const COPY_SUCCESS_MESSAGE = 'Item copied successfully.';
+
+    /**
      * Whether to record updates in the admin change log
      */
     const CHANGELOG_ENABLED = true;
@@ -422,6 +434,7 @@ abstract class DefaultController extends Base
      */
     public static function announce()
     {
+        /** @var Nav $oNavGroup */
         $oNavGroup = Factory::factory('Nav', 'nails/module-admin');
         $oNavGroup
             ->setLabel(static::getSidebarGroup())
@@ -473,6 +486,7 @@ abstract class DefaultController extends Base
             unauthorised();
         }
 
+        /** @var Input $oInput */
         $oInput  = Factory::service('Input');
         $oModel  = $this->getModel();
         $aConfig = $this->getConfig();
@@ -563,7 +577,9 @@ abstract class DefaultController extends Base
             unauthorised();
         }
 
-        $oDb    = Factory::service('Database');
+        /** @var Database $oDb */
+        $oDb = Factory::service('Database');
+        /** @var Input $oInput */
         $oInput = Factory::service('Input');
         $oModel = $this->getModel();
 
@@ -615,6 +631,7 @@ abstract class DefaultController extends Base
                     $sLink = '';
                 }
 
+                /** @var Auth\Service\Session $oSession */
                 $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
                 $oSession->setFlashData('success', sprintf(static::CREATE_SUCCESS_MESSAGE, $sLink));
 
@@ -636,6 +653,7 @@ abstract class DefaultController extends Base
 
         // --------------------------------------------------------------------------
 
+        /** @var Uri $oUri */
         $oUri           = Factory::service('Uri');
         $iExistingId    = (int) $oUri->segment(5) ?: null;
         $sDesiredLocale = $oUri->segment(6) ?: null;
@@ -675,6 +693,7 @@ abstract class DefaultController extends Base
                     );
 
                     if (empty($aDiff)) {
+                        /** @var Auth\Service\Session $oSession */
                         $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
                         $oSession->setFlashData('error', 'No more variations of this item can be created.');
                         $this->returnToIndex();
@@ -715,8 +734,11 @@ abstract class DefaultController extends Base
             unauthorised();
         }
 
-        $oDb    = Factory::service('Database');
+        /** @var Database $oDb */
+        $oDb = Factory::service('Database');
+        /** @var Input $oInput */
         $oInput = Factory::service('Input');
+
         $oModel = $this->getModel();
         $oItem  = $this->getItem($aConfig['EDIT_DATA']);
 
@@ -770,6 +792,7 @@ abstract class DefaultController extends Base
                     $sLink = '';
                 }
 
+                /** @var Auth\Service\Session $oSession */
                 $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
                 $oSession->setFlashData('success', sprintf(static::EDIT_SUCCESS_MESSAGE, $sLink));
 
@@ -811,7 +834,11 @@ abstract class DefaultController extends Base
             unauthorised();
         }
 
-        $oDb    = Factory::service('Database');
+        /** @var Database $oDb */
+        $oDb = Factory::service('Database');
+        /** @var Auth\Service\Session $oSession */
+        $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
+
         $oModel = $this->getModel();
         $oItem  = $this->getItem();
 
@@ -850,13 +877,11 @@ abstract class DefaultController extends Base
                 $sRestoreLink = '';
             }
 
-            $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
             $oSession->setFlashData('success', static::DELETE_SUCCESS_MESSAGE . ' ' . $sRestoreLink);
             $this->returnToIndex();
 
         } catch (\Exception $e) {
             $oDb->trans_rollback();
-            $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
             $oSession->setFlashData('error', static::DELETE_ERROR_MESSAGE . ' ' . $e->getMessage());
             $this->returnToIndex();
         }
@@ -878,11 +903,15 @@ abstract class DefaultController extends Base
             unauthorised();
         }
 
-        $oUri     = Factory::service('Uri');
-        $oDb      = Factory::service('Database');
+        /** @var Uri $oUri */
+        $oUri = Factory::service('Uri');
+        /** @var Database $oDb */
+        $oDb = Factory::service('Database');
+        /** @var Auth\Service\Session $oSession */
         $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
-        $oModel   = $this->getModel();
-        $oItem    = $this->getItem([], null, true);
+
+        $oModel = $this->getModel();
+        $oItem  = $this->getItem([], null, true);
 
         try {
 
@@ -926,8 +955,11 @@ abstract class DefaultController extends Base
         }
 
         $oModel = $this->getModel();
+
+        /** @var Input $oInput */
         $oInput = Factory::service('Input');
-        $oDb    = Factory::service('Database');
+        /** @var Database $oDb */
+        $oDb = Factory::service('Database');
 
         if ($oInput->post()) {
             try {
@@ -964,6 +996,7 @@ abstract class DefaultController extends Base
 
                 $oDb->trans_commit();
 
+                /** @var Auth\Service\Session $oSession */
                 $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
                 $oSession->setFlashData('success', static::ORDER_SUCCESS_MESSAGE);
 
@@ -979,6 +1012,48 @@ abstract class DefaultController extends Base
         $this->data['items']       = $aItems;
         $this->data['page']->title = $aConfig['TITLE_PLURAL'] . ' &rsaquo; Sort';
         Helper::loadView('order');
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Duplicate an item
+     *
+     * @throws FactoryException
+     */
+    public function copy()
+    {
+        if (!static::userCan('create') || !static::userCan('edit')) {
+            unauthorised();
+        }
+
+        $aConfig = $this->getConfig();
+        $oModel  = $this->getModel();
+        $oItem   = $this->getItem();
+
+        if (empty($oItem)) {
+            show404();
+        }
+
+        /** @var Session $oSession */
+        $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
+
+        try {
+
+            $iNewId = $oModel->copy($oItem->id);
+            if (empty($iNewId)) {
+                throw new \Exception($oModel->lastError());
+            }
+
+            //  @todo (Pablo - 2019-12-10) - Add support for classes which implement Localised trait
+
+            $oSession->setFlashData('success', static::COPY_SUCCESS_MESSAGE);
+            redirect($aConfig['BASE_URL'] . '/edit/' . $iNewId);
+
+        } catch (\Exception $e) {
+            $oSession->setFlashData('error', 'Failed to copy item. ' . $e->getMessage());
+            $this->returnToIndex();
+        }
     }
 
     // --------------------------------------------------------------------------
@@ -1117,6 +1192,7 @@ abstract class DefaultController extends Base
         // --------------------------------------------------------------------------
 
         $bIsLocalised = classUses(static::getModel(), Localised::class);
+        $bIsCopyable  = classUses(static::getModel(), Copyable::class);
 
         /** @var Locale $oLocale */
         $oLocale = Factory::service('Locale');
@@ -1204,6 +1280,15 @@ abstract class DefaultController extends Base
                     },
                     'enabled' => function ($oItem) use ($oLocale) {
                         return static::isDeleteButtonEnabled($oItem);
+                    },
+                ] : null,
+
+                $bIsCopyable ? [
+                    'url'     => 'copy/{{id}}',
+                    'label'   => 'Copy',
+                    'class'   => 'btn-default',
+                    'enabled' => function ($oItem) {
+                        return static::userCan('edit') && static::userCan('create');
                     },
                 ] : null,
             ])
@@ -1376,12 +1461,14 @@ abstract class DefaultController extends Base
      */
     protected function indexDropdownFilters(): array
     {
+        /** @var IndexFilter $aFilters */
         $aFilters = [];
         if (classUses(static::getModel(), Localised::class)) {
 
             /** @var Locale $oLocale */
             $oLocale = Factory::service('Locale');
 
+            /** @var Option[] $aOptions */
             $aOptions   = [];
             $aOptions[] = Factory::factory('IndexFilterOption', 'nails/module-admin')
                 ->setLabel('All Locales');
@@ -1520,9 +1607,11 @@ abstract class DefaultController extends Base
      */
     protected function runFormValidation(string $sMode, array $aOverrides = []): void
     {
-        $aConfig              = $this->getConfig();
-        $oModel               = static::getModel();
-        $oFormValidation      = Factory::service('FormValidation');
+        $aConfig = $this->getConfig();
+        $oModel  = static::getModel();
+        /** @var FormValidation $oFormValidation */
+        $oFormValidation = Factory::service('FormValidation');
+
         $aRulesFormValidation = [];
         $aImplementedRules    = [];
 
@@ -1722,9 +1811,13 @@ abstract class DefaultController extends Base
     {
         $aConfig = $this->getConfig();
         $oModel  = static::getModel();
-        $oInput  = Factory::service('Input');
-        $oUri    = Factory::service('Uri');
-        $aOut    = [];
+
+        /** @var Input $oInput */
+        $oInput = Factory::service('Input');
+        /** @var Uri $oUri */
+        $oUri = Factory::service('Uri');
+
+        $aOut = [];
 
         foreach ($aConfig['FIELDS'] as $oField) {
             if (in_array($oField->key, $aConfig['EDIT_IGNORE_FIELDS'])) {
@@ -1769,9 +1862,12 @@ abstract class DefaultController extends Base
     protected function getItem(array $aData = [], int $iSegment = null, bool $bIncludeDeleted = false, bool $b404 = true)
     {
         $iSegment = $iSegment ?? 5;
-        $oUri     = Factory::service('Uri');
-        $oModel   = $this->getModel();
-        $iItemId  = (int) $oUri->segment($iSegment);
+
+        /** @var Uri $oUri */
+        $oUri = Factory::service('Uri');
+
+        $oModel  = $this->getModel();
+        $iItemId = (int) $oUri->segment($iSegment);
 
         if (classUses($oModel, Localised::class) && $oUri->segment($iSegment + 1)) {
             $aData['USE_LOCALE'] = $oUri->segment($iSegment + 1);
@@ -1851,6 +1947,7 @@ abstract class DefaultController extends Base
      */
     protected function returnToIndex(): void
     {
+        /** @var Input $oInput */
         $oInput    = Factory::service('Input');
         $sReferrer = $oInput->server('HTTP_REFERER');
 
@@ -1987,7 +2084,7 @@ abstract class DefaultController extends Base
 
         foreach ($aChangeData as $sKey => $aValues) {
 
-            list ($sOldValue, $sNewValue) = $aValues;
+            [$sOldValue, $sNewValue] = $aValues;
             $bForce = false;
             if (in_array($sKey, static::CHANGELOG_FIELDS_REDACT)) {
                 $bForce    = $sOldValue !== $sNewValue;
