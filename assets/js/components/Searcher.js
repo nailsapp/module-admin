@@ -57,6 +57,8 @@ class SearcherInstance {
         this.minLength = this.coalesce(this.$input.data('min-length'), options.minLength, 2);
         this.getParam = this.coalesce(this.$input.data('get-param'), options.getParam, 'search');
         this.formatter = this.coalesce(options.formatter, null);
+        this.propId = this.coalesce(this.$input.data('prop-id'), options.propId, 'id');
+        this.propLabel = this.coalesce(this.$input.data('prop-label'), options.propLabel, 'label');
 
         if (this.api) {
 
@@ -137,8 +139,8 @@ class SearcherInstance {
             return this.formatter.call(this, item)
         } else {
             return {
-                'id': item.id,
-                'text': item.label
+                'id': item[this.propId],
+                'text': item[this.propLabel]
             };
         }
     }
