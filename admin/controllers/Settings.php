@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This class handles setting of notification recipients
+ * This class handles settings
  *
  * @package     Nails
  * @subpackage  module-admin
@@ -45,10 +45,6 @@ class Settings extends Base
             $oNavGroup->addAction('Site', 'site');
         }
 
-        if (userHasPermission('admin:admin:settings:notifications')) {
-            $oNavGroup->addAction('Notifications', 'notifications');
-        }
-
         return $oNavGroup;
     }
 
@@ -68,7 +64,6 @@ class Settings extends Base
         $aPermissions['site:customjscss'] = 'Configure Site Custom JS and CSS';
         $aPermissions['site:analytics']   = 'Configure Site analytics';
         $aPermissions['site:maintenance'] = 'Configure Maintenance Mode';
-        $aPermissions['notifications']    = 'Configure Notifications';
 
         return $aPermissions;
     }
@@ -212,85 +207,6 @@ class Settings extends Base
 
         //  Load views
         Helper::loadView('site');
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Manage notifications
-     *
-     * @return void
-     */
-    public function notifications()
-    {
-        if (!userHasPermission('admin:admin:settings:notifications')) {
-            unauthorised();
-        }
-
-        // --------------------------------------------------------------------------
-
-        $oAppNotificationModel = Factory::model('AppNotification');
-
-        // --------------------------------------------------------------------------
-
-        //  Page Title
-        $this->data['page']->title = 'Manage Notifications';
-
-        // --------------------------------------------------------------------------
-
-        $oInput = Factory::service('Input');
-        if ($oInput->post()) {
-
-            $aNotification = $oInput->post('notification');
-
-            if (is_array($aNotification)) {
-
-                $aSet = [];
-
-                foreach ($aNotification as $sGroup => $aOptions) {
-
-                    $aSet[$sGroup] = [];
-
-                    foreach ($aOptions as $sKey => $sEmails) {
-
-                        $aEmails = explode(',', $sEmails);
-                        $aEmails = array_filter($aEmails);
-                        $aEmails = array_unique($aEmails);
-
-                        foreach ($aEmails as &$sEmail) {
-                            $sEmail = trim($sEmail);
-                            if (!valid_email($sEmail)) {
-                                $error = '"<strong>' . $sEmail . '</strong>" is not a valid email.';
-                                break 3;
-                            }
-                        }
-
-                        $aSet[$sGroup][$sKey] = $aEmails;
-                    }
-                }
-
-                if (empty($error)) {
-
-                    foreach ($aSet as $sGroup => $aOptions) {
-                        $oAppNotificationModel->set($aOptions, $sGroup);
-                    }
-
-                    $this->data['success'] = 'Notifications were updated successfully.';
-
-                } else {
-                    $this->data['error'] = $error;
-                }
-            }
-        }
-
-        // --------------------------------------------------------------------------
-
-        $this->data['notifications'] = $oAppNotificationModel->getDefinitions();
-
-        // --------------------------------------------------------------------------
-
-        //  Load views
-        Helper::loadView('notifications');
     }
 
     // --------------------------------------------------------------------------
