@@ -37,7 +37,7 @@ jobs:
     # Restore Yarn cache
     - restore_cache:
         keys:
-        - yarn-dependencies-{{ checksum "yarn.lock" }}
+        - yarn-dependencies-{{ checksum "package.json" }}
 
     # Execute Yarn install and build
     - run: yarn install
@@ -47,7 +47,7 @@ jobs:
     - save_cache:
         paths:
         - ./node_modules
-        key: yarn-dependencies-{{ checksum "yarn.lock" }}
+        key: yarn-dependencies-{{ checksum "package.json" }}
 
     # run tests!
     - run: ./vendor/bin/phpunit
