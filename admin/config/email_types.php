@@ -14,7 +14,7 @@ $config['email_types'] = [
     (object) [
         'slug'             => 'data_export',
         'name'             => 'Admin: Data Export',
-        'isUnsubscribable' => false,
+        'can_unsubscribe'  => false,
         'description'      => 'Sent when a data export is completed',
         'template_header'  => '',
         'template_body'    => 'admin/Email/templates/data_export',
