@@ -2,6 +2,7 @@
 let _ADMIN;
 
 import '../sass/admin.scss';
+import Alerts from './components/Alerts.js';
 import CopyToClipboard from './components/CopyToClipboard.js';
 import DisabledElements from './components/DisabledElements.js';
 import DynamicTable from './components/DynamicTable.js';
@@ -11,6 +12,8 @@ import Repeater from './components/Repeater.js';
 import Searcher from './components/Searcher.js';
 import Sortable from './components/Sortable.js';
 import Tabs from './components/Tabs.js';
+import Toggles from './components/Toggles.js';
+import Wysiwyg from './components/Wysiwyg.js';
 
 _ADMIN = function () {
     return {
@@ -73,6 +76,11 @@ window.NAILS.ADMIN = new _ADMIN();
 
 window.NAILS.ADMIN.registerPlugin(
     'nails/module-admin',
+    'Alerts',
+    new Alerts(window.NAILS.ADMIN)
+);
+window.NAILS.ADMIN.registerPlugin(
+    'nails/module-admin',
     'CopyToClipboard',
     new CopyToClipboard(window.NAILS.ADMIN)
 );
@@ -115,4 +123,14 @@ window.NAILS.ADMIN.registerPlugin(
     'nails/module-admin',
     'Tabs',
     new Tabs(window.NAILS.ADMIN)
+);
+window.NAILS.ADMIN.registerPlugin(
+    'nails/module-admin',
+    'Toggles',
+    new Toggles(window.NAILS.ADMIN)
+);
+window.NAILS.ADMIN.registerPlugin(
+    'nails/module-admin',
+    'Wysiwyg',
+    new Wysiwyg(window.NAILS.ADMIN)
 );
