@@ -12,7 +12,18 @@ foreach ($aFieldSets as $sLabel => $aFields) {
     $aTabs[] = [
         'label'   => $sLabel,
         'content' => function () use ($aFields) {
-            foreach ($aFields as $oField) {
+            foreach ($aFields as $iIndex => $oField) {
+
+                if (empty($oField->key)) {
+
+                    throw new \Nails\Common\Exception\NailsException(
+                        sprintf(
+                            'Property "key" is missing for field "%s"',
+                            $oField->label ?: $iIndex
+                        )
+                    );
+                }
+
                 if (is_callable('form_field_' . $oField->type)) {
                     echo call_user_func('form_field_' . $oField->type, (array) $oField);
                 } else {
