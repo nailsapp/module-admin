@@ -24,10 +24,10 @@ foreach ($aFieldSets as $sLabel => $aFields) {
                     );
                 }
 
-                if (is_callable('form_field_' . $oField->type)) {
-                    echo call_user_func('form_field_' . $oField->type, (array) $oField);
+                if (is_callable('\Nails\Common\Helper\Form\Field::' . $oField->type)) {
+                    echo call_user_func('\Nails\Common\Helper\Form\Field::' . $oField->type, (array) $oField);
                 } else {
-                    echo form_field((array) $oField);
+                    echo Nails\Common\Helper\Form\Field::text((array) $oField);
                 }
             }
         },

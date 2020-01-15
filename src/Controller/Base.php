@@ -115,6 +115,7 @@ abstract class Base extends BaseMiddle
     protected function loadHelpers()
     {
         Factory::helper('admin', 'nails/module-admin');
+        Factory::helper('form', 'nails/module-admin');
     }
 
     // --------------------------------------------------------------------------
