@@ -13,6 +13,7 @@
 namespace Nails\Admin\Service;
 
 use Nails\Admin\DataExport\SourceResponse;
+use Nails\Admin\Interfaces;
 use Nails\Admin\Resource\DataExport\Format;
 use Nails\Admin\Resource\DataExport\Source;
 use Nails\Cdn\Constants;
@@ -72,43 +73,29 @@ class DataExport
 
         foreach (Components::available() as $oComponent) {
 
-            $sPath      = $oComponent->path;
-            $sNamespace = $oComponent->namespace;
+            $aSources = $oComponent
+                ->findClasses('DataExport\\Source')
+                ->whichImplement(Interfaces\DataExport\Source::class);
 
-            $aComponentSources = Directory::map($sPath . 'src/DataExport/Source', null, false);
-            $aComponentFormats = Directory::map($sPath . 'src/DataExport/Format', null, false);
-
-            foreach ($aComponentSources as $sSource) {
-
-                $sClass = $sNamespace . implode('\\', array_merge(
-                        ['DataExport', 'Source'],
-                        explode(DIRECTORY_SEPARATOR, rtrim($sSource, '.php'))
-                    ));
-
-                $oInstance = new $sClass();
-
-                if ($oInstance->isEnabled()) {
-                    $this->aSources[] = new Source([
-                        'slug'        => $oComponent->slug . '::' . basename($sSource, '.php'),
-                        'label'       => $oInstance->getLabel(),
-                        'description' => $oInstance->getDescription(),
-                        'options'     => $oInstance->getOptions(),
-                        'instance'    => $oInstance,
-                    ]);
-                }
+            foreach ($aSources as $sSource) {
+                $oInstance        = new $sSource();
+                $this->aSources[] = new Source([
+                    'slug'        => $oComponent->slug . '::' . preg_replace('/^.*\\\\DataExport\\\\Source\\\\/', '', $sSource),
+                    'label'       => $oInstance->getLabel(),
+                    'description' => $oInstance->getDescription(),
+                    'options'     => $oInstance->getOptions(),
+                    'instance'    => $oInstance,
+                ]);
             }
 
-            foreach ($aComponentFormats as $sFormat) {
+            $aFormats = $oComponent
+                ->findClasses('DataExport\\Format')
+                ->whichImplement(Interfaces\DataExport\Format::class);
 
-                $sClass = $sNamespace . implode('\\', array_merge(
-                        ['DataExport', 'Format'],
-                        explode(DIRECTORY_SEPARATOR, rtrim($sFormat, '.php'))
-                    ));
-
-                $oInstance = new $sClass();
-
+            foreach ($aFormats as $sFormat) {
+                $oInstance        = new $sFormat();
                 $this->aFormats[] = new Format([
-                    'slug'        => $oComponent->slug . '::' . basename($sFormat, '.php'),
+                    'slug'        => $oComponent->slug . '::' . preg_replace('/^.*\\\\DataExport\\\\Format\\\\/', '', $sFormat),
                     'label'       => $oInstance->getLabel(),
                     'description' => $oInstance->getDescription(),
                     'instance'    => $oInstance,
