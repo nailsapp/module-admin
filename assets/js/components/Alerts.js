@@ -26,7 +26,7 @@ class Alerts {
     init() {
 
         $('.alert__close:not(.alert__close--initiated)')
-            .addClas('alert__close--initiated')
+            .addClass('alert__close--initiated')
             .on('click', function() {
                 $(this)
                     .closest('.alert')
@@ -36,3 +36,5 @@ class Alerts {
         return this;
     }
 }
+
+export default Alerts;
