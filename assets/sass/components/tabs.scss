@@ -111,6 +111,22 @@ section.tabs {
             margin-bottom: 1em;
         }
 
+        > h1,
+        > h2,
+        > h3,
+        > h4,
+        > h5,
+        > h6 {
+            background: #f5f5f5;
+            border: none;
+            border-bottom: 1px solid #e5e5e5;
+            padding: 0.75rem;
+            margin: 0;
+            position: sticky;
+            top: 45px;
+            z-index: 999;
+        }
+
         table {
             margin: 0;
         }
