@@ -7,9 +7,10 @@ class Tabs {
      */
     constructor(adminController) {
 
+        this.adminController = adminController;
         this.groups = {};
 
-        adminController
+        this.adminController
             .onRefreshUi(() => {
                 this.init();
             });
@@ -71,7 +72,7 @@ class Tabs {
 
             group = nodes[i].dataset.tabgroup;
             if (!this.groups.hasOwnProperty(group)) {
-                this.groups[group] = new Group(group);
+                this.groups[group] = new Group(group, this.adminController);
             }
 
             childNodes = nodes[i].querySelectorAll('li.tab');
@@ -111,8 +112,9 @@ class Group {
      * @param {String} slug The group's slug
      * @returns {Group}
      */
-    constructor(slug) {
+    constructor(slug, adminController) {
         this.slug = slug;
+        this.adminController = adminController;
         this.controls = [];
         this.panels = [];
         this.input = document.querySelectorAll('input[data-tabgroup="' + this.slug + '"]');
@@ -226,6 +228,9 @@ class Group {
                 this.input[j].value = target;
             }
         }
+
+        this.adminController.refreshUi();
+
     }
 }
 
