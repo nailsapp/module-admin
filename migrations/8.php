@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Migration:   7
+ * Migration:   8
  * Started:     7/11/2018
  * Finalised:   7/11/2018
  *
@@ -16,7 +16,7 @@ namespace Nails\Database\Migration\Nails\ModuleAdmin;
 
 use Nails\Common\Console\Migrate\Base;
 
-class Migration7 extends Base
+class Migration8 extends Base
 {
     /**
      * Execute the migration
