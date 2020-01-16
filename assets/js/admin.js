@@ -11,6 +11,7 @@ import Notes from './components/Notes.js';
 import Repeater from './components/Repeater.js';
 import Searcher from './components/Searcher.js';
 import Sortable from './components/Sortable.js';
+import Stripes from './components/Stripes.js';
 import Tabs from './components/Tabs.js';
 import Toggles from './components/Toggles.js';
 import Wysiwyg from './components/Wysiwyg.js';
@@ -118,6 +119,11 @@ window.NAILS.ADMIN.registerPlugin(
     'nails/module-admin',
     'Sortable',
     new Sortable(window.NAILS.ADMIN)
+);
+window.NAILS.ADMIN.registerPlugin(
+    'nails/module-admin',
+    'Stripes',
+    new Stripes(window.NAILS.ADMIN)
 );
 window.NAILS.ADMIN.registerPlugin(
     'nails/module-admin',
