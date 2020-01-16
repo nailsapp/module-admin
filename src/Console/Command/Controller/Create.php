@@ -3,6 +3,7 @@
 namespace Nails\Admin\Console\Command\Controller;
 
 use Nails\Admin\Exception\Console\ControllerExistsException;
+use Nails\Common\Exception\NailsException;
 use Nails\Console\Command\BaseMaker;
 use Nails\Factory;
 use Symfony\Component\Console\Input\InputArgument;
@@ -13,34 +14,35 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Create extends BaseMaker
 {
     const RESOURCE_PATH   = NAILS_PATH . 'module-admin/resources/console/';
-    const CONTROLLER_PATH = FCPATH . 'application/modules/admin/controllers/';
+    const CONTROLLER_PATH = NAILS_APP_PATH . 'application/modules/admin/controllers/';
 
     // --------------------------------------------------------------------------
 
     /**
      * Configure the command
      */
-    protected function configure()
+    protected function configure(): void
     {
-        $this->setName('make:controller:admin');
-        $this->setDescription('Creates a new Admin controller');
-        $this->addArgument(
-            'modelName',
-            InputArgument::OPTIONAL,
-            'Define the name of the model on which to base the controller'
-        );
-        $this->addArgument(
-            'modelProvider',
-            InputArgument::OPTIONAL,
-            'Define the provider of the model',
-            'app'
-        );
-        $this->addOption(
-            'skip-check',
-            null,
-            InputOption::VALUE_OPTIONAL,
-            'Skip model check'
-        );
+        $this
+            ->setName('make:controller:admin')
+            ->setDescription('Creates a new Admin controller')
+            ->addArgument(
+                'modelName',
+                InputArgument::OPTIONAL,
+                'Define the name of the model on which to base the controller'
+            )
+            ->addArgument(
+                'modelProvider',
+                InputArgument::OPTIONAL,
+                'Define the provider of the model',
+                'app'
+            )
+            ->addOption(
+                'skip-check',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Skip model check'
+            );
     }
 
     // --------------------------------------------------------------------------
@@ -48,11 +50,12 @@ class Create extends BaseMaker
     /**
      * Executes the app
      *
-     * @param  InputInterface $oInput The Input Interface provided by Symfony
+     * @param  InputInterface  $oInput  The Input Interface provided by Symfony
      * @param  OutputInterface $oOutput The Output Interface provided by Symfony
+     *
      * @return int
      */
-    protected function execute(InputInterface $oInput, OutputInterface $oOutput)
+    protected function execute(InputInterface $oInput, OutputInterface $oOutput): int
     {
         parent::execute($oInput, $oOutput);
 
@@ -66,7 +69,7 @@ class Create extends BaseMaker
         } catch (\Exception $e) {
             return $this->abort(
                 self::EXIT_CODE_FAILURE,
-                $e->getMessage()
+                [$e->getMessage()]
             );
         }
 
@@ -93,7 +96,7 @@ class Create extends BaseMaker
      * @throws \Exception
      * @return void
      */
-    private function createController()
+    private function createController(): void
     {
         $aFields  = $this->getArguments();
         $aCreated = [];
@@ -134,7 +137,7 @@ class Create extends BaseMaker
                     @unlink($sPath);
                 }
             }
-            throw new \Exception($e->getMessage());
+            throw new NailsException($e->getMessage());
         }
     }
 }

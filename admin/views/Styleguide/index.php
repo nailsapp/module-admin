@@ -1,8 +1,9 @@
 <div class="group-admin group-admin-styleguide">
     <p class="alert alert-info">
-     @todo: Complete a style guide for admin showing all the components and how the current admin stylesheet/theme renders them.
+        @todo: Complete a style guide for admin showing all the components and how the current admin stylesheet/theme
+        renders them.
     </p>
-    <hr />
+    <hr/>
 
     <!-- Typography -->
     <section class="typography">
@@ -59,28 +60,28 @@
         <div class="body">
             <?php
 
-                $aSizes = array('btn-xs', 'btn-sm', '', 'btn-lg');
-                $aTypes = array(
-                    'btn-default',
-                    'btn-primary',
-                    'btn-secondary',
-                    'btn-success',
-                    'btn-danger',
-                    'btn-info',
-                    'btn-warning',
-                    'btn-link'
-                );
+            $aSizes = ['btn-xs', 'btn-sm', '', 'btn-lg'];
+            $aTypes = [
+                'btn-default',
+                'btn-primary',
+                'btn-secondary',
+                'btn-success',
+                'btn-danger',
+                'btn-info',
+                'btn-warning',
+                'btn-link',
+            ];
 
-                foreach ($aSizes as $sSize) {
-                    foreach ($aTypes as $sType) {
-                        ?>
-                        <button class="btn <?=$sType?> <?=$sSize?>">
-                            Button
-                        </button>
-                        <?php
-                    }
-                    echo '</p>';
+            foreach ($aSizes as $sSize) {
+                foreach ($aTypes as $sType) {
+                    ?>
+                    <button class="btn <?=$sType?> <?=$sSize?>">
+                        Button
+                    </button>
+                    <?php
                 }
+                echo '</p>';
+            }
 
             ?>
         </div>
@@ -234,5 +235,271 @@
             </fieldset>
         </div>
     </section>
-    <!-- /Alerts -->
+    <!-- /Fieldsets -->
+
+    <!-- Tabs -->
+    <section>
+        <div class="title">
+            Tabs
+        </div>
+        <div class="body">
+            <p>
+                The following tab group has no implicit grouping and is independent:
+            </p>
+            <ul class="tabs">
+                <li class="tab">
+                    <a href="#" data-tab="tab-one">
+                        Tab 1
+                    </a>
+                </li>
+                <li class="tab">
+                    <a href="#" data-tab="tab-two">
+                        Tab 2
+                    </a>
+                </li>
+                <li class="tab">
+                    <a href="#" data-tab="tab-three">
+                        Tab 3
+                    </a>
+                </li>
+            </ul>
+            <section class="tabs">
+                <div class="tab-page tab-one">
+                    <p>
+                        Tab panel one.
+                    </p>
+                </div>
+                <div class="tab-page tab-two">
+                    <p>
+                        Tab panel two.
+                    </p>
+                </div>
+                <div class="tab-page tab-three">
+                    <p>
+                        Tab panel three.
+                    </p>
+                </div>
+            </section>
+
+            <p>
+                The following tab group is nested and act independently:
+            </p>
+            <ul class="tabs">
+                <li class="tab">
+                    <a href="#" data-tab="tab-one">
+                        Tab 1
+                    </a>
+                </li>
+                <li class="tab">
+                    <a href="#" data-tab="tab-two">
+                        Tab 2
+                    </a>
+                </li>
+                <li class="tab">
+                    <a href="#" data-tab="tab-three">
+                        Tab 3
+                    </a>
+                </li>
+            </ul>
+            <section class="tabs">
+                <div class="tab-page tab-one">
+                    <ul class="tabs">
+                        <li class="tab">
+                            <a href="#" data-tab="tab-one">
+                                Tab 1
+                            </a>
+                        </li>
+                        <li class="tab">
+                            <a href="#" data-tab="tab-two">
+                                Tab 2
+                            </a>
+                        </li>
+                        <li class="tab">
+                            <a href="#" data-tab="tab-three">
+                                Tab 3
+                            </a>
+                        </li>
+                    </ul>
+                    <section class="tabs">
+                        <div class="tab-page tab-one">
+                            <p>
+                                Tab panel one.
+                            </p>
+                        </div>
+                        <div class="tab-page tab-two">
+                            <p>
+                                Tab panel two.
+                            </p>
+                        </div>
+                        <div class="tab-page tab-three">
+                            <p>
+                                Tab panel three.
+                            </p>
+                        </div>
+                    </section>
+                </div>
+                <div class="tab-page tab-two">
+                    <p>
+                        Tab panel two.
+                    </p>
+                </div>
+                <div class="tab-page tab-three">
+                    <p>
+                        Tab panel three.
+                    </p>
+                </div>
+            </section>
+
+            <p>
+                The following tab groups mimic each other:
+            </p>
+            <ul class="tabs" data-tabgroup="tabs-mimic">
+                <li class="tab">
+                    <a href="#" data-tab="tab-one">
+                        Tab 1
+                    </a>
+                </li>
+                <li class="tab">
+                    <a href="#" data-tab="tab-two">
+                        Tab 2
+                    </a>
+                </li>
+                <li class="tab">
+                    <a href="#" data-tab="tab-three">
+                        Tab 3
+                    </a>
+                </li>
+            </ul>
+            <section class="tabs" data-tabgroup="tabs-mimic">
+                <div class="tab-page tab-one">
+                    <p>
+                        Tab panel one.
+                    </p>
+                </div>
+                <div class="tab-page tab-two">
+                    <p>
+                        Tab panel two.
+                    </p>
+                </div>
+                <div class="tab-page tab-three">
+                    <p>
+                        Tab panel three.
+                    </p>
+                </div>
+            </section>
+
+            <ul class="tabs" data-tabgroup="tabs-mimic">
+                <li class="tab">
+                    <a href="#" data-tab="tab-one">
+                        Tab 1
+                    </a>
+                </li>
+                <li class="tab">
+                    <a href="#" data-tab="tab-two">
+                        Tab 2
+                    </a>
+                </li>
+                <li class="tab">
+                    <a href="#" data-tab="tab-three">
+                        Tab 3
+                    </a>
+                </li>
+            </ul>
+            <section class="tabs" data-tabgroup="tabs-mimic">
+                <div class="tab-page tab-one">
+                    <p>
+                        Tab panel one.
+                    </p>
+                </div>
+                <div class="tab-page tab-two">
+                    <p>
+                        Tab panel two.
+                    </p>
+                </div>
+                <div class="tab-page tab-three">
+                    <p>
+                        Tab panel three.
+                    </p>
+                </div>
+            </section>
+
+            <p>
+                The following tab group defaults to the second tab:
+            </p>
+            <input type="hidden" data-tabgroup="tab-group-one" value="tab-two"/>
+            <ul class="tabs" data-tabgroup="tab-group-one" data-active-tab-input="#tab-group-one">
+                <li class="tab">
+                    <a href="#" data-tab="tab-one">
+                        Tab 1
+                    </a>
+                </li>
+                <li class="tab">
+                    <a href="#" data-tab="tab-two">
+                        Tab 2
+                    </a>
+                </li>
+                <li class="tab">
+                    <a href="#" data-tab="tab-three">
+                        Tab 3
+                    </a>
+                </li>
+            </ul>
+            <section class="tabs" data-tabgroup="tab-group-one">
+                <div class="tab-page tab-one">
+                    <p>
+                        Tab panel one.
+                    </p>
+                </div>
+                <div class="tab-page tab-two">
+                    <p>
+                        Tab panel two.
+                    </p>
+                </div>
+                <div class="tab-page tab-three">
+                    <p>
+                        Tab panel three.
+                    </p>
+                </div>
+            </section>
+
+            <p>
+                The following tab group defaults to the first panel containing an error:
+            </p>
+            <ul class="tabs" data-tabgroup="tab-group-two" data-active-tab-input="#tab-group-two">
+                <li class="tab">
+                    <a href="#" data-tab="tab-one">
+                        Tab 1
+                    </a>
+                </li>
+                <li class="tab">
+                    <a href="#" data-tab="tab-two">
+                        Tab 2
+                    </a>
+                </li>
+                <li class="tab">
+                    <a href="#" data-tab="tab-three">
+                        Tab 3
+                    </a>
+                </li>
+            </ul>
+            <section class="tabs" data-tabgroup="tab-group-two">
+                <div class="tab-page tab-one">
+                    <p>
+                        Tab panel one.
+                    </p>
+                </div>
+                <div class="tab-page tab-two">
+                    <p class="alert alert-danger">
+                        Tab panel two.
+                    </p>
+                </div>
+                <div class="tab-page tab-three">
+                    <p class="alert alert-danger">
+                        Tab panel three.
+                    </p>
+                </div>
+            </section>
+        </div>
+    </section>
+    <!-- /Tabs -->
 </div>

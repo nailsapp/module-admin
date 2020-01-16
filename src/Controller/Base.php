@@ -14,6 +14,7 @@
 namespace Nails\Admin\Controller;
 
 use Nails\Admin\Events;
+use Nails\Components;
 use Nails\Factory;
 
 // --------------------------------------------------------------------------
@@ -36,6 +37,11 @@ if (class_exists('\App\Admin\Controller\Base')) {
 
 // --------------------------------------------------------------------------
 
+/**
+ * Class Base
+ *
+ * @package Nails\Admin\Controller
+ */
 abstract class Base extends BaseMiddle
 {
     public $data;
@@ -51,7 +57,7 @@ abstract class Base extends BaseMiddle
         $oEventService = Factory::service('Event');
 
         //  Call the ADMIN:STARTUP event, admin is constructing
-        $oEventService->trigger(Events::ADMIN_STARTUP, 'nails/module-admin');
+        $oEventService->trigger(Events::ADMIN_STARTUP, Events::getEventNamespace());
 
         // --------------------------------------------------------------------------
 
@@ -82,14 +88,8 @@ abstract class Base extends BaseMiddle
 
         // --------------------------------------------------------------------------
 
-        //  @todo (Pablo - 2017-06-08) - Remove this
-        \Nails\Common\Controller\Base::backwardsCompatibility($this);
-        static::backwardsCompatibility($this);
-
-        // --------------------------------------------------------------------------
-
         //  Call the ADMIN:READY event, admin is all geared up and ready to go
-        $oEventService->trigger(Events::ADMIN_STARTUP, 'nails/module-admin');
+        $oEventService->trigger(Events::ADMIN_READY, Events::getEventNamespace());
     }
 
     // --------------------------------------------------------------------------
@@ -99,8 +99,8 @@ abstract class Base extends BaseMiddle
         $oConfig = Factory::service('Config');
 
         $aPaths = [
-            APPPATH . 'config/admin.php',
-            APPPATH . 'modules/admin/config/admin.php',
+            NAILS_APP_PATH . 'application/config/admin.php',
+            NAILS_APP_PATH . 'application/modules/admin/config/admin.php',
         ];
 
         foreach ($aPaths as $sPath) {
@@ -115,6 +115,7 @@ abstract class Base extends BaseMiddle
     protected function loadHelpers()
     {
         Factory::helper('admin', 'nails/module-admin');
+        Factory::helper('form', 'nails/module-admin');
     }
 
     // --------------------------------------------------------------------------
@@ -129,6 +130,7 @@ abstract class Base extends BaseMiddle
 
     /**
      * Load all Admin orientated JS
+     *
      * @throws \Nails\Common\Exception\FactoryException
      */
     protected function loadJs()
@@ -140,13 +142,13 @@ abstract class Base extends BaseMiddle
         //  Module assets
         $oAsset->load('admin.min.js', 'nails/module-admin');
         $oAsset->load('nails.default.min.js', 'NAILS');
-        $oAsset->load('nails.admin.js', 'NAILS');
+        $oAsset->load('nails.admin.min.js', 'NAILS');
         $oAsset->load('nails.forms.min.js', 'NAILS');
         $oAsset->load('nails.api.min.js', 'NAILS');
 
         //  Component assets
-        $aComponents = _NAILS_GET_COMPONENTS();
-        foreach ($aComponents as $oComponent) {
+        foreach (Components::available() as $oComponent) {
+
             if (!empty($oComponent->data->{'nails/module-admin'}->autoload)) {
 
                 $oAutoLoad = $oComponent->data->{'nails/module-admin'}->autoload;
@@ -155,7 +157,7 @@ abstract class Base extends BaseMiddle
 
                         if (is_string($mAsset)) {
                             $sAsset    = $mAsset;
-                            $sLocation = null;
+                            $sLocation = $oComponent->slug;
                         } else {
                             $sAsset    = !empty($mAsset[0]) ? $mAsset[0] : null;
                             $sLocation = !empty($mAsset[1]) ? $mAsset[1] : null;
@@ -175,38 +177,46 @@ abstract class Base extends BaseMiddle
         }
 
         //  Global JS
-        $sAdminJsPath = defined('APP_ADMIN_JS_PATH') ? APP_ADMIN_JS_PATH : FCPATH . 'assets/build/js/admin.min.js';
+        $sAdminJsPath = defined('APP_ADMIN_JS_PATH') ? APP_ADMIN_JS_PATH : NAILS_APP_PATH . 'assets/build/js/admin.min.js';
         $sAdminJsUrl  = defined('APP_ADMIN_JS_URL') ? APP_ADMIN_JS_URL : 'admin.min.js';
         if (file_exists($sAdminJsPath)) {
             $oAsset->load($sAdminJsUrl);
         }
 
         //  Inline assets
-        $sJs = 'var _nails,_nails_admin,_nails_api, _nails_forms;';
+        $aJs = [
 
-        $sJs .= 'if (typeof(NAILS_JS) === \'function\'){';
-        $sJs .= '_nails = new NAILS_JS();';
-        $sJs .= '}';
+            //  @todo (Pablo - 2019-12-05) - Remove these items (move into module-admin/admin.js as components)
+            'var _nails,_nails_admin,_nails_api, _nails_forms;',
 
-        $sJs .= 'if (typeof(NAILS_API) === \'function\'){';
-        $sJs .= '_nails_api = new NAILS_API();';
-        $sJs .= '}';
+            'if (typeof(NAILS_JS) === "function"){',
+            '_nails = new NAILS_JS();',
+            '}',
 
-        $sJs .= 'if (typeof(NAILS_Admin) === \'function\'){';
-        $sJs .= '_nails_admin = new NAILS_Admin();';
-        $sJs .= '}';
+            'if (typeof(NAILS_API) === "function"){',
+            '_nails_api = new NAILS_API();',
+            '}',
 
-        $sJs .= 'if (typeof(NAILS_Forms) === \'function\'){';
-        $sJs .= '_nails_forms = new NAILS_Forms();';
-        $sJs .= '}';
+            'if (typeof(NAILS_Admin) === "function"){',
+            '_nails_admin = new NAILS_Admin();',
+            '}',
 
-        $oAsset->inline($sJs, 'JS');
+            'if (typeof(NAILS_Forms) === "function"){',
+            '_nails_forms = new NAILS_Forms();',
+            '}',
+
+            //  Trigger a UI Refresh, most JS components should use this to bind ti and render items
+            'window.NAILS.ADMIN.refreshUi();',
+        ];
+
+        $oAsset->inline(implode(PHP_EOL, $aJs), 'JS');
     }
 
     // --------------------------------------------------------------------------
 
     /**
      * Load all Admin orientated CSS
+     *
      * @throws \Nails\Common\Exception\FactoryException
      */
     protected function loadCss()
@@ -218,8 +228,7 @@ abstract class Base extends BaseMiddle
         $oAsset->load('admin.css', 'nails/module-admin');
 
         //  Component assets
-        $aComponents = _NAILS_GET_COMPONENTS();
-        foreach ($aComponents as $oComponent) {
+        foreach (Components::available() as $oComponent) {
             if (!empty($oComponent->data->{'nails/module-admin'}->autoload)) {
 
                 $oAutoLoad = $oComponent->data->{'nails/module-admin'}->autoload;
@@ -229,7 +238,7 @@ abstract class Base extends BaseMiddle
 
                         if (is_string($mAsset)) {
                             $sAsset    = $mAsset;
-                            $sLocation = null;
+                            $sLocation = $oComponent->slug;
                         } else {
                             $sAsset    = !empty($mAsset[0]) ? $mAsset[0] : null;
                             $sLocation = !empty($mAsset[1]) ? $mAsset[1] : null;
@@ -249,7 +258,7 @@ abstract class Base extends BaseMiddle
         }
 
         //  Global CSS
-        $sAdminCssPath = defined('APP_ADMIN_CSS_PATH') ? APP_ADMIN_CSS_PATH : FCPATH . 'assets/build/css/admin.min.css';
+        $sAdminCssPath = defined('APP_ADMIN_CSS_PATH') ? APP_ADMIN_CSS_PATH : NAILS_APP_PATH . 'assets/build/css/admin.min.css';
         $sAdminCssUrl  = defined('APP_ADMIN_CSS_URL') ? APP_ADMIN_CSS_URL : 'admin.min.css';
         if (file_exists($sAdminCssPath)) {
             $oAsset->load($sAdminCssUrl);
@@ -260,6 +269,7 @@ abstract class Base extends BaseMiddle
 
     /**
      * Load services required by admin
+     *
      * @throws \Nails\Common\Exception\FactoryException
      */
     protected function loadLibraries()
@@ -295,7 +305,8 @@ abstract class Base extends BaseMiddle
         $oAsset->load('bootstrap/js/dropdown.js', 'NAILS-BOWER');
 
         //  Fontawesome
-        $oAsset->load('fontawesome/css/font-awesome.min.css', 'NAILS-BOWER');
+        $oAsset->load('fontawesome/css/fontawesome.css', 'NAILS-BOWER');
+        $oAsset->load('fontawesome/css/solid.css', 'NAILS-BOWER');
 
         //  Asset libraries
         $oAsset->library('jqueryui');
@@ -311,12 +322,12 @@ abstract class Base extends BaseMiddle
 
     /**
      * Autoload component items
+     *
      * @throws \Nails\Common\Exception\FactoryException
      */
     protected function autoLoad()
     {
-        $aComponents = _NAILS_GET_COMPONENTS();
-        foreach ($aComponents as $oComponent) {
+        foreach (Components::available() as $oComponent) {
             if (!empty($oComponent->data->{'nails/module-admin'}->autoload)) {
 
                 $oAutoLoad = $oComponent->data->{'nails/module-admin'}->autoload;
@@ -348,21 +359,8 @@ abstract class Base extends BaseMiddle
     // --------------------------------------------------------------------------
 
     /**
-     * Provides some backwards compatability
-     *
-     * @param \stdClass $oBindTo The class to bind to
-     */
-    public static function backwardsCompatibility(&$oBindTo)
-    {
-        //  @todo (Pablo - 2017-06-08) - Try and remove these dependencies
-        $oBindTo->load =& get_instance()->load;
-        $oBindTo->lang =& get_instance()->lang;
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
      * Defines the admin controller
+     *
      * @return array
      */
     public static function announce()
@@ -374,9 +372,10 @@ abstract class Base extends BaseMiddle
 
     /**
      * Returns an array of permissions which can be configured for the user
+     *
      * @return array
      */
-    public static function permissions()
+    public static function permissions(): array
     {
         return [];
     }

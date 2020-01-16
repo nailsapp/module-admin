@@ -12,40 +12,48 @@
 
 namespace Nails\Admin\Factory\IndexFilter;
 
+use Nails\Common\Exception\NailsException;
+
 class Option
 {
     /**
      * Stores an array of the getter/setters for the other properties
+     *
      * @var array
      */
     protected $aMethods = [];
 
     /**
      * Stores an array of the getter/setters for boolean properties
+     *
      * @var array
      */
     protected $aBoolMethods = [];
 
     /**
      * The label to give the option
+     *
      * @var string
      */
     protected $sLabel;
 
     /**
      * The value to give the option
+     *
      * @var mixed
      */
     protected $mValue;
 
     /**
      * Whether the item is selected or not
+     *
      * @var boolean
      */
     protected $bIsSelected;
 
     /**
      * If true, treat the value as the entire query
+     *
      * @var boolean
      */
     protected $bIsQuery;
@@ -92,7 +100,7 @@ class Option
         } elseif (array_key_exists($sMethod, $this->aBoolMethods)) {
             return $this->handleMethodCall($this->aBoolMethods, $sMethod, (bool) reset($aArguments));
         } else {
-            throw new \Exception('Call to undefined method ' . get_called_class() . '::' . $sMethod . '()');
+            throw new NailsException('Call to undefined method ' . get_called_class() . '::' . $sMethod . '()');
         }
     }
 

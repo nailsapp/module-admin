@@ -14,10 +14,13 @@ namespace Nails\Admin\Admin;
 
 use Nails\Admin\Controller\Base;
 use Nails\Admin\Helper;
+use Nails\Admin\Service\DataExport;
+use Nails\Common\Exception\NailsException;
 use Nails\Factory;
 
 /**
  * Class Utilities
+ *
  * @package Nails\Admin\Admin
  */
 class Utilities extends Base
@@ -29,13 +32,14 @@ class Utilities extends Base
 
     /**
      * Announces this controller's navGroups
+     *
      * @return \stdClass
      */
     public static function announce()
     {
         $oNavGroup = Factory::factory('Nav', 'nails/module-admin');
         $oNavGroup->setLabel('Utilities');
-        $oNavGroup->setIcon('fa-sliders');
+        $oNavGroup->setIcon('fa-sliders-h');
 
         if (userHasPermission('admin:admin:utilities:rewriteRoutes')) {
             $oNavGroup->addAction('Rewrite Routes', 'rewrite_routes');
@@ -52,9 +56,10 @@ class Utilities extends Base
 
     /**
      * Returns an array of permissions which can be configured for the user
+     *
      * @return array
      */
-    public static function permissions()
+    public static function permissions(): array
     {
         $aPermissions                  = parent::permissions();
         $aPermissions['rewriteRoutes'] = 'Can Rewrite Routes';
@@ -67,6 +72,7 @@ class Utilities extends Base
 
     /**
      * Rewrite the app's routes
+     *
      * @return void
      */
     public function rewrite_routes()
@@ -98,6 +104,7 @@ class Utilities extends Base
 
     /**
      * Export data
+     *
      * @return void
      */
     public function export()
@@ -106,6 +113,7 @@ class Utilities extends Base
             unauthorised();
         }
 
+        /** @var DataExport $oDataExport */
         $oDataExport = Factory::service('DataExport', 'nails/module-admin');
         $aSources    = $oDataExport->getAllSources();
         $aFormats    = $oDataExport->getAllFormats();
@@ -123,19 +131,19 @@ class Utilities extends Base
                 $oFormValidation->set_message('required', lang('fv_required'));
 
                 if (!$oFormValidation->run()) {
-                    throw new \Exception(lang('fv_there_were_errors'));
+                    throw new NailsException(lang('fv_there_were_errors'));
                 }
 
                 //  Validate source
                 $oSelectedSource = $oDataExport->getSourceBySlug($oInput->post('source'));
                 if (empty($oSelectedSource)) {
-                    throw new \Exception('Invalid data source');
+                    throw new NailsException('Invalid data source');
                 }
 
                 //  Validate format
                 $oSelectedFormat = $oDataExport->getFormatBySlug($oInput->post('format'));
                 if (empty($oSelectedFormat)) {
-                    throw new \Exception('Invalid data format');
+                    throw new NailsException('Invalid data format');
                 }
 
                 //  Prepare options
@@ -153,12 +161,10 @@ class Utilities extends Base
                     'format'  => $oSelectedFormat->slug,
                 ];
                 if (!$oDataExportModel->create($aData)) {
-                    throw new \Exception('Failed to schedule export.');
+                    throw new NailsException('Failed to schedule export.');
                 }
 
-                $oSession = Factory::service('Session', 'nails/module-auth');
-                $oSession->setFlashData('success', 'Export scheduled');
-                redirect('admin/admin/utilities/export');
+                $this->data['success'] = 'Export Scheduled';
 
             } catch (\Exception $e) {
                 $this->data['error'] = $e->getMessage();
@@ -229,10 +235,11 @@ class Utilities extends Base
         // --------------------------------------------------------------------------
 
         //  Set view data
-        $this->data['page']->title = 'Export Data';
-        $this->data['aSources']    = $aSources;
-        $this->data['aFormats']    = $aFormats;
-        $this->data['aRecent']     = $aRecent;
+        $this->data['page']->title    = 'Export Data';
+        $this->data['aSources']       = $aSources;
+        $this->data['aFormats']       = $aFormats;
+        $this->data['aRecent']        = $aRecent;
+        $this->data['sDefaultFormat'] = $oDataExport::DEFAULT_FORMAT;
 
         // --------------------------------------------------------------------------
 

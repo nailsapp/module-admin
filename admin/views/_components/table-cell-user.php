@@ -25,10 +25,10 @@ $sNoDataClass = isset($id) && $id ? '' : 'no-data';
     <span class="user-data">
         <?php
 
-        $sName  = '';
+        $sName = '';
         $sName .= !empty($first_name) ? $first_name . ' ' : '';
         $sName .= !empty($last_name) ? $last_name . ' ' : '';
-        $sName  = $sName ? $sName : 'Unknown User';
+        $sName = $sName ? $sName : 'Unknown User';
 
         if (!empty($id) && userHasPermission('admin:auth:accounts:editOthers')) {
 

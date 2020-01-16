@@ -3,33 +3,35 @@
 /**
  * Admin model
  *
- * @package     Nails
- * @subpackage  module-admin
- * @category    Model
- * @author      Nails Dev Team
- * @link
+ * @package                   Nails
+ * @subpackage                module-admin
+ * @category                  Model
+ * @author                    Nails Dev Team
+ * @todo (Pablo - 2019-03-22) - This isn't really a model and should be moved to a service
  */
 
 namespace Nails\Admin\Model;
 
+use Nails\Auth;
 use Nails\Common\Model\Base;
 use Nails\Factory;
 
 class Admin extends Base
 {
-    protected $oUserMeta;
+    protected $oUserMetaService;
     protected $aJsonFields;
 
     // --------------------------------------------------------------------------
 
     /**
      * Admin constructor.
+     *
      * @throws \Nails\Common\Exception\FactoryException
      */
     public function __construct()
     {
-        $this->oUserMeta   = Factory::model('UserMeta', 'nails/module-auth');
-        $this->aJsonFields = [
+        $this->oUserMetaService = Factory::service('UserMeta', Auth\Constants::MODULE_SLUG);
+        $this->aJsonFields      = [
             'nav_state',
         ];
     }
@@ -39,9 +41,9 @@ class Admin extends Base
     /**
      * Sets a piece of admin data
      *
-     * @param  string $key    The key to set
-     * @param  mixed  $value  The value to set
-     * @param  mixed  $userId The user's ID, if null active user is used.
+     * @param string $key    The key to set
+     * @param mixed  $value  The value to set
+     * @param mixed  $userId The user's ID, if null active user is used.
      *
      * @return boolean
      */
@@ -55,8 +57,8 @@ class Admin extends Base
     /**
      * Unsets a piece of admin data
      *
-     * @param  string $key    The key to set
-     * @param  mixed  $userId The user's ID, if null active user is used.
+     * @param string $key    The key to set
+     * @param mixed  $userId The user's ID, if null active user is used.
      *
      * @return boolean
      */
@@ -70,10 +72,10 @@ class Admin extends Base
     /**
      * Handles the setting and unsetting of admin data
      *
-     * @param  string  $key    The key to set
-     * @param  mixed   $value  The value to set
-     * @param  mixed   $userId The user's ID, if null active user is used.
-     * @param  boolean $set    Whether the data is being set or unset
+     * @param string  $key    The key to set
+     * @param mixed   $value  The value to set
+     * @param mixed   $userId The user's ID, if null active user is used.
+     * @param boolean $set    Whether the data is being set or unset
      *
      * @return boolean
      */
@@ -100,7 +102,7 @@ class Admin extends Base
         }
 
         //  Save to the DB
-        $bResult = $this->oUserMeta->update(
+        $bResult = $this->oUserMetaService->update(
             NAILS_DB_PREFIX . 'user_meta_admin',
             $userId,
             $existing
@@ -112,8 +114,8 @@ class Admin extends Base
     /**
      * Gets items from the admin data, or the entire array of $key is null
      *
-     * @param  string $key    The key to set
-     * @param  mixed  $userId The user's ID, if null active user is used.
+     * @param string $key    The key to set
+     * @param mixed  $userId The user's ID, if null active user is used.
      *
      * @return mixed
      */
@@ -132,8 +134,7 @@ class Admin extends Base
 
         } else {
 
-
-            $oRow = $this->oUserMeta->get(NAILS_DB_PREFIX . 'user_meta_admin', $userId);
+            $oRow = $this->oUserMetaService->get(NAILS_DB_PREFIX . 'user_meta_admin', $userId);
 
             if (!empty($oRow)) {
 
@@ -179,7 +180,7 @@ class Admin extends Base
     /**
      * Completely clears out the admin array
      *
-     * @param  mixed $userId The user's ID, if null active user is used.
+     * @param mixed $userId The user's ID, if null active user is used.
      *
      * @return boolean
      */
@@ -188,7 +189,7 @@ class Admin extends Base
         //  Get the user ID
         $userId = $this->adminDataGetUserId($userId);
 
-        $bResult = $this->oUserMeta->update(
+        $bResult = $this->oUserMetaService->update(
             NAILS_DB_PREFIX . 'user_meta_admin',
             $userId,
             [
@@ -208,7 +209,7 @@ class Admin extends Base
     /**
      * Extracts the user ID to use
      *
-     * @param  int $userId The User ID, or null for active user
+     * @param int $userId The User ID, or null for active user
      *
      * @return int
      */

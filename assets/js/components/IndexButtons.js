@@ -1,4 +1,5 @@
 /* export IndexButtons */
+
 /* globals $, jQuery */
 class IndexButtons {
 
@@ -6,12 +7,35 @@ class IndexButtons {
      * Construct IndexButtons
      * @return {IndexButtons}
      */
-    constructor() {
+    constructor(adminController) {
+
+        adminController
+            .onRefreshUi(() => {
+                this.init();
+            });
+
+        return this;
+    }
+
+    /**
+     * Inits the index buttoins
+     * @returns {IndexButtons}
+     */
+    init() {
         $('td.actions')
             .each((index, element) => {
-                let $buttons = $('> a', element);
-                if ($buttons.length > 3) {
+                let $buttons = $('> .btn, > .btn-group', element);
+                let offsets = [];
+                $buttons.each((index, element) => {
+                    offsets.push(element.offsetTop);
+                })
+
+                if (Math.max(...offsets) !== Math.min(...offsets)) {
                     $buttons.addClass('btn-block');
+                    $buttons.filter('.btn-group').find('> .btn').addClass('btn-block');
+                } else {
+                    $buttons.removeClass('btn-block');
+                    $buttons.filter('.btn-group').find('> .btn').removeClass('btn-block');
                 }
             });
         return this;

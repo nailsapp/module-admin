@@ -12,16 +12,53 @@
 
 namespace Nails\Admin\Service;
 
+use Nails\Admin\DataExport\SourceResponse;
+use Nails\Admin\Interfaces;
+use Nails\Admin\Resource\DataExport\Format;
+use Nails\Admin\Resource\DataExport\Source;
+use Nails\Cdn\Constants;
+use Nails\Cdn\Service\Cdn;
+use Nails\Common\Exception\NailsException;
+use Nails\Common\Helper\Directory;
+use Nails\Common\Service\FileCache;
+use Nails\Components;
 use Nails\Factory;
 
 /**
  * Class DataExport
+ *
  * @package Nails\Admin\Service
  */
 class DataExport
 {
-    protected $aSources    = [];
-    protected $aFormats    = [];
+    /**
+     * The default data format to use
+     *
+     * @var string
+     */
+    const DEFAULT_FORMAT = 'nails/module-admin::Csv';
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * The available sources
+     *
+     * @var Source[]
+     */
+    protected $aSources = [];
+
+    /**
+     * The available formats
+     *
+     * @var Format[]
+     */
+    protected $aFormats = [];
+
+    /**
+     * Any generated cache files
+     *
+     * @var array
+     */
     protected $aCacheFiles = [];
 
     // --------------------------------------------------------------------------
@@ -33,51 +70,36 @@ class DataExport
     {
         $this->aSources = [];
         $this->aFormats = [];
-        $aComponents    = array_merge(
-            [
-                (object) [
-                    'slug'      => 'app',
-                    'namespace' => 'App\\',
-                    'path'      => FCPATH,
-                ],
-            ],
-            _NAILS_GET_COMPONENTS()
-        );
 
-        foreach ($aComponents as $oComponent) {
+        foreach (Components::available() as $oComponent) {
 
-            $sPath             = $oComponent->path;
-            $sNamespace        = $oComponent->namespace;
-            $aComponentSources = array_filter((array) directory_map($sPath . 'src/DataExport/Source'));
-            $aComponentFormats = array_filter((array) directory_map($sPath . 'src/DataExport/Format'));
+            $aSources = $oComponent
+                ->findClasses('DataExport\\Source')
+                ->whichImplement(Interfaces\DataExport\Source::class);
 
-            foreach ($aComponentSources as $sSource) {
-
-                $sClass    = $sNamespace . 'DataExport\\Source\\' . basename($sSource, '.php');
-                $oInstance = new $sClass();
-
-                if ($oInstance->isEnabled()) {
-                    $this->aSources[] = (object) [
-                        'slug'        => $oComponent->slug . '::' . basename($sSource, '.php'),
-                        'label'       => $oInstance->getLabel(),
-                        'description' => $oInstance->getDescription(),
-                        'options'     => $oInstance->getOptions(),
-                        'instance'    => $oInstance,
-                    ];
-                }
+            foreach ($aSources as $sSource) {
+                $oInstance        = new $sSource();
+                $this->aSources[] = new Source([
+                    'slug'        => $oComponent->slug . '::' . preg_replace('/^.*\\\\DataExport\\\\Source\\\\/', '', $sSource),
+                    'label'       => $oInstance->getLabel(),
+                    'description' => $oInstance->getDescription(),
+                    'options'     => $oInstance->getOptions(),
+                    'instance'    => $oInstance,
+                ]);
             }
 
-            foreach ($aComponentFormats as $sFormat) {
+            $aFormats = $oComponent
+                ->findClasses('DataExport\\Format')
+                ->whichImplement(Interfaces\DataExport\Format::class);
 
-                $sClass    = $sNamespace . 'DataExport\\Format\\' . basename($sFormat, '.php');
-                $oInstance = new $sClass();
-
-                $this->aFormats[] = (object) [
-                    'slug'        => $oComponent->slug . '::' . basename($sFormat, '.php'),
+            foreach ($aFormats as $sFormat) {
+                $oInstance        = new $sFormat();
+                $this->aFormats[] = new Format([
+                    'slug'        => $oComponent->slug . '::' . preg_replace('/^.*\\\\DataExport\\\\Format\\\\/', '', $sFormat),
                     'label'       => $oInstance->getLabel(),
                     'description' => $oInstance->getDescription(),
                     'instance'    => $oInstance,
-                ];
+                ]);
             }
         }
 
@@ -92,9 +114,10 @@ class DataExport
 
     /**
      * Returns all the available sources
-     * @return array
+     *
+     * @return Source[]
      */
-    public function getAllSources()
+    public function getAllSources(): array
     {
         return $this->aSources;
     }
@@ -104,11 +127,11 @@ class DataExport
     /**
      * Returns a specific source by its slug
      *
-     * @param $sSlug
+     * @param string|null $sSlug The source's slug
      *
-     * @return \stdClass|null
+     * @return Source|null
      */
-    public function getSourceBySlug($sSlug)
+    public function getSourceBySlug(string $sSlug = null): ?Source
     {
         foreach ($this->aSources as $oSource) {
             if ($sSlug === $oSource->slug) {
@@ -123,9 +146,10 @@ class DataExport
 
     /**
      * Returns all the available formats
-     * @return array
+     *
+     * @return Format[]
      */
-    public function getAllFormats()
+    public function getAllFormats(): array
     {
         return $this->aFormats;
     }
@@ -135,11 +159,11 @@ class DataExport
     /**
      * Returns a specific format by its slug
      *
-     * @param $sSlug
+     * @param string|null $sSlug The format's slug
      *
      * @return \stdClass|null
      */
-    public function getFormatBySlug($sSlug)
+    public function getFormatBySlug($sSlug): ?Format
     {
         foreach ($this->aFormats as $oFormat) {
             if ($sSlug === $oFormat->slug) {
@@ -160,43 +184,51 @@ class DataExport
      * @param string $sFormatSlug The slug of the format to use
      * @param array  $aOptions    Additional options to pass to the source
      *
-     * @return integer
-     * @throws \Exception
+     * @return int
+     * @throws NailsException
      */
-    public function export($sSourceSlug, $sFormatSlug, $aOptions = [])
+    public function export($sSourceSlug, $sFormatSlug, $aOptions = []): int
     {
         $oSource = $this->getSourceBySlug($sSourceSlug);
         if (empty($oSource)) {
-            throw new \Exception('Invalid data source "' . $sSourceSlug . '"');
+            throw new NailsException('Invalid data source "' . $sSourceSlug . '"');
         }
 
         $oFormat = $this->getFormatBySlug($sFormatSlug);
         if (empty($oFormat)) {
-            throw new \Exception('Invalid data format "' . $sFormatSlug . '"');
+            throw new NailsException('Invalid data format "' . $sFormatSlug . '"');
         }
 
-        $oSource = $oSource->instance->execute($aOptions);
-        if (!is_array($oSource)) {
-            $aSources = [$oSource];
+        $oSourceResponse = $oSource->instance->execute($aOptions);
+        if (!is_array($oSourceResponse)) {
+            $aSourceResponses = [$oSourceResponse];
         } else {
-            $aSources = $oSource;
+            $aSourceResponses = $oSourceResponse;
         }
 
         //  Create temporary working directory
-        $sTempDir = CACHE_PATH . 'data-export-' . md5(microtime(true)) . mt_rand() . '/';
+        /** @var FileCache $oFileCache */
+        $oFileCache = Factory::service('FileCache');
+        $sTempDir   = $oFileCache->getDir() . 'data-export-' . md5(microtime(true)) . mt_rand() . '/';
         mkdir($sTempDir);
 
         //  Process each file
         $aFiles = [];
         try {
-            foreach ($aSources as $oSource) {
+
+            foreach ($aSourceResponses as $oSourceResponse) {
+
+                if (!($oSourceResponse instanceof SourceResponse)) {
+                    throw new NailsException('Source must return an instance of SourceResponse');
+                }
+
                 //  Create a new file
-                $sFile    = $sTempDir . $oSource->getFileName() . '.' . $oFormat->instance->getFileExtension();
+                $sFile    = $sTempDir . $oSourceResponse->getFilename() . '.' . $oFormat->instance->getFileExtension();
                 $aFiles[] = $sFile;
                 $rFile    = fopen($sFile, 'w+');
                 //  Write to the file
-                $oSource->reset();
-                $oFormat->instance->execute($oSource, $rFile);
+                $oSourceResponse->reset();
+                $oFormat->instance->execute($oSourceResponse, $rFile);
                 //  Close the file
                 fclose($rFile);
             }
@@ -213,12 +245,18 @@ class DataExport
             }
             $sFile = end($aFiles);
 
-            //  Save to CDN
-            $oCdn    = Factory::service('Cdn', 'nails/module-cdn');
-            $oObject = $oCdn->objectCreate($sFile, 'data-export');
+            /** @var Cdn $oCdn */
+            $oCdn    = Factory::service('Cdn', Constants::MODULE_SLUG);
+            $oObject = $oCdn->objectCreate(
+                $sFile,
+                'data-export',
+                [
+                    'no-md5-check' => true,
+                ]
+            );
 
             if (empty($oObject)) {
-                throw new \Exception('Failed to upload exported file. ' . $oCdn->lastError());
+                throw new NailsException('Failed to upload exported file. ' . $oCdn->lastError());
             }
         } finally {
             //  Tidy up

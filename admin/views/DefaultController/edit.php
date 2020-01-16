@@ -1,76 +1,45 @@
-<div class="group-defaultcontroller edit">
-    <?php $oInput = \Nails\Factory::service('Input'); ?>
-    <?=form_open()?>
-    <input type="hidden" name="activeTab" value="<?=set_value('activeTab')?>" id="activeTab"/>
-    <ul class="tabs">
-        <?php
+<?php
 
-        $i = 0;
-        foreach ($aFieldSets as $sFieldSet => $aFields) {
-            if (empty($i)) {
-                $sActive = $oInput->post('activeTab') == 'tab-' . $i || !$oInput->post('activeTab') ? 'active' : '';
-            } else {
-                $sActive = $oInput->post('activeTab') == 'tab-' . $i ? 'active' : '';
-            }
-            ?>
-            <li class="tab <?=$sActive?>">
-                <a href="#" data-tab="tab-<?=$i?>">
-                    <?=$sFieldSet?>
-                </a>
-            </li>
-            <?php
-            $i++;
-        }
+use Nails\Admin\Helper;
+use Nails\Common\Service\Input;
+use Nails\Factory;
 
-        ?>
-    </ul>
-    <section class="tabs">
-        <?php
-        $i = 0;
-        foreach ($aFieldSets as $sLegend => $aFields) {
-            if (empty($i)) {
-                $sActive = $oInput->post('activeTab') == 'tab-' . $i || !$oInput->post('activeTab') ? 'active' : '';
-            } else {
-                $sActive = $oInput->post('activeTab') == 'tab-' . $i ? 'active' : '';
-            }
-            ?>
-            <div class="tab-page tab-<?=$i?> <?=$sActive?> fieldset">
-                <?php
+/** @var Input $oInput */
+$oInput = Factory::service('Input');
 
-                foreach ($aFields as $oField) {
+$aTabs = [];
+foreach ($aFieldSets as $sLabel => $aFields) {
+    $aTabs[] = [
+        'label'   => $sLabel,
+        'content' => function () use ($aFields) {
+            foreach ($aFields as $iIndex => $oField) {
 
-                    $aField            = (array) $oField;
-                    $aField['default'] = !empty($item) && property_exists($item, $oField->key) ? $item->{$oField->key} : '';
+                if (empty($oField->key)) {
 
-                    if (is_object($aField['default']) && property_exists($aField['default'], 'count') && property_exists($aField['default'], 'data')) {
-                        $aField['default'] = $aField['default']->data;
-                    }
-
-                    if (!array_key_exists('required', $aFieldSets)) {
-                        $aField['required'] = in_array('required', $oField->validation);
-                    }
-
-                    if (!empty($item)) {
-                        $aField['readonly'] = in_array($oField->key, $CONFIG['EDIT_READONLY_FIELDS']);
-                    } else {
-                        $aField['readonly'] = in_array($oField->key, $CONFIG['CREATE_READONLY_FIELDS']);
-                    }
-
-                    if (is_callable('form_field_' . $aField['type'])) {
-                        echo call_user_func('form_field_' . $aField['type'], $aField);
-                    } else {
-                        echo form_field($aField);
-                    }
+                    throw new \Nails\Common\Exception\NailsException(
+                        sprintf(
+                            'Property "key" is missing for field "%s"',
+                            $oField->label ?: $iIndex
+                        )
+                    );
                 }
 
-                ?>
-            </div>
-            <?php
-            $i++;
-        }
+                if (is_callable('\Nails\Common\Helper\Form\Field::' . $oField->type)) {
+                    echo call_user_func('\Nails\Common\Helper\Form\Field::' . $oField->type, (array) $oField);
+                } else {
+                    echo Nails\Common\Helper\Form\Field::text((array) $oField);
+                }
+            }
+        },
+    ];
+}
 
-        ?>
-    </section>
+?>
+<div class="group-defaultcontroller edit" <?=$CONFIG['EDIT_PAGE_ID'] ? 'id="' . $CONFIG['EDIT_PAGE_ID'] . '"' : ''?>>
+    <?php
+    echo form_open();
+    echo Helper::tabs($aTabs);
+    ?>
     <div class="admin-floating-controls">
         <button type="submit" class="btn btn-primary">
             Save Changes

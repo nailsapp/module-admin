@@ -33,7 +33,7 @@
             <?php
 
             foreach ($oSource->options as $aOption) {
-                $aOption['key'] = 'options['. $oSource->slug .'][' . getFromArray('key', $aOption) . ']';
+                $aOption['key'] = 'options[' . $oSource->slug . '][' . getFromArray('key', $aOption) . ']';
                 if (!empty($aOption['type']) && is_callable('form_field_' . $aOption['type'])) {
                     echo call_user_func('form_field_' . $aOption['type'], $aOption);
                 } else {
@@ -55,6 +55,7 @@
             'label'    => 'Format',
             'required' => true,
             'class'    => 'select2',
+            'default'  => $sDefaultFormat,
             'options'  => [],
         ];
 

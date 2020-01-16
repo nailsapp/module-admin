@@ -11,6 +11,8 @@
  */
 
 use Nails\Admin\Exception\RouterException;
+use Nails\Auth;
+use Nails\Components;
 use Nails\Factory;
 
 // --------------------------------------------------------------------------
@@ -30,6 +32,9 @@ if (class_exists('\App\Admin\Controller\BaseRouter')) {
 
 // --------------------------------------------------------------------------
 
+/**
+ * Class AdminRouter
+ */
 class AdminRouter extends BaseMiddle
 {
     protected $adminControllers;
@@ -71,32 +76,27 @@ class AdminRouter extends BaseMiddle
             'Utilities',
             'Settings',
         ];
-
-        /**
-         * Load helpers we'll need
-         */
-
-        Factory::helper('directory');
     }
 
     // --------------------------------------------------------------------------
 
     /**
      * Initial touch point for admin, all requests are routed through here.
+     *
      * @return void
      */
     public function index()
     {
         //  When executing on the CLI we don't need to perform a few bit's of sense checking
         $oInput = Factory::service('Input');
-        if (!$oInput->isCli()) {
+        if (!$oInput::isCli()) {
 
             //  Is there an AdminIP whitelist?
             $whitelistIp = (array) appSetting('whitelist', 'admin');
 
             if ($whitelistIp) {
                 if (!isIpInRange($oInput->ipAddress(), $whitelistIp)) {
-                    show_404();
+                    show404();
                 }
             }
 
@@ -133,6 +133,7 @@ class AdminRouter extends BaseMiddle
     /**
      * Searches modules and the app for valid admin controllers which the active
      * user has permission to access.
+     *
      * @return void
      */
     protected function findAdminControllers()
@@ -141,23 +142,19 @@ class AdminRouter extends BaseMiddle
         $this->loadAdminControllers(
             'admin',
             NAILS_PATH . 'module-admin/admin/controllers/',
-            APPPATH . 'modules/admin/controllers/',
-            [
-                'adminRouter.php',
-            ]
+            NAILS_APP_PATH . 'application/modules/admin/controllers/',
+            ['adminRouter.php']
         );
 
         //  Look in all enabled modules
-        $modules = _NAILS_GET_MODULES();
+        foreach (Components::modules() as $module) {
 
-        foreach ($modules as $module) {
             /**
              * Skip the admin module. We use the moduleName rather than the component name
              * so that we don't inadvertently load up the admin module (or any module identifying
              * itself as admin) and listing all the files contained therein; we only want
              * admin/controllers.
              */
-
             if ($module->moduleName == 'admin') {
                 continue;
             }
@@ -165,7 +162,7 @@ class AdminRouter extends BaseMiddle
             $this->loadAdminControllers(
                 $module->moduleName,
                 $module->path . 'admin/controllers/',
-                APPPATH . 'modules/' . $module->moduleName . '/admin/controllers/'
+                NAILS_APP_PATH . 'application/modules/' . $module->moduleName . '/admin/controllers/'
             );
         }
 
@@ -178,27 +175,22 @@ class AdminRouter extends BaseMiddle
     /**
      * Looks for admin controllers in specific locations
      *
-     * @param  string $moduleName     The name of the module currently being searched
-     * @param  string $controllerPath The full path to the controllers
-     * @param  string $appPath        If the app can extend these controllers, this is where it will place the file
-     * @param  array  $ignore         An array of filenames to ignore
+     * @param string $moduleName     The name of the module currently being searched
+     * @param string $controllerPath The full path to the controllers
+     * @param string $appPath        If the app can extend these controllers, this is where it will place the file
+     * @param array  $ignore         An array of filenames to ignore
      *
      * @return void
      */
     protected function loadAdminControllers($moduleName, $controllerPath, $appPath, $ignore = [])
     {
-        //  Does a path exist? Don't pollute the array with empty modules
-        if (is_dir($controllerPath)) {
-            //  Look for controllers
-            $files = directory_map($controllerPath, 1);
-
-            foreach ($files as $file) {
-                if (in_array($file, $ignore)) {
-                    continue;
-                }
-
-                $this->loadAdminController($file, $moduleName, $controllerPath, $appPath);
+        $files = \Nails\Common\Helper\Directory::map($controllerPath, 1, false);
+        foreach ($files as $file) {
+            if (in_array($file, $ignore)) {
+                continue;
             }
+
+            $this->loadAdminController($file, $moduleName, $controllerPath, $appPath);
         }
     }
 
@@ -206,30 +198,27 @@ class AdminRouter extends BaseMiddle
 
     protected function loadAppAdminControllers()
     {
-        $appControllerPath = APPPATH . 'modules/admin/controllers/';
+        $appControllerPath = NAILS_APP_PATH . 'application/modules/admin/controllers/';
 
-        if (is_dir($appControllerPath)) {
+        //  Look for controllers
+        $files = \Nails\Common\Helper\Directory::map($appControllerPath, 1, false);
 
-            //  Look for controllers
-            $files = directory_map($appControllerPath, 1);
+        foreach ($files as $file) {
 
-            foreach ($files as $file) {
-
-                //  Valid Admin file?
-                if (!$this->isValidAdminFile($file)) {
-                    continue;
-                }
-
-                $fileName = substr($file, 0, strpos($file, '.php'));
-
-                //  Valid file, load it up and define the full class path and name
-                require_once $appControllerPath . $file;
-                $classPath = $appControllerPath . $file;
-                $className = 'App\Admin\\App\\' . ucfirst($fileName);
-
-                //  Load and process the class
-                $this->loadAdminClass($fileName, $className, $classPath, 'app');
+            //  Valid Admin file?
+            if (!$this->isValidAdminFile($file)) {
+                continue;
             }
+
+            $fileName = substr($file, 0, strpos($file, '.php'));
+
+            //  Valid file, load it up and define the full class path and name
+            require_once $appControllerPath . $file;
+            $classPath = $appControllerPath . $file;
+            $className = 'App\Admin\\App\\' . ucfirst($fileName);
+
+            //  Load and process the class
+            $this->loadAdminClass($fileName, $className, $classPath, 'app');
         }
     }
 
@@ -238,10 +227,10 @@ class AdminRouter extends BaseMiddle
     /**
      * Loads a specific admin controller
      *
-     * @param  string $file           The file to load
-     * @param  string $moduleName     The name of the module currently being searched
-     * @param  string $controllerPath The full path to the controller
-     * @param  string $appPath        If the app can extend this controllers, this is where it will place the file
+     * @param string $file           The file to load
+     * @param string $moduleName     The name of the module currently being searched
+     * @param string $controllerPath The full path to the controller
+     * @param string $appPath        If the app can extend this controllers, this is where it will place the file
      *
      * @return void
      */
@@ -261,6 +250,7 @@ class AdminRouter extends BaseMiddle
 
         //  If there's an app version of this controller than we'll use that one instead.
         if (is_file($appPath . $file)) {
+
             require_once $appPath . $file;
             $classPath = $appPath . $file;
             $className = 'App\Admin\\' . ucfirst($moduleName) . '\\' . ucfirst($fileName);
@@ -281,7 +271,7 @@ class AdminRouter extends BaseMiddle
     /**
      * Determines whether the file being loaded has an acceptable filename.
      *
-     * @param  String $file The filename to test
+     * @param String $file The filename to test
      *
      * @return boolean
      */
@@ -296,13 +286,13 @@ class AdminRouter extends BaseMiddle
     /**
      * Attempts to load an AdminClass
      *
-     * @param  string $fileName   The filename of the class being loaded
-     * @param  string $className  The name of the class being loaded
-     * @param  string $classPath  The path of the class being loaded
-     * @param  string $moduleName The name of the module to which this class belongs
+     * @param string $fileName   The filename of the class being loaded
+     * @param string $className  The name of the class being loaded
+     * @param string $classPath  The path of the class being loaded
+     * @param string $moduleName The name of the module to which this class belongs
      *
-     * @throws RouterException
      * @return boolean
+     * @throws RouterException
      */
     protected function loadAdminClass($fileName, $className, $classPath, $moduleName)
     {
@@ -350,6 +340,7 @@ class AdminRouter extends BaseMiddle
     /**
      * Generates a "view friendly" array of the admin controllers, takes into
      * consideration the user's order and state preferences
+     *
      * @return void
      */
     public function prepAdminControllersNav()
@@ -498,6 +489,27 @@ class AdminRouter extends BaseMiddle
         $this->adminControllersNav = array_merge($stickyTop, $middle, $stickyBottom);
 
         //  Set the open states of the modules
+        $this->setSidebarOpenStates($userNavPref);
+
+        /**
+         * Finally, now that everything has been sorted, go through all the groupings
+         * and sort their methods alphabetically so there's some feeling of order in
+         * amongst all this chaos.
+         */
+        $this->sortSidebarActions();
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Sets the open states for each sidebar modukle
+     *
+     * @param $userNavPref
+     *
+     * @return AdminRouter
+     */
+    protected function setSidebarOpenStates($userNavPref): AdminRouter
+    {
         if (!empty($userNavPref)) {
             foreach ($userNavPref as $groupMd5 => $state) {
                 for ($i = 0; $i < count($this->adminControllersNav); $i++) {
@@ -508,21 +520,60 @@ class AdminRouter extends BaseMiddle
             }
         }
 
-        /**
-         * Finally, now that everything has been sorted, go through all the groupings
-         * and sort their methods alphabetically so there's some feeling of order in
-         * amongst all this chaos.
-         */
+        return $this;
+    }
 
+    // --------------------------------------------------------------------------
+
+    /**
+     * Sorts the sidebar actions into a defined order
+     *
+     * @return $this
+     */
+    protected function sortSidebarActions(): AdminRouter
+    {
         foreach ($this->adminControllersNav as $grouping) {
-            arraySortMulti($grouping->actions, 'order');
+
+            $aUnordered = [];
+            $aOrdered   = [];
+            foreach ($grouping->actions as $sKey => $oAction) {
+                if (is_null($oAction->order)) {
+                    $aUnordered[$sKey] = $oAction;
+                } else {
+                    if (!array_key_exists($oAction->order, $aOrdered)) {
+                        $aOrdered[$oAction->order] = [];
+                    }
+                    $aOrdered[$oAction->order][$sKey] = $oAction;
+                }
+            }
+
+            //  Ensure ordered items are ordered by priority, then label
+            ksort($aOrdered);
+            foreach ($aOrdered as $aItems) {
+                arraySortMulti($aItems, 'label');
+            }
+
+            //  Ensure unordered items are ordered by labe;
+            arraySortMulti($aUnordered, 'label');
+
+            //  Merge everything together
+            $aFinal = [];
+            foreach ($aOrdered as $aItems) {
+                $aFinal = array_merge($aFinal, $aItems);
+            }
+            $aFinal = array_merge($aFinal, $aUnordered);
+
+            $grouping->actions = $aFinal;
         }
+
+        return $this;
     }
 
     // --------------------------------------------------------------------------
 
     /**
      * Routes the request to the appropriate controller
+     *
      * @return void
      */
     protected function routeRequest()
@@ -535,7 +586,7 @@ class AdminRouter extends BaseMiddle
 
         if (empty($sModule)) {
 
-            $oSession = Factory::service('Session', 'nails/module-auth');
+            $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
             $oSession->keepFlashData();
             redirect('admin/admin/dashboard');
 
@@ -549,11 +600,11 @@ class AdminRouter extends BaseMiddle
                 $oController = new $sControllerName();
                 $oController->$sMethod();
             } else {
-                show_404();
+                show404();
             }
 
         } else {
-            show_404();
+            show404();
         }
     }
 }

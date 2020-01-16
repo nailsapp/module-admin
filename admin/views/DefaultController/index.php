@@ -1,14 +1,12 @@
 <?php
 
 use Nails\Admin\Helper;
+use Nails\Common\Helper\ArrayHelper;
 
 $oMustache = \Nails\Factory::service('Mustache');
 
 ?>
-<div class="group-defaultcontroller browse">
-    <p>
-        Manage <?=$CONFIG['TITLE_PLURAL']?>.
-    </p>
+<div class="group-defaultcontroller browse" <?=$CONFIG['INDEX_PAGE_ID'] ? 'id="' . $CONFIG['INDEX_PAGE_ID'] . '"' : ''?>>
     <?=adminHelper('loadSearch', $search)?>
     <?=adminHelper('loadPagination', $pagination)?>
     <div class="table-responsive">
@@ -17,47 +15,38 @@ $oMustache = \Nails\Factory::service('Mustache');
                 <tr>
                     <?php
                     //  @todo (Pablo - 2018-11-05) - Tidy this nesting up a little
-                    foreach ($CONFIG['INDEX_FIELDS'] as $sField => $sLabel) {
+                    foreach ($CONFIG['INDEX_FIELDS'] as $sLabel => $sProperty) {
 
-                        if ($sField === '{{DYNAMIC_FIELDS}}') {
-                            foreach ($CONFIG['INDEX_FIELDS_DYNAMIC'] as $sColumnName =>  $cRowValue) {
-                                $aAttr = [
-                                    'class' => ['field', 'field--' . $sColumnName],
-                                ];
+                        $sNormalisedLabel = strtolower($sLabel);
+                        $sNormalisedLabel = preg_replace('/[^a-z0-9 \-_]/', '', $sNormalisedLabel);
+                        $sNormalisedLabel = str_replace([' ', '_'], '-', $sNormalisedLabel);
 
-                                if (in_array($sColumnName, $CONFIG['INDEX_BOOL_FIELDS'])) {
-                                    $aAttr['width']   = 150;
-                                    $aAttr['class'][] = 'boolean';
-                                } elseif (in_array($sColumnName, $CONFIG['INDEX_USER_FIELDS'])) {
-                                    $aAttr['width'] = 300;
-                                }
+                        $bIsBoolCell = ArrayHelper::inArray([
+                            $sProperty,
+                            $sNormalisedLabel,
+                        ], $CONFIG['INDEX_BOOL_FIELDS']);
 
-                                $sAttr = '';
-                                foreach ($aAttr as $sKey => $mValue) {
-                                    if (is_array($mValue)) {
-                                        $sAttr .= ' ' . $sKey . '="' . implode(' ', $mValue) . '"';
-                                    } else {
-                                        $sAttr .= ' ' . $sKey . '="' . $mValue . '"';
-                                    }
-                                }
-                                ?>
-                                <th <?=$sAttr?>>
-                                    <?=$sColumnName?>
-                                </th>
-                                <?php
-                            }
-                            continue;
-                        }
+                        $bIsUserCell = ArrayHelper::inArray([
+                            $sProperty,
+                            $sNormalisedLabel,
+                        ], $CONFIG['INDEX_USER_FIELDS']);
+
+                        $bIsCenteredCell = ArrayHelper::inArray([
+                            $sProperty,
+                            $sNormalisedLabel,
+                        ], $CONFIG['INDEX_CENTERED_FIELDS']);
 
                         $aAttr = [
-                            'class' => ['field', 'field--' . $sField],
+                            'class' => ['field', 'field--' . $sNormalisedLabel],
                         ];
 
-                        if (in_array($sField, $CONFIG['INDEX_BOOL_FIELDS'])) {
+                        if ($bIsBoolCell) {
                             $aAttr['width']   = 150;
                             $aAttr['class'][] = 'boolean';
-                        } elseif (in_array($sField, $CONFIG['INDEX_USER_FIELDS'])) {
+                        } elseif ($bIsUserCell) {
                             $aAttr['width'] = 300;
+                        } elseif ($bIsCenteredCell) {
+                            $aAttr['class'][] = 'text-center';
                         }
 
                         $sAttr = '';
@@ -75,7 +64,7 @@ $oMustache = \Nails\Factory::service('Mustache');
                         <?php
                     }
                     ?>
-                    <th class="actions" style="width:160px;">Actions</th>
+                    <th class="actions" style="width:175px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -86,55 +75,107 @@ $oMustache = \Nails\Factory::service('Mustache');
                         <tr>
                             <?php
 
-                            foreach ($CONFIG['INDEX_FIELDS'] as $sField => $sLabel) {
-                                if ($sField === '{{DYNAMIC_FIELDS}}') {
+                            foreach ($CONFIG['INDEX_FIELDS'] as $sLabel => $sProperty) {
 
-                                    foreach ($CONFIG['INDEX_FIELDS_DYNAMIC'] as $sColumnName =>  $cRowValue) {
+                                $sNormalisedLabel = strtolower($sLabel);
+                                $sNormalisedLabel = preg_replace('/[^a-z0-9 \-_]/', '', $sNormalisedLabel);
+                                $sNormalisedLabel = str_replace([' ', '_'], '-', $sNormalisedLabel);
 
-                                        $sValue = $cRowValue($oItem);
+                                $bIsBoolCell = ArrayHelper::inArray([
+                                    $sProperty,
+                                    $sNormalisedLabel,
+                                ], $CONFIG['INDEX_BOOL_FIELDS']);
 
-                                        if (in_array($sField, $CONFIG['INDEX_BOOL_FIELDS'])) {
-                                            echo Helper::loadBoolCell($sValue);
-                                        } elseif (in_array($sField, $CONFIG['INDEX_USER_FIELDS'])) {
-                                            echo Helper::loadUserCell($sValue);
-                                        } else {
-                                            echo Helper::loadCellAuto($sValue, 'field field--' . $sField);
-                                        }
+                                $bIsUserCell = ArrayHelper::inArray([
+                                    $sProperty,
+                                    $sNormalisedLabel,
+                                ], $CONFIG['INDEX_USER_FIELDS']);
+
+                                $bIsNumeric = ArrayHelper::inArray([
+                                    $sProperty,
+                                    $sNormalisedLabel,
+                                ], $CONFIG['INDEX_NUMERIC_FIELDS']);
+
+                                $bIsCenteredCell = ArrayHelper::inArray([
+                                    $sProperty,
+                                    $sNormalisedLabel,
+                                ], $CONFIG['INDEX_CENTERED_FIELDS']);
+
+
+                                if (is_object($sProperty) && ($sProperty instanceof \Closure)) {
+
+                                    $mValue   = $sProperty($oItem);
+                                    $aClasses = [];
+
+                                    if ($bIsNumeric && !$bIsUserCell) {
+                                        $mValue = number_format($mValue);
                                     }
 
-                                } elseif (property_exists($oItem, $sField)) {
+                                    if ($bIsCenteredCell) {
+                                        $aClasses[] = 'text-center';
+                                    }
 
+                                    if ($bIsBoolCell) {
+                                        echo Helper::loadBoolCell($mValue);
+                                    } elseif ($bIsUserCell) {
+                                        echo Helper::loadUserCell($mValue);
+                                    } else {
+                                        echo Helper::loadCellAuto(
+                                            $mValue,
+                                            trim('field field--' . $sNormalisedLabel . ' ' . implode(' ', $aClasses))
+                                        );
+                                    }
+
+                                } elseif (property_exists($oItem, $sProperty)) {
+
+                                    $mValue          = $oItem->{$sProperty};
+                                    $aClasses        = [];
                                     $sCellAdditional = '';
                                     if (classUses($CONFIG['MODEL_INSTANCE'], '\Nails\Common\Traits\Model\Nestable')) {
                                         $aBreadcrumbs = json_decode($oItem->breadcrumbs);
-                                        if (!empty($aBreadcrumbs)) {
-                                            $aItems          = arrayExtractProperty($aBreadcrumbs, 'label');
-                                            $sCellAdditional = '<small>' . implode(' &rsaquo; ', $aItems) . '</small>';
+                                        if (!empty($aBreadcrumbs) && $sProperty === $CONFIG['MODEL_INSTANCE']->getColumn('label')) {
+                                            $mValue = '<span class="text-muted">╚</span>' . implode(
+                                                    ' ',
+                                                    [
+                                                        str_repeat('<span class="text-muted">═</span>', count($aBreadcrumbs) - 1),
+                                                        '&nbsp;',
+                                                        $mValue,
+                                                    ]
+                                                );
                                         }
                                     }
 
-                                    if (in_array($sField, $CONFIG['INDEX_BOOL_FIELDS'])) {
-                                        echo Helper::loadBoolCell($oItem->{$sField});
-                                    } elseif (in_array($sField, $CONFIG['INDEX_USER_FIELDS'])) {
-                                        echo Helper::loadUserCell($oItem->{$sField});
+                                    if ($bIsNumeric && !$bIsUserCell) {
+                                        $mValue = number_format($mValue);
+                                    }
+
+                                    if ($bIsCenteredCell) {
+                                        $aClasses[] = 'text-center';
+                                    }
+
+                                    if ($bIsBoolCell) {
+                                        echo Helper::loadBoolCell($mValue);
+                                    } elseif ($bIsUserCell) {
+                                        echo Helper::loadUserCell($mValue);
                                     } else {
                                         echo Helper::loadCellAuto(
-                                            $oItem->{$sField},
-                                            'field field--' . $sField,
+                                            $mValue,
+                                            trim('field field--' . $sProperty . ' ' . implode(' ', $aClasses)),
                                             $sCellAdditional
                                         );
                                     }
 
-                                } elseif (strpos($sField, '.') !== false) {
+                                } elseif (strpos($sProperty, '.') !== false) {
 
                                     //  @todo (Pablo - 2018-08-08) - Handle arrays in expanded objects
-                                    $aField  = explode('.', $sField);
-                                    $sField1 = getFromArray(0, $aField);
-                                    $sField2 = getFromArray(1, $aField);
+                                    $aField     = explode('.', $sProperty);
+                                    $aClasses   = [];
+                                    $sProperty1 = getFromArray(0, $aField);
+                                    $sProperty2 = getFromArray(1, $aField);
 
-                                    if (property_exists($oItem, $sField1)) {
-                                        if (!empty($oItem->{$sField1}) && property_exists($oItem->{$sField1}, $sField2)) {
-                                            $mValue = $oItem->{$sField1}->{$sField2};
+                                    if (property_exists($oItem, $sProperty1)) {
+                                        if (!empty($oItem->{$sProperty1}) && property_exists($oItem->{$sProperty1}, $sProperty2)) {
+                                            $mValue = $oItem->{$sProperty1}->{$sProperty2};
                                         } else {
                                             $mValue = '<span class="text-muted">&mdash;</span>';
                                         }
@@ -142,87 +183,119 @@ $oMustache = \Nails\Factory::service('Mustache');
                                         $mValue = '<span class="text-muted">&mdash;</span>';
                                     }
 
-                                    echo Helper::loadCellAuto(
-                                        $mValue,
-                                        'field field--' . $sField
-                                    );
+                                    if ($bIsNumeric && !$bIsUserCell) {
+                                        $mValue = number_format($mValue);
+                                    }
+
+                                    if ($bIsCenteredCell) {
+                                        $aClasses[] = 'text-center';
+                                    }
+
+                                    if ($bIsBoolCell) {
+                                        echo Helper::loadBoolCell($mValue);
+                                    } elseif ($bIsUserCell) {
+                                        echo Helper::loadUserCell($mValue);
+                                    } else {
+                                        echo Helper::loadCellAuto(
+                                            $mValue,
+                                            trim('field field--' . $sProperty . ' ' . implode(' ', $aClasses))
+                                        );
+                                    }
 
                                 } else {
                                     ?>
-                                    <td class="field field--<?=$sField?>">
+                                    <td class="field field--<?=$sProperty?>">
                                         <span class="text-muted">&mdash;</span>
                                     </td>
                                     <?php
                                 }
                             }
 
-                            ?>
-                            <td class="actions">
-                                <?php
+                            //  So that the "no actions" text shows when cell is empty
+                            echo '<td class="actions">';
+                            foreach ($CONFIG['INDEX_ROW_BUTTONS'] as $aButton) {
 
-                                if ($CONFIG['CAN_VIEW'] && property_exists($oItem, 'url')) {
-                                    echo anchor(
-                                        $oItem->url,
-                                        lang('action_view'),
-                                        'class="btn btn-xs btn-default" target="_blank"'
-                                    );
+                                $sUrl = getFromArray('url', $aButton);
+                                if (is_object($sUrl) && ($sUrl instanceof \Closure)) {
+                                    $sUrl = $sUrl($oItem);
                                 }
 
-                                foreach ($CONFIG['INDEX_ROW_BUTTONS'] as $aButton) {
-                                    $sUrl   = getFromArray('url', $aButton);
-                                    $sLabel = getFromArray('label', $aButton);
-                                    $sClass = getFromArray('class', $aButton);
-                                    $sAttr  = getFromArray('attr', $aButton);
-                                    $sPerm  = getFromArray('permission', $aButton);
-                                    $sPerm  = $sPerm ? 'admin:' . $CONFIG['PERMISSION'] . ':' . $sPerm : '';
+                                $sLabel = getFromArray('label', $aButton);
+                                if (is_object($sLabel) && ($sLabel instanceof \Closure)) {
+                                    $sLabel = $sLabel($oItem);
+                                }
 
-                                    if (empty($CONFIG['PERMISSION']) || empty($sPerm) || userHasPermission($sPerm)) {
+                                $sClass = getFromArray('class', $aButton);
+                                if (is_object($sClass) && ($sClass instanceof \Closure)) {
+                                    $sClass = $sClass($oItem);
+                                }
 
-                                        $cEnabled = getFromArray('enabled', $aButton);
-                                        if (is_callable($cEnabled) && !$cEnabled($oItem)) {
-                                            continue;
+                                $sAttr = getFromArray('attr', $aButton);
+                                if (is_object($sAttr) && ($sAttr instanceof \Closure)) {
+                                    $sAttr = $sAttr($oItem);
+                                }
+
+                                $sPerm = getFromArray('permission', $aButton);
+                                if (is_object($sPerm) && ($sPerm instanceof \Closure)) {
+                                    $sPerm = $sPerm($oItem);
+                                }
+
+                                $sPerm = $sPerm ? 'admin:' . $CONFIG['PERMISSION'] . ':' . $sPerm : '';
+
+                                if (empty($CONFIG['PERMISSION']) || empty($sPerm) || userHasPermission($sPerm)) {
+
+                                    $cEnabled = getFromArray('enabled', $aButton);
+                                    if (is_object($cEnabled) && ($cEnabled instanceof \Closure) && !$cEnabled($oItem)) {
+                                        continue;
+                                    }
+
+                                    $sLabel = $oMustache->render($sLabel, $oItem);
+                                    $sClass = $oMustache->render($sClass, $oItem);
+                                    $sAttr  = $oMustache->render($sAttr, $oItem);
+
+
+                                    if (is_array($sUrl)) {
+                                        ?>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-xs dropdown-toggle <?=$sClass?>" <?=$sAttr?> data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <?=$sLabel?> <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <?php
+                                                foreach ($sUrl as $sLabel => $sItemUrl) {
+                                                    $sItemUrl = $oMustache->render($sItemUrl, $oItem);
+                                                    if (!preg_match('/^(\/|https?:\/\/)/', $sItemUrl)) {
+                                                        $sItemUrl = $CONFIG['BASE_URL'] . '/' . $sItemUrl;
+                                                    }
+                                                    ?>
+                                                    <li>
+                                                        <a href="<?=siteUrl($sItemUrl)?>">
+                                                            <?=$sLabel?>
+                                                        </a>
+                                                    </li>
+                                                    <?php
+                                                }
+                                                ?>
+                                            </ul>
+                                        </div>
+                                        <?php
+                                    } else {
+
+                                        $sUrl = $oMustache->render($sUrl, $oItem);
+                                        if (!preg_match('/^(\/|https?:\/\/)/', $sUrl)) {
+                                            $sUrl = $CONFIG['BASE_URL'] . '/' . $sUrl;
                                         }
 
-                                        $sUrl   = $oMustache->render($sUrl, $oItem);
-                                        $sLabel = $oMustache->render($sLabel, $oItem);
-                                        $sClass = $oMustache->render($sClass, $oItem);
-                                        $sAttr  = $oMustache->render($sAttr, $oItem);
-
                                         echo anchor(
-                                            $CONFIG['BASE_URL'] . '/' . $sUrl,
+                                            $sUrl,
                                             $sLabel,
                                             'class="btn btn-xs ' . $sClass . '" ' . $sAttr
                                         );
                                     }
                                 }
-
-                                if ($CONFIG['CAN_EDIT']) {
-                                    if (empty($CONFIG['PERMISSION']) || userHasPermission('admin:' . $CONFIG['PERMISSION'] . ':edit')) {
-                                        echo anchor(
-                                            $CONFIG['BASE_URL'] . '/edit/' . $oItem->id,
-                                            lang('action_edit'),
-                                            'class="btn btn-xs btn-primary"'
-                                        );
-                                    }
-                                }
-
-                                if ($CONFIG['CAN_DELETE']) {
-                                    if (empty($CONFIG['PERMISSION']) || userHasPermission('admin:' . $CONFIG['PERMISSION'] . ':delete')) {
-                                        if ($CONFIG['CAN_RESTORE']) {
-                                            $sConfirm = 'You <strong>can</strong> undo this action.';
-                                        } else {
-                                            $sConfirm = 'You <strong>cannot</strong> undo this action.';
-                                        }
-                                        echo anchor(
-                                            $CONFIG['BASE_URL'] . '/delete/' . $oItem->id,
-                                            lang('action_delete'),
-                                            'class="btn btn-xs btn-danger confirm" data-body="' . $sConfirm . '"'
-                                        );
-                                    }
-                                }
-
-                                ?>
-                            </td>
+                            }
+                            echo '</td>';
+                            ?>
                         </tr>
                         <?php
                     }

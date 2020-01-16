@@ -12,8 +12,8 @@
 
 namespace Nails\Admin\Exception\Console;
 
-use Nails\Common\Exception\NailsException;
+use Nails\Admin\Exception\AdminException;
 
-class ControllerExistsException extends NailsException
+class ControllerExistsException extends AdminException
 {
 }

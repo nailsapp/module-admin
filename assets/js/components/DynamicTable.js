@@ -7,12 +7,17 @@ class DynamicTable {
      * Construct DynamicTable
      * @return {DynamicTable}
      */
-    constructor() {
-
-        $('.js-admin-dynamic-table')
-            .each((index, element) => {
-                this.init($(element));
+    constructor(adminController) {
+        this.adminController = adminController;
+        this.adminController
+            .onRefreshUi(() => {
+                $('.js-admin-dynamic-table:not(.ready)')
+                    .addClass('ready')
+                    .each((index, element) => {
+                        this.init($(element));
+                    });
             });
+
         return this;
     }
 
@@ -33,6 +38,7 @@ class DynamicTable {
         $table.data('template', $body.html());
         $table.data('index', 0);
         $body.empty();
+        $body.removeClass('js-admin-dynamic-table__template');
 
         this.bindEvents($table, $body);
 
@@ -84,9 +90,21 @@ class DynamicTable {
 
         let $row = $(Mustache.render($table.data('template'), data));
 
+        //  Set the value of any checkboxes
+        $('input[type=checkbox]', $row)
+            .each((index, item) => {
+
+                let $checkbox = $(item);
+
+                if ($checkbox[0].hasAttribute('data-dynamic-table-checked')) {
+                    $checkbox.prop('checked', $checkbox.attr('data-dynamic-table-checked'))
+                }
+            });
+
         //  Set the value of any dropdowns
         $('select', $row)
             .each((index, item) => {
+
                 let $select = $(item);
 
                 //  Set value
@@ -104,7 +122,9 @@ class DynamicTable {
 
         $body.append($row);
         $table.data('index', data.index + 1);
-        $table.trigger('dynamic-table:add');
+        $table.trigger('dynamic-table:add', [$row]);
+        $table.find('.js-admin-sortable').trigger('sortable:sort');
+        this.adminController.refreshUi();
 
         return this;
     }
@@ -119,7 +139,9 @@ class DynamicTable {
      */
     remove($table, $row) {
         $row.remove();
-        $table.trigger('dynamic-table:add');
+        $table.trigger('dynamic-table:remove');
+        $table.find('.js-admin-sortable').trigger('sortable:sort');
+        this.adminController.refreshUi();
         return this;
     }
 }

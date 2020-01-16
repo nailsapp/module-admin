@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This class handles setting of notification recipients
+ * This class handles settings
  *
  * @package     Nails
  * @subpackage  module-admin
@@ -14,6 +14,7 @@ namespace Nails\Admin\Admin;
 
 use Nails\Admin\Controller\Base;
 use Nails\Admin\Helper;
+use Nails\Components;
 use Nails\Factory;
 
 class Settings extends Base
@@ -44,10 +45,6 @@ class Settings extends Base
             $oNavGroup->addAction('Site', 'site');
         }
 
-        if (userHasPermission('admin:admin:settings:notifications')) {
-            $oNavGroup->addAction('Notifications', 'notifications');
-        }
-
         return $oNavGroup;
     }
 
@@ -58,7 +55,7 @@ class Settings extends Base
      *
      * @return array
      */
-    public static function permissions()
+    public static function permissions(): array
     {
         $aPermissions = parent::permissions();
 
@@ -67,7 +64,6 @@ class Settings extends Base
         $aPermissions['site:customjscss'] = 'Configure Site Custom JS and CSS';
         $aPermissions['site:analytics']   = 'Configure Site analytics';
         $aPermissions['site:maintenance'] = 'Configure Maintenance Mode';
-        $aPermissions['notifications']    = 'Configure Notifications';
 
         return $aPermissions;
     }
@@ -104,8 +100,8 @@ class Settings extends Base
 
             if (!empty($aSettings)) {
 
-                $oAppSettingModel = Factory::model('AppSetting');
-                if ($oAppSettingModel->set($aSettings, 'admin')) {
+                $oAppSettingService = Factory::service('AppSetting');
+                if ($oAppSettingService->set($aSettings, 'admin')) {
                     $this->data['success'] = 'Admin settings have been saved.';
                 } else {
                     $this->data['error'] = 'There was a problem saving admin settings.';
@@ -178,8 +174,8 @@ class Settings extends Base
 
             if (!empty($aSettings)) {
 
-                $oAppSettingModel = Factory::model('AppSetting');
-                if ($oAppSettingModel->set($aSettings, 'site')) {
+                $oAppSettingService = Factory::service('AppSetting');
+                if ($oAppSettingService->set($aSettings, 'site')) {
                     $this->data['success'] = 'Site settings have been saved.';
                 } else {
                     $this->data['error'] = 'There was a problem saving site settings.';
@@ -211,85 +207,6 @@ class Settings extends Base
 
         //  Load views
         Helper::loadView('site');
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Manage notifications
-     *
-     * @return void
-     */
-    public function notifications()
-    {
-        if (!userHasPermission('admin:admin:settings:notifications')) {
-            unauthorised();
-        }
-
-        // --------------------------------------------------------------------------
-
-        $oAppNotificationModel = Factory::model('AppNotification');
-
-        // --------------------------------------------------------------------------
-
-        //  Page Title
-        $this->data['page']->title = 'Manage Notifications';
-
-        // --------------------------------------------------------------------------
-
-        $oInput = Factory::service('Input');
-        if ($oInput->post()) {
-
-            $aNotification = $oInput->post('notification');
-
-            if (is_array($aNotification)) {
-
-                $aSet = [];
-
-                foreach ($aNotification as $sGroup => $aOptions) {
-
-                    $aSet[$sGroup] = [];
-
-                    foreach ($aOptions as $sKey => $sEmails) {
-
-                        $aEmails = explode(',', $sEmails);
-                        $aEmails = array_filter($aEmails);
-                        $aEmails = array_unique($aEmails);
-
-                        foreach ($aEmails as &$sEmail) {
-                            $sEmail = trim($sEmail);
-                            if (!valid_email($sEmail)) {
-                                $error = '"<strong>' . $sEmail . '</strong>" is not a valid email.';
-                                break 3;
-                            }
-                        }
-
-                        $aSet[$sGroup][$sKey] = $aEmails;
-                    }
-                }
-
-                if (empty($error)) {
-
-                    foreach ($aSet as $sGroup => $aOptions) {
-                        $oAppNotificationModel->set($aOptions, $sGroup);
-                    }
-
-                    $this->data['success'] = 'Notifications were updated successfully.';
-
-                } else {
-                    $this->data['error'] = $error;
-                }
-            }
-        }
-
-        // --------------------------------------------------------------------------
-
-        $this->data['notifications'] = $oAppNotificationModel->getDefinitions();
-
-        // --------------------------------------------------------------------------
-
-        //  Load views
-        Helper::loadView('notifications');
     }
 
     // --------------------------------------------------------------------------
@@ -370,10 +287,10 @@ class Settings extends Base
         $oInput             = Factory::service('Input');
         $this->data['slug'] = $oInput->get('slug');
 
-        $oComponent = _NAILS_GET_COMPONENTS_BY_SLUG($this->data['slug']);
+        $oComponent = Components::getBySlug($this->data['slug']);
 
         if (empty($oComponent->data->settings)) {
-            show_404();
+            show404();
         }
 
         //  Move all the settings which aren't already in fieldsets/groups into groups
@@ -427,18 +344,18 @@ class Settings extends Base
                 }
 
                 //  Begin transaction
-                $oAppSettingModel = Factory::model('AppSetting');
-                $oDb              = Factory::service('Database');
+                $oAppSettingService = Factory::service('AppSetting');
+                $oDb                = Factory::service('Database');
                 $oDb->trans_begin();
 
                 //  Normal settings
-                if (!$oAppSettingModel->set($aSettings, $oComponent->slug)) {
-                    $sError = $oAppSettingModel->lastError();
+                if (!$oAppSettingService->set($aSettings, $oComponent->slug)) {
+                    $sError = $oAppSettingService->lastError();
                 }
 
                 //  Encrypted settings
-                if (!$oAppSettingModel->set($aSettingsEncrypted, $oComponent->slug, null, true)) {
-                    $sError = $oAppSettingModel->lastError();
+                if (!$oAppSettingService->set($aSettingsEncrypted, $oComponent->slug, null, true)) {
+                    $sError = $oAppSettingService->lastError();
                 }
 
                 if (empty($sError)) {
