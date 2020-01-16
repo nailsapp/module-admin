@@ -7,6 +7,7 @@ import CopyToClipboard from './components/CopyToClipboard.js';
 import DisabledElements from './components/DisabledElements.js';
 import DynamicTable from './components/DynamicTable.js';
 import IndexButtons from './components/IndexButtons.js';
+import Modalize from './components/Modalize.js';
 import Notes from './components/Notes.js';
 import Repeater from './components/Repeater.js';
 import Searcher from './components/Searcher.js';
@@ -99,6 +100,11 @@ window.NAILS.ADMIN.registerPlugin(
     'nails/module-admin',
     'IndexButtons',
     new IndexButtons(window.NAILS.ADMIN)
+);
+window.NAILS.ADMIN.registerPlugin(
+    'nails/module-admin',
+    'Modalize',
+    new Modalize(window.NAILS.ADMIN)
 );
 window.NAILS.ADMIN.registerPlugin(
     'nails/module-admin',
