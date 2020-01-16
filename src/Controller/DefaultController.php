@@ -25,6 +25,7 @@ use Nails\Common\Exception\NailsException;
 use Nails\Common\Exception\ValidationException;
 use Nails\Common\Factory\Model\Field;
 use Nails\Common\Helper\ArrayHelper;
+use Nails\Common\Helper\Form;
 use Nails\Common\Resource;
 use Nails\Common\Service\Database;
 use Nails\Common\Service\FormValidation;
@@ -591,6 +592,7 @@ abstract class DefaultController extends Base
         // --------------------------------------------------------------------------
 
         if ($oInput->post()) {
+
             try {
 
                 $this->runFormValidation(static::EDIT_MODE_CREATE);
@@ -1713,16 +1715,18 @@ abstract class DefaultController extends Base
      */
     protected function loadEditViewDataSetDefaultValue(Field &$oField, Resource $oItem = null)
     {
+        $sKey = preg_replace('/\[\]$/', '', $oField->key);
+
         if ($oField->default instanceof \Closure) {
 
             $oField->default = call_user_func($oField->default, $oItem);
 
-        } elseif (!is_null($oItem) && property_exists($oItem, $oField->key)) {
+        } elseif (!is_null($oItem) && property_exists($oItem, $sKey)) {
 
-            if ($oItem->{$oField->key} instanceof Resource\ExpandableField) {
-                $oField->default = $oItem->{$oField->key}->data;
+            if ($oItem->{$sKey} instanceof Resource\ExpandableField) {
+                $oField->default = $oItem->{$sKey}->data;
             } else {
-                $oField->default = $oItem->{$oField->key};
+                $oField->default = $oItem->{$sKey};
             }
         }
     }
@@ -1831,20 +1835,29 @@ abstract class DefaultController extends Base
         $aOut = [];
 
         foreach ($aConfig['FIELDS'] as $oField) {
-            if (in_array($oField->key, $aConfig['EDIT_IGNORE_FIELDS'])) {
+
+            //  Support array type keys
+            $sKey = preg_replace('/\[\]$/', '', $oField->key);
+
+            if (in_array($sKey, $aConfig['EDIT_IGNORE_FIELDS'])) {
                 continue;
             }
 
-            $aOut[$oField->key] = $oInput->post($oField->key);
+            $aOut[$sKey] = $oInput->post($sKey);
 
-            if ($oField->allow_null && empty($aOut[$oField->key])) {
-                $aOut[$oField->key] = null;
+            if ($oField->allow_null && empty($aOut[$sKey])) {
+                $aOut[$sKey] = null;
             }
 
             //  Type casting
             switch ($oField->type) {
-                case 'boolean':
-                    $aOut[$oField->key] = (bool) $aOut[$oField->key];
+                case Form::FIELD_BOOLEAN:
+                    $aOut[$sKey] = (bool) $aOut[$sKey];
+                    break;
+
+                //  @todo (Pablo - 2020-01-16) - This done to support CSV items (e.g. MySQL `SET`s) - feels a bit hack/arbitrary
+                case Form::FIELD_DROPDOWN_MULTIPLE:
+                    $aOut[$sKey] = implode(',', $aOut[$sKey]);
                     break;
             }
         }
