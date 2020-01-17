@@ -134,6 +134,9 @@ class ModalizeInstance {
             .html(content)
             .dialog({
                 modal: true,
+                dialogClass: 'no-close',
+                closeOnEscape: false,
+                draggable: false,
                 title: this.title,
                 width: this.width,
                 maxHeight: this.max_height,
@@ -157,8 +160,9 @@ class ModalizeInstance {
 
 
     close(applyChanges) {
-        Modalize.log('Closing modal', applyChanges);
+        Modalize.log('Closing modal');
         if (applyChanges) {
+            Modalize.log('Applying changes');
             let content = this.$modal.detach();
             $(this.target)
                 .find('> div')
