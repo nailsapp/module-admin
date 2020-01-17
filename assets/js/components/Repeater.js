@@ -13,9 +13,10 @@ class Repeater {
      */
     constructor(adminController) {
 
-        adminController
-            .onRefreshUi(() => {
-                this.init();
+        this.adminController = adminController;
+        this.adminController
+            .onRefreshUi((e, domElement) => {
+                this.init(domElement);
             });
 
         return this;
@@ -25,31 +26,63 @@ class Repeater {
 
     /**
      * Initialise
+     * @param {HTMLElement} domElement
      * @returns {Repeater}
      */
-    init() {
+    init(domElement) {
 
-        this.repeaters = [];
-        $('.js-admin-repeater:not(.processed)')
+        $('.js-admin-repeater:not(.processed)', domElement)
             .addClass('processed')
             .each((index, element) => {
 
                 let $element = $(element);
                 let instance = new RepeaterInstance(
+                    this.adminController,
                     $element,
                     $element.data('data')
                 );
 
                 $element.data('js-admin-repeater-instance', instance);
-
-                this
-                    .repeaters
-                    .push(instance);
-
             });
 
         return this;
     }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Write a warning to the console
+     * @param  {String} message The message to warn
+     * @param  {mixed}  payload Any additional data to display in the console
+     * @return {void}
+     */
+    static warn(message, payload) {
+        if (typeof (console.warn) === 'function') {
+            if (payload !== undefined) {
+                console.warn('WYSIWYG:', message, payload);
+            } else {
+                console.warn('WYSIWYG:', message);
+            }
+        }
+    };
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Write a log to the console
+     * @param  {String} message The message to log
+     * @param  {mixed}  payload Any additional data to display in the console
+     * @return {void}
+     */
+    static log(message, payload) {
+        if (typeof (console.log) === 'function') {
+            if (payload !== undefined) {
+                console.log('Repeater:', message, payload);
+            } else {
+                console.log('Repeater:', message);
+            }
+        }
+    };
 }
 
 // --------------------------------------------------------------------------
@@ -61,11 +94,12 @@ class RepeaterInstance {
      * @param $element
      * @returns {RepeaterInstance}
      */
-    constructor($element, data) {
+    constructor(adminController, $element, data) {
 
         this.trigger('constructing');
 
         this.index = 0;
+        this.adminController = adminController;
         this.$element = $element
         this.$target = $('.js-admin-repeater__target', this.$element);
         this.$add = $('.js-admin-repeater__add', this.$element);
@@ -134,6 +168,7 @@ class RepeaterInstance {
         this.$target.append($item);
         this.index++;
 
+        this.adminController.refreshUi();
         this.trigger('added');
     }
 
@@ -196,7 +231,7 @@ class RepeaterInstance {
             'data': data
         };
 
-        console.log('js-admin-repeater:' + event, eventData);
+        Repeater.log('Triggering Event: ' + event, eventData);
     }
 }
 

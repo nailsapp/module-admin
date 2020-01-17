@@ -10,8 +10,8 @@ class IndexButtons {
     constructor(adminController) {
 
         adminController
-            .onRefreshUi(() => {
-                this.init();
+            .onRefreshUi((e, domElement) => {
+                this.init(domElement);
             });
 
         return this;
@@ -19,10 +19,11 @@ class IndexButtons {
 
     /**
      * Inits the index buttoins
+     * @param {HTMLElement} domElement
      * @returns {IndexButtons}
      */
-    init() {
-        $('td.actions')
+    init(domElement) {
+        $('td.actions', domElement)
             .each((index, element) => {
                 let $buttons = $('> .btn, > .btn-group', element);
                 let offsets = [];
@@ -38,6 +39,7 @@ class IndexButtons {
                     $buttons.filter('.btn-group').find('> .btn').removeClass('btn-block');
                 }
             });
+
         return this;
     }
 }

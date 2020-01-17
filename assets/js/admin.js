@@ -17,7 +17,7 @@ import Tabs from './components/Tabs.js';
 import Toggles from './components/Toggles.js';
 import Wysiwyg from './components/Wysiwyg.js';
 
-_ADMIN = function () {
+_ADMIN = function() {
     return {
         /**
          * All the registered plugins
@@ -29,22 +29,24 @@ _ADMIN = function () {
          * @param {String} slug The name of the plugin
          * @param plugin
          */
-        'registerPlugin': function (vendor, slug, plugin) {
+        'registerPlugin': function(vendor, slug, plugin) {
             if (typeof this.instances[vendor] === 'undefined') {
                 this.instances[vendor] = {};
             }
             this.instances[vendor][slug] = plugin;
+            return this;
         },
 
         /**
          * Triggers an event
          * @param eventName
          */
-        'trigger': function (eventName) {
+        'trigger': function(eventName, details) {
             document
                 .dispatchEvent(
-                    new Event(eventName)
+                    new CustomEvent(eventName, details)
                 );
+            return this;
         },
 
         /**
@@ -52,24 +54,50 @@ _ADMIN = function () {
          * @param {String} event The event to listen for
          * @param {function} callback The callback to execute
          */
-        'on': function (event, callback) {
+        'on': function(event, callback) {
             document
                 .addEventListener(event, callback);
+            return this;
         },
 
         /**
          * Triggers a UI refresh
+         * @param domElement The domElement to focus the refresh on
          */
-        'refreshUi': function () {
-            this.trigger('admin:refresh-ui');
+        'refreshUi': function(domElement) {
+            this.trigger('admin:refresh-ui', {domElement: domElement});
+            return this;
         },
 
         /**
          * Allows plugins to register callbacks for UI refreshing
          * @param {function} callback The callback to execute
          */
-        'onRefreshUi': function (callback) {
-            this.on('admin:refresh-ui', callback);
+        'onRefreshUi': function(callback) {
+            this.on('admin:refresh-ui', function(e) {
+                callback(e, e.detail ? e.detail.domElement : null);
+            });
+            return this;
+        },
+
+        /**
+         * Triggers a UI destroy
+         * @param domElement The domElement to focus the destroy on
+         */
+        'destroyUi': function(domElement) {
+            this.trigger('admin:destroy-ui', {domElement: domElement});
+            return this;
+        },
+
+        /**
+         * Allows plugins to register callbacks for UI destruction
+         * @param {function} callback The callback to execute
+         */
+        'onDestroyUi': function(callback) {
+            this.on('admin:destroy-ui', function(e) {
+                callback(e, e.detail ? e.detail.domElement : null);
+            });
+            return this;
         }
     };
 };

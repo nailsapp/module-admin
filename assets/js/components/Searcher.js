@@ -8,29 +8,88 @@ class Searcher {
      * @return {Searcher}
      */
     constructor(adminController) {
+
         $(document)
-            .on('admin:js-searcher', (e, selector, options) => {
-                options = options || {};
-                $(selector)
-                    .each((index, element) => {
-                        $(element)
-                            .add('processed')
-                            .data(
-                                'searcher',
-                                new SearcherInstance(
-                                    element,
-                                    options
-                                )
-                            );
-                    });
+            .on('admin:js-searcher', (e, selector, options, domElement) => {
+                Searcher.log('Initiating new searchers');
+                this.init(selector, options, domElement);
             });
 
-        adminController
-            .onRefreshUi(() => {
+        this.adminController = adminController;
+        this.adminController
+            .onRefreshUi((e, domElement) => {
                 $(document)
-                    .trigger('admin:js-searcher', ['.js-searcher:not(.processed)']);
+                    .trigger(
+                        'admin:js-searcher',
+                        [
+                            '.js-searcher:not(.processed)',
+                            {},
+                            domElement
+                        ]
+                    );
             });
+
+        return this;
     }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Inits Searcher
+     * @returns {Modalize}
+     */
+    init(selector, options, domElement) {
+        options = options || {};
+        $(selector, domElement)
+            .each((index, element) => {
+                $(element)
+                    .add('processed')
+                    .data(
+                        'searcher',
+                        new SearcherInstance(
+                            element,
+                            options
+                        )
+                    );
+            });
+        return this;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Write a log to the console
+     * @param  {String} message The message to log
+     * @param  {mixed}  payload Any additional data to display in the console
+     * @return {void}
+     */
+    static log(message, payload) {
+        if (typeof (console.log) === 'function') {
+            if (payload !== undefined) {
+                console.log('Searcher:', message, payload);
+            } else {
+                console.log('Searcher:', message);
+            }
+        }
+    };
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Write a warning to the console
+     * @param  {String} message The message to warn
+     * @param  {mixed}  payload Any additional data to display in the console
+     * @return {void}
+     */
+    static warn(message, payload) {
+        if (typeof (console.warn) === 'function') {
+            if (payload !== undefined) {
+                console.warn('Searcher:', message, payload);
+            } else {
+                console.warn('Searcher:', message);
+            }
+        }
+    };
 }
 
 class SearcherInstance {

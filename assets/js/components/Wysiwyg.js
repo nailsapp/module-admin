@@ -16,9 +16,13 @@ class Wysiwyg {
         };
 
         adminController
-            .onRefreshUi(() => {
-                this.init();
+            .onRefreshUi((e, domElement) => {
+                this.init(domElement);
+            })
+            .onDestroyUi((e, domElement) => {
+                this.destroy(domElement);
             });
+        ;
 
         $.ajax({
             'url': window.SITE_URL + 'api/admin/ckeditor/configs',
@@ -42,11 +46,12 @@ class Wysiwyg {
 
     /**
      * Inits Wysiwyg
+     * @param {HTMLElement} domElement
      * @returns {Wysiwyg}
      */
-    init() {
+    init(domElement) {
         if (this.ready) {
-            $('textarea.wysiwyg:not(.wysiwyged)')
+            $('textarea.wysiwyg:not(.wysiwyged)', domElement)
                 .each((index, element) => {
                     $(element)
                         .data(
@@ -97,6 +102,24 @@ class Wysiwyg {
             }
         }
     };
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Write a log to the console
+     * @param  {String} message The message to log
+     * @param  {mixed}  payload Any additional data to display in the console
+     * @return {void}
+     */
+    static log(message, payload) {
+        if (typeof (console.log) === 'function') {
+            if (payload !== undefined) {
+                console.log('WYSIWYG:', message, payload);
+            } else {
+                console.log('WYSIWYG:', message);
+            }
+        }
+    };
 }
 
 class WysiwygInstance {
@@ -110,6 +133,7 @@ class WysiwygInstance {
         this.container = container;
         this.config = config;
 
+        Wysiwyg.log('Constructing', this.container);
         this.container
             .addClass('wysiwyged')
             .ckeditor({
@@ -125,6 +149,7 @@ class WysiwygInstance {
      * Destroys the instance
      */
     destroy() {
+        Wysiwyg.log('Destroying', this.container);
         this.container
             .removeClass('wysiwyged')
             .ckeditor(function() {

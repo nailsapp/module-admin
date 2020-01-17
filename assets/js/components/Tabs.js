@@ -11,7 +11,8 @@ class Tabs {
         this.groups = {};
 
         this.adminController
-            .onRefreshUi(() => {
+            .onRefreshUi((e, domElement) => {
+                //  @todo (Pablo - 2020-01-17) - Support the domElement defined
                 this.init();
             });
 

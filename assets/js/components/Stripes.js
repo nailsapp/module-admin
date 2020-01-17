@@ -10,8 +10,8 @@ class Stripes {
     constructor(adminController) {
 
         adminController
-            .onRefreshUi(() => {
-                this.init();
+            .onRefreshUi((e, domElement) => {
+                this.init(domElement);
             });
 
         return this;
@@ -21,11 +21,12 @@ class Stripes {
 
     /**
      * Inits Stripes
+     * @param {HTMLElement} domElement
      * @returns {Stripes}
      */
-    init() {
+    init(domElement) {
 
-        $('fieldset,.fieldset')
+        $('fieldset,.fieldset', domElement)
             .each(function() {
                 $('div.field', this).removeClass('odd even');
                 $('div.field:visible:odd', this).addClass('odd');

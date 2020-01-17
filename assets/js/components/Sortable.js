@@ -10,8 +10,8 @@ class Sortable {
     constructor(adminController) {
 
         adminController
-            .onRefreshUi(() => {
-                this.init();
+            .onRefreshUi((e, domElement) => {
+                this.init(domElement);
             });
 
         return this;
@@ -21,12 +21,13 @@ class Sortable {
 
     /**
      * Initialise
+     * @param {HTMLElement} domElement
      * @returns {Sortable}
      */
-    init() {
-        $('.js-admin-sortable:not(.processed)')
+    init(domElement) {
+        $('.js-admin-sortable:not(.processed)', domElement)
             .addClass('processed')
-            .each(function () {
+            .each(function() {
 
                 let $item = $(this);
                 let handle = $item.data('handle') || null;
@@ -39,25 +40,25 @@ class Sortable {
                         axis: axis,
                         containment: containment,
                         forceHelperSize: true,
-                        helper: function (e, tr) {
+                        helper: function(e, tr) {
                             let $originals = tr.children();
                             let $helper = tr.clone();
                             $helper
                                 .children()
-                                .each(function (index) {
+                                .each(function(index) {
                                     // Set helper cell sizes to match the original sizes
                                     $(this).width($originals.eq(index).outerWidth());
                                 });
                             return $helper;
                         },
-                        stop: function () {
+                        stop: function() {
                             $item.trigger('sortable:sort');
                         }
                     })
                     .on('sortable:sort', () => {
                         $item
                             .find('.js-admin-sortable__order')
-                            .each(function (index) {
+                            .each(function(index) {
                                 $(this).val(index);
                             });
                     });

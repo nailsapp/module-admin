@@ -10,15 +10,23 @@ class Modalize {
     constructor(adminController) {
 
         $(document)
-            .on('admin:js-admin-modalize', (e, selector, options) => {
+            .on('admin:js-admin-modalize', (e, selector, options, domElement) => {
                 Modalize.log('Initiating new modalize buttons');
-                this.init(selector, options);
+                this.init(selector, options, domElement);
             });
 
-        adminController
-            .onRefreshUi(() => {
+        this.adminController = adminController;
+        this.adminController
+            .onRefreshUi((e, domElement) => {
                 $(document)
-                    .trigger('admin:js-admin-modalize', ['.js-admin-modalize:not(.modalized)']);
+                    .trigger(
+                        'admin:js-admin-modalize',
+                        [
+                            '.js-admin-modalize:not(.modalized)',
+                            {},
+                            domElement
+                        ]
+                    );
             });
 
         return this;
@@ -30,15 +38,16 @@ class Modalize {
      * Inits Modalize
      * @returns {Modalize}
      */
-    init(selector, options) {
+    init(selector, options, domElement) {
         options = options || {};
-        $(selector)
+        $(selector, domElement)
             .each((index, element) => {
                 $(element)
                     .add('modalized')
                     .data(
                         'modalize',
                         new ModalizeInstance(
+                            this.adminController,
                             element,
                             options
                         )
@@ -92,8 +101,9 @@ class ModalizeInstance {
      * @param {DOMElement} element
      * @param {Object} options
      */
-    constructor(element, options) {
+    constructor(adminController, element, options) {
 
+        this.adminController = adminController;
         this.$trigger = $(element);
 
         //  Do not double init
@@ -113,7 +123,9 @@ class ModalizeInstance {
             return;
         }
 
-        $(this.target).wrapInner('<div></div>');
+        $(this.target)
+            .wrapInner('<div></div>')
+            .hide();
 
         this.$trigger
             .on('click', () => {
@@ -125,7 +137,12 @@ class ModalizeInstance {
     // --------------------------------------------------------------------------
 
     open() {
+
         Modalize.log('Opening modal');
+
+        //  Kill UI (we'll rebuild after)
+        this.adminController
+            .destroyUi(this.target);
 
         //  Remove the content from the DOM and place it in the modal
         let content = $(this.target).find('> div').clone();
@@ -145,6 +162,10 @@ class ModalizeInstance {
                     at: 'center',
                     of: window
                 },
+                open: () => {
+                    this.adminController
+                        .refreshUi(this.$modal);
+                },
                 buttons: {
                     'OK': () => {
                         this.close(true)
@@ -163,6 +184,12 @@ class ModalizeInstance {
         Modalize.log('Closing modal');
         if (applyChanges) {
             Modalize.log('Applying changes');
+
+            this.adminController
+                .instances['nails/module-admin']
+                .Wysiwyg
+                .destroy(this.$modal);
+
             let content = this.$modal.detach();
             $(this.target)
                 .find('> div')

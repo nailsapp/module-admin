@@ -10,19 +10,25 @@ class Toggles {
     constructor(adminController) {
 
         adminController
-            .onRefreshUi(() => {
-                this.init();
+            .onRefreshUi((e, domElement) => {
+                this.init(domElement);
+            })
+            .onDestroyUi((e, domElement) => {
+                this.destroy(domElement);
             });
 
         return this;
     }
 
+    // --------------------------------------------------------------------------
+
     /**
      * Inits Toggles
+     * @param {HTMLElement} domElement
      * @returns {Toggles}
      */
-    init() {
-        $('.form-bool:not(.toggled)')
+    init(domElement) {
+        $('.form-bool:not(.toggled)', domElement)
             .each(function() {
                 $(this)
                     .data(
@@ -31,6 +37,23 @@ class Toggles {
                     );
             });
 
+        return this;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Destroys Toggle instances contained within the given DOM element
+     * @param domElement
+     * @returns {Wysiwyg}
+     */
+    destroy(domElement) {
+        $('.form-bool.toggled', domElement)
+            .each((index, element) => {
+                $(element)
+                    .data('instance')
+                    .destroy();
+            });
         return this;
     }
 }
@@ -74,6 +97,17 @@ class ToggleInstance {
                 //  Proxy the toggle event to the checkbox as well
                 this.checkbox.trigger('toggle', [value]);
             });
+    }
+
+    // --------------------------------------------------------------------------
+
+    destroy() {
+        this.container
+            .empty()
+            .removeClass('toggled')
+            .removeAttr('style');
+        this.checkbox
+            .show();
     }
 }
 
