@@ -33,7 +33,7 @@ class Revealer {
 
         $('[data-revealer]:not(.processed)', domElement)
             .filter(':input')
-            .filter('input[type=checkbox], input[type=radio], select')
+            .filter('input[type=checkbox], select')
             .each((index, element) => {
 
                 let group = $(element)
@@ -140,7 +140,7 @@ class Group {
     findNewElements(domElement) {
 
         $(`[data-revealer="${this.group}"]:not(.processed)`, domElement)
-            .filter(':not(input[type=checkbox], input[type=radio], select)')
+            .filter(':not(input[type=checkbox], select)')
             .each((index, element) => {
                 this
                     .elements
