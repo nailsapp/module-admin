@@ -3,6 +3,7 @@ let _ADMIN;
 
 import '../sass/admin.scss';
 import Alerts from './components/Alerts.js';
+import Confirm from './components/Confirm.js';
 import CopyToClipboard from './components/CopyToClipboard.js';
 import DisabledElements from './components/DisabledElements.js';
 import DynamicTable from './components/DynamicTable.js';
@@ -141,6 +142,7 @@ window
     .NAILS
     .ADMIN
     .registerPlugin(window.NAILS.ADMIN.namespace, 'Alerts', new Alerts(window.NAILS.ADMIN))
+    .registerPlugin(window.NAILS.ADMIN.namespace, 'Confirm', new Confirm(window.NAILS.ADMIN))
     .registerPlugin(window.NAILS.ADMIN.namespace, 'CopyToClipboard', new CopyToClipboard(window.NAILS.ADMIN))
     .registerPlugin(window.NAILS.ADMIN.namespace, 'DisabledElements', new DisabledElements())
     .registerPlugin(window.NAILS.ADMIN.namespace, 'DynamicTable', new DynamicTable(window.NAILS.ADMIN))
