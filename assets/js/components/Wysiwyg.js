@@ -96,7 +96,7 @@ class Wysiwyg {
      */
     static log() {
         if (typeof (console.log) === 'function') {
-            console.log('WYSIWYG:', ...arguments);
+            console.log("\x1b[33m[WYSIWYG]\x1b[0m", ...arguments);
         }
     };
 
@@ -106,9 +106,9 @@ class Wysiwyg {
      * Write a warning to the console
      * @return {void}
      */
-    static warn(message, payload) {
+    static warn() {
         if (typeof (console.warn) === 'function') {
-            console.warn('WYSIWYG:', ...arguments);
+            console.warn("\x1b[33m[WYSIWYG]\x1b[0m", ...arguments);
         }
     };
 }
