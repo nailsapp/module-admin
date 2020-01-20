@@ -47,10 +47,10 @@ _ADMIN = function() {
          * Triggers an event
          * @param eventName
          */
-        'trigger': function(eventName, details) {
+        'trigger': function(eventName, detail) {
             document
                 .dispatchEvent(
-                    new CustomEvent(eventName, details)
+                    new CustomEvent(eventName, {detail: detail})
                 );
             return this;
         },
