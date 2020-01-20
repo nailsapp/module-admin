@@ -39,7 +39,7 @@ class Revealer {
                 let group = $(element)
                     .data('revealer');
 
-                if (typeof this.groups[group] === 'string') {
+                if (typeof this.groups[group] !== 'undefined') {
                     Revealer.warn(`Duplicate group "${group}"`);
                     return;
                 }
