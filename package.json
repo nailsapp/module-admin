@@ -23,6 +23,6 @@
   },
   "dependencies": {
     "clipboard": "^2.0",
-    "mustache": "^3.2"
+    "mustache": "^4.0"
   }
 }
