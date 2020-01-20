@@ -1857,7 +1857,7 @@ abstract class DefaultController extends Base
 
                 //  @todo (Pablo - 2020-01-16) - This done to support CSV items (e.g. MySQL `SET`s) - feels a bit hack/arbitrary
                 case Form::FIELD_DROPDOWN_MULTIPLE:
-                    $aOut[$sKey] = implode(',', $aOut[$sKey]);
+                    $aOut[$sKey] = is_array($aOut[$sKey]) ? implode(',', $aOut[$sKey]) : null;
                     break;
             }
         }
