@@ -187,6 +187,7 @@ class RepeaterInstance {
         this.$target.append($item);
         this.index++;
 
+        this.$element.find('.js-admin-sortable').trigger('sortable:sort');
         this.adminController.refreshUi($item);
         this.trigger('added');
     }
@@ -204,6 +205,7 @@ class RepeaterInstance {
 
         this.trigger('removing', $item);
         $item.remove();
+        this.$element.find('.js-admin-sortable').trigger('sortable:sort');
         this.trigger('removed', $item);
     }
 
