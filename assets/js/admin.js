@@ -19,6 +19,12 @@ import Wysiwyg from './components/Wysiwyg.js';
 
 _ADMIN = function() {
     return {
+
+        /**
+         * The admin module namespace
+         */
+        'namespace': 'nails/module-admin',
+
         /**
          * All the registered plugins
          */
@@ -104,73 +110,20 @@ _ADMIN = function() {
 
 window.NAILS.ADMIN = new _ADMIN();
 
-window.NAILS.ADMIN.registerPlugin(
-    'nails/module-admin',
-    'Alerts',
-    new Alerts(window.NAILS.ADMIN)
-);
-window.NAILS.ADMIN.registerPlugin(
-    'nails/module-admin',
-    'CopyToClipboard',
-    new CopyToClipboard(window.NAILS.ADMIN)
-);
-window.NAILS.ADMIN.registerPlugin(
-    'nails/module-admin',
-    'DisabledElements',
-    new DisabledElements()
-);
-window.NAILS.ADMIN.registerPlugin(
-    'nails/module-admin',
-    'DynamicTable',
-    new DynamicTable(window.NAILS.ADMIN)
-);
-window.NAILS.ADMIN.registerPlugin(
-    'nails/module-admin',
-    'IndexButtons',
-    new IndexButtons(window.NAILS.ADMIN)
-);
-window.NAILS.ADMIN.registerPlugin(
-    'nails/module-admin',
-    'Modalize',
-    new Modalize(window.NAILS.ADMIN)
-);
-window.NAILS.ADMIN.registerPlugin(
-    'nails/module-admin',
-    'Notes',
-    new Notes(window.NAILS.ADMIN)
-);
-window.NAILS.ADMIN.registerPlugin(
-    'nails/module-admin',
-    'Repeater',
-    new Repeater(window.NAILS.ADMIN)
-);
-window.NAILS.ADMIN.registerPlugin(
-    'nails/module-admin',
-    'Searcher',
-    new Searcher(window.NAILS.ADMIN)
-);
-window.NAILS.ADMIN.registerPlugin(
-    'nails/module-admin',
-    'Sortable',
-    new Sortable(window.NAILS.ADMIN)
-);
-window.NAILS.ADMIN.registerPlugin(
-    'nails/module-admin',
-    'Stripes',
-    new Stripes(window.NAILS.ADMIN)
-);
-window.NAILS.ADMIN.registerPlugin(
-    'nails/module-admin',
-    'Tabs',
-    new Tabs(window.NAILS.ADMIN)
-);
-window.NAILS.ADMIN.registerPlugin(
-    'nails/module-admin',
-    'Toggles',
-    new Toggles(window.NAILS.ADMIN)
-);
-window.NAILS.ADMIN.registerPlugin(
-    'nails/module-admin',
-    'Wysiwyg',
-    new Wysiwyg(window.NAILS.ADMIN)
-);
+window
+    .NAILS
+    .ADMIN
+    .registerPlugin(window.NAILS.ADMIN.namespace, 'Alerts', new Alerts(window.NAILS.ADMIN))
+    .registerPlugin(window.NAILS.ADMIN.namespace, 'CopyToClipboard', new CopyToClipboard(window.NAILS.ADMIN))
+    .registerPlugin(window.NAILS.ADMIN.namespace, 'DisabledElements', new DisabledElements())
+    .registerPlugin(window.NAILS.ADMIN.namespace, 'DynamicTable', new DynamicTable(window.NAILS.ADMIN))
+    .registerPlugin(window.NAILS.ADMIN.namespace, 'IndexButtons', new IndexButtons(window.NAILS.ADMIN))
+    .registerPlugin(window.NAILS.ADMIN.namespace, 'Modalize', new Modalize(window.NAILS.ADMIN))
+    .registerPlugin(window.NAILS.ADMIN.namespace, 'Notes', new Notes(window.NAILS.ADMIN))
+    .registerPlugin(window.NAILS.ADMIN.namespace, 'Repeater', new Repeater(window.NAILS.ADMIN))
+    .registerPlugin(window.NAILS.ADMIN.namespace, 'Searcher', new Searcher(window.NAILS.ADMIN))
+    .registerPlugin(window.NAILS.ADMIN.namespace, 'Sortable', new Sortable(window.NAILS.ADMIN))
+    .registerPlugin(window.NAILS.ADMIN.namespace, 'Stripes', new Stripes(window.NAILS.ADMIN))
+    .registerPlugin(window.NAILS.ADMIN.namespace, 'Tabs', new Tabs(window.NAILS.ADMIN))
+    .registerPlugin(window.NAILS.ADMIN.namespace, 'Toggles', new Toggles(window.NAILS.ADMIN))
+    .registerPlugin(window.NAILS.ADMIN.namespace, 'Wysiwyg', new Wysiwyg(window.NAILS.ADMIN));
