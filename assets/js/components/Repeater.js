@@ -156,7 +156,7 @@ class RepeaterInstance {
         this.$target.append($item);
         this.index++;
 
-        this.adminController.refreshUi();
+        this.adminController.refreshUi($item);
         this.trigger('added');
     }
 

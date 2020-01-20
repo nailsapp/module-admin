@@ -124,7 +124,7 @@ class DynamicTable {
         $table.data('index', data.index + 1);
         $table.trigger('dynamic-table:add', [$row]);
         $table.find('.js-admin-sortable').trigger('sortable:sort');
-        this.adminController.refreshUi();
+        this.adminController.refreshUi($row);
 
         return this;
     }
@@ -141,7 +141,6 @@ class DynamicTable {
         $row.remove();
         $table.trigger('dynamic-table:remove');
         $table.find('.js-admin-sortable').trigger('sortable:sort');
-        this.adminController.refreshUi();
         return this;
     }
 }
