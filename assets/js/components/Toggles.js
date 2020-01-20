@@ -95,7 +95,7 @@ class ToggleInstance {
             })
             .on('toggle', (e, value) => {
                 //  Proxy the toggle event to the checkbox as well
-                this.checkbox.trigger('toggle', [value]);
+                this.checkbox.trigger('toggle', [value]).trigger('change');
             });
     }
 
