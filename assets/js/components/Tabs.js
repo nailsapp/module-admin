@@ -231,7 +231,6 @@ class Group {
         }
 
         this.adminController.refreshUi();
-
     }
 }
 
