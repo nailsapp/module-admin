@@ -10,6 +10,7 @@ import IndexButtons from './components/IndexButtons.js';
 import Modalize from './components/Modalize.js';
 import Notes from './components/Notes.js';
 import Repeater from './components/Repeater.js';
+import Revealer from './components/Revealer.js';
 import Searcher from './components/Searcher.js';
 import Sortable from './components/Sortable.js';
 import Stripes from './components/Stripes.js';
@@ -121,6 +122,7 @@ window
     .registerPlugin(window.NAILS.ADMIN.namespace, 'Modalize', new Modalize(window.NAILS.ADMIN))
     .registerPlugin(window.NAILS.ADMIN.namespace, 'Notes', new Notes(window.NAILS.ADMIN))
     .registerPlugin(window.NAILS.ADMIN.namespace, 'Repeater', new Repeater(window.NAILS.ADMIN))
+    .registerPlugin(window.NAILS.ADMIN.namespace, 'Revealer', new Revealer(window.NAILS.ADMIN))
     .registerPlugin(window.NAILS.ADMIN.namespace, 'Searcher', new Searcher(window.NAILS.ADMIN))
     .registerPlugin(window.NAILS.ADMIN.namespace, 'Sortable', new Sortable(window.NAILS.ADMIN))
     .registerPlugin(window.NAILS.ADMIN.namespace, 'Stripes', new Stripes(window.NAILS.ADMIN))
