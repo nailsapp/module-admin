@@ -72,7 +72,8 @@ _ADMIN = function() {
          * @param domElement The domElement to focus the refresh on
          */
         'refreshUi': function(domElement) {
-            this.trigger('admin:refresh-ui', {domElement: domElement});
+            this.log('Refreshing UI', domElement || document);
+            this.trigger('admin:refresh-ui', {domElement: domElement || document});
             return this;
         },
 
@@ -92,7 +93,8 @@ _ADMIN = function() {
          * @param domElement The domElement to focus the destroy on
          */
         'destroyUi': function(domElement) {
-            this.trigger('admin:destroy-ui', {domElement: domElement});
+            this.log('Destroying UI', domElement || document);
+            this.trigger('admin:destroy-ui', {domElement: domElement || document});
             return this;
         },
 
@@ -105,6 +107,30 @@ _ADMIN = function() {
                 callback(e, e.detail ? e.detail.domElement : null);
             });
             return this;
+        },
+
+        // --------------------------------------------------------------------------
+
+        /**
+         * Write a log to the console
+         * @return {void}
+         */
+        'log': function() {
+            if (typeof (console.log) === 'function') {
+                console.log("\x1b[33m[Admin]\x1b[0m", ...arguments);
+            }
+        },
+
+        // --------------------------------------------------------------------------
+
+        /**
+         * Write a warning to the console
+         * @return {void}
+         */
+        'warn': function(message, payload) {
+            if (typeof (console.warn) === 'function') {
+                console.warn("\x1b[33m[Admin]\x1b[0m", ...arguments);
+            }
         }
     };
 };
