@@ -60,17 +60,11 @@ class Modalize {
 
     /**
      * Write a log to the console
-     * @param  {String} message The message to log
-     * @param  {mixed}  payload Any additional data to display in the console
      * @return {void}
      */
-    static log(message, payload) {
+    static log() {
         if (typeof (console.log) === 'function') {
-            if (payload !== undefined) {
-                console.log('Modalize:', message, payload);
-            } else {
-                console.log('Modalize:', message);
-            }
+            console.log("\x1b[33m[Modalize]\x1b[0m", ...arguments);
         }
     };
 
@@ -78,17 +72,11 @@ class Modalize {
 
     /**
      * Write a warning to the console
-     * @param  {String} message The message to warn
-     * @param  {mixed}  payload Any additional data to display in the console
      * @return {void}
      */
-    static warn(message, payload) {
+    static warn() {
         if (typeof (console.warn) === 'function') {
-            if (payload !== undefined) {
-                console.warn('Modalize:', message, payload);
-            } else {
-                console.warn('Modalize:', message);
-            }
+            console.warn("\x1b[33m[Modalize]\x1b[0m", ...arguments);
         }
     };
 }

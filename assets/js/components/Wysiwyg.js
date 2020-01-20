@@ -88,36 +88,24 @@ class Wysiwyg {
     // --------------------------------------------------------------------------
 
     /**
-     * Write a warning to the console
-     * @param  {String} message The message to warn
-     * @param  {mixed}  payload Any additional data to display in the console
+     * Write a log to the console
      * @return {void}
      */
-    static warn(message, payload) {
-        if (typeof (console.warn) === 'function') {
-            if (payload !== undefined) {
-                console.warn('WYSIWYG:', message, payload);
-            } else {
-                console.warn('WYSIWYG:', message);
-            }
+    static log() {
+        if (typeof (console.log) === 'function') {
+            console.log('WYSIWYG:', ...arguments);
         }
     };
 
     // --------------------------------------------------------------------------
 
     /**
-     * Write a log to the console
-     * @param  {String} message The message to log
-     * @param  {mixed}  payload Any additional data to display in the console
+     * Write a warning to the console
      * @return {void}
      */
-    static log(message, payload) {
-        if (typeof (console.log) === 'function') {
-            if (payload !== undefined) {
-                console.log('WYSIWYG:', message, payload);
-            } else {
-                console.log('WYSIWYG:', message);
-            }
+    static warn(message, payload) {
+        if (typeof (console.warn) === 'function') {
+            console.warn('WYSIWYG:', ...arguments);
         }
     };
 }

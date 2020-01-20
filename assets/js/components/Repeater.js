@@ -51,36 +51,24 @@ class Repeater {
     // --------------------------------------------------------------------------
 
     /**
-     * Write a warning to the console
-     * @param  {String} message The message to warn
-     * @param  {mixed}  payload Any additional data to display in the console
+     * Write a log to the console
      * @return {void}
      */
-    static warn(message, payload) {
-        if (typeof (console.warn) === 'function') {
-            if (payload !== undefined) {
-                console.warn('WYSIWYG:', message, payload);
-            } else {
-                console.warn('WYSIWYG:', message);
-            }
+    static log() {
+        if (typeof (console.log) === 'function') {
+            console.log("\x1b[33m[Repeater]\x1b[0m", ...arguments);
         }
     };
 
     // --------------------------------------------------------------------------
 
     /**
-     * Write a log to the console
-     * @param  {String} message The message to log
-     * @param  {mixed}  payload Any additional data to display in the console
+     * Write a warning to the console
      * @return {void}
      */
-    static log(message, payload) {
-        if (typeof (console.log) === 'function') {
-            if (payload !== undefined) {
-                console.log('Repeater:', message, payload);
-            } else {
-                console.log('Repeater:', message);
-            }
+    static warn() {
+        if (typeof (console.warn) === 'function') {
+            console.warn("\x1b[33m[Repeater]\x1b[0m", ...arguments);
         }
     };
 }

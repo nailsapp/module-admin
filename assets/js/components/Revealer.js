@@ -72,17 +72,11 @@ class Revealer {
 
     /**
      * Write a log to the console
-     * @param  {String} message The message to log
-     * @param  {mixed}  payload Any additional data to display in the console
      * @return {void}
      */
-    static log(message, payload) {
+    static log() {
         if (typeof (console.log) === 'function') {
-            if (payload !== undefined) {
-                console.log('Revealer:', message, payload);
-            } else {
-                console.log('Revealer:', message);
-            }
+            console.log("\x1b[33m[Revealer]\x1b[0m", ...arguments);
         }
     };
 
@@ -90,17 +84,11 @@ class Revealer {
 
     /**
      * Write a warning to the console
-     * @param  {String} message The message to warn
-     * @param  {mixed}  payload Any additional data to display in the console
      * @return {void}
      */
-    static warn(message, payload) {
+    static warn() {
         if (typeof (console.warn) === 'function') {
-            if (payload !== undefined) {
-                console.warn('Revealer:', message, payload);
-            } else {
-                console.warn('Revealer:', message);
-            }
+            console.warn("\x1b[33m[Revealer]\x1b[0m", ...arguments);
         }
     };
 }
