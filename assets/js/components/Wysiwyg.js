@@ -129,8 +129,8 @@ class WysiwygInstance {
             .addClass('wysiwyged')
             .ckeditor({
                 customConfig: this.container.hasClass('wysiwyg-basic')
-                    ? this.config.default
-                    : this.config.basic
+                    ? this.config.basic
+                    : this.config.default
             });
     }
 
