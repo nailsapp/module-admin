@@ -46,7 +46,7 @@ class CopyToClipboard {
      */
     static log() {
         if (typeof (console.log) === 'function') {
-            console.log('"\x1b[33m[CopyToClipboard]\x1b[0m"', ...arguments);
+            console.log("\x1b[33m[CopyToClipboard]\x1b[0m", ...arguments);
         }
     };
 
@@ -58,7 +58,7 @@ class CopyToClipboard {
      */
     static warn() {
         if (typeof (console.warn) === 'function') {
-            console.warn('"\x1b[33m[CopyToClipboard]\x1b[0m"', ...arguments);
+            console.warn("\x1b[33m[CopyToClipboard]\x1b[0m", ...arguments);
         }
     };
 }
