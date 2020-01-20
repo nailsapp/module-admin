@@ -133,7 +133,8 @@ class ModalizeInstance {
             .destroyUi(this.target);
 
         //  Remove the content from the DOM and place it in the modal
-        let content = $(this.target).find('> div').clone();
+        let content = $(this.target).find('> div').detach();
+        Modalize.log(content);
 
         this.$modal = $('<div>')
             .html(content)
@@ -156,10 +157,7 @@ class ModalizeInstance {
                 },
                 buttons: {
                     'OK': () => {
-                        this.close(true)
-                    },
-                    'Cancel': () => {
-                        this.close(false)
+                        this.close()
                     }
                 }
             });
@@ -169,23 +167,21 @@ class ModalizeInstance {
 
 
     close(applyChanges) {
+
         Modalize.log('Closing modal');
-        if (applyChanges) {
-            Modalize.log('Applying changes');
 
-            this.adminController
-                .instances['nails/module-admin']
-                .Wysiwyg
-                .destroy(this.$modal);
+        this.adminController
+            .instances['nails/module-admin']
+            .Wysiwyg
+            .destroy(this.$modal);
 
-            let content = this.$modal.detach();
-            $(this.target)
-                .find('> div')
-                .empty()
-                .append($(content).find('> div'));
-        }
+        let content = this.$modal.find('> div').detach();
 
-        this.$modal.dialog('close');
+        $(this.target)
+            .append(content);
+
+        this.$modal.dialog('close').remove();
+        this.$modal = null;
     }
 
     // --------------------------------------------------------------------------
