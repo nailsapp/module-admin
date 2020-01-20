@@ -153,6 +153,37 @@ class RepeaterInstance {
         template = Mustach.render(template, data);
 
         $item.html(template);
+
+        //  Set the value of any checkboxes
+        $('input[type=checkbox]', $item)
+            .each((index, item) => {
+
+                let $checkbox = $(item);
+
+                if ($checkbox[0].hasAttribute('data-repeater-checked')) {
+                    $checkbox.prop('checked', $checkbox.attr('data-repeater-checked'))
+                }
+            });
+
+        //  Set the value of any dropdowns
+        $('select', $item)
+            .each((index, item) => {
+
+                let $select = $(item);
+
+                //  Set value
+                //  We use this work-around because the Mustache template is static
+                if ($select[0].hasAttribute('data-repeater-value')) {
+                    let value = $select.data('repeater-value');
+                    $('option[value="' + value + '"]', $select).prop('selected', true);
+                }
+
+                //  Instanciate select2
+                $select
+                    .css('width', '100%')
+                    .select2();
+            });
+
         this.$target.append($item);
         this.index++;
 
