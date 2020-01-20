@@ -140,7 +140,7 @@ class ModalizeInstance {
             .html(content)
             .dialog({
                 modal: true,
-                dialogClass: 'no-close',
+                dialogClass: 'no-close no-padding',
                 closeOnEscape: false,
                 draggable: false,
                 title: this.title,
