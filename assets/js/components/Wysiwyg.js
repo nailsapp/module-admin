@@ -31,12 +31,14 @@ class Wysiwyg {
                 this.config.basic = response.data.basic;
                 this.config.default = response.data.default;
                 this.ready = true;
-                this.init();
+                Wysiwyg.log('Ready');
+                this.init(document);
             })
             .fail((response) => {
                 Wysiwyg.warn('Failed to fetch configs. Falling back to default configuration');
                 this.ready = true;
-                this.init();
+                Wysiwyg.log('Ready');
+                this.init(document);
             });
 
         return this;
@@ -51,6 +53,7 @@ class Wysiwyg {
      */
     init(domElement) {
         if (this.ready) {
+            Wysiwyg.log('Initiating new WYSIWYG', domElement);
             $('textarea.wysiwyg:not(.wysiwyged)', domElement)
                 .each((index, element) => {
                     $(element)
