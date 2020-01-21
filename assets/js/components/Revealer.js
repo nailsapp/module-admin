@@ -10,8 +10,9 @@ class Revealer {
     constructor(adminController) {
 
         this.groups = {};
+        this.adminController = adminController;
 
-        adminController
+        this.adminController
             .onRefreshUi((e, domElement) => {
                 this.init(domElement);
             })
@@ -44,7 +45,7 @@ class Revealer {
                     return;
                 }
 
-                this.groups[group] = new Group(group, element);
+                this.groups[group] = new Group(this.adminController, group, element);
                 this.groups[group].findNewElements(domElement);
             });
 
@@ -103,8 +104,9 @@ class Group {
      * @param group {String} The string this group represents
      * @param control {HTMLElement} The DOM element responsible for controlling this group
      */
-    constructor(group, control) {
+    constructor(adminController, group, control) {
 
+        this.adminController = adminController;
         this.group = group;
         this.$control = $(control);
         this.elements = [];
@@ -115,6 +117,7 @@ class Group {
                 this.toggle(
                     this.getControlValue()
                 );
+                this.adminController.refreshUi();
             });
     }
 
@@ -213,7 +216,15 @@ class Element {
      * @returns {boolean}
      */
     isShown(value) {
-        return this.value === value;
+
+        /**
+         * This adds support for true/false properties which mayb have been cast as 1/0
+         */
+        if (typeof value === 'boolean') {
+            return (value && this.value === 1) || (!value && this.value === 0);
+        } else {
+            return this.value === value;
+        }
     }
 
     // --------------------------------------------------------------------------
