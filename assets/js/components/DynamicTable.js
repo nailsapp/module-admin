@@ -32,18 +32,18 @@ class DynamicTable {
 
         $table.trigger('dynamic-table:starting');
 
-        let $body = $table.find('.js-admin-dynamic-table__template');
+        let $template = $table.find('.js-admin-dynamic-table__template');
+        let $body = $table.find('.js-admin-dynamic-table__body');
         let data = $table.data('data') || [];
 
-        $table.data('template', $body.html());
+        $table.data('template', $template.html());
         $table.data('index', 0);
         $body.empty();
-        $body.removeClass('js-admin-dynamic-table__template');
 
         this.bindEvents($table, $body);
 
         for (let i = 0, j = data.length; i < j; i++) {
-            this.add($table, $body, data[i]);
+            this.add($table, $body, data[i], false);
         }
 
         $table.trigger('dynamic-table:ready');
@@ -62,7 +62,7 @@ class DynamicTable {
     bindEvents($table, $body) {
         $('.js-admin-dynamic-table__add', $table)
             .on('click', () => {
-                this.add($table, $body);
+                this.add($table, $body, {}, true);
                 return false;
             });
 
@@ -82,9 +82,10 @@ class DynamicTable {
      * @param {jQuery} $table The table DOM element
      * @param {jQuery} $body The body DOM element
      * @param {Object} data Data to render the row with
+     * @param {Boolean} refreshUi Whetehr to refresh the UI after adding
      * @return {DynamicTable}
      */
-    add($table, $body, data) {
+    add($table, $body, data, refreshUi) {
         data = data || {};
         data.index = $table.data('index') || 0;
 
@@ -124,7 +125,10 @@ class DynamicTable {
         $table.data('index', data.index + 1);
         $table.trigger('dynamic-table:add', [$row]);
         $table.find('.js-admin-sortable').trigger('sortable:sort');
-        this.adminController.refreshUi($row);
+
+        if (refreshUi) {
+            this.adminController.refreshUi($row);
+        }
 
         return this;
     }

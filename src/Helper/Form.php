@@ -24,8 +24,6 @@ class Form
      *
      * @return string
      * @throws NailsException
-     *
-     * @todo (Pablo - 2020-01-15) - Move this to mails/module-admin
      */
     public static function dynamicTable(array $aConfig): string
     {
@@ -87,9 +85,10 @@ class Form
                         $sHeaderCells
                     </tr>
                 </thead>
-                <tbody class="js-admin-dynamic-table__template $sSortableClass" data-handle=".handle">
-                    $sBodyCells
-                </tbody>
+                <tbody class="js-admin-dynamic-table__body $sSortableClass" data-handle=".handle"></tbody>
+                <script type="text/x-template" class="js-admin-dynamic-table__template">
+                $sBodyCells
+                </script>
                 <tbody>
                     <tr>
                         <td colspan="$sColSpan">
