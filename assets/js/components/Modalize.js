@@ -11,7 +11,7 @@ class Modalize {
 
         $(document)
             .on('admin:js-admin-modalize', (e, selector, options, domElement) => {
-                Modalize.log('Initiating new modalize buttons');
+                this.adminController.log('Initiating new modalize buttons');
                 this.init(selector, options, domElement);
             });
 
@@ -55,30 +55,6 @@ class Modalize {
             });
         return this;
     }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Write a log to the console
-     * @return {void}
-     */
-    static log() {
-        if (typeof (console.log) === 'function') {
-            console.log("\x1b[33m[Modalize]\x1b[0m", ...arguments);
-        }
-    };
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Write a warning to the console
-     * @return {void}
-     */
-    static warn() {
-        if (typeof (console.warn) === 'function') {
-            console.warn("\x1b[33m[Modalize]\x1b[0m", ...arguments);
-        }
-    };
 }
 
 class ModalizeInstance {
@@ -107,7 +83,7 @@ class ModalizeInstance {
         this.target = document.getElementById(this.target_id);
 
         if (!this.target) {
-            Modalize.warn('"' + this.target_id + '" is not a valid ID');
+            this.adminController.warn('"' + this.target_id + '" is not a valid ID');
             return;
         }
 
@@ -126,7 +102,7 @@ class ModalizeInstance {
 
     open() {
 
-        Modalize.log('Opening modal');
+        this.adminController.log('Opening modal');
 
         //  Kill UI (we'll rebuild after)
         this.adminController
@@ -134,7 +110,7 @@ class ModalizeInstance {
 
         //  Remove the content from the DOM and place it in the modal
         let content = $(this.target).find('> div').detach();
-        Modalize.log(content);
+        this.adminController.log(content);
 
         this.$modal = $('<div>')
             .html(content)
@@ -168,7 +144,7 @@ class ModalizeInstance {
 
     close(applyChanges) {
 
-        Modalize.log('Closing modal');
+        this.adminController.log('Closing modal');
 
         this.adminController
             .instances['nails/module-admin']

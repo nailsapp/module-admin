@@ -10,6 +10,7 @@ class Wysiwyg {
     constructor(adminController) {
 
         this.ready = false;
+        this.adminController = adminController;
         this.config = {
             basic: window.NAILS.URL + 'js/ckeditor.config.basic.min.js',
             default: window.NAILS.URL + 'js/ckeditor.config.default.min.js',
@@ -31,13 +32,13 @@ class Wysiwyg {
                 this.config.basic = response.data.basic;
                 this.config.default = response.data.default;
                 this.ready = true;
-                Wysiwyg.log('Ready');
+                this.adminController.log('Ready');
                 this.init(document);
             })
             .fail((response) => {
-                Wysiwyg.warn('Failed to fetch configs. Falling back to default configuration');
+                this.adminController.warn('Failed to fetch configs. Falling back to default configuration');
                 this.ready = true;
-                Wysiwyg.log('Ready');
+                this.adminController.log('Ready');
                 this.init(document);
             });
 
@@ -53,13 +54,14 @@ class Wysiwyg {
      */
     init(domElement) {
         if (this.ready) {
-            Wysiwyg.log('Initiating new WYSIWYG', domElement);
+            this.adminController.log('Initiating new WYSIWYG', domElement);
             $('textarea.wysiwyg:not(.wysiwyged)', domElement)
                 .each((index, element) => {
                     $(element)
                         .data(
                             'instance',
                             new WysiwygInstance(
+                                this.adminController,
                                 $(element),
                                 this.config
                             )
@@ -87,30 +89,6 @@ class Wysiwyg {
             });
         return this;
     }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Write a log to the console
-     * @return {void}
-     */
-    static log() {
-        if (typeof (console.log) === 'function') {
-            console.log("\x1b[33m[WYSIWYG]\x1b[0m", ...arguments);
-        }
-    };
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Write a warning to the console
-     * @return {void}
-     */
-    static warn() {
-        if (typeof (console.warn) === 'function') {
-            console.warn("\x1b[33m[WYSIWYG]\x1b[0m", ...arguments);
-        }
-    };
 }
 
 class WysiwygInstance {
@@ -119,12 +97,13 @@ class WysiwygInstance {
      * Construct WysiwygInstance
      * @param container
      */
-    constructor(container, config) {
+    constructor(adminController, container, config) {
 
+        this.adminController = adminController;
         this.container = container;
         this.config = config;
 
-        Wysiwyg.log('Constructing', this.container);
+        this.adminController.log('Constructing', this.container);
         this.container
             .addClass('wysiwyged')
             .ckeditor({
@@ -140,7 +119,7 @@ class WysiwygInstance {
      * Destroys the instance
      */
     destroy() {
-        Wysiwyg.log('Destroying', this.container);
+        this.adminController.log('Destroying', this.container);
         this.container
             .removeClass('wysiwyged')
             .ckeditor(function() {

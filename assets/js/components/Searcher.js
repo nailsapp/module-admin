@@ -9,13 +9,14 @@ class Searcher {
      */
     constructor(adminController) {
 
+        this.adminController = adminController;
+
         $(document)
             .on('admin:js-searcher', (e, selector, options, domElement) => {
-                Searcher.log('Initiating new searchers');
+                this.adminController.log('Initiating new searchers');
                 this.init(selector, options, domElement);
             });
 
-        this.adminController = adminController;
         this.adminController
             .onRefreshUi((e, domElement) => {
                 $(document)
@@ -47,6 +48,7 @@ class Searcher {
                     .data(
                         'searcher',
                         new SearcherInstance(
+                            this.adminController,
                             element,
                             options
                         )
@@ -54,30 +56,6 @@ class Searcher {
             });
         return this;
     }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Write a log to the console
-     * @return {void}
-     */
-    static log() {
-        if (typeof (console.log) === 'function') {
-            console.log("\x1b[33m[Searcher]\x1b[0m", ...arguments);
-        }
-    };
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Write a warning to the console
-     * @return {void}
-     */
-    static warn() {
-        if (typeof (console.warn) === 'function') {
-            console.warn("\x1b[33m[Searcher]\x1b[0m", ...arguments);
-        }
-    };
 }
 
 class SearcherInstance {
@@ -88,9 +66,10 @@ class SearcherInstance {
      * @param {DOMElement} element
      * @param {Object} options
      */
-    constructor(element, options) {
+    constructor(adminController, element, options) {
 
         this.$input = $(element);
+        this.adminController = adminController;
 
         //  Do not double init
         if (this.$input.data('searcher') instanceof SearcherInstance) {
@@ -155,7 +134,7 @@ class SearcherInstance {
                 });
 
         } else {
-            console.warn('Element is configured as a Searcher but no api has been defined', this.$input);
+            this.adminController.warn('Element is configured as a Searcher but no api has been defined', this.$input);
         }
     }
 

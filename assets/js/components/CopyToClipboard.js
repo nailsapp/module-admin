@@ -12,7 +12,7 @@ class CopyToClipboard {
     constructor(adminController) {
         $(document)
             .on('admin:js-copy-to-clipboard', (e, selector) => {
-                CopyToClipboard.log('Initiating new copy buttons');
+                adminController.log('Initiating new copy buttons');
                 $(selector)
                     .addClass('js-copy-to-clipboard--initiated')
                     .each((index, element) => {
@@ -21,6 +21,7 @@ class CopyToClipboard {
                                 .data(
                                     'clipboardjs',
                                     new CopyToClipboardInstance(
+                                        adminController,
                                         element
                                     )
                                 );
@@ -37,30 +38,6 @@ class CopyToClipboard {
                     );
             });
     }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Write a log to the console
-     * @return {void}
-     */
-    static log() {
-        if (typeof (console.log) === 'function') {
-            console.log("\x1b[33m[CopyToClipboard]\x1b[0m", ...arguments);
-        }
-    };
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Write a warning to the console
-     * @return {void}
-     */
-    static warn() {
-        if (typeof (console.warn) === 'function') {
-            console.warn("\x1b[33m[CopyToClipboard]\x1b[0m", ...arguments);
-        }
-    };
 }
 
 class CopyToClipboardInstance {
@@ -69,7 +46,7 @@ class CopyToClipboardInstance {
      * Construct CopyToClipboardInstance
      * @param {DOMElement} element
      */
-    constructor(element) {
+    constructor(adminController, element) {
 
         this.$body = $('body');
         this.$el = $(element);
@@ -91,12 +68,12 @@ class CopyToClipboardInstance {
         this.clipboardJs = new ClipboardJS(element);
         this.clipboardJs
             .on('success', (e) => {
-                CopyToClipboard.log('Item copied!');
+                adminController.log('Item copied!');
                 this.showIcon();
                 e.clearSelection();
             })
             .on('error', (e) => {
-                CopyToClipboard.warn('Error', e);
+                adminController.warn('Error', e);
                 e.clearSelection();
             });
     }

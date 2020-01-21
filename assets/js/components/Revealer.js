@@ -41,7 +41,7 @@ class Revealer {
                     .data('revealer');
 
                 if (typeof this.groups[group] !== 'undefined') {
-                    Revealer.warn(`Duplicate group "${group}"`);
+                    this.adminController.warn(`Duplicate group "${group}"`);
                     return;
                 }
 
@@ -68,30 +68,6 @@ class Revealer {
             }
         }
     }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Write a log to the console
-     * @return {void}
-     */
-    static log() {
-        if (typeof (console.log) === 'function') {
-            console.log("\x1b[33m[Revealer]\x1b[0m", ...arguments);
-        }
-    };
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Write a warning to the console
-     * @return {void}
-     */
-    static warn() {
-        if (typeof (console.warn) === 'function') {
-            console.warn("\x1b[33m[Revealer]\x1b[0m", ...arguments);
-        }
-    };
 }
 
 /**
@@ -169,7 +145,7 @@ class Group {
      * @param value {String|Boolean} The value to test
      */
     toggle(value) {
-        Revealer.log(`Toggling elements for value ${value}`);
+        this.adminController.log(`Toggling elements for value ${value}`);
         for (let i = 0; i < this.elements.length; i++) {
             if (this.elements[i].isShown(value)) {
                 this.elements[i].show();
