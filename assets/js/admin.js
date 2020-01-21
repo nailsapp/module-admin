@@ -1,5 +1,5 @@
 'use strict';
-let _ADMIN;
+let _ADMIN, _ADMIN_PROXY;
 
 import '../sass/admin.scss';
 import Alerts from './components/Alerts.js';
@@ -20,6 +20,66 @@ import Tabs from './components/Tabs.js';
 import Toggles from './components/Toggles.js';
 import Wysiwyg from './components/Wysiwyg.js';
 
+_ADMIN_PROXY = function(vendor, slug) {
+    return {
+        'vendor': vendor,
+        'slug': slug,
+        'onRefreshUi': function(callback) {
+            window.NAILS.ADMIN.onRefreshUi(callback);
+            return this;
+        },
+        'refreshUi': function(domElement) {
+            this.log('UI refresh requested', domElement || document);
+            window.NAILS.ADMIN.refreshUi(domElement);
+            return this;
+        },
+        'destroyUi': function(domElement) {
+            window.NAILS.ADMIN.destroyUi(domElement);
+            return this;
+        },
+        'onDestroyUi': function(callback) {
+            window.NAILS.ADMIN.onDestroyUi(callback);
+            return this;
+        },
+        'log': function() {
+            if (typeof (console.log) === 'function') {
+                console.log(
+                    "\x1b[33m[" +
+                    this.vendor +
+                    ': ' +
+                    this.slug +
+                    "]\x1b[0m",
+                    ...arguments
+                );
+            }
+        },
+        'warn': function() {
+            if (typeof (console.warn) === 'function') {
+                console.warn(
+                    "\x1b[33m[" +
+                    this.vendor +
+                    ': ' +
+                    this.slug +
+                    "]\x1b[0m",
+                    ...arguments
+                );
+            }
+        },
+        'error': function() {
+            if (typeof (console.error) === 'function') {
+                console.error(
+                    "\x1b[33m[" +
+                    this.vendor +
+                    ': ' +
+                    this.slug +
+                    "]\x1b[0m",
+                    ...arguments
+                );
+            }
+        }
+    }
+}
+
 _ADMIN = function() {
     return {
 
@@ -39,10 +99,21 @@ _ADMIN = function() {
          * @param plugin
          */
         'registerPlugin': function(vendor, slug, plugin) {
+
             if (typeof this.instances[vendor] === 'undefined') {
                 this.instances[vendor] = {};
             }
-            this.instances[vendor][slug] = plugin;
+
+            if (typeof plugin === 'function') {
+
+                this.instances[vendor][slug] = plugin(
+                    new _ADMIN_PROXY(vendor, slug)
+                );
+
+            } else {
+                this.instances[vendor][slug] = plugin;
+            }
+
             return this;
         },
 
@@ -142,20 +213,122 @@ window.NAILS.ADMIN = new _ADMIN();
 window
     .NAILS
     .ADMIN
-    .registerPlugin(window.NAILS.ADMIN.namespace, 'Alerts', new Alerts(window.NAILS.ADMIN))
-    .registerPlugin(window.NAILS.ADMIN.namespace, 'Confirm', new Confirm(window.NAILS.ADMIN))
-    .registerPlugin(window.NAILS.ADMIN.namespace, 'CopyToClipboard', new CopyToClipboard(window.NAILS.ADMIN))
-    .registerPlugin(window.NAILS.ADMIN.namespace, 'DisabledElements', new DisabledElements())
-    .registerPlugin(window.NAILS.ADMIN.namespace, 'DynamicTable', new DynamicTable(window.NAILS.ADMIN))
-    .registerPlugin(window.NAILS.ADMIN.namespace, 'IndexButtons', new IndexButtons(window.NAILS.ADMIN))
-    .registerPlugin(window.NAILS.ADMIN.namespace, 'InputHelper', new InputHelper(window.NAILS.ADMIN))
-    .registerPlugin(window.NAILS.ADMIN.namespace, 'Modalize', new Modalize(window.NAILS.ADMIN))
-    .registerPlugin(window.NAILS.ADMIN.namespace, 'Notes', new Notes(window.NAILS.ADMIN))
-    .registerPlugin(window.NAILS.ADMIN.namespace, 'Repeater', new Repeater(window.NAILS.ADMIN))
-    .registerPlugin(window.NAILS.ADMIN.namespace, 'Revealer', new Revealer(window.NAILS.ADMIN))
-    .registerPlugin(window.NAILS.ADMIN.namespace, 'Searcher', new Searcher(window.NAILS.ADMIN))
-    .registerPlugin(window.NAILS.ADMIN.namespace, 'Sortable', new Sortable(window.NAILS.ADMIN))
-    .registerPlugin(window.NAILS.ADMIN.namespace, 'Stripes', new Stripes(window.NAILS.ADMIN))
-    .registerPlugin(window.NAILS.ADMIN.namespace, 'Tabs', new Tabs(window.NAILS.ADMIN))
-    .registerPlugin(window.NAILS.ADMIN.namespace, 'Toggles', new Toggles(window.NAILS.ADMIN))
-    .registerPlugin(window.NAILS.ADMIN.namespace, 'Wysiwyg', new Wysiwyg(window.NAILS.ADMIN));
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'Alerts',
+        function(controller) {
+            return new Alerts(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'Confirm',
+        function(controller) {
+            return new Confirm(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'CopyToClipboard',
+        function(controller) {
+            return new CopyToClipboard(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'DisabledElements',
+        function(controller) {
+            return new DisabledElements(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'DynamicTable',
+        function(controller) {
+            return new DynamicTable(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'IndexButtons',
+        function(controller) {
+            return new IndexButtons(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'InputHelper',
+        function(controller) {
+            return new InputHelper(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'Modalize',
+        function(controller) {
+            return new Modalize(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'Notes',
+        function(controller) {
+            return new Notes(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'Repeater',
+        function(controller) {
+            return new Repeater(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'Revealer',
+        function(controller) {
+            return new Revealer(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'Searcher',
+        function(controller) {
+            return new Searcher(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'Sortable',
+        function(controller) {
+            return new Sortable(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'Stripes',
+        function(controller) {
+            return new Stripes(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'Tabs',
+        function(controller) {
+            return new Tabs(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'Toggles',
+        function(controller) {
+            return new Toggles(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'Wysiwyg',
+        function(controller) {
+            return new Wysiwyg(controller);
+        }
+    )
