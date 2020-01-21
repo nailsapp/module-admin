@@ -21,6 +21,7 @@ import Select from './components/Select.js';
 import Sortable from './components/Sortable.js';
 import Stripes from './components/Stripes.js';
 import Tabs from './components/Tabs.js';
+import Tipsy from './components/Tipsy.js';
 import Toggles from './components/Toggles.js';
 import Wysiwyg from './components/Wysiwyg.js';
 
@@ -348,6 +349,13 @@ window
         'Tabs',
         function(controller) {
             return new Tabs(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'Tipsy',
+        function(controller) {
+            return new Tipsy(controller);
         }
     )
     .registerPlugin(
