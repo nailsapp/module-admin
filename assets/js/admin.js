@@ -150,7 +150,6 @@ _ADMIN = function() {
          * @param domElement The domElement to focus the refresh on
          */
         'refreshUi': function(domElement) {
-            this.log('Refreshing UI', domElement || document);
             this.trigger('admin:refresh-ui', {domElement: domElement || document});
             return this;
         },
