@@ -35,6 +35,7 @@ class Revealer {
         $('[data-revealer]:not(.processed)', domElement)
             .filter(':input')
             .filter('input[type=checkbox], select')
+            .addClass('processed')
             .each((index, element) => {
 
                 let group = $(element)
@@ -88,7 +89,6 @@ class Group {
         this.elements = [];
 
         this.$control
-            .addClass('processed')
             .on('change', () => {
                 this.toggle(
                     this.getControlValue()
@@ -108,6 +108,7 @@ class Group {
 
         $(`[data-revealer="${this.group}"]:not(.processed)`, domElement)
             .filter(':not(input[type=checkbox], select)')
+            .addClass('processed')
             .each((index, element) => {
                 this
                     .elements
@@ -180,8 +181,6 @@ class Element {
     constructor(element) {
         this.$element = $(element);
         this.value = this.$element.data('reveal-on');
-
-        this.$element.addClass('processed');
     }
 
     // --------------------------------------------------------------------------
@@ -194,7 +193,7 @@ class Element {
     isShown(value) {
 
         /**
-         * This adds support for true/false properties which mayb have been cast as 1/0
+         * This adds support for true/false properties which maybe have been cast as 1/0
          */
         if (typeof value === 'boolean') {
             return (value && this.value === 1) || (!value && this.value === 0);
