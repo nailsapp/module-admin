@@ -5,6 +5,7 @@ import '../sass/admin.scss';
 import Alerts from './components/Alerts.js';
 import Confirm from './components/Confirm.js';
 import CopyToClipboard from './components/CopyToClipboard.js';
+import DateTime from './components/DateTime.js';
 import DisabledElements from './components/DisabledElements.js';
 import DynamicTable from './components/DynamicTable.js';
 import IndexButtons from './components/IndexButtons.js';
@@ -232,6 +233,13 @@ window
         'CopyToClipboard',
         function(controller) {
             return new CopyToClipboard(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'DateTime',
+        function(controller) {
+            return new DateTime(controller);
         }
     )
     .registerPlugin(
