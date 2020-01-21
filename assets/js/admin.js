@@ -8,6 +8,7 @@ import CopyToClipboard from './components/CopyToClipboard.js';
 import DisabledElements from './components/DisabledElements.js';
 import DynamicTable from './components/DynamicTable.js';
 import IndexButtons from './components/IndexButtons.js';
+import InputHelper from './components/InputHelper.js';
 import Modalize from './components/Modalize.js';
 import Notes from './components/Notes.js';
 import Repeater from './components/Repeater.js';
@@ -147,6 +148,7 @@ window
     .registerPlugin(window.NAILS.ADMIN.namespace, 'DisabledElements', new DisabledElements())
     .registerPlugin(window.NAILS.ADMIN.namespace, 'DynamicTable', new DynamicTable(window.NAILS.ADMIN))
     .registerPlugin(window.NAILS.ADMIN.namespace, 'IndexButtons', new IndexButtons(window.NAILS.ADMIN))
+    .registerPlugin(window.NAILS.ADMIN.namespace, 'InputHelper', new InputHelper(window.NAILS.ADMIN))
     .registerPlugin(window.NAILS.ADMIN.namespace, 'Modalize', new Modalize(window.NAILS.ADMIN))
     .registerPlugin(window.NAILS.ADMIN.namespace, 'Notes', new Notes(window.NAILS.ADMIN))
     .registerPlugin(window.NAILS.ADMIN.namespace, 'Repeater', new Repeater(window.NAILS.ADMIN))
