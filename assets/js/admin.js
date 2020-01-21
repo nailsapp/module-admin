@@ -15,6 +15,7 @@ import Modalize from './components/Modalize.js';
 import Notes from './components/Notes.js';
 import Repeater from './components/Repeater.js';
 import Revealer from './components/Revealer.js';
+import ScrollToFirstError from './components/ScrollToFirstError.js'
 import Searcher from './components/Searcher.js';
 import Sortable from './components/Sortable.js';
 import Stripes from './components/Stripes.js';
@@ -304,6 +305,13 @@ window
         'Revealer',
         function(controller) {
             return new Revealer(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'ScrollToFirstError',
+        function(controller) {
+            return new ScrollToFirstError(controller);
         }
     )
     .registerPlugin(
