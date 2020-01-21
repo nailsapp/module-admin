@@ -8,6 +8,7 @@ import CopyToClipboard from './components/CopyToClipboard.js';
 import DateTime from './components/DateTime.js';
 import DisabledElements from './components/DisabledElements.js';
 import DynamicTable from './components/DynamicTable.js';
+import Fancybox from './components/Fancybox.js';
 import IndexButtons from './components/IndexButtons.js';
 import InputHelper from './components/InputHelper.js';
 import Modalize from './components/Modalize.js';
@@ -254,6 +255,13 @@ window
         'DynamicTable',
         function(controller) {
             return new DynamicTable(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'Fancybox',
+        function(controller) {
+            return new Fancybox(controller);
         }
     )
     .registerPlugin(
