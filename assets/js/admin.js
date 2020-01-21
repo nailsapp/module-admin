@@ -17,6 +17,7 @@ import Repeater from './components/Repeater.js';
 import Revealer from './components/Revealer.js';
 import ScrollToFirstError from './components/ScrollToFirstError.js'
 import Searcher from './components/Searcher.js';
+import Select from './components/Select.js';
 import Sortable from './components/Sortable.js';
 import Stripes from './components/Stripes.js';
 import Tabs from './components/Tabs.js';
@@ -319,6 +320,13 @@ window
         'Searcher',
         function(controller) {
             return new Searcher(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'Select',
+        function(controller) {
+            return new Select(controller);
         }
     )
     .registerPlugin(
