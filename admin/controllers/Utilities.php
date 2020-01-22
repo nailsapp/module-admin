@@ -15,7 +15,9 @@ namespace Nails\Admin\Admin;
 use Nails\Admin\Controller\Base;
 use Nails\Admin\Helper;
 use Nails\Admin\Service\DataExport;
+use Nails\Common\Events;
 use Nails\Common\Exception\NailsException;
+use Nails\Common\Service\Event;
 use Nails\Factory;
 
 /**
@@ -85,12 +87,18 @@ class Utilities extends Base
 
         $oInput = Factory::service('Input');
         if ($oInput->post('go')) {
-            $oRoutesService = Factory::service('Routes');
-            if ($oRoutesService->update()) {
+
+            try {
+
+                /** @var Event $oEventService */
+                $oEventService = Factory::service('Event');
+                $oEventService->trigger(Events::ROUTES_UPDATE);
+
                 $this->data['success'] = 'Routes rewritten successfully.';
-            } else {
+
+            } catch (\Exception $e) {
                 $this->data['error'] = 'There was a problem writing the routes. ';
-                $this->data['error'] .= $oRoutesService->lastError();
+                $this->data['error'] .= $e->getMessage();
             }
         }
 
