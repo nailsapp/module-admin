@@ -25,10 +25,14 @@ import Tipsy from './components/Tipsy.js';
 import Toggles from './components/Toggles.js';
 import Wysiwyg from './components/Wysiwyg.js';
 
-_ADMIN_PROXY = function(vendor, slug) {
+_ADMIN_PROXY = function(vendor, slug, instances) {
     return {
         'vendor': vendor,
         'slug': slug,
+        'getInstance': function(plugin, vendor) {
+            vendor = vendor || window.NAILS.ADMIN.namespace;
+            return window.NAILS.ADMIN.instances[vendor][plugin];
+        },
         'onRefreshUi': function(callback) {
             window.NAILS.ADMIN.onRefreshUi(callback);
             return this;
