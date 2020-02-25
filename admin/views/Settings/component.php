@@ -1,68 +1,50 @@
+<?php
+
+use Nails\Admin\Helper;
+use Nails\Common\Service\Input;
+use Nails\Factory;
+
+/** @var Input $oInput */
+$oInput = Factory::service('Input');
+$sUrl   = current_url() . '?slug=' . $slug . '&isModal=' . $oInput->get('isModal');
+
+$aTabs = [];
+foreach ($aFieldsets as $aFieldset) {
+    $aTabs[] = [
+        'label'   => $aFieldset['legend'] ?? 'Generic Settings',
+        'content' => function () use ($aFieldset) {
+            foreach ($aFieldset['fields'] as $iIndex => $oField) {
+
+                if (empty($oField->key)) {
+
+                    throw new \Nails\Common\Exception\NailsException(
+                        sprintf(
+                            'Property "key" is missing for field "%s"',
+                            $oField->label ?: $iIndex
+                        )
+                    );
+                }
+
+                if (is_callable('\Nails\Common\Helper\Form\Field::' . $oField->type)) {
+                    echo call_user_func('\Nails\Common\Helper\Form\Field::' . $oField->type, (array) $oField);
+                } else {
+                    echo Nails\Common\Helper\Form\Field::text((array) $oField);
+                }
+            }
+        },
+    ];
+}
+
+?>
 <div class="group-settings component">
     <?php
-
-    $oInput = \Nails\Factory::service('Input');
-    $sUrl   = current_url() . '?slug=' . $slug . '&isModal=' . $oInput->get('isModal');
-
     echo form_open($sUrl);
-    echo form_hidden('slug', $slug);
-
-    foreach ($fieldsets as $aFieldset) {
-
-        echo '<fieldset>';
-        echo '<legend>';
-        echo $aFieldset['legend'] ?: 'Generic Settings';
-        echo '</legend>';
-
-        foreach ($aFieldset['fields'] as $oField) {
-
-            $aField = (array) $oField;
-
-            if (empty($aField['type'])) {
-                $aField['type'] = 'text';
-            }
-
-            if (array_key_exists($aField['key'], $settings)) {
-                $aField['default'] = $settings[$aField['key']];
-            }
-
-            switch ($aField['type']) {
-
-                case 'bool':
-                case 'boolean':
-                    echo form_field_boolean($aField);
-                    break;
-
-                case 'dropdown':
-                case 'select':
-                    $aField['class'] = 'select2';
-                    echo form_field_dropdown($aField, (array) $aField['options']);
-                    break;
-
-                case 'wysiwyg':
-                    echo form_field_wysiwyg($aField);
-                    break;
-
-                case 'cms_widgets':
-                    echo form_field_cms_widgets($aField);
-                    break;
-
-                case 'file':
-                case 'image':
-                    echo form_field_cdn_object_picker($aField);
-                    break;
-
-                default:
-                    echo form_field($aField);
-                    break;
-            }
-        }
-
-        echo '</fieldset>';
-    }
-
-    echo '<p>' . form_submit('submit', 'Save Changes', 'class="btn btn-success"') . '</p>';
-    echo form_open();
-
+    echo Helper::tabs($aTabs);
     ?>
+    <div class="admin-floating-controls">
+        <button type="submit" class="btn btn-primary">
+            Save Changes
+        </button>
+    </div>
+    <?=form_close()?>
 </div>

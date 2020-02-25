@@ -14,6 +14,8 @@ namespace Nails\Admin\Admin;
 
 use Nails\Admin\Controller\Base;
 use Nails\Admin\Helper;
+use Nails\Common\Factory\Model\Field;
+use Nails\Common\Helper\Form;
 use Nails\Components;
 use Nails\Factory;
 
@@ -214,7 +216,7 @@ class Settings extends Base
     /**
      * Takes a multi line input and converts it into an array
      *
-     * @param  string $sInput The input string
+     * @param string $sInput The input string
      *
      * @return array
      */
@@ -294,10 +296,10 @@ class Settings extends Base
         }
 
         //  Move all the settings which aren't already in fieldsets/groups into groups
-        $this->data['fieldsets'] = [];
-        $this->aFields           = [];
+        $this->data['aFieldsets'] = [];
+        $this->aFields            = [];
         $this->extractFieldsets($oComponent->slug, $oComponent->data->settings);
-        $this->data['fieldsets'] = array_values($this->data['fieldsets']);
+        $this->data['aFieldsets'] = array_values($this->data['aFieldsets']);
 
         if ($oInput->post()) {
 
@@ -403,8 +405,8 @@ class Settings extends Base
 
                 $fieldSetIndex++;
 
-                if (!isset($this->data['fieldsets'][$fieldSetIndex])) {
-                    $this->data['fieldsets'][$fieldSetIndex] = [
+                if (!isset($this->data['aFieldsets'][$fieldSetIndex])) {
+                    $this->data['aFieldsets'][$fieldSetIndex] = [
                         'legend' => $oSetting->legend,
                         'fields' => [],
                     ];
@@ -414,20 +416,33 @@ class Settings extends Base
 
             } else {
 
-                $sValue = appSetting($oSetting->key, $sComponentSlug);
-                if (!is_null($sValue)) {
-                    $oSetting->default = $sValue;
-                }
-
-                if (!isset($this->data['fieldsets'][$fieldSetIndex])) {
-                    $this->data['fieldsets'][$fieldSetIndex] = [
+                if (!isset($this->data['aFieldsets'][$fieldSetIndex])) {
+                    $this->data['aFieldsets'][$fieldSetIndex] = [
                         'legend' => '',
                         'fields' => [],
                     ];
                 }
 
-                $this->data['fieldsets'][$fieldSetIndex]['fields'][] = $oSetting;
-                $this->aFields[]                                     = $oSetting;
+                $oField             = Factory::factory('ModelField');
+                $oField->key        = $oSetting->key;
+                $oField->label      = $oSetting->label;
+                $oField->encrypted  = $oSetting->encrypted ?? false;
+                $oField->type       = $oSetting->type ?? Form::FIELD_TEXT;
+                $oField->validation = $oSetting->validation ?? [];
+                $oField->options    = $oSetting->options ?? [];
+                $oField->max_length = $oSetting->max_length ?? null;
+                $oField->default    = $oSetting->default ?? null;
+                $oField->class      = $oSetting->class ?? null;
+                $oField->info       = $oSetting->info ?? null;
+                $oField->data       = $oSetting->data ?? [];
+
+                $sValue = appSetting($oSetting->key, $sComponentSlug);
+                if (!is_null($sValue)) {
+                    $oField->default = $sValue;
+                }
+
+                $this->data['aFieldsets'][$fieldSetIndex]['fields'][] = $oField;
+                $this->aFields[]                                      = $oField;
             }
         }
     }
