@@ -43,21 +43,15 @@ class Fancybox {
                      * the `type` accordingly.
                      */
 
-                    let regex;
-                    regex = new RegExp('^.+\.(jpg|png|gif)(\\?.*)?$');
-
-                    if (regex.test(href)) {
+                    if (/^.+.(jpg|png|gif)(\?.*)?$/.test(href)) {
                         type = null;
                     }
 
                     //  Parse the URL for a query string
-                    regex = new RegExp('/\\?/g');
-                    href += !regex.test(href) ? '?' : '&';
+                    href += !/\?/.test(href) ? '?' : '&';
                     href += 'isModal=true';
 
                 } else {
-
-                    //  It's an inline fancybox
                     type = null;
                 }
 
