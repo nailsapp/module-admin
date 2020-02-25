@@ -49,7 +49,7 @@ abstract class DefaultController extends Base
      * The model to use for this admin view (and which module provides it)
      */
     const CONFIG_MODEL_NAME     = '';
-    const CONFIG_MODEL_PROVIDER = '';
+    const CONFIG_MODEL_PROVIDER = 'app';
 
     /**
      * The permission string to use when checking permissions; if not provided then no permissions required
