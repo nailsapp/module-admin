@@ -143,7 +143,6 @@ abstract class Base extends BaseMiddle
         $oAsset->load('admin.min.js', 'nails/module-admin');
         $oAsset->load('nails.admin.min.js', 'NAILS');
         $oAsset->load('nails.forms.min.js', 'NAILS');
-        $oAsset->load('nails.api.min.js', 'NAILS');
 
         //  Component assets
         foreach (Components::available() as $oComponent) {
@@ -186,11 +185,7 @@ abstract class Base extends BaseMiddle
         $aJs = [
 
             //  @todo (Pablo - 2019-12-05) - Remove these items (move into module-admin/admin.js as components)
-            'var _nails_admin,_nails_api, _nails_forms;',
-
-            'if (typeof(NAILS_API) === "function"){',
-            '_nails_api = new NAILS_API();',
-            '}',
+            'var _nails_admin, _nails_forms;',
 
             'if (typeof(NAILS_Admin) === "function"){',
             '_nails_admin = new NAILS_Admin();',
