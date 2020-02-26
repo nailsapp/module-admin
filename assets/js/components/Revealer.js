@@ -32,7 +32,7 @@ class Revealer {
      */
     init(domElement) {
 
-        $('[data-revealer]:not(.processed)', domElement)
+        $('[data-revealer]:not(.processed):not([data-reveal-on])', domElement)
             .filter(':input')
             .filter('input[type=checkbox], select')
             .addClass('processed')
