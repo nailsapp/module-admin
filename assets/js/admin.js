@@ -52,23 +52,17 @@ _ADMIN_PROXY = function(vendor, slug, instances) {
         'log': function() {
             if (typeof (console.log) === 'function') {
                 console.log(
-                    "\x1b[33m[" +
-                    this.vendor +
-                    ': ' +
-                    this.slug +
-                    "]\x1b[0m",
-                    ...arguments
+                    `%c[${this.vendor}: ${this.slug}]`,
+                    'color: goldenrod',
+                    ...arguments,
                 );
             }
         },
         'warn': function() {
             if (typeof (console.warn) === 'function') {
                 console.warn(
-                    "\x1b[33m[" +
-                    this.vendor +
-                    ': ' +
-                    this.slug +
-                    "]\x1b[0m",
+                    `%c[${this.vendor}: ${this.slug}]`,
+                    'color: goldenrod',
                     ...arguments
                 );
             }
@@ -76,11 +70,8 @@ _ADMIN_PROXY = function(vendor, slug, instances) {
         'error': function() {
             if (typeof (console.error) === 'function') {
                 console.error(
-                    "\x1b[33m[" +
-                    this.vendor +
-                    ': ' +
-                    this.slug +
-                    "]\x1b[0m",
+                    `%c[${this.vendor}: ${this.slug}]`,
+                    'color: goldenrod',
                     ...arguments
                 );
             }
@@ -209,7 +200,11 @@ _ADMIN = function() {
          */
         'log': function() {
             if (typeof (console.log) === 'function') {
-                console.log("\x1b[33m[Admin]\x1b[0m", ...arguments);
+                console.log(
+                    `%c[${this.namespace}]`,
+                    'color: goldenrod',
+                    ...arguments
+                );
             }
         },
 
@@ -221,7 +216,11 @@ _ADMIN = function() {
          */
         'warn': function(message, payload) {
             if (typeof (console.warn) === 'function') {
-                console.warn("\x1b[33m[Admin]\x1b[0m", ...arguments);
+                console.warn(
+                    `%c[${this.namespace}]`,
+                    'color: goldenrod',
+                    ...arguments
+                );
             }
         }
     };
