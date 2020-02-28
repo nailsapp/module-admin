@@ -93,7 +93,6 @@ class Group {
                 this.toggle(
                     this.getControlValue()
                 );
-                this.adminController.refreshUi();
             });
     }
 
@@ -146,7 +145,7 @@ class Group {
      * @param value {String|Boolean} The value to test
      */
     toggle(value) {
-        this.adminController.log(`Toggling elements for value ${value}`);
+        this.adminController.log('Toggling elements for value', value);
         for (let i = 0; i < this.elements.length; i++) {
             if (this.elements[i].isShown(value)) {
                 this.elements[i].show();
@@ -195,7 +194,7 @@ class Element {
         /**
          * This adds support for true/false properties which maybe have been cast as 1/0
          */
-        if (typeof value === 'boolean') {
+        if (typeof value === 'boolean' && typeof this.value !== 'boolean') {
             return (value && this.value === 1) || (!value && this.value === 0);
         } else {
             return this.value === value;
