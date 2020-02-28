@@ -30,8 +30,7 @@ _ADMIN_PROXY = function(vendor, slug, instances) {
         'vendor': vendor,
         'slug': slug,
         'getInstance': function(plugin, vendor) {
-            vendor = vendor || window.NAILS.ADMIN.namespace;
-            return window.NAILS.ADMIN.instances[vendor][plugin];
+            return window.NAILS.ADMIN.getInstance(plugin, vendor);
         },
         'onRefreshUi': function(callback) {
             window.NAILS.ADMIN.onRefreshUi(callback);
@@ -101,6 +100,18 @@ _ADMIN = function() {
          * All the registered plugins
          */
         'instances': {},
+
+        /**
+         * Returns a plugin instance
+         *
+         * @param {String} plugin The plugin's slug
+         * @param {String} vendor The plugin's vendor
+         * @returns {*}
+         */
+        'getInstance': function(plugin, vendor) {
+            vendor = vendor || window.NAILS.ADMIN.namespace;
+            return window.NAILS.ADMIN.instances[vendor][plugin];
+        },
 
         /**
          * Registers a new plugin

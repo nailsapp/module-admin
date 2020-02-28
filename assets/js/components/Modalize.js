@@ -147,8 +147,7 @@ class ModalizeInstance {
         this.adminController.log('Closing modal');
 
         this.adminController
-            .instances['nails/module-admin']
-            .Wysiwyg
+            .getInstance('Wysiwyg')
             .destroy(this.$modal);
 
         let content = this.$modal.find('> div').detach();
