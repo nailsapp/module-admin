@@ -47,30 +47,6 @@ class Repeater {
 
         return this;
     }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Write a log to the console
-     * @return {void}
-     */
-    static log() {
-        if (typeof (console.log) === 'function') {
-            console.log("\x1b[33m[Repeater]\x1b[0m", ...arguments);
-        }
-    };
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Write a warning to the console
-     * @return {void}
-     */
-    static warn() {
-        if (typeof (console.warn) === 'function') {
-            console.warn("\x1b[33m[Repeater]\x1b[0m", ...arguments);
-        }
-    };
 }
 
 // --------------------------------------------------------------------------
@@ -84,11 +60,12 @@ class RepeaterInstance {
      */
     constructor(adminController, $element, data) {
 
-        this.trigger('constructing');
-
-        this.index = 0;
         this.adminController = adminController;
         this.$element = $element
+        this.index = 0;
+
+        this.trigger('constructing');
+
         this.$target = $('.js-admin-repeater__target', this.$element);
         this.$add = $('.js-admin-repeater__add', this.$element);
         this.template = $('.js-admin-repeater__template', this.$element).html();
@@ -188,7 +165,9 @@ class RepeaterInstance {
         this.index++;
 
         this.$element.find('.js-admin-sortable').trigger('sortable:sort');
-        this.adminController.refreshUi($item);
+        if (!this.noRefresh) {
+            this.adminController.refreshUi($item);
+        }
         this.trigger('added');
     }
 
@@ -217,11 +196,14 @@ class RepeaterInstance {
      */
     load(data) {
         this.trigger('loading', data);
+        this.noRefresh = true;
         for (let key in data) {
             if (data.hasOwnProperty(key)) {
                 this.add(data[key]);
             }
         }
+        this.noRefresh = false;
+        this.adminController.refreshUi(this.$element);
         this.trigger('loaded', data);
     }
 
@@ -252,7 +234,7 @@ class RepeaterInstance {
             'data': data
         };
 
-        Repeater.log('Triggering Event: ' + event, eventData);
+        this.adminController.log('Triggering Event: ' + event, eventData);
     }
 }
 
