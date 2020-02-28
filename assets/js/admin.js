@@ -37,7 +37,7 @@ _ADMIN_PROXY = function(vendor, slug, instances) {
             return this;
         },
         'refreshUi': function(domElement) {
-            this.log('UI refresh requested', domElement || document);
+            this.log('🙋‍♀️ UI refresh requested', domElement || document);
             window.NAILS.ADMIN.refreshUi(domElement);
             return this;
         },
@@ -152,11 +152,44 @@ _ADMIN = function() {
         },
 
         /**
+         * The UI refresh set
+         */
+        'refreshUiSet': new Set(),
+
+        /**
          * Triggers a UI refresh
          * @param domElement The domElement to focus the refresh on
          */
         'refreshUi': function(domElement) {
-            this.trigger('admin:refresh-ui', {domElement: domElement || document});
+
+            domElement = domElement || document;
+
+            if (this.uiIsRefreshing) {
+                this.refreshUiSet.add(domElement);
+            }
+
+            this.refreshUiSet.add(domElement);
+
+            clearTimeout(this.refreshTimeout);
+
+            this.refreshTimeout = setTimeout(() => {
+                if (this.refreshUiSet.size > 0) {
+                    this.uiIsRefreshing = true;
+                    this.log(`🔄 Refreshing UI (${this.refreshUiSet.size} items)`);
+
+                    this.refreshUiSet
+                        .forEach(domElement => {
+                            this.log('👷‍♂️ Refreshing:', domElement);
+                            this.trigger('admin:refresh-ui', {domElement: domElement});
+                            this.refreshUiSet.delete(domElement);
+                            this.log('🙌🏻 Refreshed:', domElement);
+                        });
+
+                    this.log('✅ Refreshed UI');
+                    this.uiIsRefreshing = false;
+                }
+            }, 10);
+
             return this;
         },
 
