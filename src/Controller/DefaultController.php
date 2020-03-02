@@ -17,8 +17,6 @@ use Nails\Admin\Factory\IndexFilter\Option;
 use Nails\Admin\Factory\Nav;
 use Nails\Admin\Helper;
 use Nails\Admin\Model\ChangeLog;
-use Nails\Auth;
-use Nails\Auth\Service\Session;
 use Nails\Common\Exception\FactoryException;
 use Nails\Common\Exception\ModelException;
 use Nails\Common\Exception\NailsException;
@@ -31,6 +29,7 @@ use Nails\Common\Service\Database;
 use Nails\Common\Service\FormValidation;
 use Nails\Common\Service\Input;
 use Nails\Common\Service\Locale;
+use Nails\Common\Service\Session;
 use Nails\Common\Service\Uri;
 use Nails\Common\Traits\Model\Copyable;
 use Nails\Common\Traits\Model\Localised;
@@ -633,8 +632,8 @@ abstract class DefaultController extends Base
                     $sLink = '';
                 }
 
-                /** @var Auth\Service\Session $oSession */
-                $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
+                /** @var Session $oSession */
+                $oSession = Factory::service('Session');
                 $oSession->setFlashData('success', sprintf(static::CREATE_SUCCESS_MESSAGE, $sLink));
 
                 if ($aConfig['CAN_EDIT'] && static::userCan('edit')) {
@@ -695,8 +694,8 @@ abstract class DefaultController extends Base
                     );
 
                     if (empty($aDiff)) {
-                        /** @var Auth\Service\Session $oSession */
-                        $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
+                        /** @var Session $oSession */
+                        $oSession = Factory::service('Session');
                         $oSession->setFlashData('error', 'No more variations of this item can be created.');
                         $this->returnToIndex();
                     }
@@ -794,8 +793,8 @@ abstract class DefaultController extends Base
                     $sLink = '';
                 }
 
-                /** @var Auth\Service\Session $oSession */
-                $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
+                /** @var Session $oSession */
+                $oSession = Factory::service('Session');
                 $oSession->setFlashData('success', sprintf(static::EDIT_SUCCESS_MESSAGE, $sLink));
 
                 if (classUses($oModel, Localised::class)) {
@@ -838,8 +837,8 @@ abstract class DefaultController extends Base
 
         /** @var Database $oDb */
         $oDb = Factory::service('Database');
-        /** @var Auth\Service\Session $oSession */
-        $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
+        /** @var Session $oSession */
+        $oSession = Factory::service('Session');
 
         $oModel = $this->getModel();
         $oItem  = $this->getItem();
@@ -909,8 +908,8 @@ abstract class DefaultController extends Base
         $oUri = Factory::service('Uri');
         /** @var Database $oDb */
         $oDb = Factory::service('Database');
-        /** @var Auth\Service\Session $oSession */
-        $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
+        /** @var Session $oSession */
+        $oSession = Factory::service('Session');
 
         $oModel = $this->getModel();
         $oItem  = $this->getItem([], null, true);
@@ -998,8 +997,8 @@ abstract class DefaultController extends Base
 
                 $oDb->trans_commit();
 
-                /** @var Auth\Service\Session $oSession */
-                $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
+                /** @var Session $oSession */
+                $oSession = Factory::service('Session');
                 $oSession->setFlashData('success', static::ORDER_SUCCESS_MESSAGE);
 
                 redirect($aConfig['BASE_URL'] . '/sort');
@@ -1040,7 +1039,7 @@ abstract class DefaultController extends Base
         /** @var Database $oDb */
         $oDb = Factory::service('Database');
         /** @var Session $oSession */
-        $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
+        $oSession = Factory::service('Session');
 
         try {
 

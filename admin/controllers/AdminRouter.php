@@ -11,7 +11,6 @@
  */
 
 use Nails\Admin\Exception\RouterException;
-use Nails\Auth;
 use Nails\Components;
 use Nails\Factory;
 
@@ -586,7 +585,8 @@ class AdminRouter extends BaseMiddle
 
         if (empty($sModule)) {
 
-            $oSession = Factory::service('Session', Auth\Constants::MODULE_SLUG);
+            /** @var \Nails\Common\Service\Session $oSession */
+            $oSession = Factory::service('Session');
             $oSession->keepFlashData();
             redirect('admin/admin/dashboard');
 
