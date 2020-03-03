@@ -13,6 +13,7 @@
 namespace Nails\Admin\Model;
 
 use Nails\Common\Model\Base;
+use Nails\Config;
 
 class Help extends Base
 {
@@ -22,7 +23,7 @@ class Help extends Base
     public function __construct()
     {
         parent::__construct();
-        $this->table      = NAILS_DB_PREFIX . 'admin_help_video';
+        $this->table      = Config::get('NAILS_DB_PREFIX') . 'admin_help_video';
         $this->tableAlias = 'hv';
     }
 
@@ -41,7 +42,6 @@ class Help extends Base
         if (!empty($data['keywords'])) {
 
             if (empty($data['or_like'])) {
-
                 $data['or_like'] = [];
             }
 

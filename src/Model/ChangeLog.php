@@ -17,6 +17,7 @@ use Nails\Common\Exception\FactoryException;
 use Nails\Common\Exception\ModelException;
 use Nails\Common\Model\Base;
 use Nails\Common\Service\Event;
+use Nails\Config;
 use Nails\Factory;
 
 /**
@@ -248,8 +249,8 @@ class ChangeLog extends Base
     {
         //  Join user tables
         $oDb = Factory::service('Database');
-        $oDb->join(NAILS_DB_PREFIX . 'user u', 'u.id = ' . $this->getTableAlias() . '.user_id', 'LEFT');
-        $oDb->join(NAILS_DB_PREFIX . 'user_email ue', 'ue.user_id = ' . $this->getTableAlias() . '.user_id AND ue.is_primary = 1', 'LEFT');
+        $oDb->join(Config::get('NAILS_DB_PREFIX') . 'user u', 'u.id = ' . $this->getTableAlias() . '.user_id', 'LEFT');
+        $oDb->join(Config::get('NAILS_DB_PREFIX') . 'user_email ue', 'ue.user_id = ' . $this->getTableAlias() . '.user_id AND ue.is_primary = 1', 'LEFT');
 
         //  Searching?
         if (!empty($aData['keywords'])) {

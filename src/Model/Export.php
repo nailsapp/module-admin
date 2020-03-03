@@ -12,6 +12,7 @@
 namespace Nails\Admin\Model;
 
 use Nails\Common\Model\Base;
+use Nails\Config;
 use Nails\Factory;
 
 class Export extends Base
@@ -32,7 +33,7 @@ class Export extends Base
     public function __construct()
     {
         parent::__construct();
-        $this->table = NAILS_DB_PREFIX . 'admin_export';
+        $this->table = Config::Get('NAILS_DB_PREFIX') . 'admin_export';
     }
 
     // --------------------------------------------------------------------------

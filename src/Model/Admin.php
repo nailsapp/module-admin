@@ -14,6 +14,7 @@ namespace Nails\Admin\Model;
 
 use Nails\Auth;
 use Nails\Common\Model\Base;
+use Nails\Config;
 use Nails\Factory;
 
 class Admin extends Base
@@ -103,7 +104,7 @@ class Admin extends Base
 
         //  Save to the DB
         $bResult = $this->oUserMetaService->update(
-            NAILS_DB_PREFIX . 'user_meta_admin',
+            Config::get('NAILS_DB_PREFIX') . 'user_meta_admin',
             $userId,
             $existing
         );
@@ -134,7 +135,7 @@ class Admin extends Base
 
         } else {
 
-            $oRow = $this->oUserMetaService->get(NAILS_DB_PREFIX . 'user_meta_admin', $userId);
+            $oRow = $this->oUserMetaService->get(Config::get('NAILS_DB_PREFIX') . 'user_meta_admin', $userId);
 
             if (!empty($oRow)) {
 
@@ -190,7 +191,7 @@ class Admin extends Base
         $userId = $this->adminDataGetUserId($userId);
 
         $bResult = $this->oUserMetaService->update(
-            NAILS_DB_PREFIX . 'user_meta_admin',
+            Config::get('NAILS_DB_PREFIX') . 'user_meta_admin',
             $userId,
             [
                 'nav_state' => null,
