@@ -33,7 +33,7 @@ class Export extends Base
     public function __construct()
     {
         parent::__construct();
-        $this->table = Config::Get('NAILS_DB_PREFIX') . 'admin_export';
+        $this->table = Config::get('NAILS_DB_PREFIX') . 'admin_export';
     }
 
     // --------------------------------------------------------------------------
