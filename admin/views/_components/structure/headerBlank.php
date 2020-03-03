@@ -56,9 +56,9 @@
     <link rel="stylesheet" type="text/css" media="print" href="<?=\Nails\Config::get('NAILS_ASSETS_URL') . 'css/nails.admin.print.css'?>"/>
     <?php
 
-    $_primary   = appSetting('primary_colour', 'admin') ? appSetting('primary_colour', 'admin') : '#171D20';
-    $_secondary = appSetting('secondary_colour', 'admin') ? appSetting('secondary_colour', 'admin') : '#515557';
-    $_highlight = appSetting('highlight_colour', 'admin') ? appSetting('highlight_colour', 'admin') : '#F09634';
+    $_primary   = appSetting('primary_colour', 'admin') ?: '#171D20';
+    $_secondary = appSetting('secondary_colour', 'admin') ?: '#515557';
+    $_highlight = appSetting('highlight_colour', 'admin') ?: '#F09634';
 
     ?>
     <style type="text/css">
