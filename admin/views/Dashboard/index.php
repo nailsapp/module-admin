@@ -5,7 +5,7 @@
 
         ?>
        <p>
-            Welcome to <?=APP_NAME?>'s Administration pages. From here you can control aspects of
+            Welcome to <?=\Nails\Config::get('APP_NAME')?>'s Administration pages. From here you can control aspects of
             the site.
         </p>
         <p>
@@ -29,7 +29,7 @@
             <br />
             You don't have permission to access any of the administration features for this site. This is most
             likely a misconfiguration of your account; please see the site administrator for assistance, or send
-            an email to <a href="mailto:<?=APP_DEVELOPER_EMAIL?>"><?=APP_DEVELOPER_EMAIL?></a>.
+            an email to <a href="mailto:<?=\Nails\Config::get('APP_DEVELOPER_EMAIL')?>"><?=\Nails\Config::get('APP_DEVELOPER_EMAIL')?></a>.
         </p>
         <?php
     }

@@ -15,7 +15,7 @@
         echo lang('admin_word_short') . ' - ';
         echo isset($page->module->name) ? $page->module->name . ' - ' : null;
         echo isset($page->title) ? $page->title . ' - ' : null;
-        echo APP_NAME;
+        echo \Nails\Config::get('APP_NAME');
 
         ?></title>
     <meta name="keywords" content=""/>
@@ -26,7 +26,7 @@
         window.ENVIRONMENT = '<?=\Nails\Environment::get()?>';
         window.SITE_URL = '<?=siteUrl('', \Nails\Functions::isPageSecure())?>';
         window.NAILS = {};
-        window.NAILS.URL = '<?=NAILS_ASSETS_URL?>';
+        window.NAILS.URL = '<?=\Nails\Config::get('NAILS_ASSETS_URL')?>';
         window.NAILS.LANG = {};
         window.NAILS.USER = {};
         window.NAILS.USER.ID = <?=activeUser('id')?>;
@@ -53,7 +53,7 @@
     $oAsset->output('JS-INLINE-HEADER');
 
     ?>
-    <link rel="stylesheet" type="text/css" media="print" href="<?=NAILS_ASSETS_URL . 'css/nails.admin.print.css'?>"/>
+    <link rel="stylesheet" type="text/css" media="print" href="<?=\Nails\Config::get('NAILS_ASSETS_URL') . 'css/nails.admin.print.css'?>"/>
     <?php
 
     $_primary   = appSetting('primary_colour', 'admin') ? appSetting('primary_colour', 'admin') : '#171D20';
