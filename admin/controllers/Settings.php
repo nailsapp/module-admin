@@ -117,7 +117,7 @@ class Settings extends Base
         // --------------------------------------------------------------------------
 
         //  Get data
-        $this->data['settings'] = appSetting(null, 'admin', true);
+        $this->data['settings'] = appSetting(null, 'admin', null, true);
 
         // --------------------------------------------------------------------------
 
@@ -191,7 +191,7 @@ class Settings extends Base
         // --------------------------------------------------------------------------
 
         //  Get data
-        $this->data['settings'] = appSetting(null, 'app', true);
+        $this->data['settings'] = appSetting(null, 'app', null, true);
 
         // --------------------------------------------------------------------------
 
