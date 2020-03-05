@@ -2,13 +2,11 @@
 
 namespace Nails\Admin\Api\Controller;
 
-use Nails\Api\Controller\CrudController;
-use Nails\Api\Exception\ApiException;
-use Nails\Api\Factory\ApiResponse;
+use Nails\Api;
 use Nails\Common\Exception\FactoryException;
 use Nails\Factory;
 
-class Note extends CrudController
+class Note extends Api\Controller\CrudController
 {
     const REQUIRE_AUTH          = true;
     const CONFIG_MODEL_NAME     = 'Note';
@@ -38,8 +36,8 @@ class Note extends CrudController
      * @param string $sMethod The method being called
      * @param array  $aData   Any data to apply to the requests
      *
-     * @return ApiResponse
-     * @throws ApiException
+     * @return Api\Factory\ApiResponse
+     * @throws Api\Exception\ApiException
      * @throws FactoryException
      */
     public function getRemap($sMethod, array $aData = [])
@@ -60,8 +58,8 @@ class Note extends CrudController
      *
      * @param array $aData Any data to apply to the requests
      *
-     * @return ApiResponse
-     * @throws ApiException
+     * @return Api\Factory\ApiResponse
+     * @throws Api\Exception\ApiException
      * @throws FactoryException
      */
     public function getCount(array $aData = [])
@@ -72,8 +70,8 @@ class Note extends CrudController
             ['item_id', $iItemId],
         ];
 
-        return Factory::factory('ApiResponse', 'nails/module-api')
-                      ->setData($this->oModel->countAll($aData));
+        return Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG)
+            ->setData($this->oModel->countAll($aData));
     }
 
     // --------------------------------------------------------------------------
@@ -85,7 +83,7 @@ class Note extends CrudController
      * @param \stdClass $oItem The current object (when editing)
      *
      * @return array
-     * @throws ApiException
+     * @throws Api\Exception\ApiException
      * @throws FactoryException
      */
     protected function validateUserInput($aData, $oItem = null)
@@ -104,7 +102,7 @@ class Note extends CrudController
      * Returns an arry of the model's class name and the item's ID
      *
      * @return array
-     * @throws ApiException
+     * @throws Api\Exception\ApiException
      * @throws FactoryException
      */
     protected function getModelClassAndId()
@@ -118,7 +116,9 @@ class Note extends CrudController
             $oModel = Factory::model($sModelName, $sModelProvider);
             $sModel = get_class($oModel);
         } catch (\Exception $e) {
-            throw new ApiException('"' . $sModelProvider . ':' . $sModelName . '" is not a valid model');
+            throw new Api\Exception\ApiException(
+                '"' . $sModelProvider . ':' . $sModelName . '" is not a valid model'
+            );
         }
 
         return [$sModel, $iItemId];

@@ -13,7 +13,7 @@
 namespace Nails\Admin\Api\Controller;
 
 use Nails\Admin\Controller\BaseApi;
-use Nails\Api\Exception\ApiException;
+use Nails\Api;
 use Nails\Factory;
 
 class Nav extends BaseApi
@@ -39,7 +39,7 @@ class Nav extends BaseApi
 
     /**
      * Saves the user's admin nav preferences
-     * @return \Nails\Api\Factory\ApiResponse
+     * @return Api\Factory\ApiResponse
      */
     public function postSave()
     {
@@ -54,19 +54,19 @@ class Nav extends BaseApi
 
         $oAdminModel = Factory::model('Admin', 'nails/module-admin');
         $oAdminModel->setAdminData('nav_state', $oPref);
-        return Factory::factory('ApiResponse', 'nails/module-api');
+        return Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG);
     }
 
     // --------------------------------------------------------------------------
 
     /**
      * Resets a user's admin nav preferences
-     * @return \Nails\Api\Factory\ApiResponse
+     * @return Api\Factory\ApiResponse
      */
     public function postReset()
     {
         $oAdminModel = Factory::model('Admin', 'nails/module-admin');
         $oAdminModel->unsetAdminData('nav_state');
-        return Factory::factory('ApiResponse', 'nails/module-api');
+        return Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG);
     }
 }
