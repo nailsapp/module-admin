@@ -278,7 +278,7 @@ abstract class Base extends BaseMiddle
 
                 $oAutoLoad = $oComponent->data->{'nails/module-admin'}->autoload;
 
-                //  Libraries
+                //  Services
                 if (!empty($oAutoLoad->services)) {
                     foreach ($oAutoLoad->services as $sService) {
                         Factory::service($sService, $oComponent->slug);
@@ -301,16 +301,8 @@ abstract class Base extends BaseMiddle
 
                 //  Javascript
                 if (!empty($oAutoLoad->assets->js)) {
-                    foreach ($oAutoLoad->assets->js as $mAsset) {
-                        if (is_string($mAsset)) {
-                            $sAsset    = $mAsset;
-                            $sLocation = $oComponent->slug;
-                        } else {
-                            $sAsset    = !empty($mAsset[0]) ? $mAsset[0] : null;
-                            $sLocation = !empty($mAsset[1]) ? $mAsset[1] : null;
-                        }
-
-                        $oAsset->load($sAsset, $sLocation, 'JS');
+                    foreach ($oAutoLoad->assets->js as $sAsset) {
+                        $oAsset->load($sAsset, $oComponent->slug, 'JS');
                     }
                 }
 
@@ -323,17 +315,8 @@ abstract class Base extends BaseMiddle
 
                 //  CSS
                 if (!empty($oAutoLoad->assets->css)) {
-                    foreach ($oAutoLoad->assets->css as $mAsset) {
-
-                        if (is_string($mAsset)) {
-                            $sAsset    = $mAsset;
-                            $sLocation = $oComponent->slug;
-                        } else {
-                            $sAsset    = !empty($mAsset[0]) ? $mAsset[0] : null;
-                            $sLocation = !empty($mAsset[1]) ? $mAsset[1] : null;
-                        }
-
-                        $oAsset->load($sAsset, $sLocation, 'CSS');
+                    foreach ($oAutoLoad->assets->css as $sAsset) {
+                        $oAsset->load($sAsset, $oComponent->slug, 'CSS');
                     }
                 }
 
