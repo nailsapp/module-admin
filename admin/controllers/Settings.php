@@ -418,7 +418,7 @@ class Settings extends Base
 
                 if (!isset($this->data['aFieldsets'][$fieldSetIndex])) {
                     $this->data['aFieldsets'][$fieldSetIndex] = [
-                        'legend' => '',
+                        'legend' => 'Generic',
                         'fields' => [],
                     ];
                 }
