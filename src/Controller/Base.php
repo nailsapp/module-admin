@@ -14,7 +14,10 @@
 namespace Nails\Admin\Controller;
 
 use Nails\Admin\Events;
+use Nails\Common\Exception\FactoryException;
+use Nails\Common\Service\Asset;
 use Nails\Components;
+use Nails\Config;
 use Nails\Factory;
 
 // --------------------------------------------------------------------------
@@ -66,9 +69,10 @@ abstract class Base extends BaseMiddle
 
         // --------------------------------------------------------------------------
 
-        $this->loadConfigs();
-        $this->loadHelpers();
-        $this->loadLanguages();
+        $this
+            ->loadConfigs()
+            ->loadHelpers()
+            ->loadLanguages();
 
         // --------------------------------------------------------------------------
 
@@ -77,10 +81,11 @@ abstract class Base extends BaseMiddle
         $oAsset->clear();
 
         //  @todo (Pablo - 2017-06-08) - Try and reduce the number of things being loaded, or theme it
-        $this->loadLibraries();
-        $this->loadJs();
-        $this->loadCss();
-        $this->autoLoad();
+        $this
+            ->loadLibraries()
+            ->loadJs()
+            ->loadCss()
+            ->autoLoad();
 
         // --------------------------------------------------------------------------
 
@@ -94,13 +99,19 @@ abstract class Base extends BaseMiddle
 
     // --------------------------------------------------------------------------
 
-    protected function loadConfigs()
+    /**
+     * Load admin configs
+     *
+     * @return $this
+     * @throws FactoryException
+     */
+    protected function loadConfigs(): self
     {
         $oConfig = Factory::service('Config');
 
         $aPaths = [
-            NAILS_APP_PATH . 'application/config/admin.php',
-            NAILS_APP_PATH . 'application/modules/admin/config/admin.php',
+            Config::get('NAILS_APP_PATH') . 'application/config/admin.php',
+            Config::get('NAILS_APP_PATH') . 'application/modules/admin/config/admin.php',
         ];
 
         foreach ($aPaths as $sPath) {
@@ -108,22 +119,40 @@ abstract class Base extends BaseMiddle
                 $oConfig->load($sPath);
             }
         }
+
+        return $this;
     }
 
     // --------------------------------------------------------------------------
 
-    protected function loadHelpers()
+    /**
+     * Load admin helpers
+     *
+     * @return $this
+     * @throws FactoryException
+     */
+    protected function loadHelpers(): self
     {
         Factory::helper('admin', 'nails/module-admin');
         Factory::helper('form', 'nails/module-admin');
+
+        return $this;
     }
 
     // --------------------------------------------------------------------------
 
-    protected function loadLanguages()
+    /**
+     * Load admin languages
+     *
+     * @return $this
+     * @deprecated
+     */
+    protected function loadLanguages(): self
     {
         //  @todo (Pablo - 2018-09-24) - Remove this
         get_instance()->lang->load('admin/admin_generic');
+
+        return $this;
     }
 
     // --------------------------------------------------------------------------
@@ -133,53 +162,16 @@ abstract class Base extends BaseMiddle
      *
      * @throws \Nails\Common\Exception\FactoryException
      */
-    protected function loadJs()
+    protected function loadJs(): self
     {
         \Nails\Common\Controller\Base::setNailsJs();
 
+        /** @var Asset $oAsset */
         $oAsset = Factory::service('Asset');
-
-        //  Module assets
-        $oAsset->load('admin.min.js', 'nails/module-admin');
-        $oAsset->load('nails.admin.min.js', 'NAILS');
-        $oAsset->load('nails.forms.min.js', 'NAILS');
-
-        //  Component assets
-        foreach (Components::available() as $oComponent) {
-
-            if (!empty($oComponent->data->{'nails/module-admin'}->autoload)) {
-
-                $oAutoLoad = $oComponent->data->{'nails/module-admin'}->autoload;
-                if (!empty($oAutoLoad->assets->js)) {
-                    foreach ($oAutoLoad->assets->js as $mAsset) {
-
-                        if (is_string($mAsset)) {
-                            $sAsset    = $mAsset;
-                            $sLocation = $oComponent->slug;
-                        } else {
-                            $sAsset    = !empty($mAsset[0]) ? $mAsset[0] : null;
-                            $sLocation = !empty($mAsset[1]) ? $mAsset[1] : null;
-                        }
-
-                        $oAsset->load($sAsset, $sLocation, 'JS');
-                    }
-                }
-
-                //  JS Inline
-                if (!empty($oAutoLoad->assets->jsInline)) {
-                    foreach ($oAutoLoad->assets->jsInline as $sAsset) {
-                        $oAsset->inline($sAsset, 'JS');
-                    }
-                }
-            }
-        }
-
-        //  Global JS
-        $sAdminJsPath = defined('APP_ADMIN_JS_PATH') ? APP_ADMIN_JS_PATH : NAILS_APP_PATH . 'assets/build/js/admin.min.js';
-        $sAdminJsUrl  = defined('APP_ADMIN_JS_URL') ? APP_ADMIN_JS_URL : 'admin.min.js';
-        if (file_exists($sAdminJsPath)) {
-            $oAsset->load($sAdminJsUrl);
-        }
+        $oAsset
+            ->load('admin.min.js', 'nails/module-admin')
+            ->load('nails.admin.min.js', 'NAILS')
+            ->load('nails.forms.min.js', 'NAILS');
 
         //  Inline assets
         $aJs = [
@@ -195,11 +187,13 @@ abstract class Base extends BaseMiddle
             '_nails_forms = new NAILS_Forms();',
             '}',
 
-            //  Trigger a UI Refresh, most JS components should use this to bind ti and render items
+            //  Trigger a UI Refresh, most JS components should use this to bind to and render items
             'window.NAILS.ADMIN.refreshUi();',
         ];
 
         $oAsset->inline(implode(PHP_EOL, $aJs), 'JS');
+
+        return $this;
     }
 
     // --------------------------------------------------------------------------
@@ -209,50 +203,15 @@ abstract class Base extends BaseMiddle
      *
      * @throws \Nails\Common\Exception\FactoryException
      */
-    protected function loadCss()
+    protected function loadCss(): self
     {
+        /** @var Asset $oAsset */
         $oAsset = Factory::service('Asset');
+        $oAsset
+            ->load('nails.admin.css', 'NAILS')
+            ->load('admin.css', 'nails/module-admin');
 
-        //  Module assets
-        $oAsset->load('nails.admin.css', 'NAILS');
-        $oAsset->load('admin.css', 'nails/module-admin');
-
-        //  Component assets
-        foreach (Components::available() as $oComponent) {
-            if (!empty($oComponent->data->{'nails/module-admin'}->autoload)) {
-
-                $oAutoLoad = $oComponent->data->{'nails/module-admin'}->autoload;
-
-                if (!empty($oAutoLoad->assets->css)) {
-                    foreach ($oAutoLoad->assets->css as $mAsset) {
-
-                        if (is_string($mAsset)) {
-                            $sAsset    = $mAsset;
-                            $sLocation = $oComponent->slug;
-                        } else {
-                            $sAsset    = !empty($mAsset[0]) ? $mAsset[0] : null;
-                            $sLocation = !empty($mAsset[1]) ? $mAsset[1] : null;
-                        }
-
-                        $oAsset->load($sAsset, $sLocation, 'CSS');
-                    }
-                }
-
-                //  CSS Inline
-                if (!empty($oAutoLoad->assets->cssInline)) {
-                    foreach ($oAutoLoad->assets->cssInline as $sAsset) {
-                        $oAsset->inline($sAsset, 'CSS');
-                    }
-                }
-            }
-        }
-
-        //  Global CSS
-        $sAdminCssPath = defined('APP_ADMIN_CSS_PATH') ? APP_ADMIN_CSS_PATH : NAILS_APP_PATH . 'assets/build/css/admin.min.css';
-        $sAdminCssUrl  = defined('APP_ADMIN_CSS_URL') ? APP_ADMIN_CSS_URL : 'admin.min.css';
-        if (file_exists($sAdminCssPath)) {
-            $oAsset->load($sAdminCssUrl);
-        }
+        return $this;
     }
 
     // --------------------------------------------------------------------------
@@ -262,50 +221,44 @@ abstract class Base extends BaseMiddle
      *
      * @throws \Nails\Common\Exception\FactoryException
      */
-    protected function loadLibraries()
+    protected function loadLibraries(): self
     {
+        /** @var Asset $oAsset */
         $oAsset = Factory::service('Asset');
+        $oAsset
+            //  jQuery
+            ->load('jquery/dist/jquery.min.js', 'NAILS-BOWER')
+            //  Fancybox
+            ->load('fancybox/source/jquery.fancybox.pack.js', 'NAILS-BOWER')
+            ->load('fancybox/source/jquery.fancybox.css', 'NAILS-BOWER')
+            //  jQuery Toggles
+            ->load('jquery-toggles/toggles.min.js', 'NAILS-BOWER')
+            ->load('jquery-toggles/css/toggles.css', 'NAILS-BOWER')
+            ->load('jquery-toggles/css/themes/toggles-modern.css', 'NAILS-BOWER')
+            //  Tipsy
+            ->load('tipsy/src/javascripts/jquery.tipsy.js', 'NAILS-BOWER')
+            ->load('tipsy/src/stylesheets/tipsy.css', 'NAILS-BOWER')
+            //  scrollTo
+            ->load('jquery.scrollTo/jquery.scrollTo.min.js', 'NAILS-BOWER')
+            //  jQuery Cookies
+            ->load('jquery-cookie/jquery.cookie.js', 'NAILS-BOWER')
+            //  Retina.js
+            ->load('retina.js/dist/retina.min.js', 'NAILS-BOWER')
+            //  Bootstrap
+            ->load('bootstrap/js/dropdown.js', 'NAILS-BOWER')
+            //  Fontawesome
+            ->load('fontawesome/css/fontawesome.css', 'NAILS-BOWER')
+            ->load('fontawesome/css/solid.css', 'NAILS-BOWER')
+            //  Asset libraries
+            ->library('jqueryui')
+            ->library('select2')
+            ->library('ckeditor')
+            ->library('uploadify')
+            ->library('knockout')
+            ->library('moment')
+            ->library('mustache');
 
-        //  jQuery
-        $oAsset->load('jquery/dist/jquery.min.js', 'NAILS-BOWER');
-
-        //  Fancybox
-        $oAsset->load('fancybox/source/jquery.fancybox.pack.js', 'NAILS-BOWER');
-        $oAsset->load('fancybox/source/jquery.fancybox.css', 'NAILS-BOWER');
-
-        //  jQuery Toggles
-        $oAsset->load('jquery-toggles/toggles.min.js', 'NAILS-BOWER');
-        $oAsset->load('jquery-toggles/css/toggles.css', 'NAILS-BOWER');
-        $oAsset->load('jquery-toggles/css/themes/toggles-modern.css', 'NAILS-BOWER');
-
-        //  Tipsy
-        $oAsset->load('tipsy/src/javascripts/jquery.tipsy.js', 'NAILS-BOWER');
-        $oAsset->load('tipsy/src/stylesheets/tipsy.css', 'NAILS-BOWER');
-
-        //  scrollTo
-        $oAsset->load('jquery.scrollTo/jquery.scrollTo.min.js', 'NAILS-BOWER');
-
-        //  jQuery Cookies
-        $oAsset->load('jquery-cookie/jquery.cookie.js', 'NAILS-BOWER');
-
-        //  Retina.js
-        $oAsset->load('retina.js/dist/retina.min.js', 'NAILS-BOWER');
-
-        //  Bootstrap
-        $oAsset->load('bootstrap/js/dropdown.js', 'NAILS-BOWER');
-
-        //  Fontawesome
-        $oAsset->load('fontawesome/css/fontawesome.css', 'NAILS-BOWER');
-        $oAsset->load('fontawesome/css/solid.css', 'NAILS-BOWER');
-
-        //  Asset libraries
-        $oAsset->library('jqueryui');
-        $oAsset->library('select2');
-        $oAsset->library('ckeditor');
-        $oAsset->library('uploadify');
-        $oAsset->library('knockout');
-        $oAsset->library('moment');
-        $oAsset->library('mustache');
+        return $this;
     }
 
     // --------------------------------------------------------------------------
@@ -315,8 +268,11 @@ abstract class Base extends BaseMiddle
      *
      * @throws \Nails\Common\Exception\FactoryException
      */
-    protected function autoLoad()
+    protected function autoLoad(): self
     {
+        /** @var Asset $oAsset */
+        $oAsset = Factory::service('Asset');
+
         foreach (Components::available() as $oComponent) {
             if (!empty($oComponent->data->{'nails/module-admin'}->autoload)) {
 
@@ -342,8 +298,55 @@ abstract class Base extends BaseMiddle
                         Factory::helper($sHelper, $oComponent->slug);
                     }
                 }
+
+                //  Javascript
+                if (!empty($oAutoLoad->assets->js)) {
+                    foreach ($oAutoLoad->assets->js as $mAsset) {
+                        if (is_string($mAsset)) {
+                            $sAsset    = $mAsset;
+                            $sLocation = $oComponent->slug;
+                        } else {
+                            $sAsset    = !empty($mAsset[0]) ? $mAsset[0] : null;
+                            $sLocation = !empty($mAsset[1]) ? $mAsset[1] : null;
+                        }
+
+                        $oAsset->load($sAsset, $sLocation, 'JS');
+                    }
+                }
+
+                //  Inline Javascript
+                if (!empty($oAutoLoad->assets->jsInline)) {
+                    foreach ($oAutoLoad->assets->jsInline as $sAsset) {
+                        $oAsset->inline($sAsset, 'JS');
+                    }
+                }
+
+                //  CSS
+                if (!empty($oAutoLoad->assets->css)) {
+                    foreach ($oAutoLoad->assets->css as $mAsset) {
+
+                        if (is_string($mAsset)) {
+                            $sAsset    = $mAsset;
+                            $sLocation = $oComponent->slug;
+                        } else {
+                            $sAsset    = !empty($mAsset[0]) ? $mAsset[0] : null;
+                            $sLocation = !empty($mAsset[1]) ? $mAsset[1] : null;
+                        }
+
+                        $oAsset->load($sAsset, $sLocation, 'CSS');
+                    }
+                }
+
+                //  Inline CSS
+                if (!empty($oAutoLoad->assets->cssInline)) {
+                    foreach ($oAutoLoad->assets->cssInline as $sAsset) {
+                        $oAsset->inline($sAsset, 'CSS');
+                    }
+                }
             }
         }
+
+        return $this;
     }
 
     // --------------------------------------------------------------------------
