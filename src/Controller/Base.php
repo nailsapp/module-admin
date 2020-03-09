@@ -235,6 +235,8 @@ abstract class Base extends BaseMiddle
             ->load('jquery-toggles/toggles.min.js', 'NAILS-BOWER')
             ->load('jquery-toggles/css/toggles.css', 'NAILS-BOWER')
             ->load('jquery-toggles/css/themes/toggles-modern.css', 'NAILS-BOWER')
+            //  jQuery serializeObject
+            ->load('jquery-serialize-object/dist/jquery.serialize-object.min.js', 'NAILS-BOWER')
             //  Tipsy
             ->load('tipsy/src/javascripts/jquery.tipsy.js', 'NAILS-BOWER')
             ->load('tipsy/src/stylesheets/tipsy.css', 'NAILS-BOWER')
