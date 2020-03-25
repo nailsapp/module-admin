@@ -1,14 +1,7 @@
 <!DOCTYPE html>
-<!--[if lt IE 7 ]>
-<html class="ie ie6" lang="en"> <![endif]-->
-<!--[if IE 7 ]>
-<html class="ie ie7" lang="en"> <![endif]-->
-<!--[if IE 8 ]>
-<html class="ie ie8" lang="en"> <![endif]-->
-<!--[if (gte IE 9)|!(IE)]><!-->
-<html lang="en"> <!--<![endif]-->
+<html lang="en">
 <head>
-    <meta charset="UTF-8"/>
+    <meta charset="UTF-8" />
     <title>
         <?php
 
@@ -17,22 +10,25 @@
         echo isset($page->title) ? $page->title . ' - ' : null;
         echo \Nails\Config::get('APP_NAME');
 
-        ?></title>
-    <meta name="keywords" content=""/>
-    <meta name="description" content=""/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+        ?>
+    </title>
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <!--    NAILS JS GLOBALS    -->
     <script style="text/javascript">
-        window.ENVIRONMENT = '<?=\Nails\Environment::get()?>';
-        window.SITE_URL = '<?=siteUrl('', \Nails\Functions::isPageSecure())?>';
-        window.NAILS = {};
-        window.NAILS.URL = '<?=\Nails\Config::get('NAILS_ASSETS_URL')?>';
-        window.NAILS.LANG = {};
-        window.NAILS.USER = {};
-        window.NAILS.USER.ID = <?=activeUser('id')?>;
-        window.NAILS.USER.FNAME = '<?=addslashes(activeUser('first_name'))?>';
-        window.NAILS.USER.LNAME = '<?=addslashes(activeUser('last_name'))?>';
-        window.NAILS.USER.EMAIL = '<?=addslashes(activeUser('email'))?>';
+    window.ENVIRONMENT = '<?=\Nails\Environment::get()?>';
+    window.SITE_URL = '<?=siteUrl('', \Nails\Functions::isPageSecure())?>';
+    window.NAILS = {
+        URL: '<?=\Nails\Config::get('NAILS_ASSETS_URL')?>',
+        LANG: {},
+        USER: {
+            ID: <?=activeUser('id')?>,
+            FNAME: '<?=addslashes(activeUser('first_name'))?>',
+            LNAME: '<?=addslashes(activeUser('last_name'))?>',
+            EMAIL: '<?=addslashes(activeUser('email'))?>'
+        }
+    };
     </script>
     <noscript>
         <style type="text/css">
@@ -53,7 +49,7 @@
     $oAsset->output('JS-INLINE-HEADER');
 
     ?>
-    <link rel="stylesheet" type="text/css" media="print" href="<?=\Nails\Config::get('NAILS_ASSETS_URL') . 'css/nails.admin.print.css'?>"/>
+    <link rel="stylesheet" type="text/css" media="print" href="<?=\Nails\Config::get('NAILS_ASSETS_URL') . 'css/nails.admin.print.css'?>" />
     <?php
 
     $_primary   = appSetting('primary_colour', 'admin') ?: '#171D20';
