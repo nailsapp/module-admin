@@ -164,8 +164,6 @@ abstract class Base extends BaseMiddle
      */
     protected function loadJs(): self
     {
-        \Nails\Common\Controller\Base::setNailsJs();
-
         /** @var Asset $oAsset */
         $oAsset = Factory::service('Asset');
         $oAsset
