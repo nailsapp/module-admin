@@ -9,7 +9,7 @@ class Notes {
     constructor(adminController) {
 
         adminController
-            .onRefreshUi(() => {
+            .onRefreshUi((e, domElement) => {
                 this.init();
             });
 

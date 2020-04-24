@@ -10,7 +10,7 @@ class Alerts {
     constructor(adminController) {
 
         adminController
-            .onRefreshUi(() => {
+            .onRefreshUi((e, domElement) => {
                 this.init();
             });
 

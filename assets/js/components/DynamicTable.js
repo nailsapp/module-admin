@@ -10,7 +10,7 @@ class DynamicTable {
     constructor(adminController) {
         this.adminController = adminController;
         this.adminController
-            .onRefreshUi(() => {
+            .onRefreshUi((e, domElement) => {
                 $('.js-admin-dynamic-table:not(.ready)')
                     .addClass('ready')
                     .each((index, element) => {

@@ -10,7 +10,7 @@ class Confirm {
     constructor(adminController) {
 
         adminController
-            .onRefreshUi((domElement) => {
+            .onRefreshUi((e, domElement) => {
                 this.init(domElement);
             });
 

@@ -30,7 +30,7 @@ class CopyToClipboard {
             });
 
         adminController
-            .onRefreshUi(() => {
+            .onRefreshUi((e, domElement) => {
                 $(document)
                     .trigger(
                         'admin:js-copy-to-clipboard',
