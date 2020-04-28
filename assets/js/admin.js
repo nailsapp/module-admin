@@ -21,6 +21,7 @@ import Select from './components/Select.js';
 import Sortable from './components/Sortable.js';
 import Stripes from './components/Stripes.js';
 import Tabs from './components/Tabs.js';
+import TimeCode from './components/TimeCode.js';
 import Tipsy from './components/Tipsy.js';
 import Toggles from './components/Toggles.js';
 import Wysiwyg from './components/Wysiwyg.js';
@@ -395,6 +396,13 @@ window
         'Tabs',
         function(controller) {
             return new Tabs(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'TimeCode',
+        function(controller) {
+            return new TimeCode(controller);
         }
     )
     .registerPlugin(
