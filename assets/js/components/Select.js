@@ -26,12 +26,43 @@ class Select {
      */
     init(domElement) {
 
-        //  @todo (Pablo - 2020-01-21) - Target all selects?
         $('select.select2:not(.select2-offscreen):not(.select2--processed)', domElement)
             .addClass('select2--processed')
-            .select2();
+            .each((index, element) => {
+                $(element)
+                    .data(
+                        'select2',
+                        new SelectInstance(
+                            this.adminController,
+                            element
+                        )
+                    );
+            });
 
         return this;
+    }
+}
+
+class SelectInstance {
+    /**
+     * Construct SearcherInstance
+     *
+     * @param {DOMElement} element
+     */
+    constructor(adminController, element) {
+
+        this.adminController = adminController;
+        this.$input = $(element);
+        this.isMultiple = this.$input.data('multiple');
+        this.isClearable = this.$input.data('clearable');
+        this.placeholder = this.$input.data('placeholder') || 'Search for an item';
+
+        this.$input
+            .select2({
+                placeholder: this.placeholder,
+                multiple: this.isMultiple,
+                allowClear: this.isClearable
+            });
     }
 }
 
