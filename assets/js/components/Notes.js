@@ -23,8 +23,8 @@ class Notes {
      * @returns {Notes}
      */
     init() {
-        $('.js-admin-notes:not(.processed)')
-            .addClass('processed')
+        $('.js-admin-notes:not(.js-admin-notes--processed)')
+            .addClass('js-admin-notes--processed')
             .each((index, element) => {
 
                 let $btn = $(element);

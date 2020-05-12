@@ -28,8 +28,8 @@ class TimeCode {
      */
     init(domElement) {
 
-        let $items = $('.js-timecode:not(.processed)')
-            .addClass('processed');
+        let $items = $('.js-timecode:not(.js-timecode--processed)')
+            .addClass('js-timecode--processed');
 
         if ($items.length) {
             this.adminController.log(`Found ${$items.length} new timecode inputs`);

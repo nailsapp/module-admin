@@ -23,7 +23,7 @@ class Searcher {
                     .trigger(
                         'admin:js-searcher',
                         [
-                            '.js-searcher:not(.processed)',
+                            '.js-searcher:not(.js-searcher--processed)',
                             {},
                             domElement
                         ]
@@ -44,7 +44,7 @@ class Searcher {
         $(selector, domElement)
             .each((index, element) => {
                 $(element)
-                    .add('processed')
+                    .add('js-searcher--processed')
                     .data(
                         'searcher',
                         new SearcherInstance(

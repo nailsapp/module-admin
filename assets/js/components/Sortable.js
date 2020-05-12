@@ -25,8 +25,8 @@ class Sortable {
      * @returns {Sortable}
      */
     init(domElement) {
-        $('.js-admin-sortable:not(.processed)', domElement)
-            .addClass('processed')
+        $('.js-admin-sortable:not(.js-admin-sortable--processed)', domElement)
+            .addClass('js-admin-sortable--processed')
             .each(function() {
 
                 let $item = $(this);

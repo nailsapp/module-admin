@@ -32,10 +32,11 @@ class Revealer {
      */
     init(domElement) {
 
-        $('[data-revealer]:not(.processed):not([data-reveal-on])', domElement)
+        $('[data-revealer]:not(.revealer--processed):not([data-reveal-on])', domElement)
             .filter(':input')
             .filter('input[type=checkbox], select')
             .addClass('processed')
+            .addClass('revealer--processed')
             .each((index, element) => {
 
                 let group = $(element)
@@ -105,9 +106,9 @@ class Group {
      */
     findNewElements(domElement) {
 
-        $(`[data-revealer="${this.group}"]:not(.processed)`, domElement)
+        $(`[data-revealer="${this.group}"]:not(.revealer--processed)`, domElement)
             .filter(':not(input[type=checkbox], select)')
-            .addClass('processed')
+            .addClass('revealer--processed')
             .each((index, element) => {
                 this
                     .elements
@@ -161,7 +162,7 @@ class Group {
      * Destroys the group
      */
     destroy() {
-        this.$control.removeClass('processed');
+        this.$control.removeClass('revealer--processed');
         for (let i = 0; i < this.elements.length; i++) {
             this.elements[i].destroy();
         }
@@ -229,7 +230,7 @@ class Element {
      * Handles destruction
      */
     destroy() {
-        this.$element.removeClass('processed');
+        this.$element.removeClass('revealer--processed');
         this.show();
     }
 }

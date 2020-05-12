@@ -31,8 +31,8 @@ class Repeater {
      */
     init(domElement) {
 
-        $('.js-admin-repeater:not(.processed)', domElement)
-            .addClass('processed')
+        $('.js-admin-repeater:not(.js-admin-repeater--processed)', domElement)
+            .addClass('js-admin-repeater--processed')
             .each((index, element) => {
 
                 let $element = $(element);
