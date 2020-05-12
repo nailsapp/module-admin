@@ -120,5 +120,12 @@ return [
                 return new \Nails\Admin\Factory\IndexFilter\Option();
             }
         },
+        'Setting'                  => function () {
+            if (class_exists('\App\Admin\Factory\Setting')) {
+                return new \App\Admin\Factory\Setting();
+            } else {
+                return new \Nails\Admin\Factory\Setting();
+            }
+        },
     ],
 ];

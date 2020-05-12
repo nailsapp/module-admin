@@ -13,8 +13,8 @@
 namespace Nails\Admin\Admin;
 
 use Nails\Admin\Controller\Base;
+use Nails\Admin\Factory\Setting;
 use Nails\Admin\Helper;
-use Nails\Common\Factory\Model\Field;
 use Nails\Common\Helper\Form;
 use Nails\Components;
 use Nails\Factory;
@@ -394,55 +394,57 @@ class Settings extends Base
      *
      * @param string $sComponentSlug The component's slug
      * @param array  $aSettings      The array of fieldsets and/or settings
-     * @param int    $fieldSetIndex  The index of the fieldset
+     * @param int    $iFieldSetIndex The index of the fieldset
      */
-    protected function extractFieldsets($sComponentSlug, $aSettings, $fieldSetIndex = 0)
+    protected function extractFieldsets($sComponentSlug, $aSettings, $iFieldSetIndex = 0)
     {
         foreach ($aSettings as $oSetting) {
 
             //  If the object contains a `fields` property then consider this a fieldset and inception
             if (isset($oSetting->fields)) {
 
-                $fieldSetIndex++;
+                $iFieldSetIndex++;
 
-                if (!isset($this->data['aFieldsets'][$fieldSetIndex])) {
-                    $this->data['aFieldsets'][$fieldSetIndex] = [
+                if (!isset($this->data['aFieldsets'][$iFieldSetIndex])) {
+                    $this->data['aFieldsets'][$iFieldSetIndex] = [
                         'legend' => $oSetting->legend,
                         'fields' => [],
                     ];
                 }
 
-                $this->extractFieldsets($sComponentSlug, $oSetting->fields, $fieldSetIndex);
+                $this->extractFieldsets($sComponentSlug, $oSetting->fields, $iFieldSetIndex);
 
             } else {
 
-                if (!isset($this->data['aFieldsets'][$fieldSetIndex])) {
-                    $this->data['aFieldsets'][$fieldSetIndex] = [
+                if (!isset($this->data['aFieldsets'][$iFieldSetIndex])) {
+                    $this->data['aFieldsets'][$iFieldSetIndex] = [
                         'legend' => 'Generic',
                         'fields' => [],
                     ];
                 }
 
-                $oField             = Factory::factory('ModelField');
-                $oField->key        = $oSetting->key;
-                $oField->label      = $oSetting->label;
-                $oField->encrypted  = $oSetting->encrypted ?? false;
-                $oField->type       = $oSetting->type ?? Form::FIELD_TEXT;
-                $oField->validation = $oSetting->validation ?? [];
-                $oField->options    = $oSetting->options ?? [];
-                $oField->max_length = $oSetting->max_length ?? null;
-                $oField->default    = $oSetting->default ?? null;
-                $oField->class      = $oSetting->class ?? null;
-                $oField->info       = $oSetting->info ?? null;
-                $oField->data       = $oSetting->data ?? [];
+                /** @var Setting $oField */
+                $oField = Factory::factory('Setting', 'nails/module-admin');
+                $oField
+                    ->setKey($oSetting->key)
+                    ->setLabel($oSetting->label)
+                    ->setEncrypted($oSetting->encrypted ?? false)
+                    ->setType($oSetting->type ?? Form::FIELD_TEXT)
+                    ->setValidation($oSetting->validation ?? [])
+                    ->setOptions($oSetting->options ?? [])
+                    ->setMaxLength($oSetting->max_length ?? null)
+                    ->setDefault($oSetting->default ?? null)
+                    ->setClass($oSetting->class ?? null)
+                    ->setInfo($oSetting->info ?? null)
+                    ->setData($oSetting->data ?? []);
 
                 $sValue = appSetting($oSetting->key, $sComponentSlug);
                 if (!is_null($sValue)) {
-                    $oField->default = $sValue;
+                    $oField->setDefault($sValue);
                 }
 
-                $this->data['aFieldsets'][$fieldSetIndex]['fields'][] = $oField;
-                $this->aFields[]                                      = $oField;
+                $this->data['aFieldsets'][$iFieldSetIndex]['fields'][] = $oField;
+                $this->aFields[]                                       = $oField;
             }
         }
     }
