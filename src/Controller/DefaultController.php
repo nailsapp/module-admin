@@ -662,9 +662,13 @@ abstract class DefaultController extends Base
 
             /** @var Locale $oLocale */
             $oLocale = Factory::service('Locale');
+            /** @var Field $oField */
             foreach ($aConfig['FIELDS'] as $oField) {
-                if ($oField->key === 'locale') {
-                    $oField->info .= ' New items must be created in ' . $oLocale->getDefautLocale()->getDisplayLanguage();
+                if ($oField->getKey() === 'locale') {
+                    $oField->setInfo(
+                        $oField->getInfo() .
+                        ' New items must be created in ' . $oLocale->getDefautLocale()->getDisplayLanguage()
+                    );
                     break;
                 }
             }
@@ -685,11 +689,13 @@ abstract class DefaultController extends Base
 
             //  Test if new locales can be created, filter out existing locales from the options list
             $aExistingLocales = arrayExtractProperty($aExisting, 'locale');
+
+            /** @var Field $oField */
             foreach ($aConfig['FIELDS'] as $oField) {
-                if ($oField->key === 'locale') {
+                if ($oField->getKey() === 'locale') {
 
                     $aDiff = array_diff(
-                        array_keys($oField->options),
+                        array_keys($oField->getOptions()),
                         array_values($aExistingLocales)
                     );
 
@@ -700,12 +706,12 @@ abstract class DefaultController extends Base
                         $this->returnToIndex();
                     }
 
-                    $oField->options = array_intersect_key(
+                    $oField->setOptions(array_intersect_key(
                         $oField->options,
                         array_flip($aDiff)
-                    );
+                    ));
 
-                    $oField->default = $sDesiredLocale;
+                    $oField->setDefault($sDesiredLocale);
 
                     unset($this->aConfig['CREATE_READONLY_FIELDS'][array_search('locale', $this->aConfig['CREATE_READONLY_FIELDS'])]);
                     break;
@@ -1627,32 +1633,33 @@ abstract class DefaultController extends Base
         $aRulesFormValidation = [];
         $aImplementedRules    = [];
 
+        /** @var Field $oField */
         foreach ($aConfig['FIELDS'] as &$oField) {
 
             if ($sMode === static::EDIT_MODE_CREATE && classUses($oModel, Localised::class)) {
-                if ($oField->key == 'locale') {
+                if ($oField->getKey() == 'locale') {
 
                     /** @var Locale $oLocale */
                     $oLocale = Factory::service('Locale');
                     /** @var Uri $oUri */
                     $oUri = Factory::service('Uri');
                     if (empty($oUri->segment(5))) {
-                        $oField->validation[] = 'is[' . $oLocale->getDefautLocale() . ']';
+                        $oField->addValidation('is[' . $oLocale->getDefautLocale() . ']');
                     }
                 }
             }
 
-            if (array_key_exists($oField->key, $aOverrides)) {
-                $sRules            = implode('|', $aOverrides[$oField->key]);
-                $aImplementedRules = array_merge($aImplementedRules, $aOverrides[$oField->key]);
+            if (array_key_exists($oField->getKey(), $aOverrides)) {
+                $sRules            = implode('|', $aOverrides[$oField->getKey()]);
+                $aImplementedRules = array_merge($aImplementedRules, $aOverrides[$oField->getKey()]);
             } else {
-                $sRules            = implode('|', $oField->validation);
-                $aImplementedRules = array_merge($aImplementedRules, $oField->validation);
+                $sRules            = implode('|', $oField->getValidation());
+                $aImplementedRules = array_merge($aImplementedRules, $oField->getValidation());
             }
 
             $aRulesFormValidation[] = [
-                'field' => $oField->key,
-                'label' => $oField->label,
+                'field' => $oField->getKey(),
+                'label' => $oField->getLabel(),
                 'rules' => $sRules,
             ];
         }
@@ -1714,18 +1721,18 @@ abstract class DefaultController extends Base
      */
     protected function loadEditViewDataSetDefaultValue(Field &$oField, Resource $oItem = null)
     {
-        $sKey = preg_replace('/\[\]$/', '', $oField->key);
+        $sKey = preg_replace('/\[\]$/', '', $oField->getKey());
 
-        if ($oField->default instanceof \Closure) {
+        if ($oField->getDefault() instanceof \Closure) {
 
-            $oField->default = call_user_func($oField->default, $oItem);
+            $oField->setDefault(call_user_func($oField->getDefault(), $oItem));
 
         } elseif (!is_null($oItem) && property_exists($oItem, $sKey)) {
 
             if ($oItem->{$sKey} instanceof Resource\ExpandableField) {
-                $oField->default = $oItem->{$sKey}->data;
+                $oField->setDefault($oItem->{$sKey}->data);
             } else {
-                $oField->default = $oItem->{$sKey};
+                $oField->setDefault($oItem->{$sKey});
             }
         }
     }
@@ -1740,7 +1747,7 @@ abstract class DefaultController extends Base
     protected function loadEditViewDataSetRequired(Field &$oField)
     {
         if (!property_exists($oField, 'required')) {
-            $oField->required = in_array('required', $oField->validation);
+            $oField->required = in_array(FormValidation::RULE_REQUIRED, $oField->getValidation());
         }
     }
 
@@ -1759,9 +1766,9 @@ abstract class DefaultController extends Base
     {
         $aConfig = $this->getConfig();
         if (!is_null($oItem)) {
-            $oField->readonly = in_array($oField->key, $aConfig['EDIT_READONLY_FIELDS']);
+            $oField->readonly = in_array($oField->getKey(), $aConfig['EDIT_READONLY_FIELDS']);
         } else {
-            $oField->readonly = in_array($oField->key, $aConfig['CREATE_READONLY_FIELDS']);
+            $oField->readonly = in_array($oField->getKey(), $aConfig['CREATE_READONLY_FIELDS']);
         }
     }
 
@@ -1790,19 +1797,20 @@ abstract class DefaultController extends Base
         );
 
         //  Organsie fields into the fieldsets
+        /** @var Field $oField */
         foreach ($aFields as $oField) {
 
             if (empty($oItem)) {
-                if (in_array($oField->key, $aConfig['CREATE_IGNORE_FIELDS'])) {
+                if (in_array($oField->getKey(), $aConfig['CREATE_IGNORE_FIELDS'])) {
                     continue;
                 }
             } else {
-                if (in_array($oField->key, $aConfig['EDIT_IGNORE_FIELDS'])) {
+                if (in_array($oField->getKey(), $aConfig['EDIT_IGNORE_FIELDS'])) {
                     continue;
                 }
             }
 
-            $sFieldSet = $oField->fieldset;
+            $sFieldSet = $oField->getFieldset();
 
             if (!array_key_exists($sFieldSet, $aFieldSets)) {
                 $aFieldSets[$sFieldSet] = [];
@@ -1833,10 +1841,11 @@ abstract class DefaultController extends Base
 
         $aOut = [];
 
+        /** @var Field $oField */
         foreach ($aConfig['FIELDS'] as $oField) {
 
             //  Support array type keys
-            $sKey = preg_replace('/\[\]$/', '', $oField->key);
+            $sKey = preg_replace('/\[\]$/', '', $oField->getKey());
 
             if (in_array($sKey, $aConfig['EDIT_IGNORE_FIELDS'])) {
                 continue;
@@ -1844,12 +1853,12 @@ abstract class DefaultController extends Base
 
             $aOut[$sKey] = $oInput->post($sKey);
 
-            if ($oField->allow_null && empty($aOut[$sKey])) {
+            if ($oField->isAllowNull() && empty($aOut[$sKey])) {
                 $aOut[$sKey] = null;
             }
 
             //  Type casting
-            switch ($oField->type) {
+            switch ($oField->getType()) {
                 case Form::FIELD_BOOLEAN:
                     $aOut[$sKey] = (bool) $aOut[$sKey];
                     break;
