@@ -191,7 +191,7 @@ class Settings extends Base
         // --------------------------------------------------------------------------
 
         //  Get data
-        $this->data['settings'] = appSetting(null, 'app', null, true);
+        $this->data['settings'] = appSetting(null, 'site', null, true);
 
         // --------------------------------------------------------------------------
 
