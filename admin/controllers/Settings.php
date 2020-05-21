@@ -434,8 +434,8 @@ class Settings extends Base
                     ->setOptions($oSetting->options ?? [])
                     ->setMaxLength($oSetting->max_length ?? null)
                     ->setDefault($oSetting->default ?? null)
-                    ->setClass($oSetting->class ?? null)
-                    ->setInfo($oSetting->info ?? null)
+                    ->setClass($oSetting->class ?? '')
+                    ->setInfo($oSetting->info ?? '')
                     ->setData($oSetting->data ?? []);
 
                 $sValue = appSetting($oSetting->key, $sComponentSlug);
