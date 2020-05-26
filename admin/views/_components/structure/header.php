@@ -83,7 +83,8 @@
             background: <?=$brandColorHighlight?>;
         }
 
-        table thead tr th {
+        table thead tr th,
+        table tfoot tr th {
             background-color: <?=$brandColorPrimary?>;
         }
 

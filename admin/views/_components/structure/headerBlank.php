@@ -83,7 +83,8 @@
             background: <?=$_highlight?>;
         }
 
-        table thead tr th {
+        table thead tr th,
+        table tfoot tr th {
             background-color: <?=$_primary?>;
         }
 
