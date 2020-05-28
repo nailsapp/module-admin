@@ -106,7 +106,15 @@
                             <?php
 
                             if ($oItem->download_id) {
-                                echo anchor(cdnServe($oItem->download_id, true), 'Download', 'class="btn btn-xs btn-primary"');
+                                echo anchor(
+                                    cdnExpiringUrl(
+                                        $oItem->download_id,
+                                        \Nails\Admin\Console\Command\DataExport\Run::EXPORT_TTL,
+                                        true
+                                    ),
+                                    'Download',
+                                    'class="btn btn-xs btn-primary"'
+                                );
                             }
 
                             ?>
