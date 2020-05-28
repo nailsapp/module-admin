@@ -249,7 +249,10 @@ class DataExport
             $oCdn    = Factory::service('Cdn', Constants::MODULE_SLUG);
             $oObject = $oCdn->objectCreate(
                 $sFile,
-                'data-export',
+                [
+                    'slug'      => 'data-export',
+                    'is_hidden' => true,
+                ],
                 [
                     'no-md5-check' => true,
                 ]
