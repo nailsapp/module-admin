@@ -192,7 +192,6 @@ class Logs extends Base
         //  Define the sortable columns
         $aSortColumns = [
             $sTableAlias . '.created' => 'Created',
-            $sTableAlias . '.type'    => 'Type',
         ];
 
         // --------------------------------------------------------------------------
