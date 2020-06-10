@@ -804,10 +804,16 @@ abstract class DefaultController extends Base
                 $oSession->setFlashData('success', sprintf(static::EDIT_SUCCESS_MESSAGE, $sLink));
 
                 if (classUses($oModel, Localised::class)) {
-                    redirect($aConfig['BASE_URL'] . '/edit/' . $oItem->id . '/' . $oItem->locale);
+                    $sRedirectUrl = $aConfig['BASE_URL'] . '/edit/' . $oItem->id . '/' . $oItem->locale;
                 } else {
-                    redirect($aConfig['BASE_URL'] . '/edit/' . $oItem->id);
+                    $sRedirectUrl = $aConfig['BASE_URL'] . '/edit/' . $oItem->id;
                 }
+
+                redirect(
+                    $oInput->get('isModal')
+                        ? $sRedirectUrl .= '?isModal=true'
+                        : $sRedirectUrl
+                );
 
             } catch (\Exception $e) {
                 $oDb->trans_rollback();
