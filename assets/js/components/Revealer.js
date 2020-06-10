@@ -153,6 +153,7 @@ class Group {
                 this.elements[i].hide();
             }
         }
+        this.adminController.refreshUi();
     }
 
     // --------------------------------------------------------------------------
