@@ -129,10 +129,10 @@ class Group {
      */
     getControlValue() {
         let value;
-        if (this.$control.not('[type=checkbox]')) {
-            value = this.$control.val();
-        } else {
+        if (this.$control.is('[type=checkbox]')) {
             value = this.$control.is(':checked');
+        } else {
+            value = this.$control.val();
         }
 
         return value;
