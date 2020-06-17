@@ -24,7 +24,7 @@ class Process extends Base
     {
         $this
             ->setName('admin:dataexport:process')
-            ->setDescription('Processes pending data exports');
+            ->setDescription('Processes any pending data export requests');
     }
 
     // --------------------------------------------------------------------------

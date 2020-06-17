@@ -1,30 +1,23 @@
 <?php
 
 /**
- * The DataExport Cron task
+ * The DataExport Process Cron task
  *
  * @package  Nails\Admin
  * @category Task
  */
 
-namespace Nails\Admin\Cron\Task;
+namespace Nails\Admin\Cron\Task\DataExport;
 
 use Nails\Cron\Task\Base;
 
 /**
- * Class DataExport
+ * Class Process
  *
  * @package Nails\Admin\Cron\Task
  */
-class DataExport extends Base
+class Process extends Base
 {
-    /**
-     * The task description
-     *
-     * @var string
-     */
-    const DESCRIPTION = 'Processes any pending data export requests';
-
     /**
      * The cron expression of when to run
      *

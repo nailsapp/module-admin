@@ -2,6 +2,7 @@
 
 namespace Nails\Admin\Console\Command\DataExport;
 
+use Nails\Admin\Model\Export;
 use Nails\Admin\Service\DataExport;
 use Nails\Common\Exception\FactoryException;
 use Nails\Common\Exception\NailsException;
@@ -114,7 +115,11 @@ class Run extends Base
     {
         /** @var DataExport $oExportService */
         $oExportService = Factory::service('DataExport', 'nails/module-admin');
-        $sSlug          = $this->oInput->getArgument('source');
+        /** @var Export $oExportModel */
+        $oExportModel = Factory::model('Export', 'nails/module-admin');
+
+        $sSlug   = $this->oInput->getArgument('source');
+        $sFormat = $this->oInput->getOption('format') ?? $this->oExportService::DEFAULT_FORMAT;
 
         $oSource = $oExportService->getSourceBySlug($sSlug);
         if (empty($oSource)) {
@@ -137,19 +142,27 @@ class Run extends Base
         $aOptions = array_filter($aOptions);
 
         if (empty($aOptions)) {
-            $this->oOutput->writeln('Beginning report generation...');
+            $this->oOutput->write('Beginning report generation...');
         } else {
-            $this->oOutput->writeln('Beginning report generation using the following options:');
+            $this->oOutput->write('Beginning report generation using the following options:');
             $this->keyValueList($aOptions);
         }
 
         $iResult = $oExportService->export(
             $oSource->slug,
-            $this->oInput->getOption('format') ?? $this->oExportService::DEFAULT_FORMAT,
+            $sFormat,
             $aOptions
         );
 
-        $this->oOutput->writeln('done!');
+        $oExportModel->create([
+            'status'      => $oExportModel::STATUS_COMPLETE,
+            'source'      => $sSlug,
+            'options'     => json_encode($aOptions),
+            'format'      => $sFormat,
+            'download_id' => $iResult,
+        ]);
+
+        $this->oOutput->writeln('<info>done</info>');
         $this->oOutput->writeln('Download from: <info>' . cdnExpiringUrl($iResult, static::EXPORT_TTL, true) . '</info>');
         $this->oOutput->writeln('');
     }
