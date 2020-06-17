@@ -33,7 +33,8 @@
         "nails/module-api": "dev-develop",
         "nails/module-auth": "dev-develop",
         "nails/module-cdn": "dev-develop",
-        "nails/module-console": "dev-develop"
+        "nails/module-console": "dev-develop",
+        "nails/module-cron": "dev-develop"
     },
     "require-dev": {
         "phpunit/phpunit": "9.*"
