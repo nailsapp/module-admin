@@ -3,7 +3,7 @@
 if (!function_exists('form_dynamic_table')) {
     function form_dynamic_table($aField)
     {
-        return \Nails\Admin\Helper\Form::form_dynamic_table($aField);
+        return \Nails\Admin\Helper\Form::dynamicTable($aField);
     }
 }
 
