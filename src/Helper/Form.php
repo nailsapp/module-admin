@@ -17,6 +17,10 @@ use Nails\Factory;
 
 class Form
 {
+    const FIELD_DYNAMIC_TABLE = 'dynamic_table';
+
+    // --------------------------------------------------------------------------
+
     /**
      * Generates a dynamic table
      *
