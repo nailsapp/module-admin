@@ -12,22 +12,26 @@ foreach ($aFieldSets as $sLabel => $aFields) {
     $aTabs[] = [
         'label'   => $sLabel,
         'content' => function () use ($aFields) {
-            foreach ($aFields as $iIndex => $oField) {
 
-                if (empty($oField->key)) {
+            if (is_string($aFields)) {
+                echo $aFields;
 
-                    throw new \Nails\Common\Exception\NailsException(
-                        sprintf(
-                            'Property "key" is missing for field "%s"',
-                            $oField->label ?: $iIndex
-                        )
-                    );
-                }
+            } else {
+                foreach ($aFields as $iIndex => $oField) {
+                    if (empty($oField->key)) {
+                        throw new \Nails\Common\Exception\NailsException(
+                            sprintf(
+                                'Property "key" is missing for field "%s"',
+                                $oField->label ?: $iIndex
+                            )
+                        );
 
-                if (is_callable('\Nails\Common\Helper\Form\Field::' . $oField->type)) {
-                    echo call_user_func('\Nails\Common\Helper\Form\Field::' . $oField->type, (array) $oField);
-                } else {
-                    echo Nails\Common\Helper\Form\Field::text((array) $oField);
+                    } elseif (is_callable('\Nails\Common\Helper\Form\Field::' . $oField->type)) {
+                        echo call_user_func('\Nails\Common\Helper\Form\Field::' . $oField->type, (array) $oField);
+
+                    } else {
+                        echo Nails\Common\Helper\Form\Field::text((array) $oField);
+                    }
                 }
             }
         },
