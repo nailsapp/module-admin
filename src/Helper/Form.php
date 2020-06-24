@@ -82,6 +82,9 @@ class Form
         $sColSpan     = count($aHeaderCells);
         $sData        = htmlspecialchars($sDefault);
 
+        //  Allows plugins to be nested (to one degree anyway)
+        $sBodyCells = str_replace('</script>', '<\/script>', $sBodyCells);
+
         return <<<EOT
             <table class="js-admin-dynamic-table" data-data="$sData">
                 <thead>

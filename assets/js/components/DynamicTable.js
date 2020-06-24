@@ -86,10 +86,14 @@ class DynamicTable {
      * @return {DynamicTable}
      */
     add($table, $body, data, refreshUi) {
+
         data = data || {};
         data.index = $table.data('index') || 0;
 
-        let $row = $(Mustache.render($table.data('template'), data));
+        let $row = $(Mustache.render(
+            $table.data('template').replace('<\\/script>', '</script>'),
+            data
+        ));
 
         //  Set the value of any checkboxes
         $('input[type=checkbox]', $row)
