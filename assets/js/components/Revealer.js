@@ -179,8 +179,20 @@ class Element {
      * @param element {HTMLElement} The DOM element
      */
     constructor(element) {
+
         this.$element = $(element);
-        this.value = this.$element.data('reveal-on');
+        this.delimiter = this.$element.data('reveal-delimiter') || ',';
+        this.values = this.$element.data('reveal-in');
+
+        if (this.values) {
+            this.values = this.values.split(this.delimiter)
+        } else {
+            this.values = [];
+        }
+
+        if (this.$element.get(0).hasAttribute('data-reveal-on')) {
+            this.values.push(this.$element.data('reveal-on'));
+        }
     }
 
     // --------------------------------------------------------------------------
@@ -191,15 +203,32 @@ class Element {
      * @returns {boolean}
      */
     isShown(value) {
-        /**
-         * This adds support for true/false properties which maybe have been cast as 1/0
-         */
-        if ((typeof value === 'boolean' && typeof this.value !== 'boolean') || (typeof this.value === 'boolean' && typeof value !== 'boolean')) {
-            return (value && this.value === 1) || (!value && this.value === 0);
 
-        } else {
-            return this.value == value;
+        for (let i = 0; i < this.values.length; i++) {
+
+            let valueTest = this.values[i];
+
+            /**
+             * This adds support for true/false properties which maybe have been cast as 1/0
+             */
+            if (
+                (typeof value === 'boolean' && typeof valueTest !== 'boolean') ||
+                (typeof valueTest === 'boolean' && typeof value !== 'boolean')
+            ) {
+
+                if (
+                    (value && valueTest === 1) ||
+                    (!value && valueTest === 0)
+                ) {
+                    return true;
+                }
+
+            } else if (valueTest == value) {
+                return true
+            }
         }
+
+        return false;
     }
 
     // --------------------------------------------------------------------------
