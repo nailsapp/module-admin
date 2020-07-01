@@ -172,3 +172,16 @@ section.tabs {
         }
     }
 }
+
+fieldset {
+    > ul.tabs {
+        margin: 0;
+    }
+
+    > section.tabs {
+        .tab-page {
+            border: 0;
+            margin: 0;
+        }
+    }
+}
