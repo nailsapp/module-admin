@@ -168,20 +168,8 @@ $oMustache = \Nails\Factory::service('Mustache');
                                 } elseif (strpos($sProperty, '.') !== false) {
 
                                     //  @todo (Pablo - 2018-08-08) - Handle arrays in expanded objects
-                                    $aField     = explode('.', $sProperty);
+                                    $mValue = ArrayHelper::dot((array) $oItem, $sProperty);
                                     $aClasses   = [];
-                                    $sProperty1 = getFromArray(0, $aField);
-                                    $sProperty2 = getFromArray(1, $aField);
-
-                                    if (property_exists($oItem, $sProperty1)) {
-                                        if (!empty($oItem->{$sProperty1}) && property_exists($oItem->{$sProperty1}, $sProperty2)) {
-                                            $mValue = $oItem->{$sProperty1}->{$sProperty2};
-                                        } else {
-                                            $mValue = '<span class="text-muted">&mdash;</span>';
-                                        }
-                                    } else {
-                                        $mValue = '<span class="text-muted">&mdash;</span>';
-                                    }
 
                                     if ($bIsNumeric && !$bIsUserCell) {
                                         $mValue = number_format($mValue);
@@ -197,7 +185,7 @@ $oMustache = \Nails\Factory::service('Mustache');
                                         echo Helper::loadUserCell($mValue);
                                     } else {
                                         echo Helper::loadCellAuto(
-                                            $mValue,
+                                            $mValue ?? '<span class="text-muted">&mdash;</span>',
                                             trim('field field--' . $sProperty . ' ' . implode(' ', $aClasses))
                                         );
                                     }
