@@ -203,6 +203,11 @@ $oMustache = \Nails\Factory::service('Mustache');
                             echo '<td class="actions">';
                             foreach ($CONFIG['INDEX_ROW_BUTTONS'] as $aButton) {
 
+                                $cEnabled = getFromArray('enabled', $aButton);
+                                if (is_object($cEnabled) && ($cEnabled instanceof \Closure) && !$cEnabled($oItem)) {
+                                    continue;
+                                }
+
                                 $sUrl = getFromArray('url', $aButton);
                                 if (is_object($sUrl) && ($sUrl instanceof \Closure)) {
                                     $sUrl = $sUrl($oItem);
@@ -232,15 +237,9 @@ $oMustache = \Nails\Factory::service('Mustache');
 
                                 if (empty($CONFIG['PERMISSION']) || empty($sPerm) || userHasPermission($sPerm)) {
 
-                                    $cEnabled = getFromArray('enabled', $aButton);
-                                    if (is_object($cEnabled) && ($cEnabled instanceof \Closure) && !$cEnabled($oItem)) {
-                                        continue;
-                                    }
-
                                     $sLabel = $oMustache->render($sLabel, $oItem);
                                     $sClass = $oMustache->render($sClass, $oItem);
                                     $sAttr  = $oMustache->render($sAttr, $oItem);
-
 
                                     if (is_array($sUrl)) {
                                         ?>
