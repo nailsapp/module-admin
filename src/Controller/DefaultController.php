@@ -628,6 +628,12 @@ abstract class DefaultController extends Base
                         'View &nbsp;<span class="fa fa-external-link-alt"></span>',
                         'class="btn btn-success btn-xs pull-right" target="_blank"'
                     );
+                } elseif (method_exists($oItem, 'getUrl')) {
+                    $sLink = anchor(
+                        $oItem->getUrl(),
+                        'View &nbsp;<span class="fa fa-external-link-alt"></span>',
+                        'class="btn btn-success btn-xs pull-right" target="_blank"'
+                    );
                 } else {
                     $sLink = '';
                 }
@@ -792,6 +798,12 @@ abstract class DefaultController extends Base
                 if (property_exists($oNewItem, 'url')) {
                     $sLink = anchor(
                         $oNewItem->url,
+                        'View &nbsp;<span class="fa fa-external-link-alt"></span>',
+                        'class="btn btn-success btn-xs pull-right" target="_blank"'
+                    );
+                } elseif (method_exists($oNewItem, 'getUrl')) {
+                    $sLink = anchor(
+                        $oNewItem->getUrl(),
                         'View &nbsp;<span class="fa fa-external-link-alt"></span>',
                         'class="btn btn-success btn-xs pull-right" target="_blank"'
                     );
@@ -1225,7 +1237,9 @@ abstract class DefaultController extends Base
             $aConfig['INDEX_ROW_BUTTONS'],
             array_filter([
                 [
-                    'url'     => '{{url}}',
+                    'url'     => function ($oItem) {
+                        return $oItem->url ?? (method_exists($oItem, 'getUrl') ? $oItem->getUrl() : null);
+                    },
                     'label'   => lang('action_view'),
                     'class'   => 'btn-default',
                     'attr'    => 'target="_blank"',
@@ -1944,7 +1958,7 @@ abstract class DefaultController extends Base
      */
     protected static function isViewButtonEnabled($oItem): bool
     {
-        return static::CONFIG_CAN_VIEW && property_exists($oItem, 'url');
+        return static::CONFIG_CAN_VIEW && (property_exists($oItem, 'url') || method_exists($oItem, 'getUrl'));
     }
 
     // --------------------------------------------------------------------------
