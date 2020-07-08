@@ -184,9 +184,17 @@ fieldset {
             margin-bottom: 0;
         }
 
-        .tab-page {
+        > .tab-page {
             border: 0;
             margin: 0;
+
+            > form {
+                margin: 0;
+
+                > p {
+                    margin: 1em;
+                }
+            }
         }
     }
 }
