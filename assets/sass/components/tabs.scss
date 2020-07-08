@@ -176,9 +176,14 @@ section.tabs {
 fieldset {
     > ul.tabs {
         margin: 0;
+        background-color: #e8e8e8;
     }
 
     > section.tabs {
+        &:last-child {
+            margin-bottom: 0;
+        }
+
         .tab-page {
             border: 0;
             margin: 0;
