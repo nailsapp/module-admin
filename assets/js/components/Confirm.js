@@ -26,7 +26,8 @@ class Confirm {
      */
     init(domElement) {
 
-        $('a.confirm', domElement)
+        $('a.confirm:not(.confirm--processed)', domElement)
+            .addClass('confirm--processed')
             .on('click', (e) => {
 
                 let $link = $(e.currentTarget);
