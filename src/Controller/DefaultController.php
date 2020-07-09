@@ -495,38 +495,41 @@ abstract class DefaultController extends Base
         $aSortConfig = $aConfig['SORT_OPTIONS'];
 
         if (classUses($oModel, Nestable::class)) {
-            $aSortConfig = array_merge(['Hierarchy' => 'order'], $aSortConfig);
-        }
-
-        //  Get the first key (i.e the default sort)
-        $sFirstKey = reset($aSortConfig);
-
-        //  Prepare the sort options so they have the appropriate table alias
-        $aSortCol = [];
-        foreach ($aSortConfig as $sLabel => $sColumn) {
-            if (strpos($sColumn, '.') === false) {
-                $aSortCol[$sAlias . '.' . $sColumn] = $sLabel;
-            } else {
-                $aSortCol[$sColumn] = $sLabel;
-            }
+            $aSortConfig = array_merge(
+                ['Hierarchy' => 'order'],
+                $aSortConfig
+            );
         }
 
         //  Other parameters
-        $iPage      = $oInput->get('page') ? $oInput->get('page') : 0;
-        $iPerPage   = $oInput->get('perPage') ? $oInput->get('perPage') : 50;
-        $sSortOn    = $oInput->get('sortOn') ? $oInput->get('sortOn') : $sAlias . '.' . $sFirstKey;
-        $sSortOrder = $oInput->get('sortOrder') ? $oInput->get('sortOrder') : $aConfig['SORT_DIRECTION'];
+        $iPage      = (int) $oInput->get('page') ?: 0;
+        $iPerPage   = (int) $oInput->get('perPage') ?: 50;
+        $sSortOn    = (int) $oInput->get('sortOn') ?: 0;
+        $sSortOrder = $oInput->get('sortOrder') ?: $aConfig['SORT_DIRECTION'];
         $sKeywords  = $oInput->get('keywords');
         $aCbFilters = $this->indexCheckboxFilters();
         $aDdFilters = $this->indexDropdownFilters();
+
+        // Translate a sorting index to a column
+        $sSortKey = getFromArray(
+            $sSortOn,
+            array_values($aSortConfig),
+            reset($aSortConfig)
+        );
+
+        if (is_string($sSortKey) && strpos('.', $sSortKey) === false) {
+            $sSortKey = $oModel->getTableAlias(true) . $sSortKey;
+        }
 
         $aData = [
                 'cbFilters' => $aCbFilters,
                 'ddFilters' => $aDdFilters,
                 'keywords'  => $sKeywords,
-                'sort'      => [
-                    [$sSortOn, $sSortOrder],
-                ],
+                'sort'      => array_filter([
+                    is_callable($sSortKey)
+                        ? [call_user_func($sSortKey), $sSortOrder, false]
+                        : [$sSortKey, $sSortOrder],
+                ]),
             ] + $aConfig['INDEX_DATA'];
 
         // --------------------------------------------------------------------------
@@ -542,7 +545,7 @@ abstract class DefaultController extends Base
         $this->data['pagination'] = Helper::paginationObject($iPage, $iPerPage, $iTotalRows);
         $this->data['search']     = Helper::searchObject(
             true,
-            $aSortCol,
+            array_keys($aSortConfig),
             $sSortOn,
             $sSortOrder,
             $iPerPage,
