@@ -16,6 +16,7 @@ namespace Nails\Admin\Controller;
 use Nails\Admin\Events;
 use Nails\Common\Exception\FactoryException;
 use Nails\Common\Service\Asset;
+use Nails\Common\Service\Event;
 use Nails\Components;
 use Nails\Config;
 use Nails\Factory;
@@ -57,6 +58,7 @@ abstract class Base extends BaseMiddle
         parent::__construct();
 
         //  Setup Events
+        /** @var Event $oEventService */
         $oEventService = Factory::service('Event');
 
         //  Call the ADMIN:STARTUP event, admin is constructing
@@ -77,6 +79,7 @@ abstract class Base extends BaseMiddle
         // --------------------------------------------------------------------------
 
         //  Unload any previously loaded assets, admin handles its own assets
+        /** @var Asset $oAsset */
         $oAsset = Factory::service('Asset');
         $oAsset
             ->clear()
