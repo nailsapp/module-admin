@@ -78,7 +78,9 @@ abstract class Base extends BaseMiddle
 
         //  Unload any previously loaded assets, admin handles its own assets
         $oAsset = Factory::service('Asset');
-        $oAsset->clear();
+        $oAsset
+            ->clear()
+            ->compileGlobalData();
 
         //  @todo (Pablo - 2017-06-08) - Try and reduce the number of things being loaded, or theme it
         $this
