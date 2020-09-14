@@ -2257,4 +2257,37 @@ abstract class DefaultController extends Base
 
         return $aOut;
     }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Adds a new index row button
+     *
+     * @param \Closure|string|null   $mUrl        The button's URL
+     * @param \Closure|string|null   $mLabel      The button's label
+     * @param \Closure|string|null   $mClass      The buttons classes
+     * @param \Closure|string[]|null $mAttr       Any additional attributed for the button
+     * @param \Closure|string|null   $mPermission The permission required to render the button
+     * @param \Closure|bool|null     $mEnabled    Whether the button is enabled or not
+     */
+    protected function addIndexRowButton(
+        $mUrl,
+        $mLabel,
+        $mClass = null,
+        $mAttr = null,
+        $mPermission = null,
+        $mEnabled = null
+    ): self {
+
+        $this->aConfig['INDEX_ROW_BUTTONS'][] = [
+            'url'        => $mUrl,
+            'label'      => $mLabel,
+            'class'      => $mClass ?? 'btn-default',
+            'attr'       => $mAttr,
+            'permission' => $mPermission,
+            'enabled'    => $mEnabled,
+        ];
+
+        return $this;
+    }
 }
