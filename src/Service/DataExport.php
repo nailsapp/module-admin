@@ -19,7 +19,7 @@ use Nails\Admin\Resource\DataExport\Source;
 use Nails\Cdn\Constants;
 use Nails\Cdn\Service\Cdn;
 use Nails\Common\Exception\NailsException;
-use Nails\Common\Helper\Directory;
+use Nails\Common\Factory\Component;
 use Nails\Common\Service\FileCache;
 use Nails\Components;
 use Nails\Factory;
@@ -73,14 +73,14 @@ class DataExport
 
         foreach (Components::available() as $oComponent) {
 
-            $aSources = $oComponent
+            $aClasses = $oComponent
                 ->findClasses('DataExport\\Source')
                 ->whichImplement(Interfaces\DataExport\Source::class);
 
-            foreach ($aSources as $sSource) {
-                $oInstance        = new $sSource();
+            foreach ($aClasses as $sClass) {
+                $oInstance        = new $sClass();
                 $this->aSources[] = new Source([
-                    'slug'        => $oComponent->slug . '::' . preg_replace('/^.*\\\\DataExport\\\\Source\\\\/', '', $sSource),
+                    'slug'        => $this->generateSlug($oComponent, $sClass),
                     'label'       => $oInstance->getLabel(),
                     'description' => $oInstance->getDescription(),
                     'options'     => $oInstance->getOptions(),
@@ -88,14 +88,14 @@ class DataExport
                 ]);
             }
 
-            $aFormats = $oComponent
+            $aClasses = $oComponent
                 ->findClasses('DataExport\\Format')
                 ->whichImplement(Interfaces\DataExport\Format::class);
 
-            foreach ($aFormats as $sFormat) {
-                $oInstance        = new $sFormat();
+            foreach ($aClasses as $sClass) {
+                $oInstance        = new $sClass();
                 $this->aFormats[] = new Format([
-                    'slug'        => $oComponent->slug . '::' . preg_replace('/^.*\\\\DataExport\\\\Format\\\\/', '', $sFormat),
+                    'slug'        => $this->generateSlug($oComponent, $sClass),
                     'label'       => $oInstance->getLabel(),
                     'description' => $oInstance->getDescription(),
                     'instance'    => $oInstance,
@@ -108,6 +108,28 @@ class DataExport
 
         $this->aSources = array_values($this->aSources);
         $this->aFormats = array_values($this->aFormats);
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Generates a slug
+     *
+     * @param Component $oComponent The component the class belongs to
+     * @param string    $sClass     The class to slugify
+     *
+     * @return string
+     */
+    protected function generateSlug(Component $oComponent, string $sClass): string
+    {
+        $sClass = preg_replace('/^.*\\\\DataExport\\\\(Source|Format)\\\\/', '', $sClass);
+        $sClass = str_replace('\\', '', $sClass);
+
+        return sprintf(
+            '%s::%s',
+            $oComponent->slug,
+            $sClass
+        );
     }
 
     // --------------------------------------------------------------------------
