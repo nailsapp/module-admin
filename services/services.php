@@ -83,13 +83,6 @@ return [
                 return new Factory\Email\DataExport();
             }
         },
-        'EmailTest'                => function (): Factory\Email\Test {
-            if (class_exists('\App\Admin\Factory\Email\Test')) {
-                return new \App\Admin\Factory\Email\Test();
-            } else {
-                return new Factory\Email\Test();
-            }
-        },
         'Nav'                      => function (): Factory\Nav {
             if (class_exists('\App\Admin\Factory\Nav')) {
                 return new \App\Admin\Factory\Nav();
