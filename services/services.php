@@ -76,11 +76,18 @@ return [
         },
     ],
     'factories' => [
-        'EmailDataExport'          => function (): Factory\Email\DataExport {
-            if (class_exists('\App\Admin\Factory\Email\DataExport')) {
-                return new \App\Admin\Factory\Email\DataExport();
+        'EmailDataExportSuccess'   => function (): Factory\Email\DataExport\Success {
+            if (class_exists('\App\Admin\Factory\Email\DataExport\Success')) {
+                return new \App\Admin\Factory\Email\DataExport\Success();
             } else {
-                return new Factory\Email\DataExport();
+                return new Factory\Email\DataExport\Success();
+            }
+        },
+        'EmailDataExportFail'      => function (): Factory\Email\DataExport\Fail {
+            if (class_exists('\App\Admin\Factory\Email\DataExport\Fail')) {
+                return new \App\Admin\Factory\Email\DataExport\Fail();
+            } else {
+                return new Factory\Email\DataExport\Fail();
             }
         },
         'Nav'                      => function (): Factory\Nav {

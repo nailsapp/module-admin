@@ -1,12 +1,12 @@
 <?php
 
-namespace Nails\Admin\Factory\Email;
+namespace Nails\Admin\Factory\Email\DataExport;
 
 use Nails\Email\Factory\Email;
 
-class DataExport extends Email
+class Fail extends Email
 {
-    protected $sType = 'data_export';
+    protected $sType = 'data_export_fail';
 
     // --------------------------------------------------------------------------
 
@@ -18,7 +18,7 @@ class DataExport extends Email
     public function getTestData(): array
     {
         return [
-            'status' => 'COMPLETE',
+            'error' => 'The error reason for the failure.',
         ];
     }
 }

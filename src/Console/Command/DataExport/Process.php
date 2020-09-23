@@ -3,6 +3,8 @@
 namespace Nails\Admin\Console\Command\DataExport;
 
 use DateTime;
+use Nails\Admin\Factory\Email\DataExport\Fail;
+use Nails\Admin\Factory\Email\DataExport\Success;
 use Nails\Admin\Model\Export;
 use Nails\Admin\Service\DataExport;
 use Nails\Console\Command\Base;
@@ -112,8 +114,11 @@ class Process extends Base
                 }
             }
 
-            //  Process each request
-            $oEmail = Factory::factory('EmailDataExport', 'nails/module-admin');
+            /** @var Success $oSuccessEmail */
+            $oSuccessEmail = Factory::factory('EmailDataExportSuccess', 'nails/module-admin');
+            /** @var Fail $oFailEmail */
+            $oFailEmail = Factory::factory('EmailDataExportSuccess', 'nails/module-admin');
+
             foreach ($aGroupedRequests as $oRequest) {
                 try {
 
@@ -132,15 +137,9 @@ class Process extends Base
 
                     try {
 
-                        $oEmail
-                            ->data([
-                                'status' => $oModel::STATUS_COMPLETE,
-                                'error'  => null,
-                            ]);
-
                         foreach ($oRequest->recipients as $iRecipient) {
                             $this->oOutput->writeln('Sending email to user #<info>' . $iRecipient . '</info>');
-                            $oEmail->to($iRecipient)->send();
+                            $oSuccessEmail->to($iRecipient)->send();
                         }
 
                     } catch (\Exception $e) {
@@ -148,7 +147,7 @@ class Process extends Base
                     }
 
                 } catch (\Exception $e) {
-                    $this->executionFailed($e, $oRequest, $oModel, $oEmail);
+                    $this->executionFailed($e, $oRequest, $oModel, $oFailEmail);
                 }
             }
 
@@ -162,16 +161,16 @@ class Process extends Base
     /**
      * Marks a request as failed, recording why it failed and informs the recipients
      *
-     * @param \Exception                            $oException The exception which was thrown
-     * @param \stdClass                             $oRequest   The current request
-     * @param \Nails\Admin\Model\Export             $oModel     The data export model
-     * @param \Nails\Admin\Factory\Email\DataExport $oEmail     The email object
+     * @param \Exception                                 $oException The exception which was thrown
+     * @param \stdClass                                  $oRequest   The current request
+     * @param \Nails\Admin\Model\Export                  $oModel     The data export model
+     * @param \Nails\Admin\Factory\Email\DataExport\Fail $oEmail     The email object
      */
     protected function executionFailed(
         \Exception $oException,
         \stdClass $oRequest,
         \Nails\Admin\Model\Export $oModel,
-        \Nails\Admin\Factory\Email\DataExport $oEmail
+        \Nails\Admin\Factory\Email\DataExport\Fail $oEmail
     ) {
 
         $this->oOutput->writeln('<error>' . get_class($oException) . ': ' . $oException->getMessage() . '</error>');
@@ -179,8 +178,7 @@ class Process extends Base
 
         $oEmail
             ->data([
-                'status' => $oModel::STATUS_FAILED,
-                'error'  => $oException->getMessage(),
+                'error' => $oException->getMessage(),
             ]);
 
         foreach ($oRequest->recipients as $iRecipient) {
