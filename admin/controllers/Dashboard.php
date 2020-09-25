@@ -56,6 +56,7 @@ class Dashboard extends Base
         $this->data['page']->title = 'Welcome';
         $this->data['aAlerts']     = $this->getDashboardAlerts();
         $this->data['sPhrase']     = $this->getWelcomePhrase();
+        $this->data['aWidgets']    = $this->getWidgets();
 
         Helper::loadView('index');
     }
@@ -88,7 +89,6 @@ class Dashboard extends Base
 
         return $aAlerts;
     }
-
 
     // --------------------------------------------------------------------------
 
@@ -129,5 +129,18 @@ class Dashboard extends Base
     protected function getWelcomePhrase(): string
     {
         return random_element($this->getWelcomePhrases());
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns dashbaord widgets
+     *
+     * @return array
+     */
+    protected function getWidgets(): array
+    {
+        $oDashboardWidgetService = Factory::service('DashboardWidget', 'nailsapp/module-admin');
+        return $oDashboardWidgetService::getWidgets();
     }
 }

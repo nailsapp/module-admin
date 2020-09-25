@@ -14,6 +14,13 @@ return [
                 return new Service\DataExport();
             }
         },
+        'DashboardWidget' => function () {
+            if (class_exists('\App\Admin\Service\DashboardWidget')) {
+                return new \App\Admin\Service\DashboardWidget();
+            } else {
+                return new \Nails\Admin\Service\DashboardWidget();
+            }
+        },
     ],
     'models'    => [
         'Admin'     => function (): Model\Admin {
