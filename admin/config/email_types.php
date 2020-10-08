@@ -20,6 +20,7 @@ $config['email_types'] = [
         'template_body'   => 'admin/Email/templates/data_export/success',
         'template_footer' => '',
         'default_subject' => 'Data Export Complete',
+        'can_unsubscribe' => true,
         'factory'         => 'nails/module-admin::EmailDataExportSuccess',
     ],
     (object) [
@@ -31,6 +32,7 @@ $config['email_types'] = [
         'template_body'   => 'admin/Email/templates/data_export/fail',
         'template_footer' => '',
         'default_subject' => 'Data Export Failed',
+        'can_unsubscribe' => true,
         'factory'         => 'nails/module-admin::EmailDataExportFail',
     ],
 ];
