@@ -14,6 +14,20 @@ namespace Nails\Admin\Factory\IndexFilter;
 
 use Nails\Common\Exception\NailsException;
 
+/**
+ * Class Option
+ *
+ * @package Nails\Admin\Factory\IndexFilter
+ *
+ * @method self setLabel(string $sLabel)
+ * @method string getLabel()
+ * @method self setValue(mixed $sValue)
+ * @method mixed getValue()
+ * @method self setIsSelected(bool $sIsSelected)
+ * @method bool getIsSelected()
+ * @method self setIsQuery(bool $sIsQuery)
+ * @method bool getIsQuery()
+ */
 class Option
 {
     /**

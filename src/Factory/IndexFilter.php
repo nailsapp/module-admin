@@ -16,6 +16,16 @@ use Nails\Admin\Factory\IndexFilter\Option;
 use Nails\Common\Exception\NailsException;
 use Nails\Factory;
 
+/**
+ * Class IndexFilter
+ *
+ * @package Nails\Admin\Factory
+ *
+ * @method self setLabel(string $sLabel)
+ * @method string getLabel()
+ * @method self setColumn(string $sColumn)
+ * @method string getColumn()
+ */
 class IndexFilter
 {
     /**
