@@ -6,20 +6,20 @@ $sKey               = $key;
 $bCanSelectMultiple = $canSelectMultiple;
 $sComponentType     = $componentType;
 
-if (!empty($aComponents)) {
+?>
+<div class="table-responsive">
+    <table>
+        <thead class="components">
+            <tr>
+                <th width="80" class="selected text-center">Enabled</th>
+                <th width="*" class="label">Label</th>
+                <th width="150" class="configure text-center">Configure</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
 
-    ?>
-    <div class="table-responsive">
-        <table>
-            <thead class="components">
-                <tr>
-                    <th width="80" class="selected text-center">Enabled</th>
-                    <th width="*" class="label">Label</th>
-                    <th width="150" class="configure text-center">Configure</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
+            if (!empty($aComponents)) {
 
                 $oInput = \Nails\Factory::service('Input');
                 foreach ($aComponents as $oComponent) {
@@ -83,9 +83,17 @@ if (!empty($aComponents)) {
                     </tr>
                     <?php
                 }
+
+            } else {
                 ?>
-            <tbody>
-        </table>
-    </div>
-    <?php
-}
+                <tr>
+                    <td colspan="3" class="no-data">
+                        No <?=\Nails\Common\Helper\Inflector::pluralise(2, $sComponentType)?> available
+                    </td>
+                </tr>
+                <?php
+            }
+            ?>
+        <tbody>
+    </table>
+</div>
