@@ -385,12 +385,13 @@ class AdminRouter extends BaseMiddle
                         $url .= empty($actionUrl) ? '' : '/';
                         $url .= $actionUrl;
 
-                        $adminControllersNav[md5($sGroupLabel)]->actions[$url]         = new \stdClass();
-                        $adminControllersNav[md5($sGroupLabel)]->actions[$url]->order  = $actionDetails->order;
-                        $adminControllersNav[md5($sGroupLabel)]->actions[$url]->label  = $actionDetails->label;
-                        $adminControllersNav[md5($sGroupLabel)]->actions[$url]->alerts = $actionDetails->alerts;
-                        $adminControllersNav[md5($sGroupLabel)]->actions[$url]->class  = $controllerDetails['className'];
-                        $adminControllersNav[md5($sGroupLabel)]->actions[$url]->path   = $controllerDetails['path'];
+                        $adminControllersNav[md5($sGroupLabel)]->actions[$url]              = new \stdClass();
+                        $adminControllersNav[md5($sGroupLabel)]->actions[$url]->order       = $actionDetails->order;
+                        $adminControllersNav[md5($sGroupLabel)]->actions[$url]->label       = $actionDetails->label;
+                        $adminControllersNav[md5($sGroupLabel)]->actions[$url]->searchTerms = $actionDetails->searchTerms;
+                        $adminControllersNav[md5($sGroupLabel)]->actions[$url]->alerts      = $actionDetails->alerts;
+                        $adminControllersNav[md5($sGroupLabel)]->actions[$url]->class       = $controllerDetails['className'];
+                        $adminControllersNav[md5($sGroupLabel)]->actions[$url]->path        = $controllerDetails['path'];
                     }
                 }
             }

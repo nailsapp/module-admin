@@ -40,6 +40,9 @@ class Nav
      */
     protected $actions;
 
+    /** @var string[] */
+    protected $aSearchTerms = [];
+
     // --------------------------------------------------------------------------
 
     /**
@@ -80,6 +83,33 @@ class Nav
     public function getLabel()
     {
         return $this->label;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Set the navGroup's aSearchTerms
+     *
+     * @param array $aSearchTerms
+     *
+     * @return $this
+     */
+    public function setSearchTerms(array $aSearchTerms)
+    {
+        $this->aSearchTerms = $aSearchTerms;
+        return $this;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the navGroup's aSearchTerms
+     *
+     * @return string[]
+     */
+    public function getSearchTerms(): array
+    {
+        return $this->aSearchTerms;
     }
 
     // --------------------------------------------------------------------------
@@ -126,19 +156,21 @@ class Nav
     /**
      * Adds a new action to the navGroup. An action is menu item essentially.
      *
-     * @param string $label  The label to give the action
-     * @param string $url    The url this action applies to
-     * @param array  $alerts An array of alerts to have along side this action
-     * @param mixed  $order  An optional order index, used to push menu items up and down the group
+     * @param string $label        The label to give the action
+     * @param string $url          The url this action applies to
+     * @param array  $alerts       An array of alerts to have along side this action
+     * @param mixed  $order        An optional order index, used to push menu items up and down the group
+     * @param array  $aSearchTerms Additional search terms for the item
      *
-     * @return Nav      $this, for chaining
+     * @return $this
      */
-    public function addAction($label, $url = 'index', $alerts = [], $order = null)
+    public function addAction($label, $url = 'index', $alerts = [], $order = null, array $aSearchTerms = [])
     {
-        $this->actions[$url]         = new \stdClass();
-        $this->actions[$url]->label  = $label;
-        $this->actions[$url]->alerts = !is_array($alerts) ? [$alerts] : $alerts;
-        $this->actions[$url]->order  = $order;
+        $this->actions[$url]              = new \stdClass();
+        $this->actions[$url]->label       = $label;
+        $this->actions[$url]->searchTerms = array_merge([$this->getLabel()], $this->getSearchTerms(), $aSearchTerms);
+        $this->actions[$url]->alerts      = !is_array($alerts) ? [$alerts] : $alerts;
+        $this->actions[$url]->order       = $order;
 
         return $this;
     }

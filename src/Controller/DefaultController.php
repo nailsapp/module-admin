@@ -22,7 +22,6 @@ use Nails\Common\Exception\ModelException;
 use Nails\Common\Exception\NailsException;
 use Nails\Common\Exception\ValidationException;
 use Nails\Common\Factory\Model\Field;
-use Nails\Common\Helper\ArrayHelper;
 use Nails\Common\Helper\Form;
 use Nails\Common\Resource;
 use Nails\Common\Service\Database;
@@ -75,6 +74,11 @@ abstract class DefaultController extends Base
      * The format for the sidebar link
      */
     const CONFIG_SIDEBAR_FORMAT = 'Manage %s';
+
+    /**
+     * Search terms to apply to the entire group
+     */
+    const CONFIG_SIDEBAR_SEARCH_TERMS = [];
 
     /**
      * the base URL for this controller
@@ -438,7 +442,8 @@ abstract class DefaultController extends Base
         $oNavGroup = Factory::factory('Nav', 'nails/module-admin');
         $oNavGroup
             ->setLabel(static::getSidebarGroup())
-            ->setIcon(static::CONFIG_SIDEBAR_ICON);
+            ->setIcon(static::CONFIG_SIDEBAR_ICON)
+            ->setSearchTerms(static::CONFIG_SIDEBAR_SEARCH_TERMS);
 
         if (static::userCan('browse')) {
             $oNavGroup

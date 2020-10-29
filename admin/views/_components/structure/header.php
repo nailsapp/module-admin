@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <title>
         <?php
 
@@ -12,9 +12,9 @@
 
         ?>
     </title>
-    <meta name="keywords" content="" />
-    <meta name="description" content="" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="keywords" content=""/>
+    <meta name="description" content=""/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
     <!--    NAILS JS GLOBALS    -->
     <script type="text/javascript">
     /* jshint ignore:start */
@@ -49,7 +49,7 @@
     $oAsset->output('JS-INLINE-HEADER');
 
     ?>
-    <link rel="stylesheet" type="text/css" media="print" href="<?=\Nails\Config::get('NAILS_ASSETS_URL') . 'css/nails.admin.print.css'?>" />
+    <link rel="stylesheet" type="text/css" media="print" href="<?=\Nails\Config::get('NAILS_ASSETS_URL') . 'css/nails.admin.print.css'?>"/>
     <?php
 
     $brandColorPrimary   = appSetting('primary_colour', 'admin') ?: '#171D20';
@@ -196,7 +196,7 @@
 </div>
 <div class="sidebar">
     <div class="nav-search admin-branding-background-secondary">
-        <input type="search" placeholder="Type to search menu" />
+        <input type="search" placeholder="Type to search menu"/>
     </div>
     <ul class="modules">
         <?php
@@ -268,7 +268,7 @@
 
                                     ?>
                                     <li>
-                                        <a href="<?=siteUrl('admin/' . $url)?>">
+                                        <a href="<?=siteUrl('admin/' . $url)?>" data-search-terms="<?=implode(',',  $methodDetails->searchTerms)?>">
                                             <?php
 
                                             echo $methodDetails->label;
