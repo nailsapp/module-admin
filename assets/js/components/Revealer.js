@@ -32,7 +32,18 @@ class Revealer {
      */
     init(domElement) {
 
-        $('[data-revealer]:not(.revealer--processed):not([data-reveal-on])', domElement)
+        let exclude = [
+            '.revealer--processed',
+            '[data-reveal-on]',
+            '[data-reveal-not-on]',
+        ];
+
+        let selector = '[data-revealer]';
+        for (let i = 0; i < exclude.length; i++) {
+            selector += `:not(${exclude[i]})`;
+        }
+
+        $(selector, domElement)
             .filter(':input')
             .filter('input[type=checkbox], select, input[data-api]')
             .addClass('revealer--processed')
@@ -182,16 +193,21 @@ class Element {
 
         this.$element = $(element);
         this.delimiter = this.$element.data('reveal-delimiter') || ',';
-        this.values = this.$element.data('reveal-in');
+
+        this.values = element.hasAttribute('data-reveal-on')
+            ? element.getAttribute('data-reveal-on')
+            : null;
 
         if (this.values) {
             this.values = this.values.split(this.delimiter)
-        } else {
-            this.values = [];
         }
 
-        if (this.$element.get(0).hasAttribute('data-reveal-on')) {
-            this.values.push(this.$element.data('reveal-on'));
+        this.bangValues = element.hasAttribute('data-reveal-not-on')
+            ? element.getAttribute('data-reveal-not-on')
+            : null;
+
+        if (this.bangValues) {
+            this.bangValues = this.bangValues.split(this.delimiter)
         }
     }
 
@@ -204,31 +220,74 @@ class Element {
      */
     isShown(value) {
 
-        for (let i = 0; i < this.values.length; i++) {
+        let showOn = null;
+        let showNotOn = null;
 
-            let valueTest = this.values[i];
+        if (this.values !== null) {
 
-            /**
-             * This adds support for true/false properties which maybe have been cast as 1/0
-             */
-            if (
-                (typeof value === 'boolean' && typeof valueTest !== 'boolean') ||
-                (typeof valueTest === 'boolean' && typeof value !== 'boolean')
-            ) {
+            //  Handle empty control values
+            if (!value.length && !this.values.length) {
+                showOn = true;
+            }
 
+            //  Check specific values
+            for (let i = 0; i < this.values.length; i++) {
+
+                let valueTest = this.values[i];
+
+                /**
+                 * This adds support for true/false properties which maybe have been cast as 1/0
+                 */
                 if (
-                    (value && valueTest === 1) ||
-                    (!value && valueTest === 0)
+                    (typeof value === 'boolean' && typeof valueTest !== 'boolean') ||
+                    (typeof valueTest === 'boolean' && typeof value !== 'boolean')
                 ) {
-                    return true;
-                }
 
-            } else if (valueTest == value) {
-                return true
+                    if ((value && valueTest === 1) || (!value && valueTest === 0)) {
+                        showOn = true;
+                        break;
+                    }
+
+                } else if (valueTest == value) {
+                    showOn = true;
+                    break;
+                }
             }
         }
 
-        return false;
+        if (this.bangValues !== null) {
+
+            //  Handle empty control values
+            if (value.length && !this.bangValues.length) {
+                showNotOn = true;
+            }
+
+            //  Check specific values
+            for (let i = 0; i < this.bangValues.length; i++) {
+
+                let valueTest = this.bangValues[i];
+
+                /**
+                 * This adds support for true/false properties which maybe have been cast as 1/0
+                 */
+                if (
+                    (typeof value === 'boolean' && typeof valueTest !== 'boolean') ||
+                    (typeof valueTest === 'boolean' && typeof value !== 'boolean')
+                ) {
+
+                    if ((value && valueTest !== 1) || (!value && valueTest !== 0)) {
+                        showNotOn = true;
+                        break;
+                    }
+
+                } else if (valueTest != value) {
+                    showNotOn = true;
+                    break;
+                }
+            }
+        }
+
+        return showOn || showNotOn;
     }
 
     // --------------------------------------------------------------------------
