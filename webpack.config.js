@@ -33,8 +33,7 @@ module.exports = {
     },
     plugins: [
         new MiniCssExtractPlugin({
-            filename: '../css/admin.css',
-            allChunks: true
+            filename: '../css/admin.css'
         })
     ],
     mode: 'production'
