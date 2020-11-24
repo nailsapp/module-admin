@@ -220,74 +220,50 @@ class Element {
      */
     isShown(value) {
 
-        let showOn = null;
-        let showNotOn = null;
-
-        if (this.values !== null) {
-
-            //  Handle empty control values
-            if (!value.length && !this.values.length) {
-                showOn = true;
-            }
-
-            //  Check specific values
-            for (let i = 0; i < this.values.length; i++) {
-
-                let valueTest = this.values[i];
-
-                /**
-                 * This adds support for true/false properties which maybe have been cast as 1/0
-                 */
-                if (
-                    (typeof value === 'boolean' && typeof valueTest !== 'boolean') ||
-                    (typeof valueTest === 'boolean' && typeof value !== 'boolean')
-                ) {
-
-                    if ((value && valueTest === 1) || (!value && valueTest === 0)) {
-                        showOn = true;
-                        break;
-                    }
-
-                } else if (valueTest == value) {
-                    showOn = true;
-                    break;
-                }
-            }
-        }
-
-        if (this.bangValues !== null) {
-
-            //  Handle empty control values
-            if (value.length && !this.bangValues.length) {
-                showNotOn = true;
-            }
-
-            //  Check specific values
-            for (let i = 0; i < this.bangValues.length; i++) {
-
-                let valueTest = this.bangValues[i];
-
-                /**
-                 * This adds support for true/false properties which maybe have been cast as 1/0
-                 */
-                if (
-                    (typeof value === 'boolean' && typeof valueTest !== 'boolean') ||
-                    (typeof valueTest === 'boolean' && typeof value !== 'boolean')
-                ) {
-
-                    if ((value && valueTest !== 1) || (!value && valueTest !== 0)) {
-                        showNotOn = true;
-                        break;
-                    }
-
-                } else if (valueTest != value) {
-                    showNotOn = true;
-                    break;
-                }
-            }
-        }
+        let showOn = this.testValue(this.values, value, false);
+        let showNotOn = this.testValue(this.bangValues, value, true);
 
         return showOn || showNotOn;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Performs the test of the supplied value against the stored values
+     * @param values
+     * @param testString
+     * @returns {null|boolean}
+     */
+    testValue(values, testString, negativeTest) {
+
+        if (values !== null) {
+
+            if (testString.length && !values.length) {
+                return true;
+            }
+
+            for (let i = 0; i < values.length; i++) {
+
+                if (typeof testString === "boolean") {
+                    if (
+                        (!negativeTest && testString && [true, 1, "true", "1"].indexOf(values[i]) > -1) ||
+                        (!negativeTest && !testString && [false, 0, "false", "0"].indexOf(values[i]) > -1) ||
+                        (negativeTest && testString && [true, 1, "true", "1"].indexOf(values[i]) === -1) ||
+                        (negativeTest && !testString && [false, 0, "false", "0"].indexOf(values[i]) === -1)
+                    ) {
+                        return true;
+                    }
+
+                } else if (!negativeTest && values[i] == value) {
+                    return true;
+
+                } else if (negativeTest && values[i] != value) {
+                    return true;
+                }
+            }
+        }
+
+        return null;
     }
 
     // --------------------------------------------------------------------------
