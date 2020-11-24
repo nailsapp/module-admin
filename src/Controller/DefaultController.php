@@ -97,7 +97,7 @@ abstract class DefaultController extends Base
     /**
      * The default sorting order
      */
-    const CONFIG_SORT_DIRECTION = 'asc';
+    const CONFIG_SORT_DIRECTION = self::SORT_ASCENDING;
 
     /**
      * The fields to show on the index view;
@@ -365,6 +365,16 @@ abstract class DefaultController extends Base
     const CHANGELOG_FIELDS_REDACT = [
         'password',
     ];
+
+    /**
+     * The string to use when sorting in ascending order
+     */
+    const SORT_ASCENDING  = 'asc';
+
+    /**
+     * The string to use when sorting in descending order
+     */
+    const SORT_DESCENDING = 'desc';
 
     // --------------------------------------------------------------------------
 
