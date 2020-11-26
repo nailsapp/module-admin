@@ -22,6 +22,7 @@ use Nails\Common\Exception\NailsException;
 use Nails\Common\Factory\Component;
 use Nails\Common\Service\FileCache;
 use Nails\Components;
+use Nails\Config;
 use Nails\Factory;
 
 /**
@@ -37,6 +38,18 @@ class DataExport
      * @var string
      */
     const DEFAULT_FORMAT = 'nails/module-admin::Csv';
+
+    /**
+     * How long the expiring URL should be valid for, in seconds
+     *
+     * @var int
+     */
+    const EXPORT_TTL = 300;
+
+    /**
+     * The default retention period for reports, in seconds
+     */
+    const RETENTION_PERIOD = 3600;
 
     // --------------------------------------------------------------------------
 
@@ -294,6 +307,52 @@ class DataExport
         }
 
         return $oObject->id;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns how long the expiring URL for a generated report should be, in seconds
+     *
+     * @return int
+     */
+    public function getUrlTtl(): int
+    {
+        return (int) Config::get('ADMIN_DATA_EXPORT_URL_TTL', static::EXPORT_TTL);
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns how long the expiring URL for a generated report should be, in seconds
+     *
+     * @return int
+     */
+    public function getRetentionPeriod(): int
+    {
+        return (int) Config::get('ADMIN_DATA_EXPORT_RETENTION', static::RETENTION_PERIOD);
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns whether the export cron job has been run in the past 5 minutes
+     *
+     * @return bool
+     * @throws \Nails\Common\Exception\FactoryException
+     */
+    public function isRunning(): bool
+    {
+        $sLastRun   = appSetting('data-export-cron-last-run', 'nails/module-admin');
+        $bIsRunning = false;
+        if ($sLastRun) {
+            $oNow       = Factory::factory('DateTime');
+            $oLastRun   = new \DateTime($sLastRun);
+            $iDiff      = $oNow->getTimestamp() - $oLastRun->getTimestamp();
+            $bIsRunning = $iDiff <= 300;
+        }
+
+        return $bIsRunning;
     }
 
     // --------------------------------------------------------------------------

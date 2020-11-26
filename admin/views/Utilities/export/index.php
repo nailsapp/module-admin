@@ -1,3 +1,6 @@
+<?php
+
+?>
 <div class="group-utilities export">
     <?=form_open()?>
     <fieldset>
@@ -74,6 +77,15 @@
     <?=form_close()?>
     <hr>
     <h2>Recent exports</h2>
+    <?php
+    if ($iRetentionPeriod) {
+        ?>
+        <p class="alert alert-info">
+            Reports are automatically removed after <?=floor($iRetentionPeriod / 60)?> minutes.
+        </p>
+        <?php
+    }
+    ?>
     <table>
         <thead>
             <tr>
@@ -107,11 +119,7 @@
 
                             if ($oItem->download_id) {
                                 echo anchor(
-                                    cdnExpiringUrl(
-                                        $oItem->download_id,
-                                        \Nails\Admin\Console\Command\DataExport\Run::EXPORT_TTL,
-                                        true
-                                    ),
+                                    cdnExpiringUrl($oItem->download_id, $iUrlTtl, true),
                                     'Download',
                                     'class="btn btn-xs btn-primary"'
                                 );

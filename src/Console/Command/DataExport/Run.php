@@ -6,6 +6,7 @@ use Nails\Admin\Model\Export;
 use Nails\Admin\Service\DataExport;
 use Nails\Common\Exception\FactoryException;
 use Nails\Common\Exception\NailsException;
+use Nails\Config;
 use Nails\Console\Command\Base;
 use Nails\Console\Exception\ConsoleException;
 use Nails\Factory;
@@ -21,15 +22,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Run extends Base
 {
-    /**
-     * How long the expiring URL should be valid for
-     *
-     * @var int
-     */
-    const EXPORT_TTL = 3600;
-
-    // --------------------------------------------------------------------------
-
     /**
      * The DataExport service
      *
@@ -163,7 +155,8 @@ class Run extends Base
         ]);
 
         $this->oOutput->writeln('<info>done</info>');
-        $this->oOutput->writeln('Download from: <info>' . cdnExpiringUrl($iResult, static::EXPORT_TTL, true) . '</info>');
+
+        $this->oOutput->writeln('Download from: <info>' . cdnExpiringUrl($iResult, $oExportService->getUrlTtl(), true) . '</info>');
         $this->oOutput->writeln('');
     }
 }

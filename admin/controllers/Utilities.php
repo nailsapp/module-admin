@@ -227,15 +227,7 @@ class Utilities extends Base
         // --------------------------------------------------------------------------
 
         //  Cron running?
-        $sLastRun   = appSetting('data-export-cron-last-run', 'nails/module-admin');
-        $bIsRunning = false;
-        if ($sLastRun) {
-            $oNow       = Factory::factory('DateTime');
-            $oLastRun   = new \DateTime($sLastRun);
-            $iDiff      = $oNow->getTimestamp() - $oLastRun->getTimestamp();
-            $bIsRunning = $iDiff <= 300;
-        }
-        if (!$bIsRunning) {
+        if (!$oDataExport->isRunning()) {
             $this->data['warning'] = '<strong>The data export cron job is not running</strong>';
             $this->data['warning'] .= '<br>The cron job has not been executed within the past 5 minutes.';
         }
@@ -243,11 +235,13 @@ class Utilities extends Base
         // --------------------------------------------------------------------------
 
         //  Set view data
-        $this->data['page']->title    = 'Export Data';
-        $this->data['aSources']       = $aSources;
-        $this->data['aFormats']       = $aFormats;
-        $this->data['aRecent']        = $aRecent;
-        $this->data['sDefaultFormat'] = $oDataExport::DEFAULT_FORMAT;
+        $this->data['page']->title      = 'Export Data';
+        $this->data['aSources']         = $aSources;
+        $this->data['aFormats']         = $aFormats;
+        $this->data['aRecent']          = $aRecent;
+        $this->data['sDefaultFormat']   = $oDataExport::DEFAULT_FORMAT;
+        $this->data['iRetentionPeriod'] = $oDataExport->getRetentionPeriod();
+        $this->data['iUrlTtl']          = $oDataExport->getUrlTtl();
 
         // --------------------------------------------------------------------------
 

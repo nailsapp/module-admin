@@ -5,16 +5,12 @@ namespace Nails\Admin\Console\Command\DataExport;
 use Nails\Admin\Model\Export;
 use Nails\Admin\Service\DataExport;
 use Nails\Cdn\Service\Cdn;
-use Nails\Common\Exception\FactoryException;
 use Nails\Common\Exception\NailsException;
 use Nails\Common\Service\Database;
-use Nails\Config;
 use Nails\Console\Command\Base;
 use Nails\Console\Exception\ConsoleException;
 use Nails\Factory;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -24,24 +20,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Clean extends Base
 {
-    /**
-     * How long the expiring URL should be valid for
-     *
-     * @var int
-     */
-    const EXPORT_TTL = 3600;
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * The DataExport service
-     *
-     * @var DataExport
-     */
-    protected $oExportService;
-
-    // --------------------------------------------------------------------------
-
     /**
      * Configure the command
      */
@@ -68,25 +46,29 @@ class Clean extends Base
 
         // --------------------------------------------------------------------------
 
+        /** @var Database $oDb */
+        $oDb = Factory::service('Database');
+        /** @var \DateTime $oNow */
+        $oNow = Factory::factory('DateTime');
+        /** @var DataExport $oExportService */
+        $oExportService = Factory::service('DataExport', 'nails/module-admin');
+        /** @var Export $oModel */
+        $oModel = Factory::model('Export', 'nails/module-admin');
+        /** @var Cdn $oCdn */
+        $oCdn = Factory::service('Cdn', \Nails\Cdn\Constants::MODULE_SLUG);
+
+        // --------------------------------------------------------------------------
+
         try {
 
             $this->banner('Data Export Clean');
 
-            $iRetention = Config::get('ADMIN_DATA_EXPORT_RETENTION', 60);
+            $iRetention = $oExportService->getRetentionPeriod();
             if ($iRetention) {
 
-                $oOutput->writeln('Retention policy: <info>' . $iRetention . ' minutes</info>');
-
-                /** @var Database $oDb */
-                $oDb = Factory::service('Database');
-                /** @var \DateTime $oNow */
-                $oNow = Factory::factory('DateTime');
-                /** @var Export $oModel */
-                $oModel = Factory::model('Export', 'nails/module-admin');
-                /** @var Cdn $oCdn */
-                $oCdn = Factory::service('Cdn', \Nails\Cdn\Constants::MODULE_SLUG);
-
-                $oNow->sub(new \DateInterval('PT' . $iRetention . 'M'));
+                $oOutput->writeln('Retention policy: <info>' . $iRetention . ' seconds</info>');
+                $oOutput->writeln('Time now is <comment>' . $oNow->format('Y-m-d H:i:s') . '</comment>');
+                $oNow->sub(new \DateInterval('PT' . $iRetention . 'S'));
                 $oOutput->writeln('Cleaning items older than <comment>' . $oNow->format('Y-m-d H:i:s') . '</comment>');
 
                 $aToClean = $oModel->getAll([
