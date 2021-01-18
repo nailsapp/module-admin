@@ -12,9 +12,11 @@
 
 namespace Nails\Admin\Model;
 
+use Nails\Auth\Constants;
 use Nails\Common\Events;
 use Nails\Common\Exception\FactoryException;
 use Nails\Common\Exception\ModelException;
+use Nails\Common\Exception\NailsException;
 use Nails\Common\Model\Base;
 use Nails\Common\Service\Event;
 use Nails\Config;
@@ -34,6 +36,20 @@ class ChangeLog extends Base
      */
     const TABLE = NAILS_DB_PREFIX . 'admin_changelog';
 
+    /**
+     * The name of the resource to use (as passed to \Nails\Factory::resource())
+     *
+     * @var string
+     */
+    const RESOURCE_NAME = 'ChangeLog';
+
+    /**
+     * The provider of the resource to use (as passed to \Nails\Factory::resource())
+     *
+     * @var string
+     */
+    const RESOURCE_PROVIDER = 'nails/module-admin';
+
     // --------------------------------------------------------------------------
 
     /**
@@ -47,10 +63,17 @@ class ChangeLog extends Base
 
     /**
      * ChangeLog constructor.
+     *
+     * @throws FactoryException
+     * @throws ModelException
+     * @throws NailsException
+     * @throws \ReflectionException
      */
     public function __construct()
     {
         parent::__construct();
+
+        $this->hasOne('user', 'User', Constants::MODULE_SLUG);
 
         /** @var Event $oEventService */
         $oEventService = Factory::service('Event');
@@ -199,124 +222,5 @@ class ChangeLog extends Base
     public function clear()
     {
         $this->aChanges = [];
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Fetches all objects, optionally paginated.
-     *
-     * @param integer $iPage           The page number of the results, if null then no pagination
-     * @param integer $iPerPage        How many items per page of paginated results
-     * @param array   $aData           Any data to pass to getCountCommon()
-     * @param bool    $bIncludeDeleted Whetehr to include deleted items
-     *
-     * @return array
-     **/
-    public function getAll($iPage = null, $iPerPage = null, array $aData = [], $bIncludeDeleted = false): array
-    {
-        //  If the first value is an array then treat as if called with getAll(null, null, $aData);
-        //  @todo (Pablo - 2017-06-29) - Refactor how this join works (use expandable field)
-        if (is_array($iPage)) {
-            $aData = $iPage;
-            $iPage = null;
-        }
-
-        if (empty($aData['select'])) {
-            $aData['select'] = [
-                $this->getTableAlias() . '.*',
-                'u.first_name',
-                'u.last_name',
-                'u.gender',
-                'u.profile_img',
-                'ue.email',
-            ];
-        }
-
-        return parent::getAll($iPage, $iPerPage, $aData, $bIncludeDeleted);
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Applies common conditionals
-     *
-     * @param array $aData Data passed from the calling method
-     *
-     * @throws FactoryException
-     **/
-    protected function getCountCommon(array $aData = []): void
-    {
-        //  Join user tables
-        $oDb = Factory::service('Database');
-        $oDb->join(Config::get('NAILS_DB_PREFIX') . 'user u', 'u.id = ' . $this->getTableAlias() . '.user_id', 'LEFT');
-        $oDb->join(Config::get('NAILS_DB_PREFIX') . 'user_email ue', 'ue.user_id = ' . $this->getTableAlias() . '.user_id AND ue.is_primary = 1', 'LEFT');
-
-        //  Searching?
-        if (!empty($aData['keywords'])) {
-
-            if (empty($aData['or_like'])) {
-                $aData['or_like'] = [];
-            }
-
-            $toSlug = strtolower(str_replace(' ', '_', $aData['keywords']));
-
-            $aData['or_like'][] = [
-                'column' => $this->getTableAlias() . '.type',
-                'value'  => $toSlug,
-            ];
-            $aData['or_like'][] = [
-                'column' => 'ue.email',
-                'value'  => $aData['keywords'],
-            ];
-        }
-
-        parent::getCountCommon($aData);
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Formats a single object
-     *
-     * The getAll() method iterates over each returned item with this method so as to
-     * correctly format the output. Use this to cast integers and booleans and/or organise data into objects.
-     *
-     * @param object $oObj      A reference to the object being formatted.
-     * @param array  $aData     The same data array which is passed to _getcount_common, for reference if needed
-     * @param array  $aIntegers Fields which should be cast as integers if numerical and not null
-     * @param array  $aBools    Fields which should be cast as booleans if not null
-     * @param array  $aFloats   Fields which should be cast as floats if not null
-     */
-    protected function formatObject(
-        &$oObj,
-        array $aData = [],
-        array $aIntegers = [],
-        array $aBools = [],
-        array $aFloats = []
-    ) {
-
-        parent::formatObject($oObj, $aData, $aIntegers, $aBools, $aFloats);
-
-        if (!empty($oObj->item_id)) {
-            $oObj->item_id = (int) $oObj->item_id;
-        }
-
-        $oObj->changes = @json_decode($oObj->changes);
-        $oObj->user    = (object) [
-            'id'          => $oObj->user_id,
-            'first_name'  => isset($oObj->first_name) ? $oObj->first_name : '',
-            'last_name'   => isset($oObj->last_name) ? $oObj->last_name : '',
-            'gender'      => isset($oObj->gender) ? $oObj->gender : '',
-            'profile_img' => isset($oObj->profile_img) ? $oObj->profile_img : '',
-            'email'       => isset($oObj->email) ? $oObj->email : '',
-        ];
-
-        unset($oObj->user_id);
-        unset($oObj->first_name);
-        unset($oObj->last_name);
-        unset($oObj->gender);
-        unset($oObj->profile_img);
-        unset($oObj->email);
     }
 }

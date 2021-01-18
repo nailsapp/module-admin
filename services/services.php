@@ -60,6 +60,13 @@ return [
         },
     ],
     'resources' => [
+        'ChangeLog'        => function ($mObj): Resource\ChangeLog {
+            if (class_exists('\App\Admin\Resource\ChangeLog')) {
+                return new \App\Admin\Resource\ChangeLog($mObj);
+            } else {
+                return new Resource\ChangeLog($mObj);
+            }
+        },
         'DataExportFormat' => function ($mObj): Resource\DataExport\Format {
             if (class_exists('\App\Admin\Resource\DataExport\Format')) {
                 return new \App\Admin\Resource\DataExport\Format($mObj);

@@ -19,6 +19,11 @@ use Nails\Common\Exception\ViewNotFoundException;
 use Nails\Common\Service\Input;
 use Nails\Factory;
 
+/**
+ * Class Helper
+ *
+ * @package Nails\Admin
+ */
 class Helper
 {
     protected static $aHeaderButtons = [];
@@ -416,12 +421,18 @@ class Helper
     public static function loadCellAuto($mValue, $sCellClass = '', $sCellAdditional = '')
     {
         //  @todo - handle more field types
-        if (is_bool($mValue)) {
+        if ($mValue instanceof Auth\Resource\User) {
+            return Helper::loadUserCell($mValue);
+
+        } elseif (is_bool($mValue)) {
             return Helper::loadBoolCell($mValue);
+
         } elseif (preg_match('/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/', $mValue)) {
             return Helper::loadDateTimeCell($mValue);
+
         } elseif (preg_match('/\d\d\d\d-\d\d-\d\d/', $mValue)) {
             return Helper::loadDateCell($mValue);
+
         } else {
             return '<td class="' . $sCellClass . '">' . $mValue . $sCellAdditional . '</td>';
         }
@@ -439,7 +450,10 @@ class Helper
      */
     public static function loadUserCell($mUser)
     {
-        if (is_numeric($mUser)) {
+        if ($mUser instanceof Auth\Resource\User) {
+            $oUser = $mUser;
+
+        } elseif (is_numeric($mUser)) {
 
             $oUserModel = Factory::model('User', Auth\Constants::MODULE_SLUG);
             $oUser      = $oUserModel->getById($mUser);

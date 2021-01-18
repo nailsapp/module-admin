@@ -15,7 +15,6 @@ namespace Nails\Admin\Admin;
 use Nails\Admin\Controller\Base;
 use Nails\Admin\Factory\Nav;
 use Nails\Admin\Helper;
-use Nails\Admin\Model\ChangeLog;
 use Nails\Admin\Model\SiteLog;
 use Nails\Common\Exception\FactoryException;
 use Nails\Common\Service\Asset;
@@ -47,10 +46,6 @@ class Logs extends Base
             $oNavGroup->addAction('Browse Site Logs', 'site');
         }
 
-        if (userHasPermission('admin:admin:logs:change:browse')) {
-            $oNavGroup->addAction('Browse Admin Logs', 'changelog');
-        }
-
         return $oNavGroup;
     }
 
@@ -65,9 +60,7 @@ class Logs extends Base
     {
         $aPermissions = parent::permissions();
 
-        $aPermissions['site:browse']     = 'Can browse site logs';
-        $aPermissions['change:browse']   = 'Can browse change logs';
-        $aPermissions['change:download'] = 'Can download change logs';
+        $aPermissions['site:browse'] = 'Can browse site logs';
 
         return $aPermissions;
     }
@@ -151,94 +144,5 @@ class Logs extends Base
         }
 
         Helper::loadView('site/view');
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Browse Admin Changelog
-     */
-    public function changelog()
-    {
-        if (!userHasPermission('admin:admin:logs:change:browse')) {
-            unauthorised();
-        }
-
-        // --------------------------------------------------------------------------
-
-        //  Set method info
-        $this->data['page']->title = 'Browse Changelog';
-
-        // --------------------------------------------------------------------------
-
-        /** @var Input $oInput */
-        $oInput = Factory::service('Input');
-        /** @var ChangeLog $oChangeLogModel */
-        $oChangeLogModel = Factory::model('ChangeLog', 'nails/module-admin');
-
-        $sTableAlias = $oChangeLogModel->getTableAlias();
-
-        // --------------------------------------------------------------------------
-
-        //  Get pagination and search/sort variables
-        $iPage      = (int) $oInput->get('page') ?: 0;
-        $iPerPage   = (int) $oInput->get('perPage') ?: 50;
-        $sSortOn    = $oInput->get('sortOn') ?: $sTableAlias . '.created';
-        $sSortOrder = $oInput->get('sortOrder') ?: 'desc';
-        $sKeywords  = $oInput->get('keywords') ?: '';
-
-        // --------------------------------------------------------------------------
-
-        //  Define the sortable columns
-        $aSortColumns = [
-            $sTableAlias . '.created' => 'Created',
-        ];
-
-        // --------------------------------------------------------------------------
-
-        //  Define the $aData variable for the queries
-        $aData = [
-            'sort'     => [
-                [$sSortOn, $sSortOrder],
-            ],
-            'keywords' => $sKeywords,
-        ];
-
-        //  Are we downloading? Or viewing?
-        if ($oInput->get('dl') && userHasPermission('admin:admin:logs:change:download')) {
-
-            //  Get all items for the search, the view will iterate over the resultset
-            $oChangelog = $oChangeLogModel->getAllRawQuery(null, null, $aData);
-
-            Helper::loadCsv($oChangelog, 'export-changelog-' . toUserDatetime(null, 'Y-m-d_h-i-s') . '.csv');
-
-        } else {
-
-            //  Get the items for the page
-            $iTotalRows              = $oChangeLogModel->countAll($aData);
-            $this->data['changelog'] = $oChangeLogModel->getAll($iPage, $iPerPage, $aData);
-
-            //  Set Search and Pagination objects for the view
-            $this->data['search']     = Helper::searchObject(false, $aSortColumns, $sSortOn, $sSortOrder, $iPerPage, $sKeywords);
-            $this->data['pagination'] = Helper::paginationObject($iPage, $iPerPage, $iTotalRows);
-
-            //  Add the header button for downloading
-            if (userHasPermission('admin:admin:logs:change:download')) {
-
-                //  Build the query string, so that the same search is applies
-                $aParams              = [];
-                $aParams['dl']        = true;
-                $aParams['sortOn']    = $oInput->get('sortOn');
-                $aParams['sortOrder'] = $oInput->get('sortOrder');
-                $aParams['keywords']  = $oInput->get('keywords');
-
-                $aParams = array_filter($aParams);
-                $aParams = http_build_query($aParams);
-
-                Helper::addHeaderButton('admin/admin/logs/changelog?' . $aParams, 'Download As CSV');
-            }
-
-            Helper::loadView('changelog/index');
-        }
     }
 }
