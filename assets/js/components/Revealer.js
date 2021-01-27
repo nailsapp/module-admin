@@ -198,7 +198,7 @@ class Element {
             ? element.getAttribute('data-reveal-on')
             : null;
 
-        if (this.values) {
+        if (this.values !== null) {
             this.values = this.values.split(this.delimiter)
         }
 
@@ -206,7 +206,7 @@ class Element {
             ? element.getAttribute('data-reveal-not-on')
             : null;
 
-        if (this.bangValues) {
+        if (this.bangValues !== null) {
             this.bangValues = this.bangValues.split(this.delimiter)
         }
     }
@@ -244,26 +244,28 @@ class Element {
 
             for (let i = 0; i < values.length; i++) {
 
+                let value = values[i];
+
                 if (typeof testString === "boolean") {
                     if (
-                        (!negativeTest && testString && [true, 1, "true", "1"].indexOf(values[i]) > -1) ||
-                        (!negativeTest && !testString && [false, 0, "false", "0"].indexOf(values[i]) > -1) ||
-                        (negativeTest && testString && [true, 1, "true", "1"].indexOf(values[i]) === -1) ||
-                        (negativeTest && !testString && [false, 0, "false", "0"].indexOf(values[i]) === -1)
+                        (!negativeTest && testString && [true, 1, "true", "1"].indexOf(value) > -1) ||
+                        (!negativeTest && !testString && [false, 0, "false", "0"].indexOf(value) > -1) ||
+                        (negativeTest && testString && [true, 1, "true", "1"].indexOf(value) === -1) ||
+                        (negativeTest && !testString && [false, 0, "false", "0"].indexOf(value) === -1)
                     ) {
                         return true;
                     }
 
-                } else if (!negativeTest && values[i] == value) {
+                } else if (!negativeTest && value == testString) {
                     return true;
 
-                } else if (negativeTest && values[i] != value) {
+                } else if (negativeTest && value != testString) {
                     return true;
                 }
             }
         }
 
-        return null;
+        return false;
     }
 
     // --------------------------------------------------------------------------
