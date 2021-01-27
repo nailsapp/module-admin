@@ -12,11 +12,14 @@
 
 namespace Nails\Admin;
 
+use Nails\Admin\Factory\IndexFilter;
 use Nails\Auth;
 use Nails\Common\Exception\FactoryException;
 use Nails\Common\Exception\NailsException;
 use Nails\Common\Exception\ViewNotFoundException;
 use Nails\Common\Service\Input;
+use Nails\Common\Service\Output;
+use Nails\Common\Service\View;
 use Nails\Factory;
 
 /**
@@ -43,9 +46,12 @@ class Helper
      */
     public static function loadView($sViewFile, $bLoadStructure = true, $bReturnView = false)
     {
-        $aData  =& getControllerData();
+        $aData =& getControllerData();
+
+        /** @var Input $oInput */
         $oInput = Factory::service('Input');
-        $oView  = Factory::service('View');
+        /** @var View $oView */
+        $oView = Factory::service('View');
 
         //  Are we in a modal?
         if ($oInput->get('isModal')) {
@@ -108,7 +114,9 @@ class Helper
             //  If filename has been specified then set some additional headers
             if (!empty($sFilename)) {
 
-                $oInput  = Factory::service('Input');
+                /** @var Input $oInput */
+                $oInput = Factory::service('Input');
+                /** @var Output $oOutput */
                 $oOutput = Factory::service('Output');
 
                 //  Common headers
@@ -132,6 +140,7 @@ class Helper
             }
 
             //  Not using self::loadInlineView() as this may be called from many contexts
+            /** @var View $oView */
             $oView = Factory::service('View');
             if (is_array($mData)) {
                 $oView->load('admin/_components/csv/array', ['data' => $mData, 'header' => $bHeaderRow]);
@@ -169,6 +178,7 @@ class Helper
         $aCtrlPath[] = $sViewFile;
         $sViewPath   = implode(DIRECTORY_SEPARATOR, $aCtrlPath) . '.php';
 
+        /** @var View $oView */
         $oView = Factory::service('View');
 
         //  Load the view
@@ -241,6 +251,7 @@ class Helper
         ];
 
         //  Not using self::loadInlineView() as this may be called from many contexts
+        /** @var View $oView */
         $oView = Factory::service('View');
         return $oView->load('admin/_components/search', $aData, $bReturnView);
     }
@@ -301,7 +312,9 @@ class Helper
     public static function searchFilterObject($sColumn, $sLabel, $aOptions)
     {
         //  @todo (Pablo - 2018-04-10) - DonRemove this helper and use factories directly
-        $oFilter = Factory::factory('IndexFilter', 'nails/module-admin')
+        /** @var IndexFilter $oFilter */
+        $oFilter = Factory::factory('IndexFilter', 'nails/module-admin');
+        $oFilter
             ->setLabel($sLabel)
             ->setColumn($sColumn);
 
@@ -382,6 +395,7 @@ class Helper
         ];
 
         //  Not using self::loadInlineView() as this may be called from many contexts
+        /** @var View $oView */
         $oView = Factory::service('View');
         return $oView->load('admin/_components/pagination', $aData, $bReturnView);
     }
@@ -455,11 +469,13 @@ class Helper
 
         } elseif (is_numeric($mUser)) {
 
+            /** @var Auth\Model\User $oUserModel */
             $oUserModel = Factory::model('User', Auth\Constants::MODULE_SLUG);
             $oUser      = $oUserModel->getById($mUser);
 
         } elseif (is_string($mUser)) {
 
+            /** @var Auth\Model\User $oUserModel */
             $oUserModel = Factory::model('User', Auth\Constants::MODULE_SLUG);
             $oUser      = $oUserModel->getByEmail($mUser);
 
@@ -480,6 +496,7 @@ class Helper
             'email'       => !empty($oUser->email) ? $oUser->email : null,
         ];
 
+        /** @var View $oView */
         $oView = Factory::service('View');
         return $oView->load('admin/_components/table-cell-user', $aUser, true);
     }
@@ -497,13 +514,16 @@ class Helper
      */
     public static function loadDateCell($sDate, $sNoData = '&mdash;')
     {
-        $aData = [
-            'date'   => $sDate,
-            'noData' => $sNoData,
-        ];
-
+        /** @var View $oView */
         $oView = Factory::service('View');
-        return $oView->load('admin/_components/table-cell-date', $aData, true);
+        return $oView->load(
+            'admin/_components/table-cell-date',
+            [
+                'date'   => $sDate,
+                'noData' => $sNoData,
+            ],
+            true
+        );
     }
 
     // --------------------------------------------------------------------------
@@ -519,13 +539,16 @@ class Helper
      */
     public static function loadDateTimeCell($sDateTime, $sNoData = '&mdash;')
     {
-        $aData = [
-            'dateTime' => $sDateTime,
-            'noData'   => $sNoData,
-        ];
-
+        /** @var View $oView */
         $oView = Factory::service('View');
-        return $oView->load('admin/_components/table-cell-datetime', $aData, true);
+        return $oView->load(
+            'admin/_components/table-cell-datetime',
+            [
+                'dateTime' => $sDateTime,
+                'noData'   => $sNoData,
+            ],
+            true
+        );
     }
 
     // --------------------------------------------------------------------------
@@ -541,13 +564,16 @@ class Helper
      */
     public static function loadBoolCell($value, $sDateTime = null)
     {
-        $aData = [
-            'value'    => $value,
-            'dateTime' => $sDateTime,
-        ];
-
+        /** @var View $oView */
         $oView = Factory::service('View');
-        return $oView->load('admin/_components/table-cell-boolean', $aData, true);
+        return $oView->load(
+            'admin/_components/table-cell-boolean',
+            [
+                'value'    => $value,
+                'dateTime' => $sDateTime,
+            ],
+            true
+        );
     }
 
     // --------------------------------------------------------------------------
@@ -570,16 +596,19 @@ class Helper
         $aEnabled        = (array) $oModel->getEnabledSlug();
         $bEnableMultiple = $oModel->isMultiple();
 
-        $aData = [
-            'key'               => $sKey,
-            'components'        => $aComponents,
-            'enabled'           => $aEnabled,
-            'canSelectMultiple' => $bEnableMultiple,
-            'componentType'     => $sComponentType,
-        ];
-
+        /** @var View $oView */
         $oView = Factory::service('View');
-        return $oView->load('admin/_components/settings-component-table', $aData, true);
+        return $oView->load(
+            'admin/_components/settings-component-table',
+            [
+                'key'               => $sKey,
+                'components'        => $aComponents,
+                'enabled'           => $aEnabled,
+                'canSelectMultiple' => $bEnableMultiple,
+                'componentType'     => $sComponentType,
+            ],
+            true
+        );
     }
 
     // --------------------------------------------------------------------------
@@ -669,7 +698,9 @@ class Helper
      */
     public static function dynamicTable($sKey, array $aFields, array $aData = [])
     {
-        return Factory::service('View')
+        /** @var View $oView */
+        $oView = Factory::service('View');
+        return $oView
             ->load(
                 'admin/_components/dynamic-table',
                 [
