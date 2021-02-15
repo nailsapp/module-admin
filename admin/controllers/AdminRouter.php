@@ -596,10 +596,14 @@ class AdminRouter extends BaseMiddle
             $aRequestController           = $this->adminControllers[$sModule]->controllers[$sController];
             $this->data['currentRequest'] = $aRequestController;
             $sControllerName              = $aRequestController['className'];
+            $oController                  = new $sControllerName();
 
-            if (is_callable([$sControllerName, $sMethod])) {
-                $oController = new $sControllerName();
+            if (method_exists($sControllerName, '_remap')) {
+                $oController->_remap();
+
+            } elseif (is_callable([$sControllerName, $sMethod])) {
                 $oController->$sMethod();
+
             } else {
                 show404();
             }
