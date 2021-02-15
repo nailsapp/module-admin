@@ -374,7 +374,7 @@ abstract class DefaultController extends Base
     /**
      * The string to use when sorting in ascending order
      */
-    const SORT_ASCENDING  = 'asc';
+    const SORT_ASCENDING = 'asc';
 
     /**
      * The string to use when sorting in descending order
@@ -1751,7 +1751,10 @@ abstract class DefaultController extends Base
         }
 
         $this->data['aFieldSets'] = $this->loadEditViewDataSetFieldsets($aFields);
-        $this->data['item']       = $oItem;
+        $this->data['oItem']      = $oItem;
+
+        //  @deprecated (Pablo 15/02/2021) - kept for backwards compatability
+        $this->data['item'] = $oItem;
     }
 
     // --------------------------------------------------------------------------
