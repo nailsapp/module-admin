@@ -1,0 +1,8 @@
+//  Fixes a bug where the textarea can be rendered as visibility: hidden,
+//  which takes up space in the DOM. Happens in conjunction with the
+//  revealer plugin
+.field.textarea {
+    textarea.wysiwyged {
+        display: none !important;
+    }
+}
