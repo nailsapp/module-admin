@@ -596,7 +596,7 @@ abstract class DefaultController extends Base
         $aConfig = $this->getConfig();
         if (!$aConfig['CAN_CREATE']) {
             show404();
-        } elseif (!static::userCan('create')) {
+        } elseif (!static::userCan(static::EDIT_MODE_CREATE)) {
             unauthorised();
         }
 
@@ -665,7 +665,7 @@ abstract class DefaultController extends Base
                 $oSession = Factory::service('Session');
                 $oSession->setFlashData('success', sprintf(static::CREATE_SUCCESS_MESSAGE, $sLink));
 
-                if ($aConfig['CAN_EDIT'] && static::userCan('edit')) {
+                if ($aConfig['CAN_EDIT'] && static::userCan(static::EDIT_MODE_EDIT)) {
                     if (classUses($oModel, Localised::class)) {
                         redirect($aConfig['BASE_URL'] . '/edit/' . $oItem->id . '/' . $oItem->locale);
                     } else {
@@ -766,7 +766,7 @@ abstract class DefaultController extends Base
         $aConfig = $this->getConfig();
         if (!$aConfig['CAN_EDIT']) {
             show404();
-        } elseif (!static::userCan('edit')) {
+        } elseif (!static::userCan(static::EDIT_MODE_EDIT)) {
             unauthorised();
         }
 
@@ -878,7 +878,7 @@ abstract class DefaultController extends Base
         $aConfig = $this->getConfig();
         if (!$aConfig['CAN_DELETE']) {
             show404();
-        } elseif (!static::userCan('delete')) {
+        } elseif (!static::userCan(static::EDIT_MODE_DELETE)) {
             unauthorised();
         }
 
@@ -909,7 +909,7 @@ abstract class DefaultController extends Base
             $this->addToChangeLog(static::EDIT_MODE_DELETE, $oItem);
             $oDb->trans_commit();
 
-            if ($aConfig['CAN_RESTORE'] && static::userCan('restore')) {
+            if ($aConfig['CAN_RESTORE'] && static::userCan(static::EDIT_MODE_RESTORE)) {
                 if (classUses($oModel, Localised::class)) {
                     $sRestoreLink = anchor(
                         $aConfig['BASE_URL'] . '/restore/' . $oItem->id . '/' . $oItem->locale,
@@ -947,7 +947,7 @@ abstract class DefaultController extends Base
         $aConfig = $this->getConfig();
         if (!$aConfig['CAN_RESTORE']) {
             show404();
-        } elseif (!static::userCan('restore')) {
+        } elseif (!static::userCan(static::EDIT_MODE_RESTORE)) {
             unauthorised();
         }
 
@@ -998,7 +998,7 @@ abstract class DefaultController extends Base
         $aConfig = $this->getConfig();
         if (!$aConfig['CAN_EDIT']) {
             show404();
-        } elseif (!static::userCan('edit')) {
+        } elseif (!static::userCan(static::EDIT_MODE_EDIT)) {
             unauthorised();
         }
 
@@ -1071,7 +1071,7 @@ abstract class DefaultController extends Base
      */
     public function copy()
     {
-        if (!static::userCan('create') || !static::userCan('edit')) {
+        if (!static::userCan(static::EDIT_MODE_CREATE) || !static::userCan(static::EDIT_MODE_EDIT)) {
             unauthorised();
         }
 
@@ -1215,7 +1215,7 @@ abstract class DefaultController extends Base
 
         // --------------------------------------------------------------------------
 
-        if ($aConfig['CAN_CREATE'] && static::userCan('create') && classUses($oModel, Localised::class)) {
+        if ($aConfig['CAN_CREATE'] && static::userCan(static::EDIT_MODE_CREATE) && classUses($oModel, Localised::class)) {
             $oItem = $this->getItem([], null, false, false);
             if (!empty($oItem)) {
                 $aVersions = [];
@@ -1230,7 +1230,7 @@ abstract class DefaultController extends Base
             }
         }
 
-        if ($aConfig['CAN_CREATE'] && static::userCan('create')) {
+        if ($aConfig['CAN_CREATE'] && static::userCan(static::EDIT_MODE_CREATE)) {
             $aConfig['INDEX_HEADER_BUTTONS'][] = [
                 $aConfig['BASE_URL'] . '/create',
                 'Create',
@@ -1241,7 +1241,7 @@ abstract class DefaultController extends Base
             ];
         }
 
-        if ($aConfig['CAN_EDIT'] && static::userCan('edit') && classUses($oModel, Sortable::class)) {
+        if ($aConfig['CAN_EDIT'] && static::userCan(static::EDIT_MODE_EDIT) && classUses($oModel, Sortable::class)) {
             $aConfig['INDEX_HEADER_BUTTONS'][] = [
                 $aConfig['BASE_URL'] . '/sort',
                 'Set Order',
@@ -1349,7 +1349,7 @@ abstract class DefaultController extends Base
                     'label'   => 'Copy',
                     'class'   => 'btn-default',
                     'enabled' => function ($oItem) {
-                        return static::userCan('edit') && static::userCan('create');
+                        return static::userCan(static::EDIT_MODE_EDIT) && static::userCan(static::EDIT_MODE_CREATE);
                     },
                 ] : null,
             ])
@@ -1374,7 +1374,7 @@ abstract class DefaultController extends Base
     protected static function localisedItemCanBeCreated(Resource $oItem)
     {
         //  New versions can only be created if the user has permissions and there is a remaining supported locale
-        if (static::CONFIG_CAN_CREATE && static::userCan('create')) {
+        if (static::CONFIG_CAN_CREATE && static::userCan(static::EDIT_MODE_CREATE)) {
             return !empty($oItem->missing_locales);
         }
         return false;
@@ -1995,7 +1995,7 @@ abstract class DefaultController extends Base
      */
     protected static function isEditButtonEnabled($oItem): bool
     {
-        return static::CONFIG_CAN_EDIT && static::userCan('edit');
+        return static::CONFIG_CAN_EDIT && static::userCan(static::EDIT_MODE_EDIT);
     }
 
     // --------------------------------------------------------------------------
@@ -2009,7 +2009,7 @@ abstract class DefaultController extends Base
      */
     protected static function isDeleteButtonEnabled($oItem): bool
     {
-        return static::CONFIG_CAN_DELETE && static::userCan('delete');
+        return static::CONFIG_CAN_DELETE && static::userCan(static::EDIT_MODE_DELETE);
     }
 
     // --------------------------------------------------------------------------
