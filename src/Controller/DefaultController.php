@@ -258,6 +258,11 @@ abstract class DefaultController extends Base
     const CONFIG_SORT_COLUMNS = [];
 
     /**
+     * When browsing, this string is passed to supporting functions
+     */
+    const EDIT_MODE_BROWSE = 'BROWSE';
+
+    /**
      * When creating, this string is passed to supporting functions
      */
     const EDIT_MODE_CREATE = 'CREATE';
@@ -455,7 +460,7 @@ abstract class DefaultController extends Base
             ->setIcon(static::CONFIG_SIDEBAR_ICON)
             ->setSearchTerms(static::CONFIG_SIDEBAR_SEARCH_TERMS);
 
-        if (static::userCan('browse')) {
+        if (static::userCan(static::EDIT_MODE_BROWSE)) {
             $oNavGroup
                 ->addAction(
                     sprintf(static::CONFIG_SIDEBAR_FORMAT, static::getTitlePlural()),
@@ -497,7 +502,7 @@ abstract class DefaultController extends Base
      */
     public function index(): void
     {
-        if (!static::userCan('browse')) {
+        if (!static::userCan(static::EDIT_MODE_BROWSE)) {
             unauthorised();
         }
 
