@@ -12,6 +12,7 @@
 
 namespace Nails\Admin\Admin;
 
+use Nails\Admin\Constants;
 use Nails\Factory;
 use Nails\Admin\Controller\Base;
 use Nails\Admin\Helper;
@@ -24,7 +25,7 @@ class Dashboard extends Base
      */
     public static function announce()
     {
-        $oNavGroup = Factory::factory('Nav', 'nails/module-admin');
+        $oNavGroup = Factory::factory('Nav', Constants::MODULE_SLUG);
         $oNavGroup->setLabel('Dashboard');
         $oNavGroup->setIcon('fa-home');
         $oNavGroup->addAction('Site Overview');

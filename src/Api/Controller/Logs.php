@@ -12,6 +12,7 @@
 
 namespace Nails\Admin\Api\Controller;
 
+use Nails\Admin\Constants;
 use Nails\Admin\Controller\BaseApi;
 use Nails\Api;
 use Nails\Factory;
@@ -43,7 +44,7 @@ class Logs extends BaseApi
      */
     public function getSite()
     {
-        $oSiteLogModel = Factory::model('SiteLog', 'nails/module-admin');
+        $oSiteLogModel = Factory::model('SiteLog', Constants::MODULE_SLUG);
         return Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG)
                       ->setData($oSiteLogModel->getAll());
     }

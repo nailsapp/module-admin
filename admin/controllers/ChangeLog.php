@@ -2,6 +2,7 @@
 
 namespace Nails\Admin\Admin;
 
+use Nails\Admin\Constants;
 use Nails\Admin\Controller\DefaultController;
 use Nails\Admin\Factory\IndexFilter;
 use Nails\Auth;
@@ -18,7 +19,7 @@ use Nails\Factory;
 class ChangeLog extends DefaultController
 {
     const CONFIG_MODEL_NAME     = 'ChangeLog';
-    const CONFIG_MODEL_PROVIDER = 'nails/module-admin';
+    const CONFIG_MODEL_PROVIDER = Constants::MODULE_SLUG;
     const CONFIG_SIDEBAR_GROUP  = 'Logs';
     const CONFIG_SIDEBAR_FORMAT = 'Browse Admin Logs';
     const CONFIG_SORT_OPTIONS   = [
@@ -156,14 +157,14 @@ class ChangeLog extends DefaultController
         }
 
         /** @var IndexFilter $oFilter */
-        $oFilter = Factory::factory('IndexFilter', 'nails/module-admin');
+        $oFilter = Factory::factory('IndexFilter', Constants::MODULE_SLUG);
         $oFilter
             ->setLabel('User')
             ->setColumn('user_id')
             ->addOption('Everyone')
             ->addOptions(array_map(function (Auth\Resource\User $oUser) {
                 /** @var IndexFilter\Option $oOption */
-                $oOption = Factory::factory('IndexFilterOption', 'nails/module-admin');
+                $oOption = Factory::factory('IndexFilterOption', Constants::MODULE_SLUG);
                 $oOption
                     ->setLabel(sprintf(
                         '#%s - %s (%s)',
@@ -206,14 +207,14 @@ class ChangeLog extends DefaultController
         }
 
         /** @var IndexFilter $oFilter */
-        $oFilter = Factory::factory('IndexFilter', 'nails/module-admin');
+        $oFilter = Factory::factory('IndexFilter', Constants::MODULE_SLUG);
         $oFilter
             ->setLabel('Type')
             ->setColumn('item')
             ->addOption('All')
             ->addOptions(array_map(function (string $sType) {
                 /** @var IndexFilter\Option $oOption */
-                $oOption = Factory::factory('IndexFilterOption', 'nails/module-admin');
+                $oOption = Factory::factory('IndexFilterOption', Constants::MODULE_SLUG);
                 $oOption
                     ->setLabel($sType)
                     ->setValue($sType);

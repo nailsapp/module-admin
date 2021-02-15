@@ -12,12 +12,12 @@
 
 namespace Nails\Admin\Service;
 
+use Nails\Admin\Constants;
 use Nails\Admin\DataExport\SourceResponse;
 use Nails\Admin\Interfaces;
 use Nails\Admin\Resource\DataExport\Format;
 use Nails\Admin\Resource\DataExport\Source;
-use Nails\Cdn\Constants;
-use Nails\Cdn\Service\Cdn;
+use Nails\Cdn;
 use Nails\Common\Exception\NailsException;
 use Nails\Common\Factory\Component;
 use Nails\Common\Service\FileCache;
@@ -37,7 +37,7 @@ class DataExport
      *
      * @var string
      */
-    const DEFAULT_FORMAT = 'nails/module-admin::Csv';
+    const DEFAULT_FORMAT = Constants::MODULE_SLUG . '::Csv';
 
     /**
      * How long the expiring URL should be valid for, in seconds
@@ -280,8 +280,8 @@ class DataExport
             }
             $sFile = end($aFiles);
 
-            /** @var Cdn $oCdn */
-            $oCdn    = Factory::service('Cdn', Constants::MODULE_SLUG);
+            /** @var Cdn\Service\Cdn $oCdn */
+            $oCdn    = Factory::service('Cdn', Cdn\Constants::MODULE_SLUG);
             $oObject = $oCdn->objectCreate(
                 $sFile,
                 [
@@ -343,7 +343,7 @@ class DataExport
      */
     public function isRunning(): bool
     {
-        $sLastRun   = appSetting('data-export-cron-last-run', 'nails/module-admin');
+        $sLastRun   = appSetting('data-export-cron-last-run', Constants::MODULE_SLUG);
         $bIsRunning = false;
         if ($sLastRun) {
             $oNow       = Factory::factory('DateTime');

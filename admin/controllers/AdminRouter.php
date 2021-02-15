@@ -10,6 +10,7 @@
  * @link
  */
 
+use Nails\Admin\Constants;
 use Nails\Admin\Exception\RouterException;
 use Nails\Components;
 use Nails\Factory;
@@ -454,7 +455,7 @@ class AdminRouter extends BaseMiddle
         arraySortMulti($middle, 'label');
 
         //  Get user's prefs
-        $oAdminModel = Factory::model('Admin', 'nails/module-admin');
+        $oAdminModel = Factory::model('Admin', Constants::MODULE_SLUG);
         $userNavPref = $oAdminModel->getAdminData('nav_state');
 
         if (!empty($userNavPref)) {

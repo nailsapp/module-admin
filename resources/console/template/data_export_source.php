@@ -10,6 +10,7 @@ return <<<'EOD'
 
 namespace App\DataExport\Source;
 
+use Nails\Admin\Constants;
 use Nails\Admin\DataExport\SourceResponse;
 use Nails\Admin\Interfaces\DataExport\Source;
 use Nails\Common\Exception\FactoryException;
@@ -88,7 +89,7 @@ class {{CLASS_NAME}} implements Source
      */
     public function execute($aOptions = [])
     {
-        $oResponse = Factory::factory('DataExportSourceResponse', 'nails/module-admin')
+        $oResponse = Factory::factory('DataExportSourceResponse', Constants::MODULE_SLUG)
             ->setFileName($this->getFileName());
 
         // $oResponse->setData($aData)

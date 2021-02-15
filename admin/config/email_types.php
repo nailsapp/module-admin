@@ -10,6 +10,8 @@
  * @link
  */
 
+use Nails\Admin\Constants;
+
 $config['email_types'] = [
     (object) [
         'slug'            => 'data_export',
@@ -20,7 +22,7 @@ $config['email_types'] = [
         'template_body'   => 'admin/Email/templates/data_export/success',
         'template_footer' => '',
         'default_subject' => 'Data Export Complete',
-        'factory'         => 'nails/module-admin::EmailDataExportSuccess',
+        'factory'         => Constants::MODULE_SLUG . '::EmailDataExportSuccess',
     ],
     (object) [
         'slug'            => 'data_export_fail',
@@ -31,6 +33,6 @@ $config['email_types'] = [
         'template_body'   => 'admin/Email/templates/data_export/fail',
         'template_footer' => '',
         'default_subject' => 'Data Export Failed',
-        'factory'         => 'nails/module-admin::EmailDataExportFail',
+        'factory'         => Constants::MODULE_SLUG . '::EmailDataExportFail',
     ],
 ];

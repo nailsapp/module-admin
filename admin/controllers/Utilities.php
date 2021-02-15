@@ -12,6 +12,7 @@
 
 namespace Nails\Admin\Admin;
 
+use Nails\Admin\Constants;
 use Nails\Admin\Controller\Base;
 use Nails\Admin\Helper;
 use Nails\Admin\Service\DataExport;
@@ -39,7 +40,7 @@ class Utilities extends Base
      */
     public static function announce()
     {
-        $oNavGroup = Factory::factory('Nav', 'nails/module-admin');
+        $oNavGroup = Factory::factory('Nav', Constants::MODULE_SLUG);
         $oNavGroup->setLabel('Utilities');
         $oNavGroup->setIcon('fa-sliders-h');
 
@@ -122,7 +123,7 @@ class Utilities extends Base
         }
 
         /** @var DataExport $oDataExport */
-        $oDataExport = Factory::service('DataExport', 'nails/module-admin');
+        $oDataExport = Factory::service('DataExport', Constants::MODULE_SLUG);
         $aSources    = $oDataExport->getAllSources();
         $aFormats    = $oDataExport->getAllFormats();
 
@@ -162,7 +163,7 @@ class Utilities extends Base
                     $aOptions[$sKey] = getFromArray($sKey, $aPostedOptions);
                 }
 
-                $oDataExportModel = Factory::model('Export', 'nails/module-admin');
+                $oDataExportModel = Factory::model('Export', Constants::MODULE_SLUG);
                 $aData            = [
                     'source'  => $oSelectedSource->slug,
                     'options' => json_encode($aOptions),
@@ -181,7 +182,7 @@ class Utilities extends Base
 
         // --------------------------------------------------------------------------
 
-        $oModel  = Factory::model('Export', 'nails/module-admin');
+        $oModel  = Factory::model('Export', Constants::MODULE_SLUG);
         $aRecent = $oModel->getAll([
             'where' => [['created_by', activeUser('id')]],
             'sort'  => [['created', 'desc']],

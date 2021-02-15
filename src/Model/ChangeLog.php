@@ -12,7 +12,8 @@
 
 namespace Nails\Admin\Model;
 
-use Nails\Auth\Constants;
+use Nails\Admin\Constants;
+use Nails\Auth;
 use Nails\Common\Events;
 use Nails\Common\Exception\FactoryException;
 use Nails\Common\Exception\ModelException;
@@ -48,7 +49,7 @@ class ChangeLog extends Base
      *
      * @var string
      */
-    const RESOURCE_PROVIDER = 'nails/module-admin';
+    const RESOURCE_PROVIDER = Constants::MODULE_SLUG;
 
     // --------------------------------------------------------------------------
 
@@ -73,7 +74,7 @@ class ChangeLog extends Base
     {
         parent::__construct();
 
-        $this->hasOne('user', 'User', Constants::MODULE_SLUG);
+        $this->hasOne('user', 'User', Auth\Constants::MODULE_SLUG);
 
         /** @var Event $oEventService */
         $oEventService = Factory::service('Event');

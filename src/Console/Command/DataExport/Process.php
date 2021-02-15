@@ -3,6 +3,7 @@
 namespace Nails\Admin\Console\Command\DataExport;
 
 use DateTime;
+use Nails\Admin\Constants;
 use Nails\Admin\Factory\Email\DataExport\Fail;
 use Nails\Admin\Factory\Email\DataExport\Success;
 use Nails\Admin\Model\Export;
@@ -80,12 +81,12 @@ class Process extends Base
 
         /** @var DateTime $oNow */
         $oNow = Factory::factory('DateTime');
-        setAppSetting('data-export-cron-last-run', 'nails/module-admin', $oNow->format('Y-m-d H:i:s'));
+        setAppSetting('data-export-cron-last-run', Constants::MODULE_SLUG, $oNow->format('Y-m-d H:i:s'));
 
         /** @var DataExport $oService */
-        $oService = Factory::service('DataExport', 'nails/module-admin');
+        $oService = Factory::service('DataExport', Constants::MODULE_SLUG);
         /** @var Export $oModel */
-        $oModel    = Factory::model('Export', 'nails/module-admin');
+        $oModel    = Factory::model('Export', Constants::MODULE_SLUG);
         $aRequests = $oModel->getAll(['where' => [['status', $oModel::STATUS_PENDING]]]);
 
         if (!empty($aRequests)) {
@@ -115,9 +116,9 @@ class Process extends Base
             }
 
             /** @var Success $oSuccessEmail */
-            $oSuccessEmail = Factory::factory('EmailDataExportSuccess', 'nails/module-admin');
+            $oSuccessEmail = Factory::factory('EmailDataExportSuccess', Constants::MODULE_SLUG);
             /** @var Fail $oFailEmail */
-            $oFailEmail = Factory::factory('EmailDataExportSuccess', 'nails/module-admin');
+            $oFailEmail = Factory::factory('EmailDataExportSuccess', Constants::MODULE_SLUG);
 
             foreach ($aGroupedRequests as $oRequest) {
                 try {

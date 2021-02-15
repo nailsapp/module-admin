@@ -12,6 +12,7 @@
 
 namespace Nails\Admin\Factory;
 
+use Nails\Admin\Constants;
 use Nails\Admin\Factory\IndexFilter\Option;
 use Nails\Common\Exception\NailsException;
 use Nails\Factory;
@@ -117,7 +118,7 @@ class IndexFilter
         if ($sLabel instanceof Option) {
             $this->aOptions[] = $sLabel;
         } else {
-            $this->aOptions[] = Factory::factory('IndexFilterOption', 'nails/module-admin')
+            $this->aOptions[] = Factory::factory('IndexFilterOption', Constants::MODULE_SLUG)
                 ->setLabel($sLabel)
                 ->setValue($mValue)
                 ->setIsSelected($bIsSelected)

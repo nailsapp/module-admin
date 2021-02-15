@@ -12,6 +12,7 @@
 
 namespace Nails\Admin\Api\Controller;
 
+use Nails\Admin\Constants;
 use Nails\Admin\Controller\BaseApi;
 use Nails\Api;
 use Nails\Factory;
@@ -52,7 +53,7 @@ class Nav extends BaseApi
             $oPref->{$sModule}->open = stringToBoolean($aOptions['open']);
         }
 
-        $oAdminModel = Factory::model('Admin', 'nails/module-admin');
+        $oAdminModel = Factory::model('Admin', Constants::MODULE_SLUG);
         $oAdminModel->setAdminData('nav_state', $oPref);
         return Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG);
     }
@@ -65,7 +66,7 @@ class Nav extends BaseApi
      */
     public function postReset()
     {
-        $oAdminModel = Factory::model('Admin', 'nails/module-admin');
+        $oAdminModel = Factory::model('Admin', Constants::MODULE_SLUG);
         $oAdminModel->unsetAdminData('nav_state');
         return Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG);
     }

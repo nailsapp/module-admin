@@ -13,6 +13,7 @@
 
 namespace Nails\Admin\Controller;
 
+use Nails\Admin\Constants;
 use Nails\Admin\Events;
 use Nails\Common\Exception\FactoryException;
 use Nails\Common\Service\Asset;
@@ -138,8 +139,8 @@ abstract class Base extends BaseMiddle
      */
     protected function loadHelpers(): self
     {
-        Factory::helper('admin', 'nails/module-admin');
-        Factory::helper('form', 'nails/module-admin');
+        Factory::helper('admin', Constants::MODULE_SLUG);
+        Factory::helper('form', Constants::MODULE_SLUG);
 
         return $this;
     }
@@ -172,7 +173,7 @@ abstract class Base extends BaseMiddle
         /** @var Asset $oAsset */
         $oAsset = Factory::service('Asset');
         $oAsset
-            ->load('admin.min.js', 'nails/module-admin')
+            ->load('admin.min.js', Constants::MODULE_SLUG)
             ->load('nails.admin.min.js', 'NAILS')
             ->load('nails.forms.min.js', 'NAILS');
 
@@ -212,7 +213,7 @@ abstract class Base extends BaseMiddle
         $oAsset = Factory::service('Asset');
         $oAsset
             ->load('nails.admin.css', 'NAILS')
-            ->load('admin.css', 'nails/module-admin');
+            ->load('admin.css', Constants::MODULE_SLUG);
 
         return $this;
     }
@@ -279,9 +280,9 @@ abstract class Base extends BaseMiddle
         $oAsset = Factory::service('Asset');
 
         foreach (Components::available() as $oComponent) {
-            if (!empty($oComponent->data->{'nails/module-admin'}->autoload)) {
+            if (!empty($oComponent->data->{Constants::MODULE_SLUG}->autoload)) {
 
-                $oAutoLoad = $oComponent->data->{'nails/module-admin'}->autoload;
+                $oAutoLoad = $oComponent->data->{Constants::MODULE_SLUG}->autoload;
 
                 //  Services
                 if (!empty($oAutoLoad->services)) {

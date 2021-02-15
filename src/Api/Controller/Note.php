@@ -2,6 +2,7 @@
 
 namespace Nails\Admin\Api\Controller;
 
+use Nails\Admin\Constants;
 use Nails\Api;
 use Nails\Common\Exception\FactoryException;
 use Nails\Factory;
@@ -10,7 +11,7 @@ class Note extends Api\Controller\CrudController
 {
     const REQUIRE_AUTH          = true;
     const CONFIG_MODEL_NAME     = 'Note';
-    const CONFIG_MODEL_PROVIDER = 'nails/module-admin';
+    const CONFIG_MODEL_PROVIDER = Constants::MODULE_SLUG;
     const CONFIG_LOOKUP_DATA    = ['expand' => ['created_by']];
 
     // --------------------------------------------------------------------------

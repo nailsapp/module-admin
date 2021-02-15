@@ -2,6 +2,7 @@
 
 namespace Nails\Admin\Console\Command\DataExport;
 
+use Nails\Admin\Constants;
 use Nails\Admin\Resource\DataExport\Format;
 use Nails\Admin\Resource\DataExport\Source;
 use Nails\Admin\Service\DataExport;
@@ -48,7 +49,7 @@ class ListReports extends Base
             $this->banner('Nails Admin Data Export: List');
 
             /** @var DataExport $oExportService */
-            $oExportService = Factory::service('DataExport', 'nails/module-admin');
+            $oExportService = Factory::service('DataExport', Constants::MODULE_SLUG);
 
             $this
                 ->listSources($oExportService)

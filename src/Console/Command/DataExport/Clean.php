@@ -2,6 +2,7 @@
 
 namespace Nails\Admin\Console\Command\DataExport;
 
+use Nails\Admin\Constants;
 use Nails\Admin\Model\Export;
 use Nails\Admin\Service\DataExport;
 use Nails\Cdn\Service\Cdn;
@@ -51,9 +52,9 @@ class Clean extends Base
         /** @var \DateTime $oNow */
         $oNow = Factory::factory('DateTime');
         /** @var DataExport $oExportService */
-        $oExportService = Factory::service('DataExport', 'nails/module-admin');
+        $oExportService = Factory::service('DataExport', Constants::MODULE_SLUG);
         /** @var Export $oModel */
-        $oModel = Factory::model('Export', 'nails/module-admin');
+        $oModel = Factory::model('Export', Constants::MODULE_SLUG);
         /** @var Cdn $oCdn */
         $oCdn = Factory::service('Cdn', \Nails\Cdn\Constants::MODULE_SLUG);
 

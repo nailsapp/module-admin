@@ -12,6 +12,7 @@
 
 namespace Nails\Admin;
 
+use Nails\Admin\Constants;
 use Nails\Admin\Factory\IndexFilter;
 use Nails\Auth;
 use Nails\Common\Exception\FactoryException;
@@ -313,7 +314,7 @@ class Helper
     {
         //  @todo (Pablo - 2018-04-10) - DonRemove this helper and use factories directly
         /** @var IndexFilter $oFilter */
-        $oFilter = Factory::factory('IndexFilter', 'nails/module-admin');
+        $oFilter = Factory::factory('IndexFilter', Constants::MODULE_SLUG);
         $oFilter
             ->setLabel($sLabel)
             ->setColumn($sColumn);

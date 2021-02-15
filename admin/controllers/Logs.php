@@ -12,6 +12,7 @@
 
 namespace Nails\Admin\Admin;
 
+use Nails\Admin\Constants;
 use Nails\Admin\Controller\Base;
 use Nails\Admin\Factory\Nav;
 use Nails\Admin\Helper;
@@ -37,7 +38,7 @@ class Logs extends Base
     public static function announce()
     {
         /** @var Nav $oNavGroup */
-        $oNavGroup = Factory::factory('Nav', 'nails/module-admin');
+        $oNavGroup = Factory::factory('Nav', Constants::MODULE_SLUG);
         $oNavGroup
             ->setLabel('Logs')
             ->setIcon('fa-archive');
@@ -133,7 +134,7 @@ class Logs extends Base
         /** @var Input $oUri */
         $oInput = Factory::service('Input');
         /** @var SiteLog $oSiteLogModel */
-        $oSiteLogModel = Factory::model('SiteLog', 'nails/module-admin');
+        $oSiteLogModel = Factory::model('SiteLog', Constants::MODULE_SLUG);
 
         $sFile                     = $oInput->get('log');
         $this->data['page']->title = 'Browse Logs &rsaquo; ' . $sFile;

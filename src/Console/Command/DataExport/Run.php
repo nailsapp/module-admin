@@ -2,6 +2,7 @@
 
 namespace Nails\Admin\Console\Command\DataExport;
 
+use Nails\Admin\Constants;
 use Nails\Admin\Model\Export;
 use Nails\Admin\Service\DataExport;
 use Nails\Common\Exception\FactoryException;
@@ -77,7 +78,7 @@ class Run extends Base
         try {
 
             /** @var DataExport $oExportService */
-            $this->oExportService = Factory::service('DataExport', 'nails/module-admin');
+            $this->oExportService = Factory::service('DataExport', Constants::MODULE_SLUG);
 
             $this->banner('Nails Admin Data Export: Run');
             $this->process();
@@ -106,9 +107,9 @@ class Run extends Base
     protected function process()
     {
         /** @var DataExport $oExportService */
-        $oExportService = Factory::service('DataExport', 'nails/module-admin');
+        $oExportService = Factory::service('DataExport', Constants::MODULE_SLUG);
         /** @var Export $oExportModel */
-        $oExportModel = Factory::model('Export', 'nails/module-admin');
+        $oExportModel = Factory::model('Export', Constants::MODULE_SLUG);
 
         $sSlug   = $this->oInput->getArgument('source');
         $sFormat = $this->oInput->getOption('format') ?? $this->oExportService::DEFAULT_FORMAT;

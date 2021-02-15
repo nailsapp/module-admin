@@ -12,6 +12,7 @@
 
 namespace Nails\Admin\Admin;
 
+use Nails\Admin\Constants;
 use Nails\Admin\Controller\Base;
 use Nails\Admin\Factory\Setting;
 use Nails\Admin\Helper;
@@ -35,7 +36,7 @@ class Settings extends Base
      */
     public static function announce()
     {
-        $oNavGroup = Factory::factory('Nav', 'nails/module-admin');
+        $oNavGroup = Factory::factory('Nav', Constants::MODULE_SLUG);
         $oNavGroup->setLabel('Settings');
         $oNavGroup->setIcon('fa-wrench');
 
@@ -424,7 +425,7 @@ class Settings extends Base
                 }
 
                 /** @var Setting $oField */
-                $oField = Factory::factory('Setting', 'nails/module-admin');
+                $oField = Factory::factory('Setting', Constants::MODULE_SLUG);
                 $oField
                     ->setKey($oSetting->key)
                     ->setLabel($oSetting->label)

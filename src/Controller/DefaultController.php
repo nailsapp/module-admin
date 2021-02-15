@@ -12,6 +12,7 @@
 
 namespace Nails\Admin\Controller;
 
+use Nails\Admin\Constants;
 use Nails\Admin\Factory\IndexFilter;
 use Nails\Admin\Factory\IndexFilter\Option;
 use Nails\Admin\Factory\Nav;
@@ -440,7 +441,7 @@ abstract class DefaultController extends Base
     {
         parent::__construct();
         $this->getConfig();
-        $this->oChangeLogModel = Factory::model('ChangeLog', 'nails/module-admin');
+        $this->oChangeLogModel = Factory::model('ChangeLog', Constants::MODULE_SLUG);
     }
 
     // --------------------------------------------------------------------------
@@ -454,7 +455,7 @@ abstract class DefaultController extends Base
     public static function announce()
     {
         /** @var Nav $oNavGroup */
-        $oNavGroup = Factory::factory('Nav', 'nails/module-admin');
+        $oNavGroup = Factory::factory('Nav', Constants::MODULE_SLUG);
         $oNavGroup
             ->setLabel(static::getSidebarGroup())
             ->setIcon(static::CONFIG_SIDEBAR_ICON)
@@ -1531,16 +1532,16 @@ abstract class DefaultController extends Base
 
             /** @var Option[] $aOptions */
             $aOptions   = [];
-            $aOptions[] = Factory::factory('IndexFilterOption', 'nails/module-admin')
+            $aOptions[] = Factory::factory('IndexFilterOption', Constants::MODULE_SLUG)
                 ->setLabel('All Locales');
 
             foreach ($oLocale->getSupportedLocales() as $oSupportedLocale) {
-                $aOptions[] = Factory::factory('IndexFilterOption', 'nails/module-admin')
+                $aOptions[] = Factory::factory('IndexFilterOption', Constants::MODULE_SLUG)
                     ->setLabel($oSupportedLocale->getDisplayLanguage())
                     ->setValue($oSupportedLocale->getLanguage() . '_' . $oSupportedLocale->getRegion());
             }
 
-            $aFilters[] = Factory::factory('IndexFilter', 'nails/module-admin')
+            $aFilters[] = Factory::factory('IndexFilter', Constants::MODULE_SLUG)
                 ->setLabel('Locale')
                 ->setColumn('CONCAT(`language`, \'_\', `region`)')
                 ->addOptions($aOptions);
