@@ -1094,7 +1094,7 @@ abstract class DefaultController extends Base
             $this->beforeCreateAndEdit(static::EDIT_MODE_CREATE);
             $this->beforeCreate();
 
-            $oNewItem = $oModel->copy($oItem->id);
+            $oNewItem = $oModel->copy($oItem->id, true);
             if (empty($oNewItem)) {
                 throw new \Exception($oModel->lastError());
             }
