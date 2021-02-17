@@ -1186,7 +1186,7 @@ abstract class DefaultController extends Base
             'CAN_EDIT'               => static::CONFIG_CAN_EDIT,
             'CAN_VIEW'               => static::CONFIG_CAN_VIEW,
             'CAN_DELETE'             => static::CONFIG_CAN_DELETE,
-            'CAN_RESTORE'            => static::CONFIG_CAN_RESTORE && !$oModel->isDestructiveDelete(),
+            'CAN_RESTORE'            => static::CONFIG_CAN_RESTORE,
             'CAN_COPY'               => static::CONFIG_CAN_COPY,
             'CAN_SORT'               => static::CONFIG_CAN_SORT,
             'PERMISSION'             => static::CONFIG_PERMISSION,
@@ -2077,7 +2077,8 @@ abstract class DefaultController extends Base
     protected static function isRestoreButtonEnabled($oItem = null): bool
     {
         return static::CONFIG_CAN_RESTORE
-            && static::userCan(static::EDIT_MODE_RESTORE);
+            && static::userCan(static::EDIT_MODE_RESTORE)
+            && !static::getModel()->isDestructiveDelete();
     }
 
     // --------------------------------------------------------------------------
