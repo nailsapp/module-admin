@@ -1221,6 +1221,9 @@ abstract class DefaultController extends Base
             'FIELDS'                 => $oModel->describeFields(),
         ];
 
+        $this->aConfig        =& $aConfig;
+        $this->data['CONFIG'] =& $this->aConfig;
+
         if (classUses($oModel, Sortable::class)) {
             $aConfig['SORT_OPTIONS']           = array_merge(['Defined Order' => 'order'], $aConfig['SORT_OPTIONS']);
             $aConfig['CREATE_IGNORE_FIELDS'][] = $oModel->getSortableColumn();
@@ -1257,30 +1260,30 @@ abstract class DefaultController extends Base
                 foreach ($oItem->missing_locales as $oLocale) {
                     $aVersions['Create ' . $oLocale->getDisplayLanguage()] = $aConfig['BASE_URL'] . '/create/' . $oItem->id . '/' . $oLocale;
                 }
-                $aConfig['EDIT_HEADER_BUTTONS'][] = [
+                $this->addEditHeaderButton(
                     $aVersions,
                     'Create Version',
                     'btn btn-warning',
-                ];
+                );
             }
         }
 
         if (static::isCreateButtonEnabled()) {
-            $aConfig['INDEX_HEADER_BUTTONS'][] = [
+            $this->addIndexHeaderButton(
                 $aConfig['BASE_URL'] . '/create',
-                'Create',
-            ];
-            $aConfig['EDIT_HEADER_BUTTONS'][]  = [
+                'Create'
+            );
+            $this->addEditHeaderButton(
                 $aConfig['BASE_URL'] . '/create',
-                'Create',
-            ];
+                'Create'
+            );
         }
 
         if (static::isSortButtonEnabled()) {
-            $aConfig['INDEX_HEADER_BUTTONS'][] = [
+            $this->addIndexHeaderButton(
                 $aConfig['BASE_URL'] . '/sort',
-                'Set Order',
-            ];
+                'Set Order'
+            );
         }
 
         // --------------------------------------------------------------------------
@@ -1389,10 +1392,6 @@ abstract class DefaultController extends Base
             ])
         );
 
-        // --------------------------------------------------------------------------
-
-        $this->aConfig        =& $aConfig;
-        $this->data['CONFIG'] =& $this->aConfig;
         return $this->aConfig;
     }
 
@@ -2140,28 +2139,102 @@ abstract class DefaultController extends Base
     // --------------------------------------------------------------------------
 
     /**
+     * Adds a header button for the index context
+     *
+     * @param string|string[] $mUrl          The button's URL
+     * @param string          $sLabel        The button's label
+     * @param string|null     $sContext      The button's context
+     * @param string|null     $sConfirmTitle If a confirmation is required, the title to use
+     * @param string|null     $sConfirmBody  If a confirmation is required, the body to use
+     */
+    protected function addIndexHeaderButton(
+        string $mUrl,
+        string $sLabel,
+        string $sContext = null,
+        string $sConfirmTitle = null,
+        string $sConfirmBody = null
+    ): void {
+        $this->aConfig['INDEX_HEADER_BUTTONS'][] = [
+            'url'           => $mUrl,
+            'label'         => $sLabel,
+            'context'       => $sContext,
+            'confirm_title' => $sConfirmTitle,
+            'confirm_body'  => $sConfirmBody,
+        ];
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Adds a header button for the edit context
+     *
+     * @param string|string[] $mUrl          The button's URL
+     * @param string          $sLabel        The button's label
+     * @param string|null     $sContext      The button's context
+     * @param string|null     $sConfirmTitle If a confirmation is required, the title to use
+     * @param string|null     $sConfirmBody  If a confirmation is required, the body to use
+     */
+    protected function addEditHeaderButton(
+        $mUrl,
+        string $sLabel,
+        string $sContext = null,
+        string $sConfirmTitle = null,
+        string $sConfirmBody = null
+    ): void {
+        $this->aConfig['EDIT_HEADER_BUTTONS'][] = [
+            'url'           => $mUrl,
+            'label'         => $sLabel,
+            'context'       => $sContext,
+            'confirm_title' => $sConfirmTitle,
+            'confirm_body'  => $sConfirmBody,
+        ];
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
      * Adds buttons to the header area
      *
      * @param array $aButtons the buttons to add
      */
-    protected function addHeaderButtons(array $aButtons): void
+    protected static function addHeaderButtons(array $aButtons): void
     {
         foreach ($aButtons as $aButton) {
-
-            $sUrl          = getFromArray(0, $aButton);
-            $sLabel        = getFromArray(1, $aButton);
-            $sContext      = getFromArray(2, $aButton);
-            $sConfirmTitle = getFromArray(3, $aButton);
-            $sConfirmBody  = getFromArray(4, $aButton);
-
-            Helper::addHeaderButton(
-                $sUrl,
-                $sLabel,
-                $sContext,
-                $sConfirmTitle,
-                $sConfirmBody
+            static::addHeaderButton(
+                getFromArray(['url', 0], $aButton),
+                getFromArray(['label', 1], $aButton),
+                getFromArray(['context', 2], $aButton),
+                getFromArray(['confirm_title', 3], $aButton),
+                getFromArray(['confirm_body', 4], $aButton)
             );
         }
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Adds a single header button
+     *
+     * @param string|string[] $mUrl          The button's URL
+     * @param string          $sLabel        The button's label
+     * @param string|null     $sContext      The button's context
+     * @param string|null     $sConfirmTitle If a confirmation is required, the title to use
+     * @param string|null     $sConfirmBody  If a confirmation is required, the body to use
+     */
+    protected static function addHeaderButton(
+        string $mUrl,
+        string $sLabel,
+        string $sContext = null,
+        string $sConfirmTitle = null,
+        string $sConfirmBody = null
+    ) {
+        Helper::addHeaderButton(
+            $mUrl,
+            $sLabel,
+            $sContext,
+            $sConfirmTitle,
+            $sConfirmBody
+        );
     }
 
     // --------------------------------------------------------------------------
