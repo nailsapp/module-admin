@@ -136,37 +136,16 @@ class AdminRouter extends BaseMiddle
      *
      * @return void
      */
-    protected function findAdminControllers()
+    protected function findAdminControllers(): void
     {
-        //  Look in the admin module
-        $this->loadAdminControllers(
-            'admin',
-            NAILS_PATH . 'module-admin/admin/controllers/',
-            NAILS_APP_PATH . 'application/modules/admin/controllers/',
-            ['adminRouter.php']
-        );
-
-        //  Look in all enabled modules
-        foreach (Components::modules() as $module) {
-
-            /**
-             * Skip the admin module. We use the moduleName rather than the component name
-             * so that we don't inadvertently load up the admin module (or any module identifying
-             * itself as admin) and listing all the files contained therein; we only want
-             * admin/controllers.
-             */
-            if ($module->moduleName == 'admin') {
-                continue;
-            }
-
+        foreach (Components::modules() as $oModule) {
             $this->loadAdminControllers(
-                $module->moduleName,
-                $module->path . 'admin/controllers/',
-                NAILS_APP_PATH . 'application/modules/' . $module->moduleName . '/admin/controllers/'
+                $oModule->moduleName,
+                $oModule->path . 'admin/controllers/',
+                NAILS_APP_PATH . 'application/modules/' . $oModule->moduleName . '/admin/controllers/'
             );
         }
 
-        //  Finally, look for app admin controllers
         $this->loadAppAdminControllers();
     }
 
@@ -196,7 +175,7 @@ class AdminRouter extends BaseMiddle
 
     // --------------------------------------------------------------------------
 
-    protected function loadAppAdminControllers()
+    protected function loadAppAdminControllers(): void
     {
         $appControllerPath = NAILS_APP_PATH . 'application/modules/admin/controllers/';
 
