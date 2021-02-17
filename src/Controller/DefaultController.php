@@ -153,6 +153,16 @@ abstract class DefaultController extends Base
     const CONFIG_CAN_RESTORE = true;
 
     /**
+     * Specify whether the controller supports item copying
+     */
+    const CONFIG_CAN_COPY = true;
+
+    /**
+     * Specify whether the controller supports item sorting
+     */
+    const CONFIG_CAN_SORT = true;
+
+    /**
      * Additional data to pass into the getAll call on the index view
      */
     const CONFIG_INDEX_DATA = [];
@@ -282,6 +292,16 @@ abstract class DefaultController extends Base
      * When restoring, this string is passed to supporting functions
      */
     const EDIT_MODE_RESTORE = 'RESTORE';
+
+    /**
+     * When copying, this string is passed to supporting functions
+     */
+    const EDIT_MODE_COPY = 'COPY';
+
+    /**
+     * When sorting, this string is passed to supporting functions
+     */
+    const EDIT_MODE_SORT = 'SORT';
 
     /**
      * Enable or disable the "Notes" feature
@@ -484,11 +504,20 @@ abstract class DefaultController extends Base
         $aPermissions = parent::permissions();
 
         if (!empty(static::CONFIG_PERMISSION)) {
-            $aPermissions['browse']  = 'Can browse items';
-            $aPermissions['create']  = 'Can create items';
-            $aPermissions['edit']    = 'Can edit items';
-            $aPermissions['delete']  = 'Can delete items';
-            $aPermissions['restore'] = 'Can restore items';
+
+            $aPermissions[static::EDIT_MODE_BROWSE]  = 'Can browse items';
+            $aPermissions[static::EDIT_MODE_CREATE]  = 'Can create items';
+            $aPermissions[static::EDIT_MODE_EDIT]    = 'Can edit items';
+            $aPermissions[static::EDIT_MODE_DELETE]  = 'Can delete items';
+            $aPermissions[static::EDIT_MODE_RESTORE] = 'Can restore items';
+
+            if (static::isCopyButtonEnabled()) {
+                $aPermissions[static::EDIT_MODE_COPY] = 'Can copy items';
+            }
+
+            if (static::isSortButtonEnabled()) {
+                $aPermissions[static::EDIT_MODE_SORT] = 'Can sort items';
+            }
         }
 
         return $aPermissions;
@@ -594,8 +623,7 @@ abstract class DefaultController extends Base
      */
     public function create(): void
     {
-        $aConfig = $this->getConfig();
-        if (!$aConfig['CAN_CREATE']) {
+        if (!static::isCreateButtonEnabled()) {
             show404();
         } elseif (!static::userCan(static::EDIT_MODE_CREATE)) {
             unauthorised();
@@ -605,7 +633,9 @@ abstract class DefaultController extends Base
         $oDb = Factory::service('Database');
         /** @var Input $oInput */
         $oInput = Factory::service('Input');
-        $oModel = $this->getModel();
+
+        $aConfig = $this->getConfig();
+        $oModel  = $this->getModel();
 
         // --------------------------------------------------------------------------
 
@@ -666,7 +696,7 @@ abstract class DefaultController extends Base
                 $oSession = Factory::service('Session');
                 $oSession->setFlashData('success', sprintf(static::CREATE_SUCCESS_MESSAGE, $sLink));
 
-                if ($aConfig['CAN_EDIT'] && static::userCan(static::EDIT_MODE_EDIT)) {
+                if (static::isEditButtonEnabled($oItem)) {
                     if (classUses($oModel, Localised::class)) {
                         redirect($aConfig['BASE_URL'] . '/edit/' . $oItem->id . '/' . $oItem->locale);
                     } else {
@@ -764,10 +794,7 @@ abstract class DefaultController extends Base
      */
     public function edit(): void
     {
-        $aConfig = $this->getConfig();
-        if (!$aConfig['CAN_EDIT']) {
-            show404();
-        } elseif (!static::userCan(static::EDIT_MODE_EDIT)) {
+        if (!static::userCan(static::EDIT_MODE_EDIT)) {
             unauthorised();
         }
 
@@ -776,8 +803,13 @@ abstract class DefaultController extends Base
         /** @var Input $oInput */
         $oInput = Factory::service('Input');
 
-        $oModel = $this->getModel();
-        $oItem  = $this->getItem($aConfig['EDIT_DATA']);
+        $aConfig = $this->getConfig();
+        $oModel  = $this->getModel();
+        $oItem   = $this->getItem($aConfig['EDIT_DATA']);
+
+        if (!static::isEditButtonEnabled($oItem)) {
+            show404();
+        }
 
         // --------------------------------------------------------------------------
 
@@ -876,10 +908,7 @@ abstract class DefaultController extends Base
      */
     public function delete(): void
     {
-        $aConfig = $this->getConfig();
-        if (!$aConfig['CAN_DELETE']) {
-            show404();
-        } elseif (!static::userCan(static::EDIT_MODE_DELETE)) {
+        if (!static::userCan(static::EDIT_MODE_DELETE)) {
             unauthorised();
         }
 
@@ -888,10 +917,11 @@ abstract class DefaultController extends Base
         /** @var Session $oSession */
         $oSession = Factory::service('Session');
 
-        $oModel = $this->getModel();
-        $oItem  = $this->getItem();
+        $aConfig = $this->getConfig();
+        $oModel  = $this->getModel();
+        $oItem   = $this->getItem();
 
-        if (empty($oItem)) {
+        if (!static::isDeleteButtonEnabled($oItem)) {
             show404();
         }
 
@@ -910,7 +940,7 @@ abstract class DefaultController extends Base
             $this->addToChangeLog(static::EDIT_MODE_DELETE, $oItem);
             $oDb->trans_commit();
 
-            if ($aConfig['CAN_RESTORE'] && static::userCan(static::EDIT_MODE_RESTORE)) {
+            if (static::isRestoreButtonEnabled($oItem)) {
                 if (classUses($oModel, Localised::class)) {
                     $sRestoreLink = anchor(
                         $aConfig['BASE_URL'] . '/restore/' . $oItem->id . '/' . $oItem->locale,
@@ -945,10 +975,7 @@ abstract class DefaultController extends Base
      */
     public function restore(): void
     {
-        $aConfig = $this->getConfig();
-        if (!$aConfig['CAN_RESTORE']) {
-            show404();
-        } elseif (!static::userCan(static::EDIT_MODE_RESTORE)) {
+        if (!static::userCan(static::EDIT_MODE_RESTORE)) {
             unauthorised();
         }
 
@@ -959,8 +986,13 @@ abstract class DefaultController extends Base
         /** @var Session $oSession */
         $oSession = Factory::service('Session');
 
-        $oModel = $this->getModel();
-        $oItem  = $this->getItem([], null, true);
+        $aConfig = $this->getConfig();
+        $oModel  = $this->getModel();
+        $oItem   = $this->getItem([], null, true);
+
+        if (!static::isRestoreButtonEnabled($oItem)) {
+            show404();
+        }
 
         try {
 
@@ -996,19 +1028,19 @@ abstract class DefaultController extends Base
      */
     public function sort(): void
     {
-        $aConfig = $this->getConfig();
-        if (!$aConfig['CAN_EDIT']) {
+        if (!static::isSortButtonEnabled()) {
             show404();
-        } elseif (!static::userCan(static::EDIT_MODE_EDIT)) {
+        } elseif (!static::userCan(static::EDIT_MODE_SORT)) {
             unauthorised();
         }
-
-        $oModel = $this->getModel();
 
         /** @var Input $oInput */
         $oInput = Factory::service('Input');
         /** @var Database $oDb */
         $oDb = Factory::service('Database');
+
+        $aConfig = $this->getConfig();
+        $oModel  = $this->getModel();
 
         if ($oInput->post()) {
             try {
@@ -1072,22 +1104,22 @@ abstract class DefaultController extends Base
      */
     public function copy()
     {
-        if (!static::userCan(static::EDIT_MODE_CREATE) || !static::userCan(static::EDIT_MODE_EDIT)) {
+        if (!static::userCan(static::EDIT_MODE_COPY)) {
             unauthorised();
-        }
-
-        $aConfig = $this->getConfig();
-        $oModel  = $this->getModel();
-        $oItem   = $this->getItem();
-
-        if (empty($oItem)) {
-            show404();
         }
 
         /** @var Database $oDb */
         $oDb = Factory::service('Database');
         /** @var Session $oSession */
         $oSession = Factory::service('Session');
+
+        $aConfig = $this->getConfig();
+        $oModel  = $this->getModel();
+        $oItem   = $this->getItem();
+
+        if (!static::isCopyButtonEnabled($oItem)) {
+            show404();
+        }
 
         try {
 
@@ -1155,6 +1187,8 @@ abstract class DefaultController extends Base
             'CAN_VIEW'               => static::CONFIG_CAN_VIEW,
             'CAN_DELETE'             => static::CONFIG_CAN_DELETE,
             'CAN_RESTORE'            => static::CONFIG_CAN_RESTORE && !$oModel->isDestructiveDelete(),
+            'CAN_COPY'               => static::CONFIG_CAN_COPY,
+            'CAN_SORT'               => static::CONFIG_CAN_SORT,
             'PERMISSION'             => static::CONFIG_PERMISSION,
             'TITLE_SINGLE'           => static::getTitleSingle(),
             'TITLE_PLURAL'           => static::getTitlePlural(),
@@ -1216,7 +1250,7 @@ abstract class DefaultController extends Base
 
         // --------------------------------------------------------------------------
 
-        if ($aConfig['CAN_CREATE'] && static::userCan(static::EDIT_MODE_CREATE) && classUses($oModel, Localised::class)) {
+        if (static::isCreateButtonEnabled() && classUses($oModel, Localised::class)) {
             $oItem = $this->getItem([], null, false, false);
             if (!empty($oItem)) {
                 $aVersions = [];
@@ -1231,7 +1265,7 @@ abstract class DefaultController extends Base
             }
         }
 
-        if ($aConfig['CAN_CREATE'] && static::userCan(static::EDIT_MODE_CREATE)) {
+        if (static::isCreateButtonEnabled()) {
             $aConfig['INDEX_HEADER_BUTTONS'][] = [
                 $aConfig['BASE_URL'] . '/create',
                 'Create',
@@ -1242,7 +1276,7 @@ abstract class DefaultController extends Base
             ];
         }
 
-        if ($aConfig['CAN_EDIT'] && static::userCan(static::EDIT_MODE_EDIT) && classUses($oModel, Sortable::class)) {
+        if (static::isSortButtonEnabled()) {
             $aConfig['INDEX_HEADER_BUTTONS'][] = [
                 $aConfig['BASE_URL'] . '/sort',
                 'Set Order',
@@ -1344,15 +1378,14 @@ abstract class DefaultController extends Base
                         return static::isDeleteButtonEnabled($oItem);
                     },
                 ] : null,
-
-                $bIsCopyable ? [
+                [
                     'url'     => 'copy/{{id}}',
                     'label'   => 'Copy',
                     'class'   => 'btn-default',
                     'enabled' => function ($oItem) {
-                        return static::userCan(static::EDIT_MODE_EDIT) && static::userCan(static::EDIT_MODE_CREATE);
+                        return static::isCopyButtonEnabled($oItem);
                     },
-                ] : null,
+                ],
             ])
         );
 
@@ -1977,6 +2010,19 @@ abstract class DefaultController extends Base
     // --------------------------------------------------------------------------
 
     /**
+     * Determines whether the "Create" header button is enabled
+     *
+     * @return bool
+     */
+    protected static function isCreateButtonEnabled(): bool
+    {
+        return static::CONFIG_CAN_CREATE
+            && static::userCan(static::EDIT_MODE_CREATE);
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
      * Determines whether the "View" row button is enabled
      *
      * @param Resource $oItem The row item
@@ -1985,7 +2031,8 @@ abstract class DefaultController extends Base
      */
     protected static function isViewButtonEnabled($oItem): bool
     {
-        return static::CONFIG_CAN_VIEW && (property_exists($oItem, 'url') || method_exists($oItem, 'getUrl'));
+        return static::CONFIG_CAN_VIEW
+            && (property_exists($oItem, 'url') || method_exists($oItem, 'getUrl'));
     }
 
     // --------------------------------------------------------------------------
@@ -1993,13 +2040,14 @@ abstract class DefaultController extends Base
     /**
      * Determines whether the "Edit" row button is enabled
      *
-     * @param Resource $oItem The row item
+     * @param Resource|null $oItem The row item
      *
      * @return bool
      */
-    protected static function isEditButtonEnabled($oItem): bool
+    protected static function isEditButtonEnabled($oItem = null): bool
     {
-        return static::CONFIG_CAN_EDIT && static::userCan(static::EDIT_MODE_EDIT);
+        return static::CONFIG_CAN_EDIT
+            && static::userCan(static::EDIT_MODE_EDIT);
     }
 
     // --------------------------------------------------------------------------
@@ -2007,13 +2055,64 @@ abstract class DefaultController extends Base
     /**
      * Determines whether the "Delete" row button is enabled
      *
-     * @param Resource $oItem The row item
+     * @param Resource|null $oItem The row item
      *
      * @return bool
      */
-    protected static function isDeleteButtonEnabled($oItem): bool
+    protected static function isDeleteButtonEnabled($oItem = null): bool
     {
-        return static::CONFIG_CAN_DELETE && static::userCan(static::EDIT_MODE_DELETE);
+        return static::CONFIG_CAN_DELETE
+            && static::userCan(static::EDIT_MODE_DELETE);
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Determines whether the "Restore" button is enabled
+     *
+     * @param Resource|null $oItem The row item
+     *
+     * @return bool
+     */
+    protected static function isRestoreButtonEnabled($oItem = null): bool
+    {
+        return static::CONFIG_CAN_RESTORE
+            && static::userCan(static::EDIT_MODE_RESTORE);
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Determines whether the "Copy" row button is enabled
+     *
+     * @param Resource|null $oItem The row item
+     *
+     * @return bool
+     */
+    protected static function isCopyButtonEnabled($oItem = null): bool
+    {
+        return static::CONFIG_CAN_COPY
+            && static::userCan(static::EDIT_MODE_COPY)
+            && classUses(static::getModel(), Copyable::class)
+            && static::isEditButtonEnabled($oItem)
+            && static::isCreateButtonEnabled();
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Determines whether the "Sort" button is enabled
+     *
+     * @param Resource|null $oItem The row item
+     *
+     * @return bool
+     */
+    protected static function isSortButtonEnabled(): bool
+    {
+        return static::CONFIG_CAN_SORT
+            && static::userCan(static::EDIT_MODE_SORT)
+            && classUses(static::getModel(), Sortable::class)
+            && static::isEditButtonEnabled();
     }
 
     // --------------------------------------------------------------------------
