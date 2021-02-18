@@ -121,22 +121,22 @@ class Helper
                 $oOutput = Factory::service('Output');
 
                 //  Common headers
-                $oOutput->set_content_type('text/csv');
-                $oOutput->set_header('Content-Disposition: attachment; filename="' . $sFilename . '"');
-                $oOutput->set_header('Expires: 0');
-                $oOutput->set_header("Content-Transfer-Encoding: binary");
+                $oOutput
+                    ->setContentType('text/csv')
+                    ->setHeader('Content-Disposition: attachment; filename="' . $sFilename . '"')
+                    ->setHeader('Expires: 0')
+                    ->setHeader("Content-Transfer-Encoding: binary");
 
                 //  Handle IE, classic.
                 $userAgent = $oInput->server('HTTP_USER_AGENT');
 
                 if (strpos($userAgent, "MSIE") !== false) {
-
-                    $oOutput->set_header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-                    $oOutput->set_header('Pragma: public');
+                    $oOutput
+                        ->setHeader('Cache-Control: must-revalidate, post-check=0, pre-check=0')
+                        ->setHeader('Pragma: public');
 
                 } else {
-
-                    $oOutput->set_header('Pragma: no-cache');
+                    $oOutput->setHeader('Pragma: no-cache');
                 }
             }
 
