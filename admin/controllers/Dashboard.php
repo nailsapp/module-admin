@@ -13,22 +13,33 @@
 namespace Nails\Admin\Admin;
 
 use Nails\Admin\Constants;
+use Nails\Admin\Factory\Nav;
+use Nails\Admin\Interfaces\Dashboard\Alert;
+use Nails\Components;
 use Nails\Factory;
 use Nails\Admin\Controller\Base;
 use Nails\Admin\Helper;
 
+/**
+ * Class Dashboard
+ *
+ * @package Nails\Admin\Admin
+ */
 class Dashboard extends Base
 {
     /**
      * Announces this controller's navGroups
+     *
      * @return stdClass
      */
     public static function announce()
     {
+        /** @var Nav $oNavGroup */
         $oNavGroup = Factory::factory('Nav', Constants::MODULE_SLUG);
-        $oNavGroup->setLabel('Dashboard');
-        $oNavGroup->setIcon('fa-home');
-        $oNavGroup->addAction('Site Overview');
+        $oNavGroup
+            ->setLabel('Dashboard')
+            ->setIcon('fa-home')
+            ->addAction('Site Overview');
 
         return $oNavGroup;
     }
@@ -37,43 +48,86 @@ class Dashboard extends Base
 
     /**
      * The admin homepage/dashboard
+     *
      * @return void
      */
     public function index()
     {
-        //  Page Data
         $this->data['page']->title = 'Welcome';
+        $this->data['aAlerts']     = $this->getDashboardAlerts();
+        $this->data['sPhrase']     = $this->getWelcomePhrase();
 
-        // --------------------------------------------------------------------------
+        Helper::loadView('index');
+    }
 
-        //  Choose a hello phrase
-        $phrases   = array();
-        $phrases[] = 'Be awesome.';
-        $phrases[] = 'You look nice!';
-        $phrases[] = 'What are we doing today?';
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns any dashboard alerts
+     *
+     * @return Alert[]
+     */
+    protected function getDashboardAlerts(): array
+    {
+        $aAlerts = [];
+
+        foreach (Components::available() as $oComponent) {
+
+            $aClasses = $oComponent
+                ->findClasses('Admin\\Dashboard\\Alert')
+                ->whichImplement(Alert::class);
+
+            foreach ($aClasses as $sClass) {
+                /** @var Alert $oAlert */
+                $oAlert = new $sClass();
+                if ($oAlert->isAlerting()) {
+                    $aAlerts[] = $oAlert;
+                }
+            }
+        }
+
+        return $aAlerts;
+    }
+
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the phrases to use for the dashboard
+     *
+     * @return string[]
+     */
+    protected function getWelcomePhrases(): array
+    {
+        $aPhrases = [
+            'Be awesome.',
+            'You look nice!',
+            'What are we doing today?',
+        ];
 
         if (activeUser('first_name')) {
 
-            $phrases[] = 'Today is gonna be a good day, ' . activeUser('first_name') . '.';
-            $phrases[] = 'Hey, ' . activeUser('first_name') . '!';
+            $aPhrases[] = 'Today is gonna be a good day, ' . activeUser('first_name') . '.';
+            $aPhrases[] = 'Hey, ' . activeUser('first_name') . '!';
 
         } else {
 
-            $phrases[] = 'Today is gonna be a good day.';
-            $phrases[] = 'Hey!';
+            $aPhrases[] = 'Today is gonna be a good day.';
+            $aPhrases[] = 'Hey!';
         }
 
-        $this->data['phrase'] = random_element($phrases);
+        return $aPhrases;
+    }
 
-        // --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-        //  Assets
-        $oAsset = Factory::service('Asset');
-        $oAsset->load('nails.admin.dashboard.min.js', true);
-
-        // --------------------------------------------------------------------------
-
-        //  Load views
-        Helper::loadView('index');
+    /**
+     * Returns a random welcome phrase
+     *
+     * @return string
+     */
+    protected function getWelcomePhrase(): string
+    {
+        return random_element($this->getWelcomePhrases());
     }
 }
