@@ -226,7 +226,7 @@ class AdminRouter extends BaseMiddle
 
         //  PHP file, no leading underscore
         if (!$this->isValidAdminFile($file)) {
-            return;
+            return $this;
         }
 
         //  Valid file, load it up and define the full class path and name
