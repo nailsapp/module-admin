@@ -10,10 +10,10 @@
  * @link
  */
 
-use Nails\Common\Exception\FactoryException;
-use Nails\Common\Exception\NailsException;
 use Nails\Admin\Constants;
 use Nails\Admin\Exception\RouterException;
+use Nails\Common\Exception\FactoryException;
+use Nails\Common\Exception\NailsException;
 use Nails\Components;
 use Nails\Factory;
 
@@ -39,49 +39,37 @@ if (class_exists('\App\Admin\Controller\BaseRouter')) {
  */
 class AdminRouter extends BaseMiddle
 {
+    /** @var \stdClass[] */
     protected $adminControllers;
-    protected $adminControllersNav;
-    protected $adminControllersNavSticky;
-    protected $adminControllersNavStickyBottom;
-    protected $adminControllersNavNotSortable;
-    protected $adminControllersPermissions;
 
-    // --------------------------------------------------------------------------
+    /** @var \stdClass[] */
+    protected $adminControllersNav;
 
     /**
-     * AdminRouter constructor.
+     * Admin nav groupings are sortable by default, if you wish to make any
+     * "sticky" then define them here. The order here will be respected i.e.,
+     * The first item will stick to the very top, the next beneath it and so
+     * forth.
      *
-     * @throws FactoryException
-     * @throws NailsException
+     * @var string[]
      */
-    public function __construct()
-    {
-        parent::__construct();
+    protected $adminControllersNavSticky = [
+        'Dashboard',
+        'Utilities',
+        'Settings',
+    ];
 
-        /**
-         * Admin nav groupings are sortable by default, if you wish to make any
-         * "sticky" then define them here. The order here will be respected i.e.,
-         * The first item will stick to the very top, the next beneath it and so
-         * forth.
-         */
-
-        $this->adminControllersNavSticky = [
-            'Dashboard',
-            'Utilities',
-            'Settings',
-        ];
-
-        /**
-         * Sticky items by default stick to the top of the nav. If you wish for
-         * any to stick to the bottom define them here. The order defined above
-         * will be respected, i.e., the order below doesn't matter.
-         */
-
-        $this->adminControllersNavStickyBottom = [
-            'Utilities',
-            'Settings',
-        ];
-    }
+    /**
+     * Sticky items by default stick to the top of the nav. If you wish for
+     * any to stick to the bottom define them here. The order defined above
+     * will be respected, i.e., the order below doesn't matter.
+     *
+     * @var string[]
+     */
+    protected $adminControllersNavStickyBottom = [
+        'Utilities',
+        'Settings',
+    ];
 
     // --------------------------------------------------------------------------
 
