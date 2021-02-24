@@ -259,7 +259,6 @@ abstract class Base extends BaseMiddle
             ->library('jqueryui')
             ->library('select2')
             ->library('ckeditor')
-            ->library('uploadify')
             ->library('knockout')
             ->library('moment')
             ->library('mustache');
