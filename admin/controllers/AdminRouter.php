@@ -10,6 +10,8 @@
  * @link
  */
 
+use Nails\Common\Exception\FactoryException;
+use Nails\Common\Exception\NailsException;
 use Nails\Admin\Constants;
 use Nails\Admin\Exception\RouterException;
 use Nails\Components;
@@ -47,7 +49,10 @@ class AdminRouter extends BaseMiddle
     // --------------------------------------------------------------------------
 
     /**
-     * Construct the adminRouter, define the sticky groupings
+     * AdminRouter constructor.
+     *
+     * @throws FactoryException
+     * @throws NailsException
      */
     public function __construct()
     {
@@ -83,40 +88,16 @@ class AdminRouter extends BaseMiddle
     /**
      * Initial touch point for admin, all requests are routed through here.
      *
-     * @return void
+     * @throws FactoryException
      */
     public function index()
     {
-        //  When executing on the CLI we don't need to perform a few bit's of sense checking
-        $oInput = Factory::service('Input');
-        if (!$oInput::isCli()) {
-
-            //  Is there an AdminIP whitelist?
-            $whitelistIp = (array) appSetting('whitelist', 'admin');
-
-            if ($whitelistIp) {
-                if (!isIpInRange($oInput->ipAddress(), $whitelistIp)) {
-                    show404();
-                }
-            }
-
-            //  Before we do anything, is the user an admin?
-            if (!isAdmin()) {
-                unauthorised();
-            }
-        }
-
-        //  Determine which admin controllers are available to the system
-        $this->findAdminControllers();
+        $this
+            ->authenticateUser()
+            ->findAdminControllers()
+            ->prepAdminControllersNav();
 
         // --------------------------------------------------------------------------
-
-        /**
-         * Sort the controllers into a view friendly array, taking into
-         * consideration the user's order and state preferences.
-         */
-
-        $this->prepAdminControllersNav();
 
         //  Save adminControllers to controller data so everyone can use it
         $this->data['adminControllers']    = $this->adminControllers;
@@ -131,12 +112,37 @@ class AdminRouter extends BaseMiddle
     // --------------------------------------------------------------------------
 
     /**
+     * Ensures the user has permission to access admin
+     *
+     * @return $this
+     * @throws FactoryException
+     */
+    protected function authenticateUser(): self
+    {
+        /** @var \Nails\Common\Service\Input $oInput */
+        $oInput = Factory::service('Input');
+
+        $aWhitelistIp = (array) appSetting('whitelist', 'admin');
+
+        if (!empty($aWhitelistIp) && !isIpInRange($oInput->ipAddress(), $aWhitelistIp)) {
+            show404();
+
+        } elseif (!isAdmin()) {
+            unauthorised();
+        }
+
+        return $this;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
      * Searches modules and the app for valid admin controllers which the active
      * user has permission to access.
      *
-     * @return void
+     * @return $this
      */
-    protected function findAdminControllers(): void
+    protected function findAdminControllers(): self
     {
         foreach (Components::modules() as $oModule) {
             $this->loadAdminControllers(
@@ -147,6 +153,8 @@ class AdminRouter extends BaseMiddle
         }
 
         $this->loadAppAdminControllers();
+
+        return $this;
     }
 
     // --------------------------------------------------------------------------
@@ -159,9 +167,9 @@ class AdminRouter extends BaseMiddle
      * @param string $appPath        If the app can extend these controllers, this is where it will place the file
      * @param array  $ignore         An array of filenames to ignore
      *
-     * @return void
+     * @return $this
      */
-    protected function loadAdminControllers($moduleName, $controllerPath, $appPath, $ignore = [])
+    protected function loadAdminControllers($moduleName, $controllerPath, $appPath, $ignore = []): self
     {
         $files = \Nails\Common\Helper\Directory::map($controllerPath, 1, false);
         foreach ($files as $file) {
@@ -171,11 +179,19 @@ class AdminRouter extends BaseMiddle
 
             $this->loadAdminController($file, $moduleName, $controllerPath, $appPath);
         }
+
+        return $this;
     }
 
     // --------------------------------------------------------------------------
 
-    protected function loadAppAdminControllers(): void
+    /**
+     * Looks for admin controllers in the app
+     *
+     * @return $this
+     * @throws RouterException
+     */
+    protected function loadAppAdminControllers(): self
     {
         $appControllerPath = NAILS_APP_PATH . 'application/modules/admin/controllers/';
 
@@ -199,6 +215,8 @@ class AdminRouter extends BaseMiddle
             //  Load and process the class
             $this->loadAdminClass($fileName, $className, $classPath, 'app');
         }
+
+        return $this;
     }
 
     // --------------------------------------------------------------------------
@@ -211,9 +229,10 @@ class AdminRouter extends BaseMiddle
      * @param string $controllerPath The full path to the controller
      * @param string $appPath        If the app can extend this controllers, this is where it will place the file
      *
-     * @return void
+     * @return $this
+     * @throws RouterException
      */
-    protected function loadAdminController($file, $moduleName, $controllerPath, $appPath)
+    protected function loadAdminController($file, $moduleName, $controllerPath, $appPath): self
     {
         $fileName = substr($file, 0, strpos($file, '.php'));
 
@@ -243,6 +262,8 @@ class AdminRouter extends BaseMiddle
 
         //  Load and process the class
         $this->loadAdminClass($fileName, $className, $classPath, $moduleName);
+
+        return $this;
     }
 
     // --------------------------------------------------------------------------
@@ -252,9 +273,9 @@ class AdminRouter extends BaseMiddle
      *
      * @param String $file The filename to test
      *
-     * @return boolean
+     * @return bool
      */
-    protected function isValidAdminFile($file)
+    protected function isValidAdminFile($file): bool
     {
         //  PHP file, no leading underscore
         return preg_match('/^[^_][a-zA-Z_]+\.php$/', $file);
@@ -270,10 +291,10 @@ class AdminRouter extends BaseMiddle
      * @param string $classPath  The path of the class being loaded
      * @param string $moduleName The name of the module to which this class belongs
      *
-     * @return boolean
+     * @return bool
      * @throws RouterException
      */
-    protected function loadAdminClass($fileName, $className, $classPath, $moduleName)
+    protected function loadAdminClass($fileName, $className, $classPath, $moduleName): bool
     {
         //  Does the expected class exist?
         if (!class_exists($className)) {
@@ -320,9 +341,10 @@ class AdminRouter extends BaseMiddle
      * Generates a "view friendly" array of the admin controllers, takes into
      * consideration the user's order and state preferences
      *
-     * @return void
+     * @return $this
+     * @throws FactoryException
      */
-    public function prepAdminControllersNav()
+    protected function prepAdminControllersNav(): self
     {
         $adminControllersNav = [];
 
@@ -434,6 +456,7 @@ class AdminRouter extends BaseMiddle
         arraySortMulti($middle, 'label');
 
         //  Get user's prefs
+        /** @var \Nails\Admin\Model\Admin $oAdminModel */
         $oAdminModel = Factory::model('Admin', Constants::MODULE_SLUG);
         $userNavPref = $oAdminModel->getAdminData('nav_state');
 
@@ -477,6 +500,8 @@ class AdminRouter extends BaseMiddle
          * amongst all this chaos.
          */
         $this->sortSidebarActions();
+
+        return $this;
     }
 
     // --------------------------------------------------------------------------
@@ -486,9 +511,9 @@ class AdminRouter extends BaseMiddle
      *
      * @param $userNavPref
      *
-     * @return AdminRouter
+     * @return $this
      */
-    protected function setSidebarOpenStates($userNavPref): AdminRouter
+    protected function setSidebarOpenStates($userNavPref): self
     {
         if (!empty($userNavPref)) {
             foreach ($userNavPref as $groupMd5 => $state) {
@@ -510,7 +535,7 @@ class AdminRouter extends BaseMiddle
      *
      * @return $this
      */
-    protected function sortSidebarActions(): AdminRouter
+    protected function sortSidebarActions(): self
     {
         foreach ($this->adminControllersNav as $grouping) {
 
@@ -555,10 +580,11 @@ class AdminRouter extends BaseMiddle
      * Routes the request to the appropriate controller
      *
      * @return void
+     * @throws FactoryException
      */
     protected function routeRequest()
     {
-        //  What are we trying to access?
+        /** @var \Nails\Common\Service\Uri $oUri */
         $oUri        = Factory::service('Uri');
         $sModule     = $oUri->rsegment(3) ? $oUri->rsegment(3) : '';
         $sController = ucfirst($oUri->rsegment(4) ? $oUri->rsegment(4) : $sModule);
