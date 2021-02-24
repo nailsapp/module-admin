@@ -18,14 +18,11 @@ use Nails\Config;
 class Help extends Base
 {
     /**
-     * Constructs the model
+     * The table this model represents
+     *
+     * @var string
      */
-    public function __construct()
-    {
-        parent::__construct();
-        $this->table      = Config::get('NAILS_DB_PREFIX') . 'admin_help_video';
-        $this->tableAlias = 'hv';
-    }
+    const TABLE = NAILS_DB_PREFIX . 'admin_help_video';
 
     // --------------------------------------------------------------------------
 

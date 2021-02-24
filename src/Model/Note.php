@@ -8,11 +8,25 @@ use Nails\Config;
 
 class Note extends Base
 {
+    /**
+     * The table this model represents
+     *
+     * @var string
+     */
+    const TABLE = NAILS_DB_PREFIX . 'admin_note';
+
+    /**
+     * Whether this model uses destructive delete or not
+     *
+     * @var bool
+     */
+    const DESTRUCTIVE_DELETE = false;
+
+    // --------------------------------------------------------------------------
+
     public function __construct()
     {
         parent::__construct();
-        $this->table             = Config::geT('NAILS_DB_PREFIX') . 'admin_note';
-        $this->destructiveDelete = false;
         $this->addExpandableField([
             'trigger'   => 'created_by',
             'model'     => 'User',

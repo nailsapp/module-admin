@@ -18,23 +18,19 @@ use Nails\Factory;
 class Export extends Base
 {
     /**
+     * The table this model represents
+     *
+     * @var string
+     */
+    const TABLE = NAILS_DB_PREFIX . 'admin_export';
+
+    /**
      * The various statuses
      */
     const STATUS_PENDING  = 'PENDING';
     const STATUS_RUNNING  = 'RUNNING';
     const STATUS_COMPLETE = 'COMPLETE';
     const STATUS_FAILED   = 'FAILED';
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Export constructor.
-     */
-    public function __construct()
-    {
-        parent::__construct();
-        $this->table = Config::get('NAILS_DB_PREFIX') . 'admin_export';
-    }
 
     // --------------------------------------------------------------------------
 
