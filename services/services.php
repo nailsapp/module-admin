@@ -7,18 +7,18 @@ use Nails\Admin\Service;
 
 return [
     'services'  => [
-        'DataExport' => function (): Service\DataExport {
+        'DataExport'      => function (): Service\DataExport {
             if (class_exists('\App\Admin\Service\DataExport')) {
                 return new \App\Admin\Service\DataExport();
             } else {
                 return new Service\DataExport();
             }
         },
-        'DashboardWidget' => function () {
-            if (class_exists('\App\Admin\Service\DashboardWidget')) {
-                return new \App\Admin\Service\DashboardWidget();
+        'DashboardWidget' => function (): Service\Dashboard\Widget {
+            if (class_exists('\App\Admin\Service\Dashboard\Widget')) {
+                return new \App\Admin\Service\Dashboard\Widget();
             } else {
-                return new \Nails\Admin\Service\DashboardWidget();
+                return new Service\Dashboard\Widget();
             }
         },
     ],
