@@ -84,7 +84,7 @@ class Clean extends Base
                     foreach ($aToClean as $oExport) {
                         try {
 
-                            $oDb->trans_begin();
+                            $oDb->transaction()->start();
                             $oOutput->write('Cleaning export <info>#' . $oExport->id . '</info>... ');
 
                             $oModel->delete($oExport->id);
@@ -97,11 +97,11 @@ class Clean extends Base
                                 }
                             }
 
-                            $oDb->trans_commit();
+                            $oDb->transaction()->commit();
                             $oOutput->writeln('<info>done</info>');
 
                         } catch (\Exception $e) {
-                            $oDb->trans_rollback();
+                            $oDb->transaction()->rollback();
                             $oOutput->writeln('<error>' . $e->getMessage() . '</error>');
                         }
                     }

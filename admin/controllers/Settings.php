@@ -349,7 +349,7 @@ class Settings extends Base
                 //  Begin transaction
                 $oAppSettingService = Factory::service('AppSetting');
                 $oDb                = Factory::service('Database');
-                $oDb->trans_begin();
+                $oDb->transaction()->start();
 
                 //  Normal settings
                 if (!$oAppSettingService->set($aSettings, $oComponent->slug)) {
@@ -362,10 +362,10 @@ class Settings extends Base
                 }
 
                 if (empty($sError)) {
-                    $oDb->trans_commit();
+                    $oDb->transaction()->commit();
                     $this->data['success'] = $sType . ' settings were saved.';
                 } else {
-                    $oDb->trans_rollback();
+                    $oDb->transaction()->rollback();
                     $this->data['error'] = 'There was a problem saving shop settings. ' . $sError;
                 }
 

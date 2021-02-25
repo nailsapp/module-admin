@@ -649,7 +649,7 @@ abstract class DefaultController extends Base
             try {
 
                 $this->runFormValidation(static::EDIT_MODE_CREATE);
-                $oDb->trans_begin();
+                $oDb->transaction()->start();
                 $this->beforeCreateAndEdit(static::EDIT_MODE_CREATE);
                 $this->beforeCreate();
 
@@ -674,7 +674,7 @@ abstract class DefaultController extends Base
                 $this->afterCreateAndEdit(static::EDIT_MODE_CREATE, $oItem);
                 $this->afterCreate($oItem);
                 $this->addToChangeLog(static::EDIT_MODE_CREATE, $oItem);
-                $oDb->trans_commit();
+                $oDb->transaction()->commit();
 
                 if (property_exists($oItem, 'url')) {
                     $sLink = anchor(
@@ -707,7 +707,7 @@ abstract class DefaultController extends Base
                 }
 
             } catch (\Exception $e) {
-                $oDb->trans_rollback();
+                $oDb->transaction()->rollback();
                 $this->data['error'] = $e->getMessage();
             }
         }
@@ -822,7 +822,7 @@ abstract class DefaultController extends Base
             try {
 
                 $this->runFormValidation(static::EDIT_MODE_EDIT);
-                $oDb->trans_begin();
+                $oDb->transaction()->start();
                 $this->beforeCreateAndEdit(static::EDIT_MODE_EDIT, $oItem);
                 $this->beforeEdit($oItem);
 
@@ -849,7 +849,7 @@ abstract class DefaultController extends Base
                 $this->afterCreateAndEdit(static::EDIT_MODE_EDIT, $oNewItem, $oItem);
                 $this->afterEdit($oNewItem, $oItem);
                 $this->addToChangeLog(static::EDIT_MODE_EDIT, $oNewItem, $oItem);
-                $oDb->trans_commit();
+                $oDb->transaction()->commit();
 
                 if (property_exists($oNewItem, 'url')) {
                     $sLink = anchor(
@@ -884,7 +884,7 @@ abstract class DefaultController extends Base
                 );
 
             } catch (\Exception $e) {
-                $oDb->trans_rollback();
+                $oDb->transaction()->rollback();
                 $this->data['error'] = $e->getMessage();
             }
         }
@@ -927,7 +927,7 @@ abstract class DefaultController extends Base
 
         try {
 
-            $oDb->trans_begin();
+            $oDb->transaction()->start();
             $this->beforeDelete($oItem);
 
             if (classUses($oModel, Localised::class)) {
@@ -938,7 +938,7 @@ abstract class DefaultController extends Base
 
             $this->afterDelete($oItem);
             $this->addToChangeLog(static::EDIT_MODE_DELETE, $oItem);
-            $oDb->trans_commit();
+            $oDb->transaction()->commit();
 
             if (static::isRestoreButtonEnabled($oItem)) {
                 if (classUses($oModel, Localised::class)) {
@@ -960,7 +960,7 @@ abstract class DefaultController extends Base
             $this->returnToIndex();
 
         } catch (\Exception $e) {
-            $oDb->trans_rollback();
+            $oDb->transaction()->rollback();
             $oSession->setFlashData('error', static::DELETE_ERROR_MESSAGE . ' ' . $e->getMessage());
             $this->returnToIndex();
         }
@@ -996,7 +996,7 @@ abstract class DefaultController extends Base
 
         try {
 
-            $oDb->trans_begin();
+            $oDb->transaction()->start();
             if (classUses($oModel, Localised::class)) {
                 $bResult = $oModel->restore($oItem->id, $oItem->locale);
             } else {
@@ -1008,12 +1008,12 @@ abstract class DefaultController extends Base
             }
 
             $this->addToChangeLog(static::EDIT_MODE_RESTORE, $oItem);
-            $oDb->trans_commit();
+            $oDb->transaction()->commit();
             $oSession->setFlashData('success', static::RESTORE_SUCCESS_MESSAGE);
             $this->returnToIndex();
 
         } catch (\Exception $e) {
-            $oDb->trans_rollback();
+            $oDb->transaction()->rollback();
             $oSession->setFlashData('error', static::RESTORE_ERROR_MESSAGE . ' ' . $e->getMessage());
             $this->returnToIndex();
         }
@@ -1045,7 +1045,7 @@ abstract class DefaultController extends Base
         if ($oInput->post()) {
             try {
 
-                $oDb->trans_begin();
+                $oDb->transaction()->start();
                 $aItems = array_values((array) $oInput->post('order'));
                 foreach ($aItems as $iOrder => $iId) {
 
@@ -1075,7 +1075,7 @@ abstract class DefaultController extends Base
 
                 //  @todo (Pablo - 2019-10-30) - Add changelog support here
 
-                $oDb->trans_commit();
+                $oDb->transaction()->commit();
 
                 /** @var Session $oSession */
                 $oSession = Factory::service('Session');
@@ -1084,7 +1084,7 @@ abstract class DefaultController extends Base
                 redirect($aConfig['BASE_URL'] . '/sort');
 
             } catch (\Exception $e) {
-                $oDb->trans_rollback();
+                $oDb->transaction()->rollback();
                 $this->data['error'] = $e->getMessage();
             }
         }
@@ -1123,7 +1123,7 @@ abstract class DefaultController extends Base
 
         try {
 
-            $oDb->trans_begin();
+            $oDb->transaction()->start();
             $this->beforeCreateAndEdit(static::EDIT_MODE_CREATE);
             $this->beforeCreate();
 
@@ -1137,7 +1137,7 @@ abstract class DefaultController extends Base
             $this->afterCreateAndEdit(static::EDIT_MODE_CREATE, $oNewItem);
             $this->afterCreate($oNewItem);
             $this->addToChangeLog(static::EDIT_MODE_CREATE, $oNewItem);
-            $oDb->trans_commit();
+            $oDb->transaction()->commit();
 
             $oSession->setFlashData('success', static::COPY_SUCCESS_MESSAGE);
             redirect($aConfig['BASE_URL'] . '/edit/' . $oNewItem->id);
