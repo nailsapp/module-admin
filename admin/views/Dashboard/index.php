@@ -1,12 +1,13 @@
 <?php
 
 use Nails\Admin\Interfaces\Dashboard\Alert;
+use Nails\Admin\Interfaces\Dashboard\Widget;
 use Nails\Config;
 
 /**
- * @var array   $adminControllers
- * @var Alert[] $aAlerts
- * @var string  $sPhrase
+ * @var array    $adminControllers
+ * @var Alert[]  $aAlerts
+ * @var Widget[] $aWidgets
  */
 ?>
 <div class="group-dashboard">
@@ -34,19 +35,38 @@ use Nails\Config;
         }
 
         ?>
-        <p>
-            Welcome to <?=Config::get('APP_NAME')?>'s Administration pages. From here you can control aspects of the site.
-        </p>
-        <p>
-            Get started by choosing an option from the left.
-        </p>
-        <div class="welcome">
-            <p class="icon">
-                <span class="fa fa-smile-o">
-            </p>
-            <p class="text">
-                <?=$sPhrase?>
-            </p>
+        <div class="dashboard-widgets">
+            <?php
+            foreach ($aWidgets as $oWidget) {
+
+                //  @todo (Pablo 25/02/2021) - Add support for ordering
+                //  @todo (Pablo 25/02/2021) - Add support for resizing
+                //  @todo (Pablo 25/02/2021) - Add support for configuring
+
+                ?>
+                <div class="dashboard-widget dashboard-widget--<?=$oWidget->getSize()?>">
+                    <fieldset>
+                        <legend class="dashboard-widget__label">
+                            <?=$oWidget->getTitle()?>
+                        </legend>
+                        <div class="dashboard-widget__body <?=$oWidget->padBody() ? 'dashboard-widget__body--padded' : ''?>">
+                            <?=$oWidget->getBody()?>
+                        </div>
+                        <?php
+                        $sConfig = $oWidget->getConfig();
+                        if (!empty($sConfig)) {
+                            ?>
+                            <div class="dashboard-widget__config">
+                                <?=$oWidget->getConfig()?>
+                            </div>
+                            <?php
+                        }
+                        ?>
+                    </fieldset>
+                </div>
+                <?php
+            }
+            ?>
         </div>
         <?php
 

@@ -7,7 +7,7 @@ use Nails\Admin\DataExport\SourceResponse;
 /**
  * Interface Alert
  *
- * @package Nails\Admin\Interfaces\DataExport
+ * @package Nails\Admin\Interfaces\Dashboard
  */
 interface Alert
 {

@@ -15,6 +15,7 @@ namespace Nails\Admin\Admin;
 use Nails\Admin\Constants;
 use Nails\Admin\Factory\Nav;
 use Nails\Admin\Interfaces\Dashboard\Alert;
+use Nails\Admin\Service\Dashboard\Widget;
 use Nails\Components;
 use Nails\Factory;
 use Nails\Admin\Controller\Base;
@@ -55,7 +56,7 @@ class Dashboard extends Base
     {
         $this->data['page']->title = 'Welcome';
         $this->data['aAlerts']     = $this->getDashboardAlerts();
-        $this->data['sPhrase']     = $this->getWelcomePhrase();
+        $this->data['aWidgets']    = $this->getWidgets();
 
         Helper::loadView('index');
     }
@@ -89,45 +90,17 @@ class Dashboard extends Base
         return $aAlerts;
     }
 
-
     // --------------------------------------------------------------------------
 
     /**
-     * Returns the phrases to use for the dashboard
+     * Returns dashboard widgets
      *
-     * @return string[]
+     * @return \Nails\Admin\Interfaces\Dashboard\Widget[]
      */
-    protected function getWelcomePhrases(): array
+    protected function getWidgets(): array
     {
-        $aPhrases = [
-            'Be awesome.',
-            'You look nice!',
-            'What are we doing today?',
-        ];
-
-        if (activeUser('first_name')) {
-
-            $aPhrases[] = 'Today is gonna be a good day, ' . activeUser('first_name') . '.';
-            $aPhrases[] = 'Hey, ' . activeUser('first_name') . '!';
-
-        } else {
-
-            $aPhrases[] = 'Today is gonna be a good day.';
-            $aPhrases[] = 'Hey!';
-        }
-
-        return $aPhrases;
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Returns a random welcome phrase
-     *
-     * @return string
-     */
-    protected function getWelcomePhrase(): string
-    {
-        return random_element($this->getWelcomePhrases());
+        /** @var Widget $oWidgetService */
+        $oWidgetService = Factory::service('DashboardWidget', Constants::MODULE_SLUG);
+        return $oWidgetService->getWidgetsForUser();
     }
 }

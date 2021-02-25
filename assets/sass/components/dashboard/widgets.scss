@@ -1,0 +1,56 @@
+.dashboard-widgets {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: calc(100% + 1rem);
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+
+    .dashboard-widget {
+        box-sizing: border-box;
+        padding: 0.5rem;
+
+        > * {
+            margin: 0;
+        }
+
+        &--large {
+            flex: 0 0 100%;
+        }
+
+        &--medium {
+            flex: 0 0 calc(100% / 3 * 2);
+        }
+
+        &--small {
+            flex: 0 0 calc(100% / 3);
+        }
+
+        &__label {
+
+        }
+
+        &__body {
+            &--padded {
+                margin: 1rem;
+            }
+        }
+
+        &__config {
+            display: none;
+            margin: 1rem;
+        }
+    }
+}
+
+@media (max-width: 960px) {
+    .dashboard-widgets {
+        .dashboard-widget {
+            &--large,
+            &--medium,
+            &--small {
+                flex: 0 0 100%;
+            }
+        }
+    }
+}
