@@ -5,6 +5,7 @@ import '../sass/admin.scss';
 import Alerts from './components/Alerts.js';
 import Confirm from './components/Confirm.js';
 import CopyToClipboard from './components/CopyToClipboard.js';
+import DashboardWidgets from './components/DashboardWidgets.js';
 import DateTime from './components/DateTime.js';
 import DisabledElements from './components/DisabledElements.js';
 import DynamicTable from './components/DynamicTable.js';
@@ -291,6 +292,13 @@ window
     )
     .registerPlugin(
         window.NAILS.ADMIN.namespace,
+        'DashboardWidgets',
+        function(controller) {
+            return new DashboardWidgets(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
         'DateTime',
         function(controller) {
             return new DateTime(controller);
@@ -428,4 +436,4 @@ window
         function(controller) {
             return new Wysiwyg(controller);
         }
-    )
+    );
