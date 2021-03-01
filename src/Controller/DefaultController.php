@@ -254,6 +254,11 @@ abstract class DefaultController extends Base
     const CONFIG_EDIT_PAGE_ID = '';
 
     /**
+     * Additional data to pass into the getAll call on the delete view
+     */
+    const CONFIG_DELETE_DATA = [];
+
+    /**
      * Additional data to pass into the getAll call on the sort view
      */
     const CONFIG_SORT_DATA = [];
@@ -919,7 +924,7 @@ abstract class DefaultController extends Base
 
         $aConfig = $this->getConfig();
         $oModel  = $this->getModel();
-        $oItem   = $this->getItem();
+        $oItem   = $this->getItem($aConfig['DELETE_DATA']);
 
         if (!static::isDeleteButtonEnabled($oItem)) {
             show404();
@@ -1213,6 +1218,7 @@ abstract class DefaultController extends Base
             'EDIT_IGNORE_FIELDS'     => static::CONFIG_EDIT_IGNORE_FIELDS,
             'EDIT_DATA'              => static::CONFIG_EDIT_DATA,
             'EDIT_PAGE_ID'           => static::CONFIG_EDIT_PAGE_ID,
+            'DELETE_DATA'            => static::CONFIG_DELETE_DATA,
             'SORT_DATA'              => static::CONFIG_SORT_DATA,
             'SORT_LABEL'             => static::CONFIG_SORT_LABEL,
             'SORT_COLUMNS'           => static::CONFIG_SORT_COLUMNS,
