@@ -2228,7 +2228,7 @@ abstract class DefaultController extends Base
      * @param string|null     $sConfirmBody  If a confirmation is required, the body to use
      */
     protected static function addHeaderButton(
-        string $mUrl,
+        $mUrl,
         string $sLabel,
         string $sContext = null,
         string $sConfirmTitle = null,
