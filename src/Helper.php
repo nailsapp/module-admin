@@ -649,14 +649,14 @@ class Helper
     /**
      * Adds a button to Admin's header area
      *
-     * @param string $sUrl          The button's URL
-     * @param string $sLabel        The button's label
-     * @param string $sContext      The button's context
-     * @param string $sConfirmTitle If a confirmation is required, the title to use
-     * @param string $sConfirmBody  If a confirmation is required, the body to use
+     * @param string[]|string $mUrl          The button's URL
+     * @param string          $sLabel        The button's label
+     * @param string          $sContext      The button's context
+     * @param string          $sConfirmTitle If a confirmation is required, the title to use
+     * @param string          $sConfirmBody  If a confirmation is required, the body to use
      */
     public static function addHeaderButton(
-        $sUrl,
+        $mUrl,
         $sLabel,
         $sContext = null,
         $sConfirmTitle = null,
@@ -665,7 +665,7 @@ class Helper
         $sContext = empty($sContext) ? 'primary' : $sContext;
 
         self::$aHeaderButtons[] = [
-            'url'          => $sUrl,
+            'url'          => $mUrl,
             'label'        => $sLabel,
             'context'      => $sContext,
             'confirmTitle' => $sConfirmTitle,
@@ -751,7 +751,7 @@ class Helper
 
         ob_start();
         ?>
-        <input type="hidden" data-tabgroup="<?=$sGroup?>" name="<?=$sGroup?>" value="<?=set_value($sGroup)?>"/>
+        <input type="hidden" data-tabgroup="<?=$sGroup?>" name="<?=$sGroup?>" value="<?=set_value($sGroup)?>" />
         <ul class="tabs" data-tabgroup="<?=$sGroup?>" data-active-tab-input="#<?=$sGroup?>">
             <?php
             foreach ($aTabs as &$aTab) {
