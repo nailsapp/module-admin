@@ -1261,7 +1261,7 @@ abstract class DefaultController extends Base
 
         if (static::isCreateButtonEnabled() && classUses($oModel, Localised::class)) {
             $oItem = $this->getItem([], null, false, false);
-            if (!empty($oItem)) {
+            if (!empty($oItem) && !empty($oItem->missing_locales)) {
                 $aVersions = [];
                 foreach ($oItem->missing_locales as $oLocale) {
                     $aVersions['Create ' . $oLocale->getDisplayLanguage()] = $aConfig['BASE_URL'] . '/create/' . $oItem->id . '/' . $oLocale;
