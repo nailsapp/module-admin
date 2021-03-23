@@ -2037,7 +2037,7 @@ abstract class DefaultController extends Base
     protected static function isViewButtonEnabled($oItem): bool
     {
         return static::CONFIG_CAN_VIEW
-            && (property_exists($oItem, 'url') || method_exists($oItem, 'getUrl'));
+            && (!empty($oItem->url) || (method_exists($oItem, 'getUrl') && !empty($oItem->getUrl())));
     }
 
     // --------------------------------------------------------------------------
