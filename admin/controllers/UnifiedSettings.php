@@ -146,7 +146,7 @@ class UnifiedSettings extends Base
                 /** @var Field $aField */
                 foreach ($oSetting->instance->get() as $oField) {
                     setAppSetting(
-                        $oField->getKey(),
+                        $this->normaliseKey($oField->getKey()),
                         $oSetting->component->slug,
                         $oInput->post($oField->getKey()),
                         $oField->isEncrypted()
@@ -226,9 +226,28 @@ class UnifiedSettings extends Base
     {
         $aSettings = $oSettings->get();
         foreach ($aSettings as $oSetting) {
-            $oSetting->setDefault(appSetting($oSetting->getKey(), $oComponent->slug));
+            $oSetting->setDefault(
+                appSetting(
+                    $this->normaliseKey($oSetting->getKey()),
+                    $oComponent->slug
+                )
+            );
         }
 
         return $aSettings;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Trailing square brackets are a quirk of the form validation system and should be removed for lookup
+     *
+     * @param string $sKey
+     *
+     * @return string
+     */
+    protected function normaliseKey(string $sKey): string
+    {
+        return preg_replace('/\[\]$/', '', $sKey);
     }
 }
