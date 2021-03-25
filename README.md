@@ -1,7 +1,7 @@
 # Admin Module for Nails
 
 ![license](https://img.shields.io/badge/license-MIT-green.svg)
-[![CircleCI branch](https://img.shields.io/circleci/project/github/nails/module-admin.svg)](https://circleci.com/gh/nails/module-admin)
+[![tests](https://github.com/nails/module-admin/actions/workflows/build_and_test.yml/badge.svg )](https://github.com/nails/module-admin/actions)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/nails/module-admin/badges/quality-score.png)](https://scrutinizer-ci.com/g/nails/module-admin)
 
 
