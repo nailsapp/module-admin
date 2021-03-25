@@ -80,7 +80,7 @@ class Run extends Base
             /** @var DataExport $oExportService */
             $this->oExportService = Factory::service('DataExport', Constants::MODULE_SLUG);
 
-            $this->banner('Nails Admin Data Export: Run');
+            $this->banner('Data Export: Run');
             $this->process();
 
         } catch (\Exception $e) {

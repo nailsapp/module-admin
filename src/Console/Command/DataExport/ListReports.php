@@ -46,7 +46,7 @@ class ListReports extends Base
 
         try {
 
-            $this->banner('Nails Admin Data Export: List');
+            $this->banner('Data Export: List');
 
             /** @var DataExport $oExportService */
             $oExportService = Factory::service('DataExport', Constants::MODULE_SLUG);

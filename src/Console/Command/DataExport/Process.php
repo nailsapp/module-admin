@@ -48,7 +48,7 @@ class Process extends Base
 
         try {
 
-            $this->banner('Nails Admin Data Export: Process');
+            $this->banner('Data Export: Process');
             $this->process();
 
         } catch (\Exception $e) {

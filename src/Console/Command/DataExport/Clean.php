@@ -62,7 +62,7 @@ class Clean extends Base
 
         try {
 
-            $this->banner('Data Export Clean');
+            $this->banner('Data Export: Clean');
 
             $iRetention = $oExportService->getRetentionPeriod();
             if ($iRetention) {
