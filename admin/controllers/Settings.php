@@ -94,7 +94,7 @@ class Settings extends Base
         foreach (static::$aSettings as $sSlug => $oSetting) {
 
             $aPermissions[$oSetting->slug] = sprintf(
-                'Manage settings for %s (%s)',
+                'Can manage settings for %s (%s)',
                 $oSetting->label,
                 $oSetting->component->slug
             );
