@@ -50,12 +50,29 @@ class Settings extends Base
 
         foreach (static::$aSettings as $sSlug => $oSetting) {
 
-            //  @todo (Pablo 2021-03-24) - check for permissions
+            if (userHasPermission('admin:admin:settings:' . $oSetting->slug)) {
 
-            $oNav->addAction(
-                $oSetting->label,
-                'index?setting=' . $sSlug
-            );
+                $oNav->addAction(
+                    $oSetting->label,
+                    'index?setting=' . $sSlug,
+                    array_filter([
+
+                        $oSetting->component->type === 'driver'
+                            ? Factory::factory('NavAlert', Constants::MODULE_SLUG)
+                            ->setValue('Driver')
+                            ->setLabel($oSetting->component->forModule)
+                            ->setSeverity('warning')
+                            : null,
+
+                        $oSetting->component->type === 'skin'
+                            ? Factory::factory('NavAlert', Constants::MODULE_SLUG)
+                            ->setValue('Skin')
+                            ->setLabel($oSetting->component->forModule)
+                            ->setSeverity('info')
+                            : null,
+                    ])
+                );
+            }
         }
 
         return $oNav;
@@ -72,7 +89,16 @@ class Settings extends Base
     {
         $aPermissions = parent::permissions();
 
-        //  @todo (Pablo 2021-03-24) - offer permissions for each setting
+        static::discoverSettings();
+
+        foreach (static::$aSettings as $sSlug => $oSetting) {
+
+            $aPermissions[$oSetting->slug] = sprintf(
+                'Manage settings for %s (%s)',
+                $oSetting->label,
+                $oSetting->component->slug
+            );
+        }
 
         return $aPermissions;
     }
@@ -128,6 +154,9 @@ class Settings extends Base
         $oSetting = static::$aSettings[$oInput->get('setting')] ?? null;
         if (empty($oSetting)) {
             show404();
+
+        } elseif (!userHasPermission('admin:admin:settings:' . $oSetting->slug)) {
+            unauthorised();
 
         } elseif ($oInput->post()) {
             try {
