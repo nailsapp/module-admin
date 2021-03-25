@@ -1,31 +1,35 @@
 <?php
 
-/**
- * This class handles settings
- *
- * @package     Nails
- * @subpackage  module-admin
- * @category    AdminController
- * @author      Nails Dev Team
- * @link
- */
-
 namespace Nails\Admin\Admin;
 
 use Nails\Admin\Constants;
 use Nails\Admin\Controller\Base;
-use Nails\Admin\Factory\Setting;
+use Nails\Admin\Factory\Nav;
 use Nails\Admin\Helper;
-use Nails\Common\Helper\Form;
+use Nails\Common\Exception\FactoryException;
+use Nails\Common\Exception\NailsException;
+use Nails\Common\Exception\ValidationException;
+use Nails\Common\Factory\Component;
+use Nails\Common\Factory\Model\Field;
+use Nails\Common\Service\AppSetting;
+use Nails\Common\Service\FormValidation;
+use Nails\Common\Service\Input;
+use Nails\Common\Service\Session;
 use Nails\Components;
 use Nails\Factory;
+use Nails\Common\Interfaces;
 
+/**
+ * Class Settings
+ *
+ * @package Nails\Admin\Admin
+ */
 class Settings extends Base
 {
     /**
-     * @var array
+     * @var \stdClass[]
      */
-    protected $aFields;
+    protected static $aSettings = [];
 
     // --------------------------------------------------------------------------
 
@@ -36,19 +40,25 @@ class Settings extends Base
      */
     public static function announce()
     {
-        $oNavGroup = Factory::factory('Nav', Constants::MODULE_SLUG);
-        $oNavGroup->setLabel('Settings');
-        $oNavGroup->setIcon('fa-wrench');
+        /** @var Nav $oNav */
+        $oNav = Factory::factory('Nav', Constants::MODULE_SLUG);
+        $oNav
+            ->setLabel('Settings')
+            ->setIcon('fa-wrench');
 
-        if (userHasPermission('admin:admin:settings:admin:.*')) {
-            $oNavGroup->addAction('Admin', 'admin');
+        static::discoverSettings();
+
+        foreach (static::$aSettings as $sSlug => $oSetting) {
+
+            //  @todo (Pablo 2021-03-24) - check for permissions
+
+            $oNav->addAction(
+                $oSetting->label,
+                'index?setting=' . $sSlug
+            );
         }
 
-        if (userHasPermission('admin:admin:settings:site:.*')) {
-            $oNavGroup->addAction('Site', 'site');
-        }
-
-        return $oNavGroup;
+        return $oNav;
     }
 
     // --------------------------------------------------------------------------
@@ -62,11 +72,7 @@ class Settings extends Base
     {
         $aPermissions = parent::permissions();
 
-        $aPermissions['admin:branding']   = 'Configure Admin Branding';
-        $aPermissions['admin:whitelist']  = 'Configure Admn Whitelist';
-        $aPermissions['site:customjscss'] = 'Configure Site Custom JS and CSS';
-        $aPermissions['site:analytics']   = 'Configure Site analytics';
-        $aPermissions['site:maintenance'] = 'Configure Maintenance Mode';
+        //  @todo (Pablo 2021-03-24) - offer permissions for each setting
 
         return $aPermissions;
     }
@@ -74,379 +80,191 @@ class Settings extends Base
     // --------------------------------------------------------------------------
 
     /**
-     * Manage Admin settings
+     * Discovers component settings classes
      *
-     * @return void
+     * @throws NailsException
      */
-    public function admin()
+    protected static function discoverSettings(): void
     {
-        if (!userHasPermission('admin:admin:settings:admin:.*')) {
-            unauthorised();
-        }
+        if (empty(static::$aSettings)) {
+            foreach (Components::available() as $oComponent) {
 
-        // --------------------------------------------------------------------------
+                $aClasses = $oComponent
+                    ->findClasses('Settings')
+                    ->whichImplement(Interfaces\Component\Settings::class);
 
-        $oInput = Factory::service('Input');
-        if ($oInput->post()) {
+                foreach ($aClasses as $sClass) {
 
-            $aSettings = [];
+                    /** @var Interfaces\Component\Settings $oClass */
+                    $oClass = new $sClass();
+                    $sSlug  = md5($sClass);
 
-            if (userHasPermission('admin:admin:settings:admin:branding')) {
-                $aSettings['primary_colour']   = $oInput->post('primary_colour');
-                $aSettings['secondary_colour'] = $oInput->post('secondary_colour');
-                $aSettings['highlight_colour'] = $oInput->post('highlight_colour');
-            }
-
-            if (userHasPermission('admin:admin:settings:admin:branding')) {
-                $aSettings['whitelist'] = $this->prepareWhitelist($oInput->post('whitelist'));
-            }
-
-            if (!empty($aSettings)) {
-
-                $oAppSettingService = Factory::service('AppSetting');
-                if ($oAppSettingService->set($aSettings, 'admin')) {
-                    $this->data['success'] = 'Admin settings have been saved.';
-                } else {
-                    $this->data['error'] = 'There was a problem saving admin settings.';
+                    static::$aSettings[$sSlug] = (object) [
+                        'label'     => $oClass->getLabel(),
+                        'slug'      => md5($sClass),
+                        'instance'  => $oClass,
+                        'component' => $oComponent,
+                    ];
                 }
-
-            } else {
-                $this->data['message'] = 'No settings to save.';
             }
+
+            arraySortMulti(static::$aSettings, 'label');
         }
-
-        // --------------------------------------------------------------------------
-
-        //  Get data
-        $this->data['settings'] = appSetting(null, 'admin', null, true);
-
-        // --------------------------------------------------------------------------
-
-        //  Set page title
-        $this->data['page']->title = 'Settings &rsaquo; Admin';
-
-        // --------------------------------------------------------------------------
-
-        //  Load assets
-        $oAsset = Factory::service('Asset');
-        $oAsset->load('nails.admin.settings.min.js', 'NAILS');
-
-        // --------------------------------------------------------------------------
-
-        //  Load views
-        Helper::loadView('admin');
     }
 
     // --------------------------------------------------------------------------
 
-    /**
-     * Manage Site settings
-     *
-     * @return void
-     */
-    public function site()
+    public function index()
     {
-        if (!userHasPermission('admin:admin:settings:site:.*')) {
-            unauthorised();
-        }
-
-        // --------------------------------------------------------------------------
-
+        /** @var Input $oInput */
         $oInput = Factory::service('Input');
-        if ($oInput->post()) {
+        /** @var FormValidation $oFormValidation */
+        $oFormValidation = Factory::service('FormValidation');
+        /** @var Session $oSession */
+        $oSession = Factory::service('Session');
 
-            $aSettings = [];
+        static::discoverSettings();
 
-            if (userHasPermission('admin:admin:settings:site:customjscss')) {
-                $aSettings['site_custom_js']     = $oInput->post('site_custom_js');
-                $aSettings['site_custom_css']    = $oInput->post('site_custom_css');
-                $aSettings['site_custom_markup'] = $oInput->post('site_custom_markup');
-            }
-
-            if (userHasPermission('admin:admin:settings:site:analytics')) {
-                $aSettings['google_analytics_account'] = $oInput->post('google_analytics_account');
-            }
-
-            if (userHasPermission('admin:admin:settings:site:maintenance')) {
-                $sRawIPs                                 = $oInput->post('maintenance_mode_whitelist');
-                $aSettings['maintenance_mode_enabled']   = (bool) $oInput->post('maintenance_mode_enabled');
-                $aSettings['maintenance_mode_whitelist'] = $this->prepareWhitelist($sRawIPs);
-                $aSettings['maintenance_mode_title']     = $oInput->post('maintenance_mode_title');
-                $aSettings['maintenance_mode_body']      = $oInput->post('maintenance_mode_body');
-            }
-
-            if (!empty($aSettings)) {
-
-                $oAppSettingService = Factory::service('AppSetting');
-                if ($oAppSettingService->set($aSettings, 'site')) {
-                    $this->data['success'] = 'Site settings have been saved.';
-                } else {
-                    $this->data['error'] = 'There was a problem saving site settings.';
-                }
-
-            } else {
-                $this->data['message'] = 'No settings to save.';
-            }
-        }
-
-        // --------------------------------------------------------------------------
-
-        //  Get data
-        $this->data['settings'] = appSetting(null, 'site', null, true);
-
-        // --------------------------------------------------------------------------
-
-        //  Set page title
-        $this->data['page']->title = 'Settings &rsaquo; Site';
-
-        // --------------------------------------------------------------------------
-
-        //  Load assets
-        $oAsset = Factory::service('Asset');
-        $oAsset->load('nails.admin.settings.min.js', 'NAILS');
-        $oAsset->load('nails.admin.admin.settings.min.js', 'NAILS');
-
-        // --------------------------------------------------------------------------
-
-        //  Load views
-        Helper::loadView('site');
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Takes a multi line input and converts it into an array
-     *
-     * @param string $sInput The input string
-     *
-     * @return array
-     */
-    protected function prepareWhitelist($sInput)
-    {
-        $sWhitelistRaw = $sInput;
-        $sWhitelistRaw = str_replace("\n\r", "\n", $sWhitelistRaw);
-        $aWhitelistRaw = explode("\n", $sWhitelistRaw);
-        $aWhitelist    = [];
-
-        foreach ($aWhitelistRaw as $sLine) {
-            $aWhitelist = array_merge(explode(',', $sLine), $aWhitelist);
-        }
-
-        $aWhitelist = array_unique($aWhitelist);
-        $aWhitelist = array_filter($aWhitelist);
-        $aWhitelist = array_map('trim', $aWhitelist);
-        $aWhitelist = array_values($aWhitelist);
-
-        return $aWhitelist;
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Configure modules which have settings described in their composer.json/config.json file
-     *
-     * @return void
-     */
-    public function module()
-    {
-        $this->component('Module');
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Configure skins which have settings described in their composer.json/config.json file
-     *
-     * @return void
-     */
-    public function skin()
-    {
-        $this->component('Skin');
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Configure drivers which have settings described in their composer.json/config.json file
-     *
-     * @return void
-     */
-    public function driver()
-    {
-        $this->component('Driver');
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Configure components which have settings described in their composer.json/config.json file
-     *
-     * @param string $sType The type of component
-     *
-     * @return void
-     */
-    public function component($sType = 'component')
-    {
-        $oInput             = Factory::service('Input');
-        $this->data['slug'] = $oInput->get('slug');
-
-        $oComponent = Components::getBySlug($this->data['slug']);
-
-        if (empty($oComponent->data->settings)) {
+        $oSetting = static::$aSettings[$oInput->get('setting')] ?? null;
+        if (empty($oSetting)) {
             show404();
-        }
 
-        //  Move all the settings which aren't already in fieldsets/groups into groups
-        $this->data['aFieldsets'] = [];
-        $this->aFields            = [];
-        $this->extractFieldsets($oComponent->slug, $oComponent->data->settings);
-        $this->data['aFieldsets'] = array_values($this->data['aFieldsets']);
+        } elseif ($oInput->post()) {
+            try {
 
-        if ($oInput->post()) {
+                $oFormValidation
+                    ->buildValidator(array_combine(
+                        array_map(function (Components\Setting $oField) {
+                            return $oField->getKey();
+                        }, $oSetting->instance->get()),
+                        array_map(function (Components\Setting $oField) {
+                            return $oField->getValidation();
+                        }, $oSetting->instance->get())
+                    ))
+                    ->run();
 
-            //  Validate
-            $oFormValidation = Factory::service('FormValidation');
-            $aRules          = [];
+                /** @var Components\Setting $oField */
+                foreach ($oSetting->instance->get() as $oField) {
+                    if (!$oField->isReadOnly()) {
 
-            foreach ($this->aFields as $oField) {
+                        $mValue     = $oInput->post($oField->getKey());
+                        $cFormatter = $oField->getSaveFormatter();
+                        if ($cFormatter !== null) {
+                            $mValue = call_user_func($cFormatter, $mValue);
+                        }
 
-                $aFieldRule   = ['trim'];
-                $aFieldRule[] = !empty($oField->required) ? 'required' : '';
-
-                if (!empty($oField->validation_rules)) {
-                    $aFieldRule = array_merge($aFieldRule, explode('|', $oField->validation_rules));
-                }
-
-                $aFieldRule = array_filter($aFieldRule);
-                $aFieldRule = array_unique($aFieldRule);
-
-                $aRules[] = [
-                    'field' => $oField->key,
-                    'label' => $oField->label,
-                    'rules' => implode('|', $aFieldRule),
-                ];
-            }
-
-            $oFormValidation->set_rules($aRules);
-
-            if ($oFormValidation->run()) {
-
-                $aSettings          = [];
-                $aSettingsEncrypted = [];
-
-                foreach ($this->aFields as $oField) {
-
-                    //  @todo respect data types
-
-                    //  Encrypted or not?
-                    if (!empty($oField->encrypted)) {
-                        $aSettingsEncrypted[$oField->key] = $oInput->post($oField->key);
-                    } else {
-                        $aSettings[$oField->key] = $oInput->post($oField->key);
+                        setAppSetting(
+                            $this->normaliseKey($oField->getKey()),
+                            $oSetting->component->slug,
+                            $mValue,
+                            $oField->isEncrypted()
+                        );
                     }
                 }
 
-                //  Begin transaction
-                $oAppSettingService = Factory::service('AppSetting');
-                $oDb                = Factory::service('Database');
-                $oDb->transaction()->start();
+                $oSession->setFlashData('success', sprintf(
+                    '%s settings saved',
+                    $oSetting->label
+                ));
 
-                //  Normal settings
-                if (!$oAppSettingService->set($aSettings, $oComponent->slug)) {
-                    $sError = $oAppSettingService->lastError();
-                }
+                redirect($this->compileFormUrl($oSetting));
 
-                //  Encrypted settings
-                if (!$oAppSettingService->set($aSettingsEncrypted, $oComponent->slug, null, true)) {
-                    $sError = $oAppSettingService->lastError();
-                }
-
-                if (empty($sError)) {
-                    $oDb->transaction()->commit();
-                    $this->data['success'] = $sType . ' settings were saved.';
-                } else {
-                    $oDb->transaction()->rollback();
-                    $this->data['error'] = 'There was a problem saving shop settings. ' . $sError;
-                }
-
-            } else {
-                $this->data['error'] = lang('fv_there_were_errors');
+            } catch (ValidationException $e) {
+                $this->data['error'] = $e->getMessage();
             }
         }
 
-        // --------------------------------------------------------------------------
+        $this->data['page']->title = 'Manage Settings &rsaquo; ' . $oSetting->label;
+        $this->data['sFormUrl']    = $this->compileFormUrl($oSetting);
+        $this->data['oComponent']  = $oSetting->component;
+        $this->data['oSetting']    = $oSetting->instance;
+        $this->data['aFieldSets']  = $this->compileFieldSets(
+            $this->getSettingsWithDefaults(
+                $oSetting->instance,
+                $oSetting->component
+            )
+        );
 
-        //  Get all the settings for this component
-        $this->data['settings'] = appSetting(null, $oComponent->slug);
+        Helper::loadView('index');
+    }
 
-        // --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
 
-        $this->data['page']->title = 'Configure ' . $sType . ' &rsaquo; ' . $oComponent->name;
-
-        // --------------------------------------------------------------------------
-
-        Helper::loadView('component');
+    protected function compileFormUrl(\stdClass $oSetting)
+    {
+        return siteUrl(uri_String() . '?setting=' . $oSetting->slug);
     }
 
     // --------------------------------------------------------------------------
 
     /**
-     * Recursively gets all the settings from the settings array
+     * Compiles the fields into their relevant fieldsets
      *
-     * @param string $sComponentSlug The component's slug
-     * @param array  $aSettings      The array of fieldsets and/or settings
-     * @param int    $iFieldSetIndex The index of the fieldset
+     * @param array $aSettings
+     *
+     * @return array
      */
-    protected function extractFieldsets($sComponentSlug, $aSettings, $iFieldSetIndex = 0)
+    protected function compileFieldSets(array $aSettings): array
     {
+        $aFieldSets = [];
+
+        /** @var Components\Setting $oSetting */
         foreach ($aSettings as $oSetting) {
 
-            //  If the object contains a `fields` property then consider this a fieldset and inception
-            if (isset($oSetting->fields)) {
+            $sFieldSet = $oSetting->getFieldset();
+            if (!array_key_exists($sFieldSet, $aFieldSets)) {
+                $aFieldSets[$sFieldSet] = [];
+            }
 
-                $iFieldSetIndex++;
+            $aFieldSets[$sFieldSet][] = $oSetting;
+        }
 
-                if (!isset($this->data['aFieldsets'][$iFieldSetIndex])) {
-                    $this->data['aFieldsets'][$iFieldSetIndex] = [
-                        'legend' => $oSetting->legend,
-                        'fields' => [],
-                    ];
-                }
+        return $aFieldSets;
+    }
 
-                $this->extractFieldsets($sComponentSlug, $oSetting->fields, $iFieldSetIndex);
+    // --------------------------------------------------------------------------
 
-            } else {
+    /**
+     * @param Interfaces\Component\Settings $oSettings
+     * @param Component                     $oComponent
+     *
+     * @return array
+     * @throws FactoryException
+     */
+    protected function getSettingsWithDefaults(Interfaces\Component\Settings $oSettings, Component $oComponent): array
+    {
+        $aSettings = $oSettings->get();
+        foreach ($aSettings as $oSetting) {
 
-                if (!isset($this->data['aFieldsets'][$iFieldSetIndex])) {
-                    $this->data['aFieldsets'][$iFieldSetIndex] = [
-                        'legend' => 'Generic',
-                        'fields' => [],
-                    ];
-                }
+            $mValue = appSetting(
+                $this->normaliseKey($oSetting->getKey()),
+                $oComponent->slug
+            );
 
-                /** @var Setting $oField */
-                $oField = Factory::factory('Setting', Constants::MODULE_SLUG);
-                $oField
-                    ->setKey($oSetting->key)
-                    ->setLabel($oSetting->label)
-                    ->setEncrypted($oSetting->encrypted ?? false)
-                    ->setType($oSetting->type ?? Form::FIELD_TEXT)
-                    ->setValidation($oSetting->validation ?? [])
-                    ->setOptions($oSetting->options ?? [])
-                    ->setMaxLength($oSetting->max_length ?? null)
-                    ->setDefault($oSetting->default ?? null)
-                    ->setClass($oSetting->class ?? '')
-                    ->setInfo($oSetting->info ?? '')
-                    ->setData($oSetting->data ?? []);
+            $cFormatter = $oSetting->getRenderFormatter();
+            if ($cFormatter !== null) {
+                $mValue = call_user_func($cFormatter, $mValue);
+            }
 
-                $sValue = appSetting($oSetting->key, $sComponentSlug);
-                if (!is_null($sValue)) {
-                    $oField->setDefault($sValue);
-                }
-
-                $this->data['aFieldsets'][$iFieldSetIndex]['fields'][] = $oField;
-                $this->aFields[]                                       = $oField;
+            if (!is_null($mValue)) {
+                $oSetting->setDefault($mValue);
             }
         }
+
+        return $aSettings;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Trailing square brackets are a quirk of the form validation system and should be removed for lookup
+     *
+     * @param string $sKey
+     *
+     * @return string
+     */
+    protected function normaliseKey(string $sKey): string
+    {
+        return preg_replace('/\[\]$/', '', $sKey);
     }
 }
