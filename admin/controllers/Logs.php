@@ -113,7 +113,7 @@ class Logs extends Base
         $oAsset = Factory::service('Asset');
         $oAsset
             ->library('MUSTACHE')
-            ->load('nails.admin.logs.site.min.js', Constants::MODULE_SLUG);
+            ->load('admin.logs.site.min.js', Constants::MODULE_SLUG);
 
         Helper::loadView('site/index');
     }
