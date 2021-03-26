@@ -77,3 +77,10 @@
         }
     }
 }
+
+//  Extra additions, not included by default
+
+//  Hide close button in dialogs
+.no-close .ui-dialog-titlebar-close {
+    display: none;
+}
