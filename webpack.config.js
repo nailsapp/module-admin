@@ -1,11 +1,13 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('path');
 
-
 module.exports = {
-    entry: './assets/js/admin.js',
+    entry: {
+        'admin': './assets/js/admin.js',
+        'admin.print': './assets/js/admin.print.js',
+    },
     output: {
-        filename: 'admin.min.js',
+        filename: '[name].min.js',
         path: path.resolve(__dirname, 'assets/js/')
     },
     module: {
@@ -28,8 +30,8 @@ module.exports = {
     },
     plugins: [
         new MiniCssExtractPlugin({
-            filename: '../css/admin.min.css'
-        })
+            filename: '../css/[name].min.css'
+        }),
     ],
     mode: 'production'
 };
