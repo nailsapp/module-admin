@@ -248,7 +248,7 @@ class Utilities extends Base
 
         //  Load assets
         $oAsset = Factory::service('Asset');
-        $oAsset->load('nails.admin.export.min.js', 'NAILS');
+        $oAsset->load('nails.admin.export.min.js', \Nails\Asset\Constants::MODULE_SLUG);
 
         //  Load views
         Helper::loadView('export/index');

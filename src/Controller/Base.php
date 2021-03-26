@@ -89,6 +89,7 @@ abstract class Base extends BaseMiddle
         //  @todo (Pablo - 2017-06-08) - Try and reduce the number of things being loaded, or theme it
         $this
             ->loadLibraries()
+            ->loadCss()
             ->loadJs()
             ->autoLoad();
 
@@ -162,6 +163,18 @@ abstract class Base extends BaseMiddle
 
     // --------------------------------------------------------------------------
 
+    protected function loadCss(): self
+    {
+        /** @var Asset $oAsset */
+        $oAsset = Factory::service('Asset');
+        $oAsset
+            ->load('admin.min.css', Constants::MODULE_SLUG);
+
+        return $this;
+    }
+
+    // --------------------------------------------------------------------------
+
     /**
      * Load all Admin orientated JS
      *
@@ -172,8 +185,9 @@ abstract class Base extends BaseMiddle
         /** @var Asset $oAsset */
         $oAsset = Factory::service('Asset');
         $oAsset
-            ->load('nails.admin.min.js', 'NAILS')
-            ->load('nails.forms.min.js', 'NAILS');
+            ->load('admin.min.js', Constants::MODULE_SLUG)
+            ->load('nails.admin.min.js', \Nails\Asset\Constants::MODULE_SLUG)
+            ->load('nails.forms.min.js', \Nails\Asset\Constants::MODULE_SLUG);
 
         //  Inline assets
         $aJs = [
@@ -220,9 +234,9 @@ abstract class Base extends BaseMiddle
             ->load('https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/css/jquery.fancybox.min.css')
 
             //  jQuery Toggles
-            ->load('https://raw.githubusercontent.com/simontabor/jquery-toggles/master/toggles.min.js')
-            ->load('https://raw.githubusercontent.com/simontabor/jquery-toggles/master/css/toggles.css')
-            ->load('https://raw.githubusercontent.com/simontabor/jquery-toggles/master/css/themes/toggles-modern.css')
+            ->load('https://cdn.jsdelivr.net/gh/simontabor/jquery-toggles/toggles.min.js')
+            ->load('https://cdn.jsdelivr.net/gh/simontabor/jquery-toggles/css/toggles.css')
+            ->load('https://cdn.jsdelivr.net/gh/simontabor/jquery-toggles/css/themes/toggles-modern.css')
 
             //  jQuery serializeObject
             ->load('https://cdnjs.cloudflare.com/ajax/libs/jquery-serialize-object/2.5.0/jquery.serialize-object.min.js')
@@ -241,7 +255,7 @@ abstract class Base extends BaseMiddle
             ->load('https://cdnjs.cloudflare.com/ajax/libs/retina.js/1.3.0/retina.min.js')
 
             //  Bootstrap
-            ->load('https://raw.githubusercontent.com/twbs/bootstrap/v3.3.7/js/dropdown.js')
+            ->load('https://cdn.jsdelivr.net/gh/twbs/bootstrap@v3.3.7/js/dropdown.js')
 
             //  Fontawesome
             ->load('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css')
