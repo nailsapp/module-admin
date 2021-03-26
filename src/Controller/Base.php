@@ -211,31 +211,42 @@ abstract class Base extends BaseMiddle
         /** @var Asset $oAsset */
         $oAsset = Factory::service('Asset');
         $oAsset
+
             //  jQuery
-            ->load('jquery/dist/jquery.min.js', 'NAILS-BOWER')
+            ->load('https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js')
+
             //  Fancybox
-            ->load('fancybox/source/jquery.fancybox.pack.js', 'NAILS-BOWER')
-            ->load('fancybox/source/jquery.fancybox.css', 'NAILS-BOWER')
+            ->load('https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js')
+            ->load('https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/css/jquery.fancybox.min.css')
+
             //  jQuery Toggles
-            ->load('jquery-toggles/toggles.min.js', 'NAILS-BOWER')
-            ->load('jquery-toggles/css/toggles.css', 'NAILS-BOWER')
-            ->load('jquery-toggles/css/themes/toggles-modern.css', 'NAILS-BOWER')
+            ->load('https://raw.githubusercontent.com/simontabor/jquery-toggles/master/toggles.min.js')
+            ->load('https://raw.githubusercontent.com/simontabor/jquery-toggles/master/css/toggles.css')
+            ->load('https://raw.githubusercontent.com/simontabor/jquery-toggles/master/css/themes/toggles-modern.css')
+
             //  jQuery serializeObject
-            ->load('jquery-serialize-object/dist/jquery.serialize-object.min.js', 'NAILS-BOWER')
-            //  Tipsy
-            ->load('tipsy/src/javascripts/jquery.tipsy.js', 'NAILS-BOWER')
-            ->load('tipsy/src/stylesheets/tipsy.css', 'NAILS-BOWER')
-            //  scrollTo
-            ->load('jquery.scrollTo/jquery.scrollTo.min.js', 'NAILS-BOWER')
+            ->load('https://cdnjs.cloudflare.com/ajax/libs/jquery-serialize-object/2.5.0/jquery.serialize-object.min.js')
+
+            //  jQuery scrollTo
+            ->load('https://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/1.4.14/jquery.scrollTo.min.js')
+
             //  jQuery Cookies
-            ->load('jquery-cookie/jquery.cookie.js', 'NAILS-BOWER')
+            ->load('https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js')
+
+            //  Tipsy
+            ->load('https://cdnjs.cloudflare.com/ajax/libs/jquery.tipsy/1.0.3/jquery.tipsy.min.js')
+            ->load('https://cdnjs.cloudflare.com/ajax/libs/jquery.tipsy/1.0.3/jquery.tipsy.css')
+
             //  Retina.js
-            ->load('retina.js/dist/retina.min.js', 'NAILS-BOWER')
+            ->load('https://cdnjs.cloudflare.com/ajax/libs/retina.js/1.3.0/retina.min.js')
+
             //  Bootstrap
-            ->load('bootstrap/js/dropdown.js', 'NAILS-BOWER')
+            ->load('https://raw.githubusercontent.com/twbs/bootstrap/v3.3.7/js/dropdown.js')
+
             //  Fontawesome
-            ->load('fontawesome/css/fontawesome.css', 'NAILS-BOWER')
-            ->load('fontawesome/css/solid.css', 'NAILS-BOWER')
+            ->load('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css')
+            ->load('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css')
+
             //  Asset libraries
             ->library('jqueryui')
             ->library('select2')
