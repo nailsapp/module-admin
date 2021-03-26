@@ -111,9 +111,9 @@ class Logs extends Base
 
         /** @var Asset $oAsset */
         $oAsset = Factory::service('Asset');
-        $oAsset->library('MUSTACHE');
-        $oAsset->load('nails.admin.logs.site.min.js', \Nails\Asset\Constants::MODULE_SLUG);
-        $oAsset->inline('logsSite = new NAILS_Admin_Logs_Site();', 'JS');
+        $oAsset
+            ->library('MUSTACHE')
+            ->load('nails.admin.logs.site.min.js', Constants::MODULE_SLUG);
 
         Helper::loadView('site/index');
     }

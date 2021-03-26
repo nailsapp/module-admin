@@ -5,6 +5,9 @@ module.exports = {
     entry: {
         'admin': './assets/js/admin.js',
         'admin.print': './assets/js/admin.print.js',
+        'admin.legacy': './assets/js/admin.legacy.js',
+        'admin.forms': './assets/js/admin.forms.js',
+        'admin.logs.site': './assets/js/admin.logs.site.js'
     },
     output: {
         filename: '[name].min.js',

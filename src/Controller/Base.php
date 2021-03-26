@@ -186,8 +186,8 @@ abstract class Base extends BaseMiddle
         $oAsset = Factory::service('Asset');
         $oAsset
             ->load('admin.min.js', Constants::MODULE_SLUG)
-            ->load('nails.admin.min.js', \Nails\Asset\Constants::MODULE_SLUG)
-            ->load('nails.forms.min.js', \Nails\Asset\Constants::MODULE_SLUG);
+            ->load('admin.legacy.min.js', Constants::MODULE_SLUG)
+            ->load('admin.forms.min.js', Constants::MODULE_SLUG);
 
         //  Inline assets
         $aJs = [
