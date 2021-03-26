@@ -13,6 +13,9 @@
             'required' => true,
             'class'    => 'select2',
             'options'  => [],
+            'data'     => [
+                'revealer' => 'data-export',
+            ],
         ];
 
         $aOptions = [];
@@ -31,7 +34,7 @@
             continue;
         }
         ?>
-        <fieldset class="js-options hidden" data-slug="<?=$oSource->slug?>">
+        <fieldset data-revealer="data-export" data-reveal-on="<?=$oSource->slug?>">
             <legend>Options</legend>
             <?php
 
