@@ -49,8 +49,7 @@ class Settings extends Base
         static::discoverSettings();
 
         foreach (static::$aSettings as $sSlug => $oSetting) {
-
-            if (userHasPermission('admin:admin:settings:' . $oSetting->slug)) {
+            if (static::userHasPermission($oSetting)) {
 
                 $oNav->addAction(
                     $oSetting->label,
@@ -132,7 +131,8 @@ class Settings extends Base
 
                     /** @var Interfaces\Component\Settings $oClass */
                     $oClass = new $sClass();
-                    $sSlug  = md5($sClass);
+                    // Remove leading backslash as calls to ::class don't have leading slashes
+                    $sSlug = md5(preg_replace('/^\\\\/', '', $sClass));
 
                     static::$aSettings[$sSlug] = (object) [
                         'label'     => $oClass->getLabel(),
@@ -170,7 +170,7 @@ class Settings extends Base
         if (empty($oSetting)) {
             show404();
 
-        } elseif (!userHasPermission('admin:admin:settings:' . $oSetting->slug)) {
+        } elseif (!static::userHasPermission($oSetting)) {
             unauthorised();
 
         } elseif ($oInput->post()) {
@@ -230,6 +230,21 @@ class Settings extends Base
         );
 
         Helper::loadView('index');
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Determines whether the user has permission to access a aprticular setting
+     *
+     * @param \stdClass $oSetting
+     *
+     * @return bool
+     */
+    protected static function userHasPermission(\stdClass $oSetting): bool
+    {
+        return userHasPermission('admin:admin:settings:' . $oSetting->slug)
+            || userHasPermission('admin:admin:settings:' . $oSetting->slug . ':*');
     }
 
     // --------------------------------------------------------------------------

@@ -2,9 +2,11 @@
 
 namespace Nails\Admin\Settings;
 
+use Nails\Common\Exception\FactoryException;
 use Nails\Common\Helper\Form;
 use Nails\Common\Interfaces;
 use Nails\Common\Service\Input;
+use Nails\Components;
 use Nails\Components\Setting;
 use Nails\Factory;
 
@@ -41,7 +43,9 @@ class Site implements Interfaces\Component\Settings
      */
     public function getPermissions(): array
     {
-        return [];
+        return [
+            'maintenance' => 'Maintenance Mode',
+        ];
     }
 
     // --------------------------------------------------------------------------
@@ -51,8 +55,26 @@ class Site implements Interfaces\Component\Settings
      */
     public function get(): array
     {
-        /** @var Input $oInput */
-        $oInput = \Nails\Factory::service('Input');
+        return array_merge(
+            $this->getSettingsCustomJsCss(),
+            $this->getSettingsGoogleAnalytics(),
+            $this->getSettingsMaintenance(),
+        );
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Get Custom JS & CSS settings
+     *
+     * @return Setting[]
+     * @throws FactoryException
+     */
+    protected function getSettingsCustomJsCss(): array
+    {
+        if (!$this->userHasPermission()) {
+            return [];
+        }
 
         /** @var Setting $oCustomJs */
         $oCustomJs = Factory::factory('ComponentSetting');
@@ -83,6 +105,27 @@ class Site implements Interfaces\Component\Settings
             ->setFieldset('Custom JS & CSS')
             ->setPlaceholder('Specify any custom markup to include at the foot of the page');
 
+        return [
+            $oCustomJs,
+            $oCustomCss,
+            $oCustomMarkup,
+        ];
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Get Google Analytics Settings
+     *
+     * @return Setting[]
+     * @throws FactoryException
+     */
+    protected function getSettingsGoogleAnalytics(): array
+    {
+        if (!$this->userHasPermission()) {
+            return [];
+        }
+
         /** @var Setting $oGoogleAnalytics */
         $oGoogleAnalytics = Factory::factory('ComponentSetting');
         $oGoogleAnalytics
@@ -90,6 +133,28 @@ class Site implements Interfaces\Component\Settings
             ->setLabel('Profile ID')
             ->setFieldset('Google Analytics')
             ->setPlaceholder('UA-XXXXX-YY');
+
+        return [
+            $oGoogleAnalytics,
+        ];
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Get Maintenance Mode Settings
+     *
+     * @return Setting[]
+     * @throws FactoryException
+     */
+    protected function getSettingsMaintenance(): array
+    {
+        if (!$this->userHasPermission('maintenance')) {
+            return [];
+        }
+
+        /** @var Input $oInput */
+        $oInput = \Nails\Factory::service('Input');
 
         /** @var Setting $oMaintenanceEnabled */
         $oMaintenanceEnabled = Factory::factory('ComponentSetting');
@@ -114,7 +179,7 @@ class Site implements Interfaces\Component\Settings
             ->setPlaceholder('Specify IP addresses to whitelist either comma seperated or on new lines.')
             ->setInfo('Your current IP address is: <code>' . $oInput->ipAddress() . '</code>')
             ->setRenderFormatter(function ($mValue) {
-                return implode(PHP_EOL, $mValue);
+                return is_array($mValue) ? implode(PHP_EOL, $mValue) : '';
             })
             ->setSaveFormatter(function ($mValue) {
                 return $this->prepareWhitelist($mValue);
@@ -150,14 +215,28 @@ class Site implements Interfaces\Component\Settings
             ]);
 
         return [
-            $oCustomJs,
-            $oCustomCss,
-            $oCustomMarkup,
-            $oGoogleAnalytics,
             $oMaintenanceEnabled,
             $oMaintenanceWhitelist,
             $oMaintenanceTitle,
             $oMaintenanceBody,
         ];
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns whether a user has permission or not
+     *
+     * @param string|null $sPermission The additional permission to check
+     *
+     * @return bool
+     */
+    protected function userHasPermission(string $sPermission = null): bool
+    {
+        return userHasPermission(
+            $sPermission
+                ? 'admin:admin:settings:' . md5(static::class) . ':' . $sPermission
+                : 'admin:admin:settings:' . md5(static::class)
+        );
     }
 }
