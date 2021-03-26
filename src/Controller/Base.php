@@ -191,18 +191,6 @@ abstract class Base extends BaseMiddle
 
         //  Inline assets
         $aJs = [
-
-            //  @todo (Pablo - 2019-12-05) - Remove these items (move into module-admin/admin.js as components)
-            'var _nails_admin, _nails_forms;',
-
-            'if (typeof(NAILS_Admin) === "function"){',
-            '_nails_admin = new NAILS_Admin();',
-            '}',
-
-            'if (typeof(NAILS_Forms) === "function"){',
-            '_nails_forms = new NAILS_Forms();',
-            '}',
-
             //  Trigger a UI Refresh, most JS components should use this to bind to and render items
             'window.NAILS.ADMIN.refreshUi();',
         ];
