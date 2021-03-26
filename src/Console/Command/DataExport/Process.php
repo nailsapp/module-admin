@@ -118,7 +118,7 @@ class Process extends Base
             /** @var Success $oSuccessEmail */
             $oSuccessEmail = Factory::factory('EmailDataExportSuccess', Constants::MODULE_SLUG);
             /** @var Fail $oFailEmail */
-            $oFailEmail = Factory::factory('EmailDataExportSuccess', Constants::MODULE_SLUG);
+            $oFailEmail = Factory::factory('EmailDataExportFail', Constants::MODULE_SLUG);
 
             foreach ($aGroupedRequests as $oRequest) {
                 try {
