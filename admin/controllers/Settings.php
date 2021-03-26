@@ -94,10 +94,19 @@ class Settings extends Base
         foreach (static::$aSettings as $sSlug => $oSetting) {
 
             $aPermissions[$oSetting->slug] = sprintf(
-                'Can manage settings for %s (%s)',
+                'Can manage settings for %s <small><code>%s</code></small>',
                 $oSetting->label,
                 $oSetting->component->slug
             );
+
+            foreach ($oSetting->instance->getPermissions() as $sPermission => $sLabel) {
+                $aPermissions[$oSetting->slug . ':' . $sPermission] = sprintf(
+                    'Can manage settings for %s &rsaquo; %s <small><code>%s</code></small>',
+                    $oSetting->label,
+                    $sLabel,
+                    $oSetting->component->slug
+                );
+            }
         }
 
         return $aPermissions;
@@ -127,7 +136,7 @@ class Settings extends Base
 
                     static::$aSettings[$sSlug] = (object) [
                         'label'     => $oClass->getLabel(),
-                        'slug'      => md5($sClass),
+                        'slug'      => $sSlug,
                         'instance'  => $oClass,
                         'component' => $oComponent,
                     ];
@@ -140,6 +149,12 @@ class Settings extends Base
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Renders the settings page
+     *
+     * @throws FactoryException
+     * @throws NailsException
+     */
     public function index()
     {
         /** @var Input $oInput */
@@ -219,6 +234,13 @@ class Settings extends Base
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Compiles the form URL
+     *
+     * @param \stdClass $oSetting
+     *
+     * @return string
+     */
     protected function compileFormUrl(\stdClass $oSetting)
     {
         return siteUrl(uri_String() . '?setting=' . $oSetting->slug);
