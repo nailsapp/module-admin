@@ -28,7 +28,7 @@ module.exports = {
     },
     plugins: [
         new MiniCssExtractPlugin({
-            filename: '../css/admin.css'
+            filename: '../css/admin.min.css'
         })
     ],
     mode: 'production'

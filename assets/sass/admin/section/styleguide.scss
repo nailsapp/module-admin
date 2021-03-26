@@ -1,0 +1,21 @@
+.group-admin-styleguide {
+    > section {
+        margin-bottom: 3em;
+
+        > .title {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 1em;
+        }
+
+        > .description {
+            margin-bottom: 1em;
+        }
+
+        > .body {
+            border-top: 2px dashed #cccccc;
+            border-bottom: 2px dashed #cccccc;
+            padding: 2em 0;
+        }
+    }
+}

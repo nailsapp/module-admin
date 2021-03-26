@@ -1,0 +1,21 @@
+/* --------------------------------------------------------------
+   Nails Utilities Module Admin Styles
+-------------------------------------------------------------- */
+
+.group-utilities {
+    &.user-access {
+        .field {
+            min-height: 50px;
+
+            .label {
+                position: relative;
+
+                small {
+                    position: absolute;
+                    right: 17px;
+                    z-index: 999;
+                }
+            }
+        }
+    }
+}

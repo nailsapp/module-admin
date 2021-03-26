@@ -1,0 +1,57 @@
+/* --------------------------------------------------------------
+   Nails Logs Module Admin Styles
+-------------------------------------------------------------- */
+
+.group-logs {
+    &.sitelog {
+        table {
+            th.date {
+                min-width: 175px;
+            }
+
+            th.lines,
+            td.lines {
+                text-align: center;
+                width: 75px;
+            }
+
+            th.actions {
+                width: 75px;
+            }
+        }
+
+        &.view {
+            ol {
+                padding: 0;
+                margin: 0;
+                border: 1px solid #cccccc;
+                background: #ffffff;
+
+                li {
+                    padding: 0.25em 0.5em;
+                    margin: 0;
+                    font-family: monospace;
+                    border-bottom: 1px solid #efefef;
+                    margin-left: 0;
+                    list-style-position: inside;
+
+                    &:nth-child(even) {
+                        background: #fefefe;
+                    }
+
+                    &:hover {
+                        background: #efefef;
+                    }
+                }
+            }
+        }
+    }
+
+    &.events {
+        table {
+            th.actions {
+                width: 175px;
+            }
+        }
+    }
+}

@@ -58,7 +58,7 @@
             echo '</span>';
 
             echo '<span class="filterDropdown">';
-            echo '<select name="ddF[' . $iFilterIndex . ']">';
+            echo '<select name="ddF[' . $iFilterIndex . ']" class="select2">';
             foreach ($oFilter->getOptions() as $iOptionIndex => $oOption) {
 
                 //  Checked or not?
@@ -115,13 +115,13 @@
     // --------------------------------------------------------------------------
 
     echo '<hr />';
-    echo '<span style="padding-right: 1em;">';
+    echo '<span class="filterText">';
 
     if (!empty($sortColumns)) {
 
         //  Sort Column
         echo 'Sort results by';
-        echo form_dropdown('sortOn', $sortColumns, $sortOn);
+        echo form_dropdown('sortOn', $sortColumns, $sortOn, 'class="select2 filter--sort"');
 
     } else {
 
@@ -134,13 +134,13 @@
         'desc' => 'Descending',
     ];
 
-    echo form_dropdown('sortOrder', $options, $sortOrder);
+    echo form_dropdown('sortOrder', $options, $sortOrder, 'class="select2 filter--order"');
 
     echo '</span>';
 
     // --------------------------------------------------------------------------
 
-    echo '<span style="padding-right: 1em;">';
+    echo '<span class="filterText">';
 
     //  Results per page
     $options = [
@@ -152,7 +152,7 @@
     ];
 
     echo 'Show';
-    echo form_dropdown('perPage', $options, $perPage);
+    echo form_dropdown('perPage', $options, $perPage, 'class="select2 filter--per-page"');
     echo 'results per page.';
 
     echo '</span>';

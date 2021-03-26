@@ -90,7 +90,6 @@ abstract class Base extends BaseMiddle
         $this
             ->loadLibraries()
             ->loadJs()
-            ->loadCss()
             ->autoLoad();
 
         // --------------------------------------------------------------------------
@@ -173,7 +172,6 @@ abstract class Base extends BaseMiddle
         /** @var Asset $oAsset */
         $oAsset = Factory::service('Asset');
         $oAsset
-            ->load('admin.min.js', Constants::MODULE_SLUG)
             ->load('nails.admin.min.js', 'NAILS')
             ->load('nails.forms.min.js', 'NAILS');
 
@@ -200,23 +198,6 @@ abstract class Base extends BaseMiddle
         return $this;
     }
 
-    // --------------------------------------------------------------------------
-
-    /**
-     * Load all Admin orientated CSS
-     *
-     * @throws \Nails\Common\Exception\FactoryException
-     */
-    protected function loadCss(): self
-    {
-        /** @var Asset $oAsset */
-        $oAsset = Factory::service('Asset');
-        $oAsset
-            ->load('nails.admin.css', 'NAILS')
-            ->load('admin.css', Constants::MODULE_SLUG);
-
-        return $this;
-    }
 
     // --------------------------------------------------------------------------
 
