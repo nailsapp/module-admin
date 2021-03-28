@@ -58,6 +58,7 @@ _ADMIN_PROXY = function(vendor, slug, instances) {
                     ...arguments,
                 );
             }
+            return this;
         },
         'warn': function() {
             if (typeof (console.warn) === 'function') {
@@ -67,6 +68,7 @@ _ADMIN_PROXY = function(vendor, slug, instances) {
                     ...arguments
                 );
             }
+            return this;
         },
         'error': function() {
             if (typeof (console.error) === 'function') {
@@ -76,6 +78,7 @@ _ADMIN_PROXY = function(vendor, slug, instances) {
                     ...arguments
                 );
             }
+            return this;
         }
     }
 }
