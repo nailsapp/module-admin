@@ -70,7 +70,7 @@ class Create extends BaseMaker
 
         //  Cleaning up
         $oOutput->writeln('');
-        $oOutput->writeln('<comment>Cleaning up...</comment>');
+        $oOutput->writeln('<comment>Cleaning up</comment>...');
 
         // --------------------------------------------------------------------------
 
@@ -109,10 +109,10 @@ class Create extends BaseMaker
 
             $this->createFile($sPath, $this->getResource('template/data_export_source.php', $aFields));
             $aCreated[] = $sPath;
-            $this->oOutput->writeln('<info>done!</info>');
+            $this->oOutput->writeln('<info>done</info>');
 
         } catch (\Exception $e) {
-            $this->oOutput->writeln('<error>failed!</error>');
+            $this->oOutput->writeln('<error>fail</error>');
             throw new NailsException($e->getMessage());
         }
     }
