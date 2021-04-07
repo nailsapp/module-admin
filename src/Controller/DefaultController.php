@@ -1065,17 +1065,29 @@ abstract class DefaultController extends Base
                         ]);
 
                         foreach ($aItems as $oItem) {
-                            if (!$oModel->update($iId, ['order' => $iOrder], $oItem->locale)) {
+
+                            $oDb->set($oModel->getSortableColumn(), $iOrder);
+                            $oDb->where($oModel->getColumn('id'), $iId);
+                            $oDb->where($oModel->getLocaleLanguageColumn(), $oLocale->getLanguage());
+                            $oDb->where($oModel->getLocaleRegionColumn(), $oLocale->getRegion());
+
+                            if (!$oDb->update($oModel->getTableName())) {
                                 throw new NailsException(
                                     static::ORDER_ERROR_MESSAGE . ' ' . $oModel->lastError()
                                 );
                             }
                         }
 
-                    } elseif (!$oModel->update($iId, ['order' => $iOrder])) {
-                        throw new NailsException(
-                            static::ORDER_ERROR_MESSAGE . ' ' . $oModel->lastError()
-                        );
+                    } else {
+
+                        $oDb->set($oModel->getSortableColumn(), $iOrder);
+                        $oDb->where($oModel->getColumn('id'), $iId);
+
+                        if (!$oDb->update($oModel->getTableName())) {
+                            throw new NailsException(
+                                static::ORDER_ERROR_MESSAGE . ' ' . $oModel->lastError()
+                            );
+                        }
                     }
                 }
 
