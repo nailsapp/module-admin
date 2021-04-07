@@ -13,6 +13,7 @@
 namespace Nails\Admin\Controller;
 
 use Nails\Admin\Constants;
+use Nails\Admin\Factory\DefaultController\Sort\Section;
 use Nails\Admin\Factory\IndexFilter;
 use Nails\Admin\Factory\IndexFilter\Option;
 use Nails\Admin\Factory\Nav;
@@ -1094,10 +1095,58 @@ abstract class DefaultController extends Base
             }
         }
 
-        $aItems                    = $oModel->getAll($aConfig['SORT_DATA']);
-        $this->data['items']       = $aItems;
+        $aItems    = $this->getItemsToSort();
+        $aSections = $this->sortItemsIntoSections($aItems);
+
+        $this->data['aSections']   = $aSections;
         $this->data['page']->title = $aConfig['TITLE_PLURAL'] . ' &rsaquo; Sort';
         Helper::loadView('order');
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the items for the sort view
+     *
+     * @return array
+     */
+    protected function getItemsToSort(): array
+    {
+        $aConfig = $this->getConfig();
+        $oModel  = $this->getModel();
+
+        return $oModel->getAll($aConfig['SORT_DATA']);
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Sorts sorting items into sections, if they aren't already a section
+     *
+     * @param array $aItems
+     *
+     * @return $this
+     * @throws FactoryException
+     */
+    protected function sortItemsIntoSections(array $aItems): self
+    {
+        /** @var Section $oSection */
+        $oSection = Factory::factory('DefaultControllerSortSection', Constants::MODULE_SLUG);
+
+        //  Ensure each item is in a sort section
+        foreach ($aItems as $oItem) {
+            if (!$oItem instanceof Section) {
+                $oSection->addItem(clone $oItem);
+            } else {
+                $aSections[] = $oItem;
+            }
+        }
+
+        if (count($oSection->getItems())) {
+            $aSections[] = $oSection;
+        }
+
+        return $this;
     }
 
     // --------------------------------------------------------------------------

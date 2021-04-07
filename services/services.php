@@ -90,63 +90,70 @@ return [
         },
     ],
     'factories' => [
-        'EmailDataExportSuccess'   => function (): Factory\Email\DataExport\Success {
+        'DefaultControllerSortSection' => function (): Factory\DefaultController\Sort\Section {
+            if (class_exists('\App\Admin\Factory\Nav')) {
+                return new \App\Admin\Factory\DefaultController\Sort\Section();
+            } else {
+                return new Factory\DefaultController\Sort\Section();
+            }
+        },
+        'EmailDataExportSuccess'       => function (): Factory\Email\DataExport\Success {
             if (class_exists('\App\Admin\Factory\Email\DataExport\Success')) {
                 return new \App\Admin\Factory\Email\DataExport\Success();
             } else {
                 return new Factory\Email\DataExport\Success();
             }
         },
-        'EmailDataExportFail'      => function (): Factory\Email\DataExport\Fail {
+        'EmailDataExportFail'          => function (): Factory\Email\DataExport\Fail {
             if (class_exists('\App\Admin\Factory\Email\DataExport\Fail')) {
                 return new \App\Admin\Factory\Email\DataExport\Fail();
             } else {
                 return new Factory\Email\DataExport\Fail();
             }
         },
-        'Nav'                      => function (): Factory\Nav {
+        'Nav'                          => function (): Factory\Nav {
             if (class_exists('\App\Admin\Factory\Nav')) {
                 return new \App\Admin\Factory\Nav();
             } else {
                 return new Factory\Nav();
             }
         },
-        'NavAlert'                 => function (): Factory\Nav\Alert {
+        'NavAlert'                     => function (): Factory\Nav\Alert {
             if (class_exists('\App\Admin\Factory\Nav\Alert')) {
                 return new \App\Admin\Factory\Nav\Alert();
             } else {
                 return new Factory\Nav\Alert();
             }
         },
-        'DataExportSourceResponse' => function () {
+        'DataExportSourceResponse'     => function () {
             if (class_exists('\App\Admin\DataExport\SourceResponse')) {
                 return new \App\Admin\DataExport\SourceResponse();
             } else {
                 return new \Nails\Admin\DataExport\SourceResponse();
             }
         },
-        'IndexFilter'              => function (): Factory\IndexFilter {
+        'IndexFilter'                  => function (): Factory\IndexFilter {
             if (class_exists('\App\Admin\Factory\IndexFilter')) {
                 return new \App\Admin\Factory\IndexFilter();
             } else {
                 return new Factory\IndexFilter();
             }
         },
-        'IndexFilterOption'        => function (): Factory\IndexFilter\Option {
+        'IndexFilterOption'            => function (): Factory\IndexFilter\Option {
             if (class_exists('\App\Admin\Factory\IndexFilter\Option')) {
                 return new \App\Admin\Factory\IndexFilter\Option();
             } else {
                 return new Factory\IndexFilter\Option();
             }
         },
-        'ModelFieldDynamicTable'   => function (): Factory\Model\Field\DynamicTable {
+        'ModelFieldDynamicTable'       => function (): Factory\Model\Field\DynamicTable {
             if (class_exists('\App\Admin\Factory\Model\Field\DynamicTable')) {
                 return new \App\Admin\Factory\Model\Field\DynamicTable();
             } else {
                 return new Factory\Model\Field\DynamicTable();
             }
         },
-        'Setting'                  => function (): Factory\Setting {
+        'Setting'                      => function (): Factory\Setting {
             if (class_exists('\App\Admin\Factory\Setting')) {
                 return new \App\Admin\Factory\Setting();
             } else {
