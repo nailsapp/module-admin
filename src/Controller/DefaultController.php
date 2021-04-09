@@ -1125,10 +1125,10 @@ abstract class DefaultController extends Base
      *
      * @param array $aItems
      *
-     * @return $this
+     * @return Section[]
      * @throws FactoryException
      */
-    protected function sortItemsIntoSections(array $aItems): self
+    protected function sortItemsIntoSections(array $aItems): array
     {
         /** @var Section $oSection */
         $oSection = Factory::factory('DefaultControllerSortSection', Constants::MODULE_SLUG);
@@ -1146,7 +1146,7 @@ abstract class DefaultController extends Base
             $aSections[] = $oSection;
         }
 
-        return $this;
+        return $aSections;
     }
 
     // --------------------------------------------------------------------------
