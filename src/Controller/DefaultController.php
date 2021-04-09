@@ -1131,7 +1131,8 @@ abstract class DefaultController extends Base
     protected function sortItemsIntoSections(array $aItems): array
     {
         /** @var Section $oSection */
-        $oSection = Factory::factory('DefaultControllerSortSection', Constants::MODULE_SLUG);
+        $oSection  = Factory::factory('DefaultControllerSortSection', Constants::MODULE_SLUG);
+        $aSections = [];
 
         //  Ensure each item is in a sort section
         foreach ($aItems as $oItem) {
