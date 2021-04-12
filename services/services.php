@@ -90,11 +90,11 @@ return [
         },
     ],
     'factories' => [
-        'DefaultControllerSortSection' => function (): Factory\DefaultController\Sort\Section {
+        'DefaultControllerSortSection' => function (string $sLabel = '', array $aItems = []): Factory\DefaultController\Sort\Section {
             if (class_exists('\App\Admin\Factory\Nav')) {
-                return new \App\Admin\Factory\DefaultController\Sort\Section();
+                return new \App\Admin\Factory\DefaultController\Sort\Section($sLabel, $aItems);
             } else {
-                return new Factory\DefaultController\Sort\Section();
+                return new Factory\DefaultController\Sort\Section($sLabel, $aItems);
             }
         },
         'EmailDataExportSuccess'       => function (): Factory\Email\DataExport\Success {
