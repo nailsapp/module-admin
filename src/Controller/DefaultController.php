@@ -1065,14 +1065,14 @@ abstract class DefaultController extends Base
                         ]);
 
                         foreach ($aItems as $oItem) {
-                            if (!$oModel->skipUpdateTimestamp()->update($iId, ['order' => $iOrder], $oItem->locale)) {
+                            if (!$oModel->skipUpdateTimestamp()->update((int) $iId, ['order' => $iOrder], $oItem->locale)) {
                                 throw new NailsException(
                                     static::ORDER_ERROR_MESSAGE . ' ' . $oModel->lastError()
                                 );
                             }
                         }
 
-                    } elseif (!$oModel->skipUpdateTimestamp()->update($iId, ['order' => $iOrder])) {
+                    } elseif (!$oModel->skipUpdateTimestamp()->update((int) $iId, ['order' => $iOrder])) {
                         throw new NailsException(
                             static::ORDER_ERROR_MESSAGE . ' ' . $oModel->lastError()
                         );
