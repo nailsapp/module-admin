@@ -35,6 +35,7 @@ use Nails\Config;
         }
 
         ?>
+        <div id="dashboard-widgets"></div>
         <div class="dashboard-widgets">
             <?php
             foreach ($aWidgets as $oWidget) {

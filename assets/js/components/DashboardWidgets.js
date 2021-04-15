@@ -1,38 +1,48 @@
-/* export DashboardWidgets */
+import Grid from './Dashboard/Grid.vue';
 
-/* globals $, jQuery */
 class DashboardWidgets {
 
     /**
      * Construct DashboardWidgets
-     * @return {DashboardWidgets}
+     *
+     * @param {_ADMIN_PROXY} adminController
      */
     constructor(adminController) {
 
-        this.adminController = adminController;
-        this.adminController
-            .onRefreshUi((e, domElement) => {
-                this.init(this.adminController);
-            });
+        adminController.onRefreshUi(() => {
 
-        return this;
-    }
+            this.container = document.getElementById('dashboard-widgets');
 
-    // --------------------------------------------------------------------------
-
-    /**
-     * Inits DashboardWidgets
-     * @returns {DashboardWidgets}
-     */
-    init() {
-
-        $('.dashboard-widgets:not(.dashboard-widgets--initialised)')
-            .addClass('dashboard-widgets--initialised')
-            .each((index, element) => {
-                //  @todo (Pablo 26/02/2021) - Set up the draggables, adding etc
-            })
-        return this;
+            if (this.container) {
+                this.dashboard = new Instance(
+                    adminController,
+                    this.container
+                );
+            }
+        });
     }
 }
 
-export default DashboardWidgets;
+class Instance {
+
+    /**
+     * Construct Instance
+     *
+     * @param {_ADMIN_PROXY} adminController
+     * @param {Element} el
+     */
+    constructor(adminController, el) {
+
+        //  Class properties
+        this.adminController = adminController;
+        this.el = el;
+
+        //  Initialise Vue
+        this.vue = new window.Vue({
+            el: this.el,
+            render: h => h(Grid)
+        });
+    }
+}
+
+export default Dashboard;

@@ -16,6 +16,7 @@ use Nails\Admin\Constants;
 use Nails\Admin\Factory\Nav;
 use Nails\Admin\Interfaces\Dashboard\Alert;
 use Nails\Admin\Service\Dashboard\Widget;
+use Nails\Common\Service\Asset;
 use Nails\Components;
 use Nails\Factory;
 use Nails\Admin\Controller\Base;
@@ -54,6 +55,10 @@ class Dashboard extends Base
      */
     public function index()
     {
+        /** @var Asset $oAsset */
+        $oAsset = Factory::service('Asset');
+        $oAsset->load('https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js');
+
         $this->data['page']->title = 'Welcome';
         $this->data['aAlerts']     = $this->getDashboardAlerts();
         $this->data['aWidgets']    = $this->getWidgets();
