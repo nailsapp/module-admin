@@ -13,15 +13,6 @@ use Nails\Components;
  */
 class Widget
 {
-    /**
-     * The supported size of widgets
-     */
-    const SIZE_SMALL  = 'small';
-    const SIZE_MEDIUM = 'medium';
-    const SIZE_LARGE  = 'large';
-
-    // --------------------------------------------------------------------------
-
     /** @var string[] */
     protected $aWidgets = [];
 
@@ -92,10 +83,9 @@ class Widget
         foreach ($aWidgets as $sClass) {
 
             //  @todo (Pablo 25/02/2021) - These should come from the database
-            $sUserSize   = null;
             $aUserConfig = [];
 
-            $aOut[] = new $sClass($sUserSize, $aUserConfig);
+            $aOut[] = new $sClass($aUserConfig);
         }
 
         return $aOut;

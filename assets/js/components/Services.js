@@ -4,7 +4,7 @@ const services = {
     apiRequest(options) {
         let request = {
             method: options.method,
-            url: options.url,
+            url: `${window.SITE_URL}api/${options.url}`,
             [options.method === 'get' ? 'params' : 'data']: options.params ? options.params : options.data,
             headers: options.headers ? {[options.headers.key]: options.headers.value} : {}
         };

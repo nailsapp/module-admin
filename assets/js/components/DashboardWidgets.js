@@ -9,17 +9,18 @@ class DashboardWidgets {
      */
     constructor(adminController) {
 
-        adminController.onRefreshUi(() => {
+        adminController
+            .onRefreshUi(() => {
 
-            this.container = document.getElementById('dashboard-widgets');
+                this.container = document.getElementById('dashboard-widgets');
 
-            if (this.container) {
-                this.dashboard = new Instance(
-                    adminController,
-                    this.container
-                );
-            }
-        });
+                if (this.container) {
+                    this.dashboard = new Instance(
+                        adminController,
+                        this.container
+                    );
+                }
+            });
     }
 }
 
@@ -45,4 +46,4 @@ class Instance {
     }
 }
 
-export default Dashboard;
+export default DashboardWidgets;

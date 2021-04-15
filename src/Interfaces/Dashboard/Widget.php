@@ -14,10 +14,9 @@ interface Widget
     /**
      * Widget constructor.
      *
-     * @param string $sSize   The size the widget is configured to be
-     * @param array  $aConfig Any user specific configs
+     * @param array|null $aConfig Any user specific configs
      */
-    public function __construct(string $sSize, array $aConfig);
+    public function __construct(array $aConfig = null);
 
     // --------------------------------------------------------------------------
 
@@ -54,13 +53,4 @@ interface Widget
      * @return string
      */
     public function getConfig(): string;
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Gets the configured size of the widget
-     *
-     * @return string
-     */
-    public function getSize(): string;
 }

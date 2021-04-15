@@ -13,47 +13,23 @@ use Nails\Admin\Interfaces;
 abstract class Base implements Interfaces\Dashboard\Widget
 {
     /**
-     * Defines the default size for the widget when it's added to the UI
-     */
-    const DEFAULT_SIZE = Service\Dashboard\Widget::SIZE_SMALL;
-
-    /**
      * Whether to pad the body or not
      */
     const PAD_BODY = true;
 
-    // --------------------------------------------------------------------------
-
-    /** @var string|null */
-    protected $sSize;
-
     /** @var array */
-    protected $sConfig;
+    protected $aConfig;
 
     // --------------------------------------------------------------------------
 
     /**
      * Base constructor.
      *
-     * @param string|null $sSize   The size this widget is configured to be
-     * @param array       $aConfig Any user specific configs
+     * @param array|null $aConfig Any user specific configs
      */
-    public function __construct(?string $sSize, array $aConfig)
+    public function __construct(array $aConfig = null)
     {
-        $this->sSize   = $sSize ?? static::DEFAULT_SIZE;
         $this->aConfig = $aConfig;
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Gets the configured size of the widget
-     *
-     * @return string
-     */
-    public function getSize(): string
-    {
-        return $this->sSize;
     }
 
     // --------------------------------------------------------------------------

@@ -1,38 +1,65 @@
 <template>
-    <div>
-        <grid-layout
-            :layout.sync="grid"
-            :col-num="colNum"
-            :row-height="100"
-            :is-draggable="draggable"
-            :is-resizable="resizable"
-            :vertical-compact="true"
-            :margin="[10, 10]"
-            :use-css-transforms="true"
+    <div class="dashboard-widgets">
+        <div
+            class="dashboard-widgets__empty"
+            v-if="!grid.length"
         >
-
-            <grid-item v-for="(item, i) in grid"
-                       :x="item.x"
-                       :y="item.y"
-                       :w="item.w"
-                       :h="item.h"
-                       :i="item.i"
-                       :key="item.i"
+            <p>
+                <i><b class="fa fa-th-large"></b>Your dashboard is empty</i>
+                <small>
+                    Dashboard widgets show small pieces of data regarding your website.
+                    Your dashboard is completely customiseable.
+                </small>
+            </p>
+            <p>
+                <button
+                    class="btn btn-default"
+                    v-on:click="configureWidget"
+                    v-bind:disabled="!widgets.length"
+                >
+                    Add a widget
+                </button>
+            </p>
+        </div>
+        <div class="dashboard-widgets__grid">
+            <grid-layout
+                :layout.sync="grid"
+                :col-num="colNum"
+                :row-height="100"
+                :is-draggable="draggable"
+                :is-resizable="resizable"
+                :vertical-compact="true"
+                :margin="[10, 10]"
+                :use-css-transforms="true"
             >
 
-                <fieldset>
-                    <legend>
-                        {{ item.label }}
-                        <span class="btn btn-xs btn-danger pull-right" @click="removeItem(item.i)">&times;</span>
-                    </legend>
-                    <div v-html="item.body"/>
-                </fieldset>
+                <grid-item v-for="(item, i) in grid"
+                           :x="item.x"
+                           :y="item.y"
+                           :w="item.w"
+                           :h="item.h"
+                           :i="item.i"
+                           :key="item.i"
+                >
 
-            </grid-item>
-        </grid-layout>
-        <button v-on:click="addItem">
+                    <fieldset>
+                        <legend>
+                            {{ item.label }}
+                            <span class="btn btn-xs btn-danger pull-right" @click="removeItem(item.i)">&times;</span>
+                        </legend>
+                        <div v-html="item.body"/>
+                    </fieldset>
+
+                </grid-item>
+            </grid-layout>
+        </div>
+        <div
+            class="dashboard-widgets__add"
+            v-if="grid.length && widgets.length"
+            v-on:click="configureWidget"
+        >
             Add a widget
-        </button>
+        </div>
     </div>
 </template>
 <script>
@@ -42,6 +69,7 @@ import services from '../Services'
 import VueGridLayout from 'vue-grid-layout';
 
 export default {
+
     name: 'DashboardGrid',
 
     components: {
@@ -51,6 +79,7 @@ export default {
 
     data() {
         return {
+            widgets: [],
             grid: [],
             draggable: true,
             resizable: true,
@@ -61,10 +90,30 @@ export default {
         }
     },
 
-    methods: {
-        addItem() {
+    mounted() {
+        this.loadWidgets()
+            .then((widgets) => this.widgets = widgets);
 
-            this.getOverview();
+        //  @todo (Pablo 2021-04-15) - Fetch the user's preferences
+        //  @todo (Pablo 2021-04-15) - Render user's selected widgets
+    },
+
+    methods: {
+
+        configureWidget(index) {
+
+            if (index) {
+                //  @todo (Pablo 2021-04-15) - configure existing widget, pull from this.grid
+            } else {
+                //  @todo (Pablo 2021-04-15) - New widget
+            }
+        },
+
+        /**
+         * Adds a widget to the stack
+         */
+        addItem(slug, label, body) {
+
             this.grid
                 .push({
                     'x': (this.grid.length * this.defaultWidth) % this.colNum,
@@ -72,49 +121,40 @@ export default {
                     'w': this.defaultWidth,
                     'h': this.defaultHeight,
                     'i': this.index,
-                    'label': 'The title ' + this.index,
-                    'body': '<p>what is up, mah dawg!</p>'
+                    'slug': slug,
+                    'label': label,
+                    'body': body
                 });
 
             this.index++;
         },
 
-        removeItem: function(val) {
-            const index = this.grid.map(item => item.i).indexOf(val);
-            this.grid.splice(index, 1);
+        /**
+         * Removes a widget from the stack
+         * @param val
+         */
+        removeItem: function(index) {
+            this.grid
+                .splice(
+                    this.grid.map(item => item.i).indexOf(index),
+                    1
+                );
         },
 
-        async getOverview(id) {
-            try {
+        /**
+         * Loads available widgets
+         * @returns {Promise<[]|null|Array|*>}
+         */
+        async loadWidgets() {
 
-                this.is_loading = true;
+            let res = await services.apiRequest({
+                method: 'get',
+                url: API.dashboard.widgets.fetch,
+            });
 
-                let res = await services.apiRequest({
-                    method: 'get',
-                    url: API.foo.fizz(id),
-                });
-
-                // do something with res
-
-            } catch (error) {
-                throw error;
-            } finally {
-                this.is_loading = false;
-            }
+            return res.data.data.widgets;
         }
     }
 }
 
 </script>
-
-<style lang="scss">
-
-.vue-grid-item {
-    border: 1px dashed #ccc;
-
-    > fieldset {
-        height: 100%;
-    }
-}
-
-</style>

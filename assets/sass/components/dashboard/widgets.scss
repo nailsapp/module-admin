@@ -1,57 +1,66 @@
 .dashboard-widgets {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    width: calc(100% + 1rem);
-    margin-left: -0.5rem;
-    margin-right: -0.5rem;
+    &__modal,
+    &__empty,
+    &__grid,
+    &__add {
+        width: 100%;
+    }
 
-    .dashboard-widget {
-        box-sizing: border-box;
-        padding: 0.5rem;
+    &__empty,
+    &__add {
+        width: 100%;
+        text-align: center;
+    }
 
-        > * {
-            margin: 0;
-            height: 100%;
+    &__empty {
+        height: 400px;
+        padding-top: 150px;
+        font-size: 2em;
+        background-image: url(../img/dashboard/empty.png);
+        background-position: top center;
+        background-size: 100% 100%;
+        color: #787878;
+
+        .fa {
+            margin-right: 1rem;
+            opacity: 0.5;
+            top: 1px;
+            position: relative;
         }
 
-        &--large {
-            flex: 0 0 100%;
-        }
-
-        &--medium {
-            flex: 0 0 calc(100% / 3 * 2);
-        }
-
-        &--small {
-            flex: 0 0 calc(100% / 3);
-        }
-
-        &__label {
-
-        }
-
-        &__body {
-            &--padded {
-                margin: 1rem;
-            }
-        }
-
-        &__config {
-            display: none;
-            margin: 1rem;
+        small {
+            display: block;
+            font-size: 1rem;
+            max-width: 400px;
+            margin: 2em auto;
         }
     }
-}
 
-@media (max-width: 960px) {
-    .dashboard-widgets {
-        .dashboard-widget {
-            &--large,
-            &--medium,
-            &--small {
-                flex: 0 0 100%;
+    &__add {
+        border: 1px dashed #ccc;
+        cursor: pointer;
+        padding: 1em;
+        background-color: #f2f2f2;
+        color: #787878;
+    }
+
+    .vue-grid {
+
+        &-layout {
+            margin-left: -10px;
+            margin-right: -10px;
+        }
+
+        &-item {
+            > fieldset {
+                height: 100%;
             }
+        }
+
+        &-placeholder {
+            background-color: #fff !important;
+            opacity: 1 !important;
+            border: 1px dashed #ccc;
         }
     }
 }

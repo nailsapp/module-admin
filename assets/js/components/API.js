@@ -1,7 +1,7 @@
 const API = {
     dashboard: {
         widgets: {
-            widgets: '/api/admin/dashboard/widgets',
+            fetch: 'admin/dashboard',
         }
         //fizz: (id) => `/api/app/address/${id}`
     },

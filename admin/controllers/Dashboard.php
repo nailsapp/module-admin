@@ -15,7 +15,6 @@ namespace Nails\Admin\Admin;
 use Nails\Admin\Constants;
 use Nails\Admin\Factory\Nav;
 use Nails\Admin\Interfaces\Dashboard\Alert;
-use Nails\Admin\Service\Dashboard\Widget;
 use Nails\Common\Service\Asset;
 use Nails\Components;
 use Nails\Factory;
@@ -61,7 +60,6 @@ class Dashboard extends Base
 
         $this->data['page']->title = 'Welcome';
         $this->data['aAlerts']     = $this->getDashboardAlerts();
-        $this->data['aWidgets']    = $this->getWidgets();
 
         Helper::loadView('index');
     }
@@ -93,19 +91,5 @@ class Dashboard extends Base
         }
 
         return $aAlerts;
-    }
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Returns dashboard widgets
-     *
-     * @return \Nails\Admin\Interfaces\Dashboard\Widget[]
-     */
-    protected function getWidgets(): array
-    {
-        /** @var Widget $oWidgetService */
-        $oWidgetService = Factory::service('DashboardWidget', Constants::MODULE_SLUG);
-        return $oWidgetService->getWidgetsForUser();
     }
 }
