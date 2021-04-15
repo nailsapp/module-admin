@@ -14,38 +14,34 @@ namespace Nails\Admin\Api\Controller;
 
 use Nails\Admin\Constants;
 use Nails\Admin\Controller\BaseApi;
+use Nails\Admin\Traits\Api\RestrictToAdmin;
 use Nails\Api;
 use Nails\Factory;
 
+/**
+ * Class Logs
+ *
+ * @package Nails\Admin\Api\Controller
+ */
 class Logs extends BaseApi
 {
-    const REQUIRE_AUTH = true;
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Determines whether the user is authenticated or not
-     *
-     * @param string $sHttpMethod The HTTP Method protocol being used
-     * @param string $sMethod     The controller method being executed
-     *
-     * @return bool
-     */
-    public static function isAuthenticated($sHttpMethod = '', $sMethod = '')
-    {
-        return parent::isAuthenticated($sHttpMethod, $sMethod) && isAdmin();
-    }
+    use RestrictToAdmin;
 
     // --------------------------------------------------------------------------
 
     /**
      * Fetches site logs
+     *
      * @return \Nails\Api\Factory\ApiResponse
      */
     public function getSite()
     {
         $oSiteLogModel = Factory::model('SiteLog', Constants::MODULE_SLUG);
-        return Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG)
-                      ->setData($oSiteLogModel->getAll());
+        /** @var Api\Factory\ApiResponse $oApiResponse */
+        $oApiResponse = Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG);
+        $oApiResponse
+            ->setData($oSiteLogModel->getAll());
+
+        return $oApiResponse;
     }
 }

@@ -14,37 +14,37 @@ namespace Nails\Admin\Api\Controller;
 
 use Nails\Admin\Constants;
 use Nails\Admin\Controller\BaseApi;
+use Nails\Admin\Model\Admin;
+use Nails\Admin\Traits\Api\RestrictToAdmin;
 use Nails\Api;
+use Nails\Common\Service\Input;
 use Nails\Factory;
 
+/**
+ * Class Nav
+ *
+ * @package Nails\Admin\Api\Controller
+ */
 class Nav extends BaseApi
 {
-    const REQUIRE_AUTH = true;
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Determines whether the user is authenticated or not
-     *
-     * @param string $sHttpMethod The HTTP Method protocol being used
-     * @param string $sMethod     The controller method being executed
-     *
-     * @return bool
-     */
-    public static function isAuthenticated($sHttpMethod = '', $sMethod = '')
-    {
-        return parent::isAuthenticated($sHttpMethod, $sMethod) && isAdmin();
-    }
+    use RestrictToAdmin;
 
     // --------------------------------------------------------------------------
 
     /**
      * Saves the user's admin nav preferences
+     *
      * @return Api\Factory\ApiResponse
      */
     public function postSave()
     {
-        $oInput   = Factory::service('Input');
+        /** @var Input $oInput */
+        $oInput = Factory::service('Input');
+        /** @var Admin $oAdminModel */
+        $oAdminModel = Factory::model('Admin', Constants::MODULE_SLUG);
+        /** @var Api\Factory\ApiResponse $oApiResponse */
+        $oApiResponse = Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG);
+
         $aPrefRaw = array_filter((array) $oInput->post('preferences'));
         $oPref    = new \stdClass();
 
@@ -53,21 +53,26 @@ class Nav extends BaseApi
             $oPref->{$sModule}->open = stringToBoolean($aOptions['open']);
         }
 
-        $oAdminModel = Factory::model('Admin', Constants::MODULE_SLUG);
         $oAdminModel->setAdminData('nav_state', $oPref);
-        return Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG);
+
+        return $oApiResponse;
     }
 
     // --------------------------------------------------------------------------
 
     /**
      * Resets a user's admin nav preferences
+     *
      * @return Api\Factory\ApiResponse
      */
     public function postReset()
     {
         $oAdminModel = Factory::model('Admin', Constants::MODULE_SLUG);
+        /** @var Api\Factory\ApiResponse $oApiResponse */
+        $oApiResponse = Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG);
+
         $oAdminModel->unsetAdminData('nav_state');
-        return Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG);
+
+        return $oApiResponse;
     }
 }
