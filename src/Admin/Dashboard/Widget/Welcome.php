@@ -13,12 +13,36 @@ use Nails\Config;
  */
 class Welcome extends Base
 {
+    const CONFIGURABLE = true;
+
+    // --------------------------------------------------------------------------
+
     /**
      * @inheritDoc
      */
     public function getTitle(): string
     {
-        return $this->getPhrase();
+        return 'Welcome Phrase';
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * @inheritDoc
+     */
+    public function getDescription(): string
+    {
+        return 'A lovely welcome message';
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * @inheritDoc
+     */
+    public function getImage(): ?string
+    {
+        return 'https://dummyimage.com/750x750/c9c9c9/000000';
     }
 
     // --------------------------------------------------------------------------
@@ -30,11 +54,28 @@ class Welcome extends Base
     {
         return sprintf(
             implode(PHP_EOL, [
-                '<p>Welcome to %s Administration pages. From here you can control aspects of the site.</p>',
-                '<p>Get started by choosing an option from the left.</p>',
+                '<p>' . $this->getPhrase() . '</p>',
             ]),
             Inflector::possessive(Config::get('APP_NAME'))
         );
+    }
+
+    // --------------------------------------------------------------------------
+
+    public function getConfig(): string
+    {
+        return implode(PHP_EOL, [
+            '<fieldset>',
+            '<legend>Details</legend>',
+            form_field_dropdown([
+                'key'     => 'phrase',
+                'label'   => 'Phrase',
+                'options' => $this->getPhrases(),
+                'class'   => 'select2',
+                'default' => $this->aConfig['phrase'] ?? null,
+            ]),
+            '</fieldset>',
+        ]);
     }
 
     // --------------------------------------------------------------------------
@@ -73,6 +114,10 @@ class Welcome extends Base
      */
     protected function getPhrase(): string
     {
-        return random_element($this->getPhrases());
+        $aPhrases = $this->getPhrases();
+
+        return !empty($this->aConfig['phrase'])
+            ? $aPhrases[$this->aConfig['phrase']] ?? 'Config defined, but invalid'
+            : random_element($aPhrases);
     }
 }

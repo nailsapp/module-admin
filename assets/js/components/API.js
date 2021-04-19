@@ -1,9 +1,11 @@
 const API = {
     dashboard: {
         widgets: {
-            fetch: 'admin/dashboard',
+            fetch: 'admin/dashboard/widget',
+            save: 'admin/dashboard/widget/save',
+            body: 'admin/dashboard/widget/body',
+            config: 'admin/dashboard/widget/config',
         }
-        //fizz: (id) => `/api/app/address/${id}`
     },
 };
 

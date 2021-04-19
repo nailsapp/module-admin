@@ -38,10 +38,17 @@ class Instance {
         this.adminController = adminController;
         this.el = el;
 
+        let userWidgets = JSON.parse(this.el.getAttribute('user-widgets')) || [];
+
         //  Initialise Vue
         this.vue = new window.Vue({
             el: this.el,
-            render: h => h(Grid)
+            render: h => h(Grid, {
+                props: {
+                    adminController: adminController,
+                    userWidgets: userWidgets,
+                }
+            }),
         });
     }
 }

@@ -17,6 +17,13 @@ abstract class Base implements Interfaces\Dashboard\Widget
      */
     const PAD_BODY = true;
 
+    /**
+     * Whetehr the widget is configurable
+     */
+    const CONFIGURABLE = false;
+
+    // --------------------------------------------------------------------------
+
     /** @var array */
     protected $aConfig;
 
@@ -25,9 +32,9 @@ abstract class Base implements Interfaces\Dashboard\Widget
     /**
      * Base constructor.
      *
-     * @param array|null $aConfig Any user specific configs
+     * @param array $aConfig Any user specific configs
      */
-    public function __construct(array $aConfig = null)
+    public function __construct(array $aConfig = [])
     {
         $this->aConfig = $aConfig;
     }
@@ -51,8 +58,20 @@ abstract class Base implements Interfaces\Dashboard\Widget
      *
      * @return bool
      */
-    public function padBody(): bool
+    public function isPadded(): bool
     {
         return static::PAD_BODY;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Whether the widget is configurable
+     *
+     * @return bool
+     */
+    public function isConfigurable(): bool
+    {
+        return static::CONFIGURABLE;
     }
 }

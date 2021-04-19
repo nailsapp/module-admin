@@ -5,9 +5,9 @@ use Nails\Admin\Interfaces\Dashboard\Widget;
 use Nails\Config;
 
 /**
- * @var array    $adminControllers
- * @var Alert[]  $aAlerts
- * @var Widget[] $aWidgets
+ * @var array   $adminControllers
+ * @var Alert[] $aAlerts
+ * @var array[] $aWidgets
  */
 ?>
 <div class="group-dashboard">
@@ -34,7 +34,7 @@ use Nails\Config;
             }
         }
 
-        echo '<div id="dashboard-widgets"></div>';
+        echo '<div id="dashboard-widgets" user-widgets="' . htmlentities(json_encode($aWidgets)) . '"></div>';
 
     } else {
         ?>
