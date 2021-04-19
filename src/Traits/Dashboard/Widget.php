@@ -1,31 +1,19 @@
 <?php
 
-namespace Nails\Admin\Admin\Dashboard\Widget;
+namespace Nails\Admin\Traits\Dashboard;
 
 use Nails\Admin\Service;
 use Nails\Admin\Interfaces;
 
 /**
- * Class Welcome
+ * Trait Widget
  *
- * @package Nails\Admin\Admin\Dashboard\Base
+ * @package Nails\Admin\Traits\Dashboard
  */
-abstract class Base implements Interfaces\Dashboard\Widget
+trait Widget
 {
-    /**
-     * Whether to pad the body or not
-     */
-    const PAD_BODY = true;
-
-    /**
-     * Whetehr the widget is configurable
-     */
-    const CONFIGURABLE = false;
-
-    // --------------------------------------------------------------------------
-
     /** @var array */
-    protected $aConfig;
+    protected $aConfig = [];
 
     // --------------------------------------------------------------------------
 
@@ -60,7 +48,7 @@ abstract class Base implements Interfaces\Dashboard\Widget
      */
     public function isPadded(): bool
     {
-        return static::PAD_BODY;
+        return true;
     }
 
     // --------------------------------------------------------------------------
@@ -72,6 +60,18 @@ abstract class Base implements Interfaces\Dashboard\Widget
      */
     public function isConfigurable(): bool
     {
-        return static::CONFIGURABLE;
+        return false;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the widget's image
+     *
+     * @return string|null
+     */
+    public function getImage(): ?string
+    {
+        return null;
     }
 }
