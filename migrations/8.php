@@ -41,7 +41,7 @@ class Migration8 extends Base
             KEY `modified_by` (`modified_by`),
             CONSTRAINT `{{NAILS_DB_PREFIX}}admin_dashboard_widget_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `{{NAILS_DB_PREFIX}}user` (`id`) ON DELETE SET NULL,
             CONSTRAINT `{{NAILS_DB_PREFIX}}admin_dashboard_widget_ibfk_2` FOREIGN KEY (`modified_by`) REFERENCES `{{NAILS_DB_PREFIX}}user` (`id`) ON DELETE SET NULL
-            ) ENGINE=InnoDB AUTO_INCREMENTDEFAULT CHARSET=utf8;
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
         ');
     }
 }
