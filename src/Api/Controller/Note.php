@@ -3,31 +3,26 @@
 namespace Nails\Admin\Api\Controller;
 
 use Nails\Admin\Constants;
+use Nails\Admin\Traits\Api\RestrictToAdmin;
 use Nails\Api;
 use Nails\Common\Exception\FactoryException;
+use Nails\Common\Service\Input;
 use Nails\Factory;
 
+/**
+ * Class Note
+ *
+ * @package Nails\Admin\Api\Controller
+ */
 class Note extends Api\Controller\CrudController
 {
-    const REQUIRE_AUTH          = true;
-    const CONFIG_MODEL_NAME     = 'Note';
-    const CONFIG_MODEL_PROVIDER = Constants::MODULE_SLUG;
-    const CONFIG_LOOKUP_DATA    = ['expand' => ['created_by']];
+    use RestrictToAdmin;
 
     // --------------------------------------------------------------------------
 
-    /**
-     * Determines whether the user is authenticated or not
-     *
-     * @param string $sHttpMethod The HTTP Method protocol being used
-     * @param string $sMethod     The controller method being executed
-     *
-     * @return bool
-     */
-    public static function isAuthenticated($sHttpMethod = '', $sMethod = '')
-    {
-        return parent::isAuthenticated($sHttpMethod, $sMethod) && isAdmin();
-    }
+    const CONFIG_MODEL_NAME     = 'Note';
+    const CONFIG_MODEL_PROVIDER = Constants::MODULE_SLUG;
+    const CONFIG_LOOKUP_DATA    = ['expand' => ['created_by']];
 
     // --------------------------------------------------------------------------
 
@@ -43,7 +38,7 @@ class Note extends Api\Controller\CrudController
      */
     public function getRemap($sMethod, array $aData = [])
     {
-        list($sModel, $iItemId) = $this->getModelClassAndId();
+        [$sModel, $iItemId] = $this->getModelClassAndId();
         $aData['where'] = [
             ['model', $sModel],
             ['item_id', $iItemId],
@@ -65,14 +60,18 @@ class Note extends Api\Controller\CrudController
      */
     public function getCount(array $aData = [])
     {
-        list($sModel, $iItemId) = $this->getModelClassAndId();
+        [$sModel, $iItemId] = $this->getModelClassAndId();
         $aData['where'] = [
             ['model', $sModel],
             ['item_id', $iItemId],
         ];
 
-        return Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG)
+        /** @var Api\Factory\ApiResponse $oApiResponse */
+        $oApiResponse = Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG);
+        $oApiResponse
             ->setData($this->oModel->countAll($aData));
+
+        return $oApiResponse;
     }
 
     // --------------------------------------------------------------------------
@@ -87,11 +86,11 @@ class Note extends Api\Controller\CrudController
      * @throws Api\Exception\ApiException
      * @throws FactoryException
      */
-    protected function validateUserInput($aData, $oItem = null)
+    protected function validateUserInput($aData, $oItem = null): array
     {
         $aData = parent::validateUserInput($aData, $oItem);
 
-        list($sModel) = $this->getModelClassAndId();
+        [$sModel] = $this->getModelClassAndId();
         $aData['model'] = $sModel;
 
         return $aData;
@@ -106,9 +105,11 @@ class Note extends Api\Controller\CrudController
      * @throws Api\Exception\ApiException
      * @throws FactoryException
      */
-    protected function getModelClassAndId()
+    protected function getModelClassAndId(): array
     {
+        /** @var Input $oInput */
         $oInput         = Factory::service('Input');
+
         $sModelName     = $oInput->get('model_name') ?: $oInput->post('model_name');
         $sModelProvider = $oInput->get('model_provider') ?: $oInput->post('model_provider');
         $iItemId        = (int) $oInput->get('item_id');
@@ -134,7 +135,7 @@ class Note extends Api\Controller\CrudController
      *
      * @return \stdClass
      */
-    protected function formatObject($oObj)
+    protected function formatObject($oObj): \stdClass
     {
         return (object) [
             'id'      => $oObj->id,

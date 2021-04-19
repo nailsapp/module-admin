@@ -14,19 +14,36 @@ interface Widget
     /**
      * Widget constructor.
      *
-     * @param string $sSize   The size the widget is configured to be
-     * @param array  $aConfig Any user specific configs
+     * @param array $aConfig Any user specific configs
      */
-    public function __construct(string $sSize, array $aConfig);
+    public function __construct(array $aConfig = []);
 
     // --------------------------------------------------------------------------
 
     /**
-     * Renders the title of the widget
+     * Returns the widget's title
      *
      * @return string
      */
     public function getTitle(): string;
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the widget's description
+     *
+     * @return string
+     */
+    public function getDescription(): string;
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the widget's image
+     *
+     * @return string|null
+     */
+    public function getImage(): ?string;
 
     // --------------------------------------------------------------------------
 
@@ -44,7 +61,16 @@ interface Widget
      *
      * @return bool
      */
-    public function padBody(): bool;
+    public function isPadded(): bool;
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Whether to the widget is configurable
+     *
+     * @return bool
+     */
+    public function isConfigurable(): bool;
 
     // --------------------------------------------------------------------------
 
@@ -54,13 +80,4 @@ interface Widget
      * @return string
      */
     public function getConfig(): string;
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Gets the configured size of the widget
-     *
-     * @return string
-     */
-    public function getSize(): string;
 }

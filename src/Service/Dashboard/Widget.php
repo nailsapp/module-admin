@@ -2,9 +2,12 @@
 
 namespace Nails\Admin\Service\Dashboard;
 
+use Nails\Admin\Constants;
 use Nails\Admin\Interfaces;
+use Nails\Admin\Resource;
 use Nails\Auth\Resource\User;
 use Nails\Components;
+use Nails\Factory;
 
 /**
  * Class Widget
@@ -13,15 +16,6 @@ use Nails\Components;
  */
 class Widget
 {
-    /**
-     * The supported size of widgets
-     */
-    const SIZE_SMALL  = 'small';
-    const SIZE_MEDIUM = 'medium';
-    const SIZE_LARGE  = 'large';
-
-    // --------------------------------------------------------------------------
-
     /** @var string[] */
     protected $aWidgets = [];
 
@@ -67,9 +61,22 @@ class Widget
      *
      * @return string[]
      */
-    public function getWidgets(): array
+    public function getAll(): array
     {
         return $this->aWidgets;
+    }
+
+    // --------------------------------------------------------------------------
+
+    public function getBySlug(string $sSlug, array $aConfig = []): ?Interfaces\Dashboard\Widget
+    {
+        foreach ($this->getAll() as $sClass) {
+            if ($sSlug === $sClass) {
+                return new $sClass($aConfig);
+            }
+        }
+
+        return null;
     }
 
     // --------------------------------------------------------------------------
@@ -79,25 +86,23 @@ class Widget
      *
      * @param User|null $oUser The suer to fetch for
      *
-     * @return Interfaces\Dashboard\Widget[]
+     * @return Resource\Dashboard\Widget[]
      */
     public function getWidgetsForUser(User $oUser = null): array
     {
+        /** @var \Nails\Admin\Model\Dashboard\Widget $oModel */
+        $oModel = Factory::model('DashboardWidget', Constants::MODULE_SLUG);
+
         $oUser = $oUser ?? activeUser();
 
-        //  @todo (Pablo 25/02/2021) - These should come from the database
-        $aWidgets = $this->getWidgets();
-
-        $aOut = [];
-        foreach ($aWidgets as $sClass) {
-
-            //  @todo (Pablo 25/02/2021) - These should come from the database
-            $sUserSize   = null;
-            $aUserConfig = [];
-
-            $aOut[] = new $sClass($sUserSize, $aUserConfig);
+        if (empty($oUser)) {
+            return [];
         }
 
-        return $aOut;
+        return $oModel->getAll([
+            'where' => [
+                ['created_by', $oUser->id],
+            ],
+        ]);
     }
 }

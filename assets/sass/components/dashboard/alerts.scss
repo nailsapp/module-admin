@@ -1,0 +1,6 @@
+.alert--dashboard {
+    & + .dashboard-widgets {
+        border-top: 1px solid #efefef;
+        padding-top: 20px;
+    }
+}

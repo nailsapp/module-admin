@@ -16,6 +16,7 @@ use Nails\Admin\Constants;
 use Nails\Admin\Factory\Nav;
 use Nails\Admin\Interfaces\Dashboard\Alert;
 use Nails\Admin\Service\Dashboard\Widget;
+use Nails\Common\Service\Asset;
 use Nails\Components;
 use Nails\Factory;
 use Nails\Admin\Controller\Base;
@@ -54,9 +55,13 @@ class Dashboard extends Base
      */
     public function index()
     {
-        $this->data['page']->title = 'Welcome';
-        $this->data['aAlerts']     = $this->getDashboardAlerts();
-        $this->data['aWidgets']    = $this->getWidgets();
+        /** @var Asset $oAsset */
+        $oAsset = Factory::service('Asset');
+        $oAsset->load('https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js');
+
+        //$this->data['page']->title = 'Welcome';
+        $this->data['aAlerts']  = $this->getDashboardAlerts();
+        $this->data['aWidgets'] = $this->getDashboardWidgets();
 
         Helper::loadView('index');
     }
@@ -92,15 +97,31 @@ class Dashboard extends Base
 
     // --------------------------------------------------------------------------
 
-    /**
-     * Returns dashboard widgets
-     *
-     * @return \Nails\Admin\Interfaces\Dashboard\Widget[]
-     */
-    protected function getWidgets(): array
+    protected function getDashboardWidgets(): array
     {
-        /** @var Widget $oWidgetService */
-        $oWidgetService = Factory::service('DashboardWidget', Constants::MODULE_SLUG);
-        return $oWidgetService->getWidgetsForUser();
+        /** @var Widget $oWidgets */
+        $oWidgets = Factory::service('DashboardWidget', Constants::MODULE_SLUG);
+        return array_map(function (\Nails\Admin\Resource\Dashboard\Widget $oWidget) {
+
+            $sClass = $oWidget->slug;
+            /** @var \Nails\Admin\Interfaces\Dashboard\Widget $oInstance */
+            $oInstance = new $sClass($oWidget->config);
+
+            return [
+                'id'           => $oWidget->id,
+                'slug'         => $oWidget->slug,
+                'title'        => $oInstance->getTitle(),
+                'description'  => $oInstance->getDescription(),
+                'image'        => $oInstance->getImage(),
+                'body'         => $oInstance->getBody(),
+                'padded'       => $oInstance->isPadded(),
+                'configurable' => $oInstance->isConfigurable(),
+                'x'            => $oWidget->x,
+                'y'            => $oWidget->y,
+                'w'            => $oWidget->w,
+                'h'            => $oWidget->h,
+                'config'       => (object) $oWidget->config,
+            ];
+        }, $oWidgets->getWidgetsForUser());
     }
 }

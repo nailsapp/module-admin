@@ -23,42 +23,49 @@ return [
         },
     ],
     'models'    => [
-        'Admin'     => function (): Model\Admin {
+        'Admin'           => function (): Model\Admin {
             if (class_exists('\App\Admin\Model\Admin')) {
                 return new \App\Admin\Model\Admin();
             } else {
                 return new Model\Admin();
             }
         },
-        'ChangeLog' => function (): Model\ChangeLog {
+        'ChangeLog'       => function (): Model\ChangeLog {
             if (class_exists('\App\Admin\Model\ChangeLog')) {
                 return new \App\Admin\Model\ChangeLog();
             } else {
                 return new Model\ChangeLog();
             }
         },
-        'Export'    => function (): Model\Export {
+        'DashboardWidget' => function (): Model\Dashboard\Widget {
+            if (class_exists('\App\Admin\Model\Dashboard\Widget')) {
+                return new \App\Admin\Model\Dashboard\Widget();
+            } else {
+                return new Model\Dashboard\Widget();
+            }
+        },
+        'Export'          => function (): Model\Export {
             if (class_exists('\App\Admin\Model\Export')) {
                 return new \App\Admin\Model\Export();
             } else {
                 return new Model\Export();
             }
         },
-        'Help'      => function (): Model\Help {
+        'Help'            => function (): Model\Help {
             if (class_exists('\App\Admin\Model\Help')) {
                 return new \App\Admin\Model\Help();
             } else {
                 return new Model\Help();
             }
         },
-        'Note'      => function (): Model\Note {
+        'Note'            => function (): Model\Note {
             if (class_exists('\App\Admin\Model\Note')) {
                 return new \App\Admin\Model\Note();
             } else {
                 return new Model\Note();
             }
         },
-        'SiteLog'   => function (): Model\SiteLog {
+        'SiteLog'         => function (): Model\SiteLog {
             if (class_exists('\App\Admin\Model\SiteLog')) {
                 return new \App\Admin\Model\SiteLog();
             } else {
@@ -72,6 +79,13 @@ return [
                 return new \App\Admin\Resource\ChangeLog($mObj);
             } else {
                 return new Resource\ChangeLog($mObj);
+            }
+        },
+        'DashboardWidget'  => function ($mObj): Resource\Dashboard\Widget {
+            if (class_exists('\App\Admin\Resource\Dashboard\Widget')) {
+                return new \App\Admin\Resource\Dashboard\Widget($mObj);
+            } else {
+                return new Resource\Dashboard\Widget($mObj);
             }
         },
         'DataExportFormat' => function ($mObj): Resource\DataExport\Format {

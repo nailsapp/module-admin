@@ -13,27 +13,18 @@
 namespace Nails\Admin\Api\Controller;
 
 use Nails\Admin\Controller\BaseApi;
+use Nails\Admin\Traits\Api\RestrictToAdmin;
 use Nails\Api;
 use Nails\Factory;
 
+/**
+ * Class Ckeditor
+ *
+ * @package Nails\Admin\Api\Controller
+ */
 class Ckeditor extends BaseApi
 {
-    const REQUIRE_AUTH = true;
-
-    // --------------------------------------------------------------------------
-
-    /**
-     * Determines whether the user is authenticated or not
-     *
-     * @param string $sHttpMethod The HTTP Method protocol being used
-     * @param string $sMethod     The controller method being executed
-     *
-     * @return bool
-     */
-    public static function isAuthenticated($sHttpMethod = '', $sMethod = '')
-    {
-        return parent::isAuthenticated($sHttpMethod, $sMethod) && isAdmin();
-    }
+    use RestrictToAdmin;
 
     // --------------------------------------------------------------------------
 
@@ -44,11 +35,15 @@ class Ckeditor extends BaseApi
      */
     public function getConfigs()
     {
-        return Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG)
+        /** @var Api\Factory\ApiResponse $oApiResponse */
+        $oApiResponse = Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG);
+        $oApiResponse
             ->setData([
                 'basic'   => $this->findConfig('ckeditor.config.basic.min.js'),
                 'default' => $this->findConfig('ckeditor.config.default.min.js'),
             ]);
+
+        return $oApiResponse;
     }
 
     // --------------------------------------------------------------------------
@@ -60,13 +55,15 @@ class Ckeditor extends BaseApi
      *
      * @return string
      */
-    protected function findConfig($sFile)
+    protected function findConfig($sFile): string
     {
         //  @todo (Pablo - 2018-07-13) - The paths and URLs should probably be determined by the Asset service
         if (file_exists(NAILS_APP_PATH . 'assets/build/js/' . $sFile)) {
             return siteUrl('assets/build/js/' . $sFile);
+
         } elseif (file_exists(NAILS_APP_PATH . 'assets/js/' . $sFile)) {
             return siteUrl('assets/js/' . $sFile);
+
         } else {
             return NAILS_ASSETS_URL . 'js/' . $sFile;
         }
