@@ -102,6 +102,13 @@ return [
                 return new Resource\DataExport\Source($mObj);
             }
         },
+        'Note'             => function ($mObj): Resource\Note {
+            if (class_exists('\App\Admin\Resource\Note')) {
+                return new \App\Admin\Resource\Note($mObj);
+            } else {
+                return new Resource\Note($mObj);
+            }
+        },
     ],
     'factories' => [
         'DefaultControllerSortSection' => function (string $sLabel = '', array $aItems = []): Factory\DefaultController\Sort\Section {

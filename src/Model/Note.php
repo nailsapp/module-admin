@@ -2,7 +2,9 @@
 
 namespace Nails\Admin\Model;
 
-use Nails\Auth\Constants;
+use Nails\Admin\Constants;
+use Nails\Auth;
+use Nails\Common\Exception\ModelException;
 use Nails\Common\Model\Base;
 use Nails\Config;
 
@@ -16,6 +18,20 @@ class Note extends Base
     const TABLE = NAILS_DB_PREFIX . 'admin_note';
 
     /**
+     * The name of the resource to use (as passed to \Nails\Factory::resource())
+     *
+     * @var string
+     */
+    const RESOURCE_NAME = 'Note';
+
+    /**
+     * The provider of the resource to use (as passed to \Nails\Factory::resource())
+     *
+     * @var string
+     */
+    const RESOURCE_PROVIDER = Constants::MODULE_SLUG;
+
+    /**
      * Whether this model uses destructive delete or not
      *
      * @var bool
@@ -24,14 +40,15 @@ class Note extends Base
 
     // --------------------------------------------------------------------------
 
+    /**
+     * Note constructor.
+     *
+     * @throws ModelException
+     */
     public function __construct()
     {
         parent::__construct();
-        $this->addExpandableField([
-            'trigger'   => 'created_by',
-            'model'     => 'User',
-            'provider'  => Constants::MODULE_SLUG,
-            'id_column' => 'created_by',
-        ]);
+        $this
+            ->hasOne('created_by', 'User', Auth\Constants::MODULE_SLUG, 'created_by');
     }
 }
