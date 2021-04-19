@@ -65,6 +65,13 @@ return [
                 return new Model\Note();
             }
         },
+        'Session'         => function (): Model\Session {
+            if (class_exists('\App\Admin\Model\Session')) {
+                return new \App\Admin\Model\Session();
+            } else {
+                return new Model\Session();
+            }
+        },
         'SiteLog'         => function (): Model\SiteLog {
             if (class_exists('\App\Admin\Model\SiteLog')) {
                 return new \App\Admin\Model\SiteLog();
@@ -107,6 +114,13 @@ return [
                 return new \App\Admin\Resource\Note($mObj);
             } else {
                 return new Resource\Note($mObj);
+            }
+        },
+        'Session'          => function ($mObj): Resource\Session {
+            if (class_exists('\App\Admin\Resource\Session')) {
+                return new \App\Admin\Resource\Session($mObj);
+            } else {
+                return new Resource\Session($mObj);
             }
         },
     ],

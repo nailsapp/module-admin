@@ -19,6 +19,7 @@ import Revealer from './components/Revealer.js';
 import ScrollToFirstError from './components/ScrollToFirstError.js'
 import Searcher from './components/Searcher.js';
 import Select from './components/Select.js';
+import Session from './components/Session.js';
 import Sortable from './components/Sortable.js';
 import Stripes from './components/Stripes.js';
 import Tabs from './components/Tabs.js';
@@ -386,6 +387,13 @@ window
         'Select',
         function(controller) {
             return new Select(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'Session',
+        function(controller) {
+            return new Session(controller);
         }
     )
     .registerPlugin(

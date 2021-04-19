@@ -38,6 +38,11 @@ foreach ($aFieldSets as $sLabel => $aFields) {
     ];
 }
 
+if (!empty($oItem)) {
+    ?>
+    <div class="js-admin-session--also-here" data-prefix="Another user is currently editing this item:"></div>
+    <?php
+}
 ?>
 <div class="group-defaultcontroller edit" <?=$CONFIG['EDIT_PAGE_ID'] ? 'id="' . $CONFIG['EDIT_PAGE_ID'] . '"' : ''?>>
     <?php

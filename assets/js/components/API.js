@@ -7,6 +7,10 @@ const API = {
             config: 'admin/dashboard/widget/config',
         }
     },
+    session: {
+        heartbeat: 'admin/session/heartbeat',
+        interact: 'admin/session/interact',
+    }
 };
 
 export default API;
