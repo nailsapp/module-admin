@@ -42,7 +42,7 @@ class Welcome extends Base
      */
     public function getImage(): ?string
     {
-        return 'https://dummyimage.com/750x750/c9c9c9/000000';
+        return null;
     }
 
     // --------------------------------------------------------------------------
