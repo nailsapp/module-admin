@@ -12,6 +12,7 @@ import DynamicTable from './components/DynamicTable.js';
 import Fancybox from './components/Fancybox.js';
 import IndexButtons from './components/IndexButtons.js';
 import InputHelper from './components/InputHelper.js';
+import Modal from './components/Modal.js';
 import Modalize from './components/Modalize.js';
 import Notes from './components/Notes.js';
 import Repeater from './components/Repeater.js';
@@ -338,6 +339,13 @@ window
         'InputHelper',
         function(controller) {
             return new InputHelper(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'Modal',
+        function(controller) {
+            return new Modal(controller);
         }
     )
     .registerPlugin(

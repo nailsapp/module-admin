@@ -98,7 +98,7 @@
 import API from '../API'
 import services from '../Services'
 import VueGridLayout from 'vue-grid-layout';
-import Modal from '../Modal'
+import Instance from '../Modal/Instance'
 
 let vm;
 
@@ -170,9 +170,9 @@ export default {
          * Sets up the modals the component needs
          */
         setUpModals() {
-            this.modals.choose = new Modal(this.adminController, {defaultTitle: 'Select a widget', minWidth: '80%'});
-            this.modals.configure = new Modal(this.adminController, {minWidth: '50%'});
-            this.modals.confirm = new Modal(this.adminController, {defaultTitle: 'Are you sure?'});
+            this.modals.choose = new Instance(this.adminController, {defaultTitle: 'Select a widget', minWidth: '80%'});
+            this.modals.configure = new Instance(this.adminController, {minWidth: '50%'});
+            this.modals.confirm = new Instance(this.adminController, {defaultTitle: 'Are you sure?'});
         },
 
         /**

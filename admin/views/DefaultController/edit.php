@@ -46,7 +46,13 @@ if (!empty($oItem)) {
 ?>
 <div class="group-defaultcontroller edit" <?=$CONFIG['EDIT_PAGE_ID'] ? 'id="' . $CONFIG['EDIT_PAGE_ID'] . '"' : ''?>>
     <?php
-    echo form_open();
+    echo form_open(null, 'id="default-controller-form"');
+    if (!empty($oItem)) {
+        ?>
+        <input type="hidden" name="last_modified" value="<?=set_value('last_modified', $oItem->modified)?>" />
+        <input type="hidden" name="overwrite" value="0" id="default-controller-overwrite"/>
+        <?php
+    }
     echo Helper::tabs($aTabs);
     ?>
     <div class="admin-floating-controls">

@@ -13,18 +13,21 @@
 namespace Nails\Admin\Controller;
 
 use Nails\Admin\Constants;
+use Nails\Admin\Exception\DefaultController\ItemModifiedException;
 use Nails\Admin\Factory\DefaultController\Sort\Section;
 use Nails\Admin\Factory\IndexFilter;
 use Nails\Admin\Factory\IndexFilter\Option;
 use Nails\Admin\Factory\Nav;
 use Nails\Admin\Helper;
 use Nails\Admin\Model\ChangeLog;
+use Nails\Auth\Model\User;
 use Nails\Common\Exception\FactoryException;
 use Nails\Common\Exception\ModelException;
 use Nails\Common\Exception\NailsException;
 use Nails\Common\Exception\ValidationException;
 use Nails\Common\Factory\Model\Field;
 use Nails\Common\Helper\Form;
+use Nails\Common\Helper\Inflector;
 use Nails\Common\Resource;
 use Nails\Common\Service\Database;
 use Nails\Common\Service\FormValidation;
@@ -889,6 +892,45 @@ abstract class DefaultController extends Base
                         : $sRedirectUrl
                 );
 
+            } catch (ItemModifiedException $e) {
+
+                $oDb->transaction()->rollback();
+
+                $oItem = $this->getItem();
+                /** @var User $oUserModel */
+                $oUserModel = Factory::model('User', \Nails\Auth\Constants::MODULE_SLUG);
+                $oUser      = $oUserModel->getById($oItem->modified_by);
+
+                $sBody = <<<EOT
+                    <p class="alert alert-danger">
+                        This item has been modified since you started editing.
+                    </p>
+                    <p>
+                        This item was last saved at %s, by %s.
+                    </p>
+                    <p>
+                        <button
+                            class="btn btn-danger btn-block"
+                            onclick="
+                                document.getElementById('default-controller-overwrite').value = 1;
+                                document.getElementById('default-controller-form').submit();
+                            "
+                        >
+                            Overwrite
+                        </button>
+                    </p>
+                EOT;
+
+
+                Helper::addModal(
+                    'Changes have not yet been saved',
+                    sprintf(
+                        $sBody,
+                        toUserDatetime($oItem->modified),
+                        $oUser->name ?? 'the system',
+                    )
+                );
+
             } catch (\Exception $e) {
                 $oDb->transaction()->rollback();
                 $this->data['error'] = $e->getMessage();
@@ -1663,6 +1705,12 @@ abstract class DefaultController extends Base
      */
     protected function beforeEdit(Resource $oItem = null): void
     {
+        /** @var Input $oInput */
+        $oInput = Factory::service('Input');
+
+        if ($oItem->modified->raw !== $oInput->post('last_modified') && !(int) $oInput->post('overwrite')) {
+            throw new ItemModifiedException();
+        }
     }
 
     // --------------------------------------------------------------------------
@@ -2046,7 +2094,7 @@ abstract class DefaultController extends Base
 
         $aData['where'][] = [$oModel->getTableAlias() . '.' . $oModel->getColumn('id'), $iItemId];
 
-        $aItems = $oModel->getAll(
+        $aItems = $oModel->skipCache()->getAll(
             null,
             null,
             $aData,

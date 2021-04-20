@@ -334,6 +334,7 @@ class Session extends BaseApi
             new Expand('user'),
             'where' => [
                 ['url', $oSession->url],
+                ['user_id !=', $oSession->user_id],
                 ['token !=', $oSession->token],
                 ['heartbeat >', 'DATE_SUB(NOW(), INTERVAL 1 MINUTE)', false],
             ],
@@ -342,9 +343,8 @@ class Session extends BaseApi
         return array_map(function (Resource\Session $oSession) {
             return (object) [
                 'user'     => (object) [
-                    'id'     => $oSession->user->id,
-                    'name'   => $oSession->user->name,
-                    'avatar' => cdnAvatar($oSession->user->id),
+                    'id'   => $oSession->user->id,
+                    'name' => $oSession->user->name,
                 ],
                 'created'  => $oSession->created->relative(false),
                 'inactive' => $oSession->inactive
