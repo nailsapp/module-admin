@@ -25,12 +25,11 @@ class Migration9 extends Base
         $this->query('
             CREATE TABLE `{{NAILS_DB_PREFIX}}admin_session` (
                 `id` int unsigned NOT NULL AUTO_INCREMENT,
+                `token` varchar(29) NOT NULL DEFAULT \'\',
                 `user_id` int unsigned NOT NULL,
-                `url` varchar(500) DEFAULT NULL,
-                `last_pageload` datetime DEFAULT NULL,
-                `last_heartbeat` datetime DEFAULT NULL,
-                `last_interaction` datetime DEFAULT NULL,
-                `last_seen` datetime DEFAULT NULL,
+                `url` varchar(500) NOT NULL DEFAULT \'\',
+                `heartbeat` datetime NOT NULL,
+                `inactive` datetime DEFAULT NULL,
                 `created` datetime NOT NULL,
                 `created_by` int unsigned DEFAULT NULL,
                 `modified` datetime DEFAULT NULL,
@@ -38,7 +37,7 @@ class Migration9 extends Base
                 PRIMARY KEY (`id`),
                 KEY `created_by` (`created_by`),
                 KEY `modified_by` (`modified_by`),
-                KEY `{{NAILS_DB_PREFIX}}admin_session_ibfk_3` (`user_id`),
+                KEY `user_id` (`user_id`),
                 CONSTRAINT `{{NAILS_DB_PREFIX}}admin_session_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `{{NAILS_DB_PREFIX}}user` (`id`) ON DELETE CASCADE,
                 CONSTRAINT `{{NAILS_DB_PREFIX}}admin_session_ibfk_2` FOREIGN KEY (`modified_by`) REFERENCES `{{NAILS_DB_PREFIX}}user` (`id`) ON DELETE CASCADE,
                 CONSTRAINT `{{NAILS_DB_PREFIX}}admin_session_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `{{NAILS_DB_PREFIX}}user` (`id`) ON DELETE CASCADE

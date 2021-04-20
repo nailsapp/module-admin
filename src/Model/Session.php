@@ -30,6 +30,13 @@ class Session extends Base
      */
     const RESOURCE_PROVIDER = Constants::MODULE_SLUG;
 
+    /**
+     * Whether to automatically set tokens or not
+     *
+     * @var bool
+     */
+    const AUTO_SET_TOKEN = true;
+
     // --------------------------------------------------------------------------
 
     /**

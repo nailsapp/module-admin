@@ -15,10 +15,16 @@ namespace Nails\Admin\Api\Controller;
 use Nails\Admin\Constants;
 use Nails\Admin\Controller\BaseApi;
 use Nails\Admin\Traits\Api\RestrictToAdmin;
+use Nails\Admin\Resource;
 use Nails\Api;
 use Nails\Common\Exception\FactoryException;
 use Nails\Common\Exception\ModelException;
+use Nails\Common\Exception\NailsException;
+use Nails\Common\Exception\ValidationException;
 use Nails\Common\Helper\Model\Expand;
+use Nails\Common\Service\FormValidation;
+use Nails\Common\Service\HttpCodes;
+use Nails\Common\Service\Uri;
 use NAils\Factory;
 
 /**
@@ -32,63 +38,248 @@ class Session extends BaseApi
 
     // --------------------------------------------------------------------------
 
+    /** @var \Nails\Admin\Model\Session */
+    protected $oModel;
+
+    /** @var Uri */
+    protected $oUri;
+
+    // --------------------------------------------------------------------------
+
     /**
-     * Registers a session heartbeat
+     * Session constructor.
+     *
+     * @param ApiRouter $oApiRouter
+     *
+     * @throws FactoryException
+     * @throws NailsException
+     * @throws \ReflectionException
+     */
+    public function __construct(\ApiRouter $oApiRouter)
+    {
+        parent::__construct($oApiRouter);
+
+        $this->oModel = Factory::model('Session', Constants::MODULE_SLUG);
+        $this->oUri   = Factory::service('Uri');
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Route all POST requests
+     *
+     * @return Api\Factory\ApiResponse
+     * @throws Api\Exception\ApiException
+     * @throws ModelException
+     */
+    public function postRemap(): Api\Factory\ApiResponse
+    {
+        switch ($this->oUri->segment(5)) {
+            case 'destroy':
+                $oSession = $this->getSession();
+                return $this->delete($oSession);
+            default:
+                return $this->create();
+        }
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Route all PUT requests
+     *
+     * @return Api\Factory\ApiResponse
+     * @throws Api\Exception\ApiException
+     * @throws ModelException
+     */
+    public function putRemap(): Api\Factory\ApiResponse
+    {
+        $oSession = $this->getSession();
+
+        switch ($this->oUri->segment(5)) {
+            case 'heartbeat':
+                return $this->pulse($oSession);
+            case 'inactive':
+                return $this->setInactive($oSession);
+        }
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Route all DELETE requests
+     *
+     * @return Api\Factory\ApiResponse
+     * @throws Api\Exception\ApiException
+     * @throws ModelException
+     */
+    public function deleteRemap(): Api\Factory\ApiResponse
+    {
+        $oSession = $this->getSession();
+
+        switch ($this->oUri->segment(5)) {
+            case 'inactive':
+                return $this->setActive($oSession);
+            default:
+                return $this->delete($oSession);
+        }
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Create a new admin session
      *
      * @return Api\Factory\ApiResponse
      * @throws FactoryException
+     * @throws ModelException
      * @throws ValidationException
      */
-    public function putHeartbeat(): Api\Factory\ApiResponse
+    public function create(): Api\Factory\ApiResponse
     {
-        $oSession = $this->getSession();
+        $aData = $this->getRequestData();
+        /** @var FormValidation $oValidation */
+        $oValidation = Factory::service('FormValidation');
+        /** @var \DateTime $oNow */
+        $oNow = Factory::factory('DateTime');
 
-        $this->updateTimestamp($oSession, 'last_heartbeat');
+        $oValidation
+            ->buildValidator([
+                'url' => [
+                    FormValidation::RULE_REQUIRED,
+                    FormValidation::RULE_VALID_URL,
+                ],
+            ])
+            ->run($aData);
 
-        /** @var Api\Factory\ApiResponse $oApiResponse */
-        $oApiResponse = Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG);
-        $oApiResponse->setData($this->getOtherSessions($oSession));
-        return $oApiResponse;
+        $aUrl = parse_url($aData['url']);
+
+        /** @var Resource\Session $oSession */
+        $oSession = $this->oModel->create([
+            'user_id'   => activeUser('id'),
+            'url'       => $aUrl['path'] ?? '/',
+            'heartbeat' => $oNow->format('Y-m-d H:i:s'),
+        ], true);
+
+        return $this->response(
+            [
+                'token' => $oSession->token,
+                'here'  => $this->getOtherSessions($oSession),
+            ],
+            HttpCodes::STATUS_CREATED
+        );
     }
 
     // --------------------------------------------------------------------------
 
     /**
-     * Registers a session interaction
+     * Update the session's heartbeat
+     *
+     * @param Resource\Session $oSession The session to update
      *
      * @return Api\Factory\ApiResponse
      * @throws FactoryException
      * @throws ModelException
+     * @throws ValidationException
      */
-    public function putInteract(): Api\Factory\ApiResponse
+    protected function pulse(Resource\Session $oSession): Api\Factory\ApiResponse
     {
-        $oSession = $this->getSession();
-        $this->updateTimestamp($oSession, 'last_interaction');
+        $this->updateTimestamp($oSession, 'heartbeat');
 
-        /** @var Api\Factory\ApiResponse $oApiResponse */
-        $oApiResponse = Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG);
-        return $oApiResponse;
+        return $this->response([
+            'here' => $this->getOtherSessions($oSession),
+        ]);
     }
 
     // --------------------------------------------------------------------------
 
     /**
-     * Gets the user's admin session
+     * Set a session as inactive
      *
-     * @return \Nails\Admin\Resource\Session|null
+     * @param Resource\Session $oSession The session to update
+     *
+     * @return Api\Factory\ApiResponse
+     * @throws FactoryException
+     * @throws ModelException
+     * @throws ValidationException
+     */
+    protected function setInactive(Resource\Session $oSession): Api\Factory\ApiResponse
+    {
+        $this
+            ->updateTimestamp($oSession, 'inactive')
+            ->updateTimestamp($oSession, 'heartbeat');
+
+        return $this->response([
+            'here' => $this->getOtherSessions($oSession),
+        ]);
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Set a session as active
+     *
+     * @param Resource\Session $oSession The session to update
+     *
+     * @return Api\Factory\ApiResponse
+     * @throws FactoryException
+     * @throws ModelException
+     * @throws ValidationException
+     */
+    protected function setActive(Resource\Session $oSession): Api\Factory\ApiResponse
+    {
+        $this
+            ->updateTimestamp($oSession, 'inactive', null)
+            ->updateTimestamp($oSession, 'heartbeat');
+
+        return $this->response([
+            'here' => $this->getOtherSessions($oSession),
+        ]);
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Delete a session
+     *
+     * @param Resource\Session $oSession The session to delete
+     *
+     * @return Api\Factory\ApiResponse
+     * @throws Api\Exception\ApiException
      * @throws FactoryException
      * @throws ModelException
      */
-    private function getSession(): ?\Nails\Admin\Resource\Session
+    public function delete(Resource\Session $oSession): Api\Factory\ApiResponse
     {
-        /** @var \Nails\Common\Service\Session $oSessionService */
-        $oSessionService = Factory::service('Session');
-        /** @var \Nails\Admin\Model\Session $oModel */
-        $oModel = Factory::model('Session', Constants::MODULE_SLUG);
+        if (!$this->oModel->delete($oSession->id)) {
+            throw new Api\Exception\ApiException('Failed to delete session. ' . $this->oModel->lastError());
+        }
 
-        $iAdminSessionId = (int) $oSessionService->getUserData('admin_session_id');
-        /** @var \Nails\Admin\Resource\Session $oSession */
-        return $oModel->getById($iAdminSessionId);
+        return $this->response();
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the current session
+     *
+     * @return Resource\Session
+     * @throws Api\Exception\ApiException
+     * @throws ModelException
+     */
+    private function getSession(): Resource\Session
+    {
+        /** @var Resource\Session $oSession */
+        $oSession = $this->oModel->getByToken($this->oUri->segment(4));
+
+        if (empty($oSession) || $oSession->user_id !== activeUser('id')) {
+            throw new Api\Exception\ApiException(
+                'Invalid session token',
+                HttpCodes::STATUS_BAD_REQUEST
+            );
+        }
+
+        return $oSession;
     }
 
     // --------------------------------------------------------------------------
@@ -96,29 +287,26 @@ class Session extends BaseApi
     /**
      * Updates a session timestamp
      *
-     * @param \Nails\Admin\Resource\Session|null $oSession
-     * @param string                             $sColumn
+     * @param Resource\Session|null $oSession
+     * @param string                $sColumn
      *
      * @throws FactoryException
      * @throws ModelException
      */
-    private function updateTimestamp(?\Nails\Admin\Resource\Session $oSession, string $sColumn)
+    private function updateTimestamp(Resource\Session $oSession, string $sColumn, ?string $sValue = 'now'): self
     {
-        if (!empty($oSession) && $oSession->user_id === activeUser('id')) {
+        $sValue = $sValue === 'now'
+            ? Factory::factory('DateTime')->format('Y-m-d H:i:s')
+            : $sValue;
 
-            /** @var \DateTime $oNow */
-            $oNow = Factory::factory('DateTime');
-            /** @var \Nails\Admin\Model\Session $oModel */
-            $oModel = Factory::model('Session', Constants::MODULE_SLUG);
+        $this->oModel->update(
+            $oSession->id,
+            [
+                $sColumn => $sValue,
+            ]
+        );
 
-            $oModel->update(
-                $oSession->id,
-                [
-                    $sColumn    => $oNow->format('Y-m-d H:i:s'),
-                    'last_seen' => $oNow->format('Y-m-d H:i:s'),
-                ]
-            );
-        }
+        return $this;
     }
 
     // --------------------------------------------------------------------------
@@ -126,13 +314,13 @@ class Session extends BaseApi
     /**
      * Gets other sessions from the same page
      *
-     * @param \Nails\Admin\Resource\Session|null $oSession
+     * @param Resource\Session|null $oSession
      *
-     * @return \Nails\Admin\Resource\Session[]
+     * @return \stdClass[]
      * @throws FactoryException
      * @throws ModelException
      */
-    private function getOtherSessions(?\Nails\Admin\Resource\Session $oSession): array
+    private function getOtherSessions(?Resource\Session $oSession): array
     {
         if (empty($oSession)) {
             return [];
@@ -141,30 +329,54 @@ class Session extends BaseApi
         /** @var \Nails\Admin\Model\Session $oModel */
         $oModel = Factory::model('Session', Constants::MODULE_SLUG);
 
-        /** @var \Nails\Admin\Resource\Session[] $aSessions */
+        /** @var Resource\Session[] $aSessions */
         $aSessions = $oModel->getAll([
             new Expand('user'),
             'where' => [
                 ['url', $oSession->url],
-                ['user_id !=', $oSession->user_id],
-                ['last_heartbeat >', 'DATE_SUB(NOW(), INTERVAL 60 MINUTE)', false],
+                ['token !=', $oSession->token],
+                ['heartbeat >', 'DATE_SUB(NOW(), INTERVAL 1 MINUTE)', false],
             ],
         ]);
 
-        return array_map(function (\Nails\Admin\Resource\Session $oSession) {
+        return array_map(function (Resource\Session $oSession) {
             return (object) [
-                'user' => (object) [
-                    'id'                        => $oSession->user->id,
-                    'name'                      => $oSession->user->name,
-                    'avatar'                    => cdnAvatar($oSession->user->id),
-                    'last_heartbeat'            => $oSession->last_heartbeat->raw,
-                    'last_heartbeat_relative'   => $oSession->last_heartbeat->relative(),
-                    'last_interaction'          => $oSession->last_interaction->raw,
-                    'last_interaction_relative' => $oSession->last_interaction->relative(),
-                    'last_seen'                 => $oSession->last_seen->raw,
-                    'last_seen_relative'        => $oSession->last_seen->relative(),
+                'user'     => (object) [
+                    'id'     => $oSession->user->id,
+                    'name'   => $oSession->user->name,
+                    'avatar' => cdnAvatar($oSession->user->id),
                 ],
+                'created'  => $oSession->created->relative(false),
+                'inactive' => $oSession->inactive
+                    ? $oSession->inactive->relative(false)
+                    : null,
             ];
         }, $aSessions);
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Build an ApiResponse
+     *
+     * @param array    $aData
+     * @param int|null $iCode
+     *
+     * @return Api\Factory\ApiResponse
+     * @throws FactoryException
+     * @throws ValidationException
+     */
+    private function response(array $aData, int $iCode = null): Api\Factory\ApiResponse
+    {
+        /** @var Api\Factory\ApiResponse $oApiResponse */
+        $oApiResponse = Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG);
+
+        if ($iCode) {
+            $oApiResponse->setCode($iCode);
+        }
+
+        $oApiResponse->setData($aData);
+
+        return $oApiResponse;
     }
 }

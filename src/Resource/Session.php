@@ -13,6 +13,9 @@ use Nails\Common\Resource\Entity;
  */
 class Session extends Entity
 {
+    /** @var string */
+    public $token;
+
     /** @var int */
     public $user_id;
 
@@ -23,14 +26,8 @@ class Session extends Entity
     public $url;
 
     /** @var DateTime */
-    public $last_pageload;
+    public $heartbeat;
 
     /** @var DateTime */
-    public $last_heartbeat;
-
-    /** @var DateTime */
-    public $last_interaction;
-
-    /** @var DateTime */
-    public $last_seen;
+    public $inactive;
 }

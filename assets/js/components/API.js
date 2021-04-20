@@ -8,8 +8,10 @@ const API = {
         }
     },
     session: {
-        heartbeat: 'admin/session/heartbeat',
-        interact: 'admin/session/interact',
+        create: 'admin/session',
+        destroy: (token) => `admin/session/${token}/destroy`,
+        heartbeat: (token) => `admin/session/${token}/heartbeat`,
+        inactive: (token) => `admin/session/${token}/inactive`,
     }
 };
 
