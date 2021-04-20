@@ -1,14 +1,15 @@
 <?php
 
+use Nails\Admin\Helper;
+use Nails\Common\Service\View;
 use Nails\Common\Traits\Model\Localised;
 use Nails\Common\Traits\Model\Nestable;
+use Nails\Factory;
 
 $bIsLocalised = classUses($CONFIG['MODEL_INSTANCE'], Localised::class);
 $bIsNestable  = classUses($CONFIG['MODEL_INSTANCE'], Nestable::class);
 
-?>
-<?=form_open()?>
-<?php
+echo form_open();
 
 /** @var \Nails\Admin\Factory\DefaultController\Sort\Section $oSection */
 foreach ($aSections as $oSection) {
@@ -161,10 +162,5 @@ foreach ($aSections as $oSection) {
     <?php
 }
 
-?>
-<div class="admin-floating-controls">
-    <button type="submit" class="btn btn-primary">
-        Save Changes
-    </button>
-</div>
-<?=form_close()?>
+echo Helper::floatingControls();
+echo form_close();

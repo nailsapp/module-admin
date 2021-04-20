@@ -749,4 +749,28 @@ class Helper
     {
         return static::$aModals;
     }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Renders the floating control bar
+     *
+     * @param array $aConfig The bar config
+     *
+     * @return string
+     * @throws FactoryException
+     * @throws ViewNotFoundException
+     */
+    public static function floatingControls(array $aConfig = []): string
+    {
+        /** @var View $oView */
+        $oView = Factory::service('View');
+
+        return $oView
+            ->load(
+                'admin/_components/floating-controls',
+                ['aFloatingConfig' => $aConfig],
+                true
+            );
+    }
 }

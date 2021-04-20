@@ -1708,7 +1708,16 @@ abstract class DefaultController extends Base
         /** @var Input $oInput */
         $oInput = Factory::service('Input');
 
-        if ($oItem->modified->raw !== $oInput->post('last_modified') && !(int) $oInput->post('overwrite')) {
+        $sUserTimestamp = $oInput->post('last_modified');
+        $sItemTimestamp = $oItem->modified->raw;
+        $bOverwrite     = stringToBoolean($oInput->post('overwrite'));
+
+        /**
+         * If the user does not provide a timestamp then we cannot reliably determine
+         * if it has changed. It is possible that the edit view is overridden and has
+         * not provided the relevant inputs.
+         */
+        if ($sUserTimestamp && $sItemTimestamp !== $sUserTimestamp && !$bOverwrite) {
             throw new ItemModifiedException();
         }
     }

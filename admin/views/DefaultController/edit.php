@@ -46,32 +46,11 @@ if (!empty($oItem)) {
 ?>
 <div class="group-defaultcontroller edit" <?=$CONFIG['EDIT_PAGE_ID'] ? 'id="' . $CONFIG['EDIT_PAGE_ID'] . '"' : ''?>>
     <?php
+
     echo form_open(null, 'id="default-controller-form"');
-    if (!empty($oItem)) {
-        ?>
-        <input type="hidden" name="last_modified" value="<?=set_value('last_modified', $oItem->modified)?>" />
-        <input type="hidden" name="overwrite" value="0" id="default-controller-overwrite"/>
-        <?php
-    }
     echo Helper::tabs($aTabs);
+    echo Helper::floatingControls($CONFIG['FLOATING_CONFIG']);
+    echo form_close();
+
     ?>
-    <div class="admin-floating-controls">
-        <button type="submit" class="btn btn-primary">
-            Save Changes
-        </button>
-        <?php
-        if (!empty($oItem) && $CONFIG['ENABLE_NOTES']) {
-            ?>
-            <button type="button"
-                    class="btn btn-default pull-right js-admin-notes"
-                    data-model-name="<?=$CONFIG['MODEL_NAME']?>"
-                    data-model-provider="<?=$CONFIG['MODEL_PROVIDER']?>"
-                    data-id="<?=$oItem->id?>">
-                Notes
-            </button>
-            <?php
-        }
-        ?>
-    </div>
-    <?=form_close()?>
 </div>

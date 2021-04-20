@@ -39,11 +39,5 @@ foreach ($aFieldSets as $sLabel => $aFields) {
 
 echo form_open($sFormUrl);
 echo \Nails\Admin\Helper::tabs($aTabs);
-?>
-    <div class="admin-floating-controls">
-        <button type="submit" class="btn btn-primary">
-            Save Changes
-        </button>
-    </div>
-<?php
+echo \Nails\Admin\Helper::floatingControls();
 echo form_close();
