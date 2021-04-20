@@ -62,6 +62,6 @@ $sNotesProvider = $aFloatingConfig['notes']['provider'] ?? null;
         <?php
     }
 
-    echo $sHtmlright;
+    echo $sHtmlRight;
     ?>
 </div>
