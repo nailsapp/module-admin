@@ -97,7 +97,7 @@
         </a>
     </div>
     <div class="user-shortcuts">
-        <div class="shortcut loggedin-as" rel="tipsy" title="Logged in as <?=activeUser('first_name,last_name')?>">
+        <div class="shortcut loggedin-as hint--bottom-left" aria-label="Logged in as <?=activeUser('first_name,last_name')?>">
             <?php
 
             $url  = 'admin/auth/accounts/edit/' . activeUser('id');
@@ -109,15 +109,11 @@
                 ]
             );
 
-            echo anchor(
-                $url,
-                '<span class="name">' . activeUser('first_name,last_name') . '</span>' . $img,
-                $attr
-            );
+            echo anchor($url, $img, $attr);
 
             ?>
         </div>
-        <div class="shortcut to-frontend" rel="tipsy" title="Switch to front end">
+        <div class="shortcut to-frontend hint--bottom" aria-label="Switch to front end">
             <?=anchor('', '<span class="fa fa-reply-all"></span>', 'class="admin-branding-text-primary"')?>
         </div>
         <?php
@@ -127,7 +123,7 @@
             $adminRecovery = getAdminRecoveryData();
 
             ?>
-            <div class="shortcut admin-recovery" rel="tipsy" title="Log back in as <?=$adminRecovery->name?>">
+            <div class="shortcut admin-recovery hint--bottom" aria-label="Log back in as <?=$adminRecovery->name?>">
                 <?php
 
                 echo anchor(
@@ -142,7 +138,7 @@
         }
 
         ?>
-        <div class="shortcut logout" rel="tipsy" title="Log out">
+        <div class="shortcut logout hint--bottom" aria-label="Log out">
             <?php
 
             echo anchor(
@@ -264,7 +260,7 @@
 
                                     ?>
                                     <li>
-                                        <a href="<?=siteUrl('admin/' . $url)?>" data-search-terms="<?=implode(',',  $methodDetails->searchTerms)?>">
+                                        <a href="<?=siteUrl('admin/' . $url)?>" data-search-terms="<?=implode(',', $methodDetails->searchTerms)?>">
                                             <?php
 
                                             echo $methodDetails->label;
@@ -280,10 +276,9 @@
                                                     }
 
                                                     $sLabel    = $alert->getLabel() ?: '';
-                                                    $sTipsy    = $sLabel ? 'rel="tipsy-right"' : '';
                                                     $sSeverity = $alert->getSeverity();
 
-                                                    echo '<span class="indicator ' . $sSeverity . '" ' . $sTipsy . ' title="' . $sLabel . '">';
+                                                    echo '<span class="indicator hint--bottom-left ' . $sSeverity . '" aria-label="' . $sLabel . '">';
                                                     echo $sValue;
                                                     echo '</span>';
                                                 }

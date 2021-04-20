@@ -235,9 +235,8 @@ abstract class Base extends BaseMiddle
             //  jQuery Cookies
             ->load('https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js')
 
-            //  Tipsy
-            ->load('https://cdnjs.cloudflare.com/ajax/libs/jquery.tipsy/1.0.3/jquery.tipsy.min.js')
-            ->load('https://cdnjs.cloudflare.com/ajax/libs/jquery.tipsy/1.0.3/jquery.tipsy.css')
+            //  hint.css
+            ->load('https://cdnjs.cloudflare.com/ajax/libs/hint.css/2.6.0/hint.min.css')
 
             //  Retina.js
             ->load('https://cdnjs.cloudflare.com/ajax/libs/retina.js/1.3.0/retina.min.js')

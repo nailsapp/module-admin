@@ -76,12 +76,14 @@ body {
                 display: none;
             }
         }
+
         .user-shortcuts {
             position: absolute;
             right: 0;
             top: 0;
             padding-right: 10px;
             height: $header-height;
+
             .shortcut {
                 display: inline-block;
                 min-width: $shortcut-width;
@@ -90,66 +92,44 @@ body {
                 margin-top: (($header-height - $shortcut-height) / 2) - 1;
                 border: 1px solid #ccc;
                 background: #fff;
-                overflow: hidden;
                 float: right;
                 @include rounded($shortcut-height / 2);
                 text-align: center;
                 font-size: 1.25em;
                 line-height: $shortcut-width - 1px;
+
                 a {
                     display: inline-block;
                     width: 100%;
                     height: 100%;
+
                     span {
                         @include opacity(0.5);
                     }
+
                     &:hover {
                         span {
                             @include opacity(1);
                         }
                     }
+
                     &:active,
                     &:focus {
                         outline: none;
                     }
                 }
+
                 &.loggedin-as {
                     font-size: 1em;
-                    a {
-                        text-decoration: none;
-                        position: relative;
-                        span.name {
-                            transition: width, 0.25s, padding 0.25s;
-                            -webkit-transition: width, 0.25s, padding 0.25s;
-                            -moz-transition: width, 0.25s, padding 0.25s;
-                            width: 0;
-                            display: inline-block;
-                            text-overflow: ellipsis;
-                            white-space: nowrap;
-                            overflow: hidden;
-                            padding: 0;
-                            margin-right: $shortcut-height;
-                            cursor: pointer;
-                        }
-                        img {
-                            width: auto;
-                            height: $shortcut-height + 1;
-                            width: $shortcut-width + 1;
-                            @include rounded(50%);
-                            position: absolute;
-                            top: -1px;
-                            right: -1px;
-                        }
 
-                        &:hover {
-                            span.name {
-                                transition: width, 0.25s, padding 0.25s;
-                                -webkit-transition: width, 0.25s, padding 0.25s;
-                                -moz-transition: width, 0.25s, padding 0.25s;
-                                width: 100px;
-                                padding: 0 1em;
-                            }
-                        }
+                    img {
+                        width: auto;
+                        height: $shortcut-height - 2;
+                        width: $shortcut-width - 2;
+                        @include rounded(50%);
+                        position: absolute;
+                        top: 0;
+                        right: 0;
                     }
                 }
             }
@@ -417,18 +397,22 @@ body {
                 font-size: 0.9em;
                 color: #333;
                 cursor: default;
+
                 &.info {
                     background: #5bc0de;
                     color: #fff;
                 }
+
                 &.danger {
                     background: #d9534f;
                     color: #fff;
                 }
+
                 &.success {
                     background: #5cb85c;
                     color: #fff;
                 }
+
                 &.warning {
                     background: #f0ad4e;
                     color: #fff;
@@ -507,6 +491,7 @@ body {
                     float: right;
                     position: relative;
                     top: -3px;
+
                     .fa {
                         margin-right: 0.4em;
                     }
@@ -528,6 +513,7 @@ body {
                 border-bottom: 2px solid #e3e3e3;
                 padding: 0.5em;
                 background-color: rgba(355, 355, 355, 0.5);
+
                 &:first-child {
                     margin-top: 0;
                 }
@@ -613,6 +599,7 @@ body {
                 width: $sidebar-width-md + 1;
             }
         }
+
         & > .header {
             left: $sidebar-width-md + 1;
         }

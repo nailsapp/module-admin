@@ -1342,7 +1342,7 @@ abstract class DefaultController extends Base
                 [
                     'Locale' => function ($oRow) {
                         $sFlag = $oRow->locale->getFlagEmoji();
-                        return $sFlag ? '<span rel="tipsy" title="' . $oRow->locale->getDisplayLanguage() . '">' . $sFlag . '</span>' : $oRow->locale;
+                        return $sFlag ? '<span class="hint--bottom" aria-label="' . $oRow->locale->getDisplayLanguage() . '">' . $sFlag . '</span>' : $oRow->locale;
                     },
                 ],
                 $aConfig['INDEX_FIELDS']
@@ -1452,7 +1452,7 @@ abstract class DefaultController extends Base
                     'attr'  => function ($oItem) {
                         if (!static::localisedItemCanBeCreated($oItem)) {
                             //  @todo (Pablo - 2019-04-17) - Explicitly state why
-                            return 'rel="tipsy" title="A new version cannot be created; you may not have permission, ' .
+                            return 'class="hint--bottom" aria-label="A new version cannot be created; you may not have permission, ' .
                                 'or all supported locales exist already"';
                         }
                         return '';
@@ -1470,7 +1470,7 @@ abstract class DefaultController extends Base
                     'attr'    => function ($oItem) {
                         if (!static::localisedItemCanBeDeleted($oItem)) {
                             //  @todo (Pablo - 2019-04-17) - Explicitly state why
-                            return 'rel="tipsy" title="This item cannot be deleted; you may not have permission, ' .
+                            return 'class="hint--bottom" aria-label="This item cannot be deleted; you may not have permission, ' .
                                 'or other locales may exist which need to be deleted first"';
                         }
                         return '';

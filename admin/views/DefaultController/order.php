@@ -58,7 +58,7 @@ foreach ($aSections as $oSection) {
                             <?php
                             foreach ($oItem->available_locales as $oLocale) {
                                 ?>
-                                <span rel="tipsy" title="<?=$oLocale->getDisplayLanguage()?>">
+                                <span class="hint--bottom" aria-label="<?=$oLocale->getDisplayLanguage()?>">
                                 <?=$oLocale->getFlagEmoji()?>
                             </span>
                                 <?php
