@@ -318,6 +318,11 @@ abstract class DefaultController extends Base
     const EDIT_ENABLE_NOTES = true;
 
     /**
+     * Enable or disable the "last modified" check on save
+     */
+    const EDIT_ENABLE_MODIFIED_CHECK = true;
+
+    /**
      * Message displayed to user when an item is successfully created
      */
     const CREATE_SUCCESS_MESSAGE = 'Item created successfully. %s';
@@ -1317,6 +1322,22 @@ abstract class DefaultController extends Base
             'FIELDSET_ORDER'         => static::CONFIG_EDIT_FIELDSET_ORDER,
             'ENABLE_NOTES'           => static::EDIT_ENABLE_NOTES,
             'FIELDS'                 => $oModel->describeFields(),
+            'FLOATING_CONFIG'        => [
+                'last_modified' => [
+                    'enabled'       => static::EDIT_ENABLE_MODIFIED_CHECK,
+                    'last_modified' => [
+                        'id' => 'default-controller-last-modified',
+                    ],
+                    'overwrite'     => [
+                        'id' => 'default-controller-overwrite',
+                    ],
+                ],
+                'notes'         => [
+                    'enabled'  => static::EDIT_ENABLE_NOTES,
+                    'model'    => static::CONFIG_MODEL_NAME,
+                    'provider' => static::CONFIG_MODEL_PROVIDER,
+                ],
+            ],
         ];
 
         $this->aConfig        =& $aConfig;
@@ -1717,7 +1738,12 @@ abstract class DefaultController extends Base
          * if it has changed. It is possible that the edit view is overridden and has
          * not provided the relevant inputs.
          */
-        if ($sUserTimestamp && $sItemTimestamp !== $sUserTimestamp && !$bOverwrite) {
+        if (
+            static::EDIT_ENABLE_MODIFIED_CHECK
+            && $sUserTimestamp
+            && $sItemTimestamp !== $sUserTimestamp
+            && !$bOverwrite
+        ) {
             throw new ItemModifiedException();
         }
     }
