@@ -359,14 +359,14 @@ class Session extends BaseApi
     /**
      * Build an ApiResponse
      *
-     * @param array    $aData
-     * @param int|null $iCode
+     * @param array|null $aData
+     * @param int|null   $iCode
      *
      * @return Api\Factory\ApiResponse
      * @throws FactoryException
      * @throws ValidationException
      */
-    private function response(array $aData, int $iCode = null): Api\Factory\ApiResponse
+    private function response(array $aData = null, int $iCode = null): Api\Factory\ApiResponse
     {
         /** @var Api\Factory\ApiResponse $oApiResponse */
         $oApiResponse = Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG);
@@ -375,7 +375,9 @@ class Session extends BaseApi
             $oApiResponse->setCode($iCode);
         }
 
-        $oApiResponse->setData($aData);
+        if (!empty($aData)) {
+            $oApiResponse->setData($aData);
+        }
 
         return $oApiResponse;
     }
