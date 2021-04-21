@@ -37,14 +37,14 @@ $sNotesProvider = $aFloatingConfig['notes']['provider'] ?? null;
             $sLastModifiedKey,
             set_value($sLastModifiedKey, $oItem->modified ?? null),
             implode(' ', array_filter([
-                'id' => $sLastModifiedId,
+                $sLastModifiedId ? 'id="' . $sLastModifiedId . '"' : null,
             ]))
         );
         echo form_hidden(
             $sLastModifiedOverWriteKey,
             0,
             implode(' ', array_filter([
-                'id' => $sLastModifiedOverWriteId,
+                $sLastModifiedOverWriteId ? 'id="' . $sLastModifiedOverWriteId . '"' : null,
             ]))
         );
     }
