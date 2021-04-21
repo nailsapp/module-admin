@@ -47,7 +47,7 @@ if (!empty($oItem)) {
 <div class="group-defaultcontroller edit" <?=$CONFIG['EDIT_PAGE_ID'] ? 'id="' . $CONFIG['EDIT_PAGE_ID'] . '"' : ''?>>
     <?php
 
-    echo form_open(null, 'id="default-controller-form"');
+    echo form_open();
     echo Helper::tabs($aTabs);
     echo Helper::floatingControls($CONFIG['FLOATING_CONFIG']);
     echo form_close();

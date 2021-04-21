@@ -320,7 +320,17 @@ abstract class DefaultController extends Base
     /**
      * Enable or disable the "last modified" check on save
      */
-    const EDIT_ENABLE_MODIFIED_CHECK = true;
+    const EDIT_MODIFIED_CHECK_ENABLED = true;
+
+    /**
+     * The ID of the "modified" hidden input
+     */
+    const EDIT_MODIFIED_CHECK_ID_MODIFIED = 'default-controller-modified';
+
+    /**
+     * The ID of the "overwrite" hidden input
+     */
+    const EDIT_MODIFIED_CHECK_ID_OVERWRITE = 'default-controller-overwrite';
 
     /**
      * Message displayed to user when an item is successfully created
@@ -906,7 +916,16 @@ abstract class DefaultController extends Base
                 $oUserModel = Factory::model('User', \Nails\Auth\Constants::MODULE_SLUG);
                 $oUser      = $oUserModel->getById($oItem->modified_by);
 
+                $sFuncName   = sprintf('submitForm_%s', uniqid());
+                $sModifiedId = static::EDIT_MODIFIED_CHECK_ID_OVERWRITE;
+
                 $sBody = <<<EOT
+                    <script>
+                    function $sFuncName() {
+                        document.getElementById('$sModifiedId').value = 1;
+                        document.querySelector('body .content form').submit();
+                    }
+                    </script>
                     <p class="alert alert-danger">
                         This item has been modified since you started editing.
                     </p>
@@ -916,10 +935,7 @@ abstract class DefaultController extends Base
                     <p>
                         <button
                             class="btn btn-danger btn-block"
-                            onclick="
-                                document.getElementById('default-controller-overwrite').value = 1;
-                                document.getElementById('default-controller-form').submit();
-                            "
+                            onclick="$sFuncName()"
                         >
                             Overwrite
                         </button>
@@ -1324,12 +1340,12 @@ abstract class DefaultController extends Base
             'FIELDS'                 => $oModel->describeFields(),
             'FLOATING_CONFIG'        => [
                 'last_modified' => [
-                    'enabled'       => static::EDIT_ENABLE_MODIFIED_CHECK,
+                    'enabled'       => static::EDIT_MODIFIED_CHECK_ENABLED,
                     'last_modified' => [
-                        'id' => 'default-controller-last-modified',
+                        'id' => static::EDIT_MODIFIED_CHECK_ID_MODIFIED,
                     ],
                     'overwrite'     => [
-                        'id' => 'default-controller-overwrite',
+                        'id' => static::EDIT_MODIFIED_CHECK_ID_OVERWRITE,
                     ],
                 ],
                 'notes'         => [
@@ -1739,7 +1755,7 @@ abstract class DefaultController extends Base
          * not provided the relevant inputs.
          */
         if (
-            static::EDIT_ENABLE_MODIFIED_CHECK
+            static::EDIT_MODIFIED_CHECK_ENABLED
             && $sUserTimestamp
             && $sItemTimestamp !== $sUserTimestamp
             && !$bOverwrite
