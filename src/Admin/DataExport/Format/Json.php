@@ -1,6 +1,6 @@
 <?php
 
-namespace Nails\Admin\DataExport\Format;
+namespace Nails\Admin\Admin\DataExport\Format;
 
 use Nails\Admin\DataExport\SourceResponse;
 use Nails\Admin\Interfaces\DataExport\Format;

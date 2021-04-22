@@ -87,7 +87,7 @@ class DataExport
         foreach (Components::available() as $oComponent) {
 
             $aClasses = $oComponent
-                ->findClasses('DataExport\\Source')
+                ->findClasses('Admin\\DataExport\\Source')
                 ->whichImplement(Interfaces\DataExport\Source::class);
 
             foreach ($aClasses as $sClass) {
@@ -102,7 +102,7 @@ class DataExport
             }
 
             $aClasses = $oComponent
-                ->findClasses('DataExport\\Format')
+                ->findClasses('Admin\\DataExport\\Format')
                 ->whichImplement(Interfaces\DataExport\Format::class);
 
             foreach ($aClasses as $sClass) {
@@ -135,7 +135,7 @@ class DataExport
      */
     protected function generateSlug(Component $oComponent, string $sClass): string
     {
-        $sClass = preg_replace('/^.*\\\\DataExport\\\\(Source|Format)\\\\/', '', $sClass);
+        $sClass = preg_replace('/^.*\\\\Admin\\\\DataExport\\\\(Source|Format)\\\\/', '', $sClass);
         $sClass = str_replace('\\', '', $sClass);
 
         return sprintf(
