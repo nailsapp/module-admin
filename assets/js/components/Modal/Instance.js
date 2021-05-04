@@ -7,6 +7,7 @@ class Instance {
     constructor(adminController, options) {
 
         this.adminController = adminController;
+        options = options || {};
 
         this.classes = {
             container: 'modal',

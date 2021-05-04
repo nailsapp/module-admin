@@ -457,7 +457,8 @@ class AdminRouter extends BaseMiddle
         //  Get user's prefs
         /** @var \Nails\Admin\Model\Admin $oAdminModel */
         $oAdminModel = Factory::model('Admin', Constants::MODULE_SLUG);
-        $userNavPref = $oAdminModel->getAdminData('nav_state');
+        $userNavPref = (array) $oAdminModel->getAdminData('nav_state');
+        arraySortMulti($userNavPref, 'order');
 
         if (!empty($userNavPref)) {
 

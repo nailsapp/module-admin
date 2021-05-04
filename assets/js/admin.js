@@ -14,6 +14,7 @@ import IndexButtons from './components/IndexButtons.js';
 import InputHelper from './components/InputHelper.js';
 import Modal from './components/Modal.js';
 import Modalize from './components/Modalize.js';
+import Navigation from './components/Navigation.js';
 import Notes from './components/Notes.js';
 import Repeater from './components/Repeater.js';
 import Revealer from './components/Revealer.js';
@@ -352,6 +353,13 @@ window
         'Modalize',
         function(controller) {
             return new Modalize(controller);
+        }
+    )
+    .registerPlugin(
+        window.NAILS.ADMIN.namespace,
+        'Navigation',
+        function(controller) {
+            return new Navigation(controller);
         }
     )
     .registerPlugin(

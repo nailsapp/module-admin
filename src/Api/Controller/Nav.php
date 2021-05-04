@@ -45,15 +45,18 @@ class Nav extends BaseApi
         /** @var Api\Factory\ApiResponse $oApiResponse */
         $oApiResponse = Factory::factory('ApiResponse', Api\Constants::MODULE_SLUG);
 
-        $aPrefRaw = array_filter((array) $oInput->post('preferences'));
-        $oPref    = new \stdClass();
+        $aData    = $this->getRequestData();
+        $aPrefRaw = array_filter((array) ($aData['preferences'] ?? []));
 
+        $aPref = [];
         foreach ($aPrefRaw as $sModule => $aOptions) {
-            $oPref->{$sModule}       = new \stdClass();
-            $oPref->{$sModule}->open = stringToBoolean($aOptions['open']);
+            $aPref[$sModule] = (object) [
+                'order' => (int) ($aOptions['order'] ?? 0),
+                'open'  => stringToBoolean($aOptions['open']),
+            ];
         }
 
-        $oAdminModel->setAdminData('nav_state', $oPref);
+        $oAdminModel->setAdminData('nav_state', $aPref);
 
         return $oApiResponse;
     }

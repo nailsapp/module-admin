@@ -1,4 +1,8 @@
 const API = {
+    navigation: {
+        reset: 'admin/nav/reset',
+        save: 'admin/nav/save'
+    },
     dashboard: {
         widgets: {
             fetch: 'admin/dashboard/widget',

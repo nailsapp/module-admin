@@ -201,7 +201,7 @@
 
                 ?>
                 <li class="module admin-branding-background-primary <?=$sortableClass?>" data-grouping="<?=md5($module->label)?>" data-initial-state="<?=$openState?>">
-                    <div class="box <?=$openState?>">
+                    <div class="box">
                         <h2>
                             <div class="icon admin-branding-text-highlight">
                                 <?php
@@ -239,17 +239,17 @@
                                 ?>
                             </div>
                             <span class="module-name">
-                                    <?=$module->label?>
-                                </span>
+                                <?=$module->label?>
+                            </span>
                             <a href="#" class="toggle">
-                                    <span class="toggler">
-                                        <span class="close">
-                                            <b class="fa fa-minus"></b>
-                                        </span>
-                                        <span class="open">
-                                            <b class="fa fa-plus"></b>
-                                        </span>
+                                <span class="toggler">
+                                    <span class="close">
+                                        <b class="fa fa-minus"></b>
                                     </span>
+                                    <span class="open">
+                                        <b class="fa fa-plus"></b>
+                                    </span>
+                                </span>
                             </a>
                         </h2>
                         <div class="box-container">
