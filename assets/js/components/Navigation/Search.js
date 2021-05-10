@@ -78,7 +78,7 @@ class Search {
 
                         let link = item.querySelector('a');
                         let text = this.normaliseSearchString(
-                            item.innerText + link.dataset['search-terms']
+                            [link.textContent, link.dataset['search-terms']].join('')
                         );
 
                         if (regex.test(text)) {
