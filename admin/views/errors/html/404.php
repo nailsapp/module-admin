@@ -1,7 +1,7 @@
 <?php
 $oAsset = \Nails\Factory::service('Asset');
 $oAsset->clear();
-$oAsset->load('nails.min.css', 'nails/common');
+$oAsset->load('nails.min.css', \Nails\Common\Constants::MODULE_SLUG);
 $oView = \Nails\Factory::service('View');
 $oView->load('structure/header/blank');
 ?>
