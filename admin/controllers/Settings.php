@@ -191,14 +191,16 @@ class Settings extends Base
                 foreach ($oSetting->instance->get() as $oField) {
                     if (!$oField->isReadOnly()) {
 
-                        $mValue     = $oInput->post($oField->getKey());
+                        $sKey       = $this->normaliseKey($oField->getKey());
+                        $mValue     = $oInput->post($sKey);
                         $cFormatter = $oField->getSaveFormatter();
+
                         if ($cFormatter !== null) {
                             $mValue = call_user_func($cFormatter, $mValue);
                         }
 
                         setAppSetting(
-                            $this->normaliseKey($oField->getKey()),
+                            $sKey,
                             $oSetting->component->slug,
                             $mValue,
                             $oField->isEncrypted()
