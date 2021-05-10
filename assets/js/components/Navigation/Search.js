@@ -94,7 +94,7 @@ class Search {
 
                 if (visible.length) {
 
-                    section.instance.box.element.classList.remove('hidden');
+                    section.instance.box.element.classList.remove('hidden', 'closed');
 
                     //  Size the box to accommodate visible options
                     let height = section.instance.box.container.querySelector('ul').offsetHeight;
