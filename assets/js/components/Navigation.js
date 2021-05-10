@@ -121,7 +121,7 @@ class Navigation {
 
             let config = {};
             let order = 0;
-            let sections = document.querySelectorAll('.sidebar > ul.modules > li.sortable');
+            let sections = document.querySelectorAll('.sidebar > ul.modules > li');
             sections.forEach((element) => {
                 this.sections.forEach((section) => {
                     if (section.element === element) {
