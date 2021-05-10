@@ -155,7 +155,7 @@ class Search {
      * @returns {string}
      */
     normaliseSearchString(searchString) {
-        return searchString.replace(/[^a-zA-Z0-9]/g, '');
+        return searchString.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
     };
 
     // --------------------------------------------------------------------------
