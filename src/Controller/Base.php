@@ -249,12 +249,12 @@ abstract class Base extends BaseMiddle
             ->load('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css')
 
             //  Asset libraries
-            ->library('jqueryui')
-            ->library('select2')
-            ->library('ckeditor')
-            ->library('knockout')
-            ->library('moment')
-            ->library('mustache');
+            ->library('JQUERYUI')
+            ->library('SELECT2')
+            ->library('CKEDITOR')
+            ->library('KNOCKOUT')
+            ->library('MOMENT')
+            ->library('MUSTACHE');
 
         return $this;
     }
