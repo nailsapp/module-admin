@@ -66,6 +66,8 @@ class Search {
 
         this.hideToggles();
 
+        let regex = new RegExp(keywords, 'gi');
+
         this.mainController
             .sections
             .forEach((section) => {
@@ -74,7 +76,6 @@ class Search {
                     .querySelectorAll('li')
                     .forEach((item) => {
 
-                        let regex = new RegExp(keywords, 'gi');
                         let link = item.querySelector('a');
                         let text = this.normaliseSearchString(
                             item.innerText + link.dataset['search-terms']
