@@ -66,7 +66,7 @@ class Search {
 
         this.hideToggles();
 
-        let regex = new RegExp(keywords, 'gi');
+        let regex = new RegExp(keywords, 'i');
 
         this.mainController
             .sections
