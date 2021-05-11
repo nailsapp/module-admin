@@ -31,10 +31,10 @@ class Form
      */
     public static function dynamicTable(array $aConfig): string
     {
-        $sKey      = ArrayHelper::getFromArray('key', $aConfig, []);
-        $aColumns  = ArrayHelper::getFromArray('columns', $aConfig, []);
-        $bSortable = (bool) ArrayHelper::getFromArray('sortable', $aConfig, false);
-        $sDefault  = ArrayHelper::getFromArray('default', $aConfig, '');
+        $sKey      = ArrayHelper::get('key', $aConfig, []);
+        $aColumns  = ArrayHelper::get('columns', $aConfig, []);
+        $bSortable = (bool) ArrayHelper::get('sortable', $aConfig, false);
+        $sDefault  = ArrayHelper::get('default', $aConfig, '');
 
         if (!is_string($sDefault)) {
             $sDefault = json_encode($sDefault);
