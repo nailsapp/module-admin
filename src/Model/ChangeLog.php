@@ -83,7 +83,27 @@ class ChangeLog extends Base
             Events::getEventNamespace(),
             [$this, 'save']
         );
+    }
 
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the searchable columns for this module
+     *
+     * @return string[]
+     */
+    public function getSearchableColumns(): array
+    {
+        return [
+            'user_id',
+            'verb',
+            'article',
+            'item',
+            'item_id',
+            'title',
+            'url',
+            'changes',
+        ];
     }
 
     // --------------------------------------------------------------------------
