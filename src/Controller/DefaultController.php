@@ -38,6 +38,7 @@ use Nails\Common\Service\Uri;
 use Nails\Common\Traits\Model\Copyable;
 use Nails\Common\Traits\Model\Localised;
 use Nails\Common\Traits\Model\Nestable;
+use Nails\Common\Traits\Model\Publishable;
 use Nails\Common\Traits\Model\Sortable;
 use Nails\Factory;
 
@@ -115,7 +116,6 @@ abstract class DefaultController extends Base
      */
     const CONFIG_INDEX_FIELDS = [
         'Label'       => 'label',
-        'Created'     => 'created',
         'Modified'    => 'modified',
         'Modified By' => 'modified_by',
     ];
@@ -942,7 +942,6 @@ abstract class DefaultController extends Base
                     </p>
                 EOT;
 
-
                 Helper::addModal(
                     'Changes have not yet been saved',
                     sprintf(
@@ -1386,6 +1385,60 @@ abstract class DefaultController extends Base
             );
         }
 
+        if (classUses($oModel, Publishable::class)) {
+            $sColumnIsPublished      = $oModel->getColumnIsPublished();
+            $sColumnDatePublished    = $oModel->getColumnDatePublished();
+            $sColumnDateExpire       = $oModel->getColumnDateExpire();
+            $aConfig['INDEX_FIELDS'] = array_merge(
+                $aConfig['INDEX_FIELDS'],
+                [
+                    'Published' => function ($oItem) use ($sColumnIsPublished, $sColumnDatePublished, $sColumnDateExpire) {
+
+                        if (empty($oItem->{$sColumnIsPublished})) {
+                            return [
+                                sprintf(
+                                    '<span class="hint--top" aria-label="%s"><b class="fa fa-lg %s"></b></span>',
+                                    'Item is explicitly marked as unpublished',
+                                    'fa-times-circle'
+                                ),
+                                'text-center danger',
+                            ];
+                        }
+
+                        $oDatePublished = $sColumnDatePublished ? ($oItem->{$sColumnDatePublished} ?? null) : null;
+                        $oDateExpire    = $sColumnDateExpire ? ($oItem->{$sColumnDateExpire} ?? null) : null;
+
+                        $bIsPublished = (!$oDatePublished || $oDatePublished->isPast()) && (!$oDateExpire || $oDateExpire->isFuture());
+
+                        return [
+                            sprintf(
+                                '<span class="hint--top" aria-label="%s"><b class="fa fa-lg %s"></b></span>',
+                                $bIsPublished
+                                    ? ''
+                                    : implode('; ', array_filter([
+                                    $oDatePublished && $oDatePublished->isFuture()
+                                        ? 'Will be published: ' . $oDatePublished->formatted . ' (' . $oDatePublished->relative() . ')'
+                                        : null,
+                                    $oDateExpire && $oDateExpire->isPast()
+                                        ? 'Expired: ' . $oDateExpire->formatted . ' (' . $oDateExpire->relative() . ')'
+                                        : null,
+                                ])),
+                                $bIsPublished
+                                    ? 'fa-check-circle'
+                                    : 'fa-times-circle'
+                            ),
+                            implode(' ', [
+                                'text-center',
+                                $bIsPublished
+                                    ? 'success'
+                                    : 'danger',
+                            ]),
+                        ];
+                    },
+                ],
+            );
+        }
+
         // --------------------------------------------------------------------------
 
         if (static::isCreateButtonEnabled() && classUses($oModel, Localised::class)) {
@@ -1674,7 +1727,7 @@ abstract class DefaultController extends Base
     /**
      * Any checkbox style filters to include on the index page
      *
-     * @return array
+     * @return IndexFilter[]
      */
     protected function indexCheckboxFilters(): array
     {
@@ -1686,32 +1739,172 @@ abstract class DefaultController extends Base
     /**
      * Any dropdown style filters to include on the index page
      *
-     * @return array
+     * @return IndexFilter[]
      */
     protected function indexDropdownFilters(): array
     {
+        return array_merge(
+            $this->getLocalisedDropdownFilters(),
+            $this->getPublishableDropdownFilters(),
+        );
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns filters for models which implement Localised trait
+     *
+     * @return IndexFilter[]
+     * @throws FactoryException
+     */
+    protected function getLocalisedDropdownFilters(): array
+    {
+        $oModel = static::getModel();
         /** @var IndexFilter $aFilters */
         $aFilters = [];
-        if (classUses(static::getModel(), Localised::class)) {
+
+        if (classUses($oModel, Localised::class)) {
+
+            /** @var IndexFilter $oFilter */
+            $oFilter = Factory::factory('IndexFilter', Constants::MODULE_SLUG);
+            $oFilter
+                ->setLabel('Locale')
+                ->setColumn('CONCAT(`language`, \'_\', `region`)');
 
             /** @var Locale $oLocale */
             $oLocale = Factory::service('Locale');
 
-            /** @var Option[] $aOptions */
-            $aOptions   = [];
-            $aOptions[] = Factory::factory('IndexFilterOption', Constants::MODULE_SLUG)
-                ->setLabel('All Locales');
+            /** @var Option $aOption */
+            $aOption = Factory::factory('IndexFilterOption', Constants::MODULE_SLUG);
+            $oOption->setLabel('All Locales');
+
+            $oFilter->addOption($oOption);
 
             foreach ($oLocale->getSupportedLocales() as $oSupportedLocale) {
-                $aOptions[] = Factory::factory('IndexFilterOption', Constants::MODULE_SLUG)
+                /** @var Option $aOption */
+                $aOption = Factory::factory('IndexFilterOption', Constants::MODULE_SLUG);
+                $oOption
                     ->setLabel($oSupportedLocale->getDisplayLanguage())
                     ->setValue($oSupportedLocale->getLanguage() . '_' . $oSupportedLocale->getRegion());
+
+                $oFilter->addOption($oOption);
             }
 
-            $aFilters[] = Factory::factory('IndexFilter', Constants::MODULE_SLUG)
-                ->setLabel('Locale')
-                ->setColumn('CONCAT(`language`, \'_\', `region`)')
-                ->addOptions($aOptions);
+            $aFilters[] = $oFilter;
+        }
+
+        return $aFilters;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns filters for models which implement Publishable trait
+     *
+     * @return IndexFilter[]
+     * @throws FactoryException
+     */
+    protected function getPublishableDropdownFilters(): array
+    {
+        $oModel = static::getModel();
+        /** @var IndexFilter $aFilters */
+        $aFilters = [];
+
+        if (classUses($oModel, Publishable::class)) {
+
+            $sColumnIsPublished = $oModel->getColumnIsPublished();
+            $sColumnDatePublish = $oModel->getColumnDatePublished();
+            $sColumnDateExpire  = $oModel->getColumnDateExpire();
+
+            /** @var IndexFilter $oFilter */
+            $oFilter = Factory::factory('IndexFilter', Constants::MODULE_SLUG);
+            $oFilter
+                ->setLabel('Show')
+                //  This must be set to something, but as we're dealing with queries
+                //  it doesn't matter what it is set to.
+                ->setColumn('column');
+
+            /** @var Option $oOptionAll */
+            $oOptionAll = Factory::factory('IndexFilterOption', Constants::MODULE_SLUG);
+            $oOptionAll
+                ->setLabel('All items');
+
+            /** @var Option $oOptionYes */
+            $oOptionYes = Factory::factory('IndexFilterOption', Constants::MODULE_SLUG);
+            $oOptionYes
+                ->setLabel('All published items')
+                ->setIsQuery(true)
+                ->setValue('(' . implode(' AND ', array_filter([
+
+                        '`' . $sColumnIsPublished . '` = 1',
+
+                        $sColumnDatePublish
+                            ? '(`' . $sColumnDatePublish . '` IS NULL OR `' . $sColumnDatePublish . '` <= NOW())'
+                            : null,
+
+                        $sColumnDateExpire
+                            ? '(`' . $sColumnDateExpire . '` IS NULL OR `' . $sColumnDateExpire . '` > NOW())'
+                            : null,
+
+                    ])) . ')');
+
+            /** @var Option $oOptionNo */
+            $oOptionNo = Factory::factory('IndexFilterOption', Constants::MODULE_SLUG);
+            $oOptionNo
+                ->setLabel('All unpublished items')
+                ->setIsQuery(true)
+                ->setValue('(' . implode(' OR ', array_filter([
+
+                        '`' . $sColumnIsPublished . '` = 0',
+
+                        $sColumnDatePublish
+                            ? '(`' . $sColumnDatePublish . '` IS NOT NULL AND `' . $sColumnDatePublish . '` > NOW())'
+                            : null,
+
+                        $sColumnDateExpire
+                            ? '(`' . $sColumnDateExpire . '` IS NOT NULL AND `' . $sColumnDateExpire . '` <= NOW())'
+                            : null,
+
+                    ])) . ')');
+
+            if ($sColumnDateExpire || $sColumnDateExpire) {
+                /** @var Option $oOptionNoExplicit */
+                $oOptionNoExplicit = Factory::factory('IndexFilterOption', Constants::MODULE_SLUG);
+                $oOptionNoExplicit
+                    ->setLabel('Explicitly unpublished items')
+                    ->setIsQuery(true)
+                    ->setValue('`' . $sColumnIsPublished . '` = 0',);
+            }
+
+            if ($sColumnDateExpire) {
+                /** @var Option $oOptionNoExpired */
+                $oOptionNoExpired = Factory::factory('IndexFilterOption', Constants::MODULE_SLUG);
+                $oOptionNoExpired
+                    ->setLabel('Expired items')
+                    ->setIsQuery(true)
+                    ->setValue('(`' . $sColumnIsPublished . '` = 1 AND `' . $sColumnDateExpire . '` IS NOT NULL AND `' . $sColumnDateExpire . '` <= NOW())');
+            }
+
+            if ($sColumnDatePublish) {
+                /** @var Option $oOptionNoPublish */
+                $oOptionNoPublish = Factory::factory('IndexFilterOption', Constants::MODULE_SLUG);
+                $oOptionNoPublish
+                    ->setLabel('Scheduled items')
+                    ->setIsQuery(true)
+                    ->setValue('(`' . $sColumnIsPublished . '` = 1 AND `' . $sColumnDatePublish . '` IS NOT NULL AND `' . $sColumnDatePublish . '` > NOW())');
+            }
+
+            $oFilter
+                ->addOptions(array_filter([
+                    $oOptionAll,
+                    $oOptionYes,
+                    $oOptionNo,
+                    $oOptionNoExplicit ?? null,
+                    $oOptionNoExpired ?? null,
+                    $oOptionNoPublish ?? null,
+                ]));
+
+            $aFilters[] = $oFilter;
         }
 
         return $aFilters;
