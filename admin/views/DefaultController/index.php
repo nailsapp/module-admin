@@ -101,11 +101,18 @@ $oMustache = \Nails\Factory::service('Mustache');
                                     $sNormalisedLabel,
                                 ], $CONFIG['INDEX_CENTERED_FIELDS']);
 
-
                                 if (is_object($sProperty) && ($sProperty instanceof \Closure)) {
 
-                                    $mValue   = $sProperty($oItem);
-                                    $aClasses = [];
+                                    $mValue = $sProperty($oItem);
+
+                                    if (is_array($mValue)) {
+                                        $sCellClass = ArrayHelper::get(1, $mValue);
+                                        $mValue     = ArrayHelper::get(0, $mValue);
+                                    }
+
+                                    $aClasses = [
+                                        $sCellClass ?? null,
+                                    ];
 
                                     if ($bIsNumeric && !$bIsUserCell) {
                                         $mValue = number_format($mValue);
@@ -168,8 +175,8 @@ $oMustache = \Nails\Factory::service('Mustache');
                                 } elseif (strpos($sProperty, '.') !== false) {
 
                                     //  @todo (Pablo - 2018-08-08) - Handle arrays in expanded objects
-                                    $mValue = ArrayHelper::dot((array) $oItem, $sProperty);
-                                    $aClasses   = [];
+                                    $mValue   = ArrayHelper::dot((array) $oItem, $sProperty);
+                                    $aClasses = [];
 
                                     if ($bIsNumeric && !$bIsUserCell) {
                                         $mValue = number_format($mValue);
