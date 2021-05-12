@@ -2054,61 +2054,40 @@ abstract class DefaultController extends Base
         /** @var FormValidation $oFormValidation */
         $oFormValidation = Factory::service('FormValidation');
 
-        $aRulesFormValidation = [];
-        $aImplementedRules    = [];
+        $aRules = [];
 
         /** @var Field $oField */
         foreach ($aConfig['FIELDS'] as &$oField) {
 
-            if ($sMode === static::EDIT_MODE_CREATE && classUses($oModel, Localised::class)) {
-                if ($oField->getKey() == 'locale') {
+            if (array_key_exists($oField->getKey(), $aOverrides)) {
 
-                    /** @var Locale $oLocale */
-                    $oLocale = Factory::service('Locale');
-                    /** @var Uri $oUri */
-                    $oUri = Factory::service('Uri');
-                    if (empty($oUri->segment(5))) {
-                        $oField->addValidation('is[' . $oLocale->getDefautLocale() . ']');
+                $aRules[$oField->getKey()] = $aOverrides[$oField->getKey()];
+
+            } else {
+
+                if ($sMode === static::EDIT_MODE_CREATE && classUses($oModel, Localised::class)) {
+                    if ($oField->getKey() == 'locale') {
+
+                        /** @var Locale $oLocale */
+                        $oLocale = Factory::service('Locale');
+                        /** @var Uri $oUri */
+                        $oUri = Factory::service('Uri');
+
+                        if (empty($oUri->segment(5))) {
+                            $oField->addValidation('is[' . $oLocale->getDefautLocale() . ']');
+                        }
                     }
                 }
-            }
 
-            if (array_key_exists($oField->getKey(), $aOverrides)) {
-                $sRules            = implode('|', $aOverrides[$oField->getKey()]);
-                $aImplementedRules = array_merge($aImplementedRules, $aOverrides[$oField->getKey()]);
-            } else {
-                $sRules            = implode('|', $oField->getValidation());
-                $aImplementedRules = array_merge($aImplementedRules, $oField->getValidation());
-            }
-
-            $aRulesFormValidation[] = [
-                'field' => $oField->getKey(),
-                'label' => $oField->getLabel(),
-                'rules' => $sRules,
-            ];
-        }
-
-        $oFormValidation->set_rules($aRulesFormValidation);
-
-        //  Load up friendly versions of the form validation rules if they exist
-        $aImplementedRules = array_map(
-            function ($sRule) {
-                return preg_replace('/\[.*\]/', '', $sRule);
-            },
-            $aImplementedRules
-        );
-        $aImplementedRules = arrayUniqueMulti($aImplementedRules);
-
-        foreach ($aImplementedRules as $sRule) {
-            $sMessage = lang('fv_' . $sRule);
-            if ($sMessage) {
-                $oFormValidation->set_message($sRule, $sMessage);
+                $aRules[$oField->getKey()] = $oField->getValidation();
             }
         }
 
-        if (!$oFormValidation->run($this)) {
-            throw new ValidationException(lang('fv_there_were_errors'));
-        }
+        $oFormValidation
+            ->buildValidator(
+                array_filter($aRules)
+            )
+            ->run();
     }
 
     // --------------------------------------------------------------------------
