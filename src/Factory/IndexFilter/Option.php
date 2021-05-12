@@ -38,7 +38,7 @@ class Option
     protected $aMethods = [];
 
     /**
-     * Stores an array of the getter/setters for boolean properties
+     * Stores an array of the getter/setters for bool properties
      *
      * @var array
      */
@@ -61,14 +61,14 @@ class Option
     /**
      * Whether the item is selected or not
      *
-     * @var boolean
+     * @var bool
      */
     protected $bIsSelected;
 
     /**
      * If true, treat the value as the entire query
      *
-     * @var boolean
+     * @var bool
      */
     protected $bIsQuery;
 

@@ -53,14 +53,14 @@ class IndexFilter
     /**
      * An array of options to present to the user
      *
-     * @var array
+     * @var Option[]
      */
     protected $aOptions = [];
 
     // --------------------------------------------------------------------------
 
     /**
-     * Base constructor.
+     * IndexFilter constructor.
      */
     public function __construct()
     {
@@ -113,7 +113,7 @@ class IndexFilter
      *
      * @return $this
      */
-    public function addOption($sLabel, $mValue = null, $bIsSelected = false, $bIsQuery = null)
+    public function addOption(string $sLabel, $mValue = null, bool $bIsSelected = false, bool $bIsQuery = null): self
     {
         if ($sLabel instanceof Option) {
             $this->aOptions[] = $sLabel;
@@ -137,16 +137,16 @@ class IndexFilter
      *
      * @return $this
      */
-    public function addOptions($aOptions)
+    public function addOptions(array $aOptions): self
     {
         foreach ($aOptions as $aOption) {
             if ($aOption instanceof Option) {
                 $this->aOptions[] = $aOption;
             } else {
-                $sLabel      = getFromArray('label', $aOption, getFromArray(0, $aOption));
-                $mValue      = getFromArray('value', $aOption, getFromArray(1, $aOption));
-                $bIsSelected = (bool) getFromArray('selected', $aOption, getFromArray(2, $aOption));
-                $bIsQuery    = (bool) getFromArray('query', $aOption, getFromArray(3, $aOption));
+                $sLabel      = getFromArray(['label', 0], $aOption);
+                $mValue      = getFromArray(['value', 1], $aOption);
+                $bIsSelected = (bool) getFromArray(['selected', 2], $aOption);
+                $bIsQuery    = (bool) getFromArray(['query', 3], $aOption);
                 $this->addOption($sLabel, $mValue, $bIsSelected, $bIsQuery);
             }
         }
@@ -159,9 +159,9 @@ class IndexFilter
     /**
      * Returns the options
      *
-     * @return array
+     * @return Option[]
      */
-    public function getOptions()
+    public function getOptions(): array
     {
         return $this->aOptions;
     }
@@ -171,12 +171,14 @@ class IndexFilter
     /**
      * Returns a specific option
      *
-     * @param integer $iOptionIndex the option index to return
+     * @param int $iOptionIndex the option index to return
      *
-     * @return mixed|null
+     * @return Option|null
      */
-    public function getOption($iOptionIndex)
+    public function getOption(int $iOptionIndex): ?Option
     {
-        return array_key_exists($iOptionIndex, $this->aOptions) ? $this->aOptions[$iOptionIndex] : null;
+        return array_key_exists($iOptionIndex, $this->aOptions)
+            ? $this->aOptions[$iOptionIndex]
+            : null;
     }
 }
