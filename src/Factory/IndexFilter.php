@@ -106,20 +106,20 @@ class IndexFilter
     /**
      * Adds a new option
      *
-     * @param string|Option $sLabel      The label to give the option, or an IndexFilterOption object
+     * @param string|Option $mLabel      The label to give the option, or an IndexFilterOption object
      * @param mixed         $mValue      The value to give the option
      * @param bool          $bIsSelected Whether the item is selected
      * @param bool          $bIsQuery    If true, treat the value as the entire query
      *
      * @return $this
      */
-    public function addOption(string $sLabel, $mValue = null, bool $bIsSelected = false, bool $bIsQuery = null): self
+    public function addOption($mLabel, $mValue = null, bool $bIsSelected = false, bool $bIsQuery = null): self
     {
-        if ($sLabel instanceof Option) {
-            $this->aOptions[] = $sLabel;
+        if ($mLabel instanceof Option) {
+            $this->aOptions[] = $mLabel;
         } else {
             $this->aOptions[] = Factory::factory('IndexFilterOption', Constants::MODULE_SLUG)
-                ->setLabel($sLabel)
+                ->setLabel($mLabel)
                 ->setValue($mValue)
                 ->setIsSelected($bIsSelected)
                 ->setIsQuery($bIsQuery);
