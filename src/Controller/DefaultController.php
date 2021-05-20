@@ -39,6 +39,7 @@ use Nails\Common\Traits\Model\Copyable;
 use Nails\Common\Traits\Model\Localised;
 use Nails\Common\Traits\Model\Nestable;
 use Nails\Common\Traits\Model\Publishable;
+use Nails\Common\Traits\Model\Searchable;
 use Nails\Common\Traits\Model\Sortable;
 use Nails\Factory;
 
@@ -618,7 +619,7 @@ abstract class DefaultController extends Base
         $this->data['items']      = $oModel->getAll($iPage, $iPerPage, $aData);
         $this->data['pagination'] = Helper::paginationObject($iPage, $iPerPage, $iTotalRows);
         $this->data['search']     = Helper::searchObject(
-            true,
+            classUses($oModel, Searchable::class),
             array_keys($aSortConfig),
             $sSortOn,
             $sSortOrder,

@@ -49,7 +49,7 @@
     //  Filters
     if (!empty($dropdownFilter)) {
 
-        echo '<hr />';
+        echo !empty($injectHtml) || $searchable ? '<hr />' : '';
         foreach ($dropdownFilter as $iFilterIndex => $oFilter) {
 
             echo '<span class="filterGroup dropdown">';
@@ -84,6 +84,7 @@
     if (!empty($checkboxFilter)) {
 
         echo '<hr>';
+        echo !empty($injectHtml) || $searchable || !empty($dropdownFilter) ? '<hr />' : '';
         foreach ($checkboxFilter as $iFilterIndex => $oFilter) {
 
             echo '<span class="filterGroup">';
@@ -114,7 +115,7 @@
 
     // --------------------------------------------------------------------------
 
-    echo '<hr />';
+    echo !empty($injectHtml) || $searchable || !empty($dropdownFilter) || !empty($checkboxFilter) ? '<hr />' : '';
     echo '<span class="filterText">';
 
     if (!empty($sortColumns)) {
