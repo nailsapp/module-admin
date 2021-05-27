@@ -33,7 +33,7 @@ use Nails\Common\Service\Database;
 use Nails\Common\Service\FormValidation;
 use Nails\Common\Service\Input;
 use Nails\Common\Service\Locale;
-use Nails\Common\Service\Session;
+use Nails\Common\Service\UserFeedback;
 use Nails\Common\Service\Uri;
 use Nails\Common\Traits\Model\Copyable;
 use Nails\Common\Traits\Model\Localised;
@@ -717,9 +717,9 @@ abstract class DefaultController extends Base
                     $sLink = '';
                 }
 
-                /** @var Session $oSession */
-                $oSession = Factory::service('Session');
-                $oSession->setFlashData('success', sprintf(static::CREATE_SUCCESS_MESSAGE, $sLink));
+                /** @var UserFeedback $oUserFeedback */
+                $oUserFeedback = Factory::service('UserFeedback');
+                $oUserFeedback->success(sprintf(static::CREATE_SUCCESS_MESSAGE, $sLink));
 
                 if (static::isEditButtonEnabled($oItem)) {
                     if (classUses($oModel, Localised::class)) {
@@ -785,9 +785,9 @@ abstract class DefaultController extends Base
                     );
 
                     if (empty($aDiff)) {
-                        /** @var Session $oSession */
-                        $oSession = Factory::service('Session');
-                        $oSession->setFlashData('error', 'No more variations of this item can be created.');
+                        /** @var UserFeedback $oUserFeedback */
+                        $oUserFeedback = Factory::service('UserFeedback');
+                        $oUserFeedback->error('No more variations of this item can be created.');
                         $this->returnToIndex();
                     }
 
@@ -892,9 +892,9 @@ abstract class DefaultController extends Base
                     $sLink = '';
                 }
 
-                /** @var Session $oSession */
-                $oSession = Factory::service('Session');
-                $oSession->setFlashData('success', sprintf(static::EDIT_SUCCESS_MESSAGE, $sLink));
+                /** @var UserFeedback $oUserFeedback */
+                $oUserFeedback = Factory::service('UserFeedback');
+                $oUserFeedback->success(sprintf(static::EDIT_SUCCESS_MESSAGE, $sLink));
 
                 if (classUses($oModel, Localised::class)) {
                     $sRedirectUrl = $aConfig['BASE_URL'] . '/edit/' . $oItem->id . '/' . $oItem->locale;
@@ -983,8 +983,8 @@ abstract class DefaultController extends Base
 
         /** @var Database $oDb */
         $oDb = Factory::service('Database');
-        /** @var Session $oSession */
-        $oSession = Factory::service('Session');
+        /** @var UserFeedback $oUserFeedback */
+        $oUserFeedback = Factory::service('UserFeedback');
 
         $aConfig = $this->getConfig();
         $oModel  = $this->getModel();
@@ -1025,12 +1025,12 @@ abstract class DefaultController extends Base
                 $sRestoreLink = '';
             }
 
-            $oSession->setFlashData('success', static::DELETE_SUCCESS_MESSAGE . ' ' . $sRestoreLink);
+            $oUserFeedback->success(static::DELETE_SUCCESS_MESSAGE . ' ' . $sRestoreLink);
             $this->returnToIndex();
 
         } catch (\Exception $e) {
             $oDb->transaction()->rollback();
-            $oSession->setFlashData('error', static::DELETE_ERROR_MESSAGE . ' ' . $e->getMessage());
+            $oUserFeedback->error(static::DELETE_ERROR_MESSAGE . ' ' . $e->getMessage());
             $this->returnToIndex();
         }
     }
@@ -1052,8 +1052,8 @@ abstract class DefaultController extends Base
         $oUri = Factory::service('Uri');
         /** @var Database $oDb */
         $oDb = Factory::service('Database');
-        /** @var Session $oSession */
-        $oSession = Factory::service('Session');
+        /** @var UserFeedback $oUserFeedback */
+        $oUserFeedback = Factory::service('UserFeedback');
 
         $aConfig = $this->getConfig();
         $oModel  = $this->getModel();
@@ -1078,12 +1078,12 @@ abstract class DefaultController extends Base
 
             $this->addToChangeLog(static::EDIT_MODE_RESTORE, $oItem);
             $oDb->transaction()->commit();
-            $oSession->setFlashData('success', static::RESTORE_SUCCESS_MESSAGE);
+            $oUserFeedback->success(static::RESTORE_SUCCESS_MESSAGE);
             $this->returnToIndex();
 
         } catch (\Exception $e) {
             $oDb->transaction()->rollback();
-            $oSession->setFlashData('error', static::RESTORE_ERROR_MESSAGE . ' ' . $e->getMessage());
+            $oUserFeedback->error(static::RESTORE_ERROR_MESSAGE . ' ' . $e->getMessage());
             $this->returnToIndex();
         }
     }
@@ -1146,9 +1146,9 @@ abstract class DefaultController extends Base
 
                 $oDb->transaction()->commit();
 
-                /** @var Session $oSession */
-                $oSession = Factory::service('Session');
-                $oSession->setFlashData('success', static::ORDER_SUCCESS_MESSAGE);
+                /** @var UserFeedback $oUserFeedback */
+                $oUserFeedback = Factory::service('UserFeedback');
+                $oUserFeedback->success(static::ORDER_SUCCESS_MESSAGE);
 
                 redirect($aConfig['BASE_URL'] . '/sort');
 
@@ -1228,8 +1228,8 @@ abstract class DefaultController extends Base
 
         /** @var Database $oDb */
         $oDb = Factory::service('Database');
-        /** @var Session $oSession */
-        $oSession = Factory::service('Session');
+        /** @var UserFeedback $oUserFeedback */
+        $oUserFeedback = Factory::service('UserFeedback');
 
         $aConfig = $this->getConfig();
         $oModel  = $this->getModel();
@@ -1257,11 +1257,11 @@ abstract class DefaultController extends Base
             $this->addToChangeLog(static::EDIT_MODE_CREATE, $oNewItem);
             $oDb->transaction()->commit();
 
-            $oSession->setFlashData('success', static::COPY_SUCCESS_MESSAGE);
+            $oUserFeedback->success(static::COPY_SUCCESS_MESSAGE);
             redirect($aConfig['BASE_URL'] . '/edit/' . $oNewItem->id);
 
         } catch (\Exception $e) {
-            $oSession->setFlashData('error', 'Failed to copy item. ' . $e->getMessage());
+            $oUserFeedback->error('Failed to copy item. ' . $e->getMessage());
             $this->returnToIndex();
         }
     }
