@@ -14,13 +14,13 @@ if (!empty($bHeader)) {
         $aColumnsOut[] = '"' . str_replace('"', '""', $sColumn) . '"';
     }
 
-    echo $aColumnsOut ? implode(',', $aColumnsOut) . "\n" : '';
+    echo $aColumnsOut ? implode(',', $aColumnsOut) . PHP_EOL : '';
 }
 
 // --------------------------------------------------------------------------
 
 //  Now do the data dance
-for ($i = 0; $i < count($aData); $i++) {
+for ($i = $bHeader ? 1 : 0; $i < count($aData); $i++) {
 
     $sCsvRow = '';
 
@@ -38,5 +38,5 @@ for ($i = 0; $i < count($aData); $i++) {
         $sCsvRow .= '"' . $mValue . '",';
     }
 
-    echo substr($sCsvRow, 0, -1) . "\n";
+    echo substr($sCsvRow, 0, -1) . PHP_EOL;
 }
