@@ -5,6 +5,15 @@ $oItem = $aFloatingConfig['item'] ?? $oItem ?? null;
 
 $sSaveBtnText  = $aFloatingConfig['save']['text'] ?? 'Save Changes';
 $sSaveBtnClass = $aFloatingConfig['save']['class'] ?? 'btn btn-primary';
+$sSaveBtnName  = $aFloatingConfig['save']['name'] ?? null;
+$sSaveBtnValue = $aFloatingConfig['save']['value'] ?? null;
+
+$aSaveBtnAttributes = array_filter([
+    'type="submit"',
+    $sSaveBtnClass ? 'class="' . $sSaveBtnClass . '"' : null,
+    $sSaveBtnName ? 'name="' . $sSaveBtnName . '"' : null,
+    $sSaveBtnValue ? 'value="' . $sSaveBtnValue . '"' : null,
+]);
 
 $sHtmlLeft   = $aFloatingConfig['html']['left'] ?? null;
 $sHtmlCenter = $aFloatingConfig['html']['center'] ?? null;
@@ -25,7 +34,7 @@ $sNotesProvider = $aFloatingConfig['notes']['provider'] ?? null;
 ?>
 <div class="admin-floating-controls">
     <?=$sHtmlLeft?>
-    <button type="submit" class="<?=$sSaveBtnClass?>">
+    <button <?=implode(' ', $aSaveBtnAttributes)?>>
         <?=$sSaveBtnText?>
     </button>
     <?php
