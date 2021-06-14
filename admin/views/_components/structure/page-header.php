@@ -143,6 +143,12 @@ if (!empty($warning)) {
     ?>
     <div class="alert alert-warning">
         <span class="alert__close">&times;</span>
+        <p>
+            <strong>
+                <b class="alert-icon fa fa-exclamation-circle"></b>
+                Heads up!
+            </strong>
+        </p>
         <p><?=$warning?></p>
     </div>
     <?php
