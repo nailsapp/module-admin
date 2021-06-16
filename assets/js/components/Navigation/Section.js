@@ -10,7 +10,7 @@ class Section {
         this.box = new Box(
             mainController,
             this.element.querySelector('.box'),
-            this.element.dataset['initial-state']
+            this.element.dataset.initialState
         )
     }
 
