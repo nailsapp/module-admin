@@ -108,6 +108,8 @@ $oMustache = \Nails\Factory::service('Mustache');
                                     if (is_array($mValue)) {
                                         $sCellClass = ArrayHelper::get(1, $mValue);
                                         $mValue     = ArrayHelper::get(0, $mValue);
+                                    } else {
+                                        $sCellClass = null;
                                     }
 
                                     $aClasses = [
