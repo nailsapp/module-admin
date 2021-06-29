@@ -9,7 +9,9 @@ class Search {
         this.mainController = mainController;
         this.element = element;
 
-        this.init();
+        if (this.element) {
+            this.init();
+        }
     }
 
     // --------------------------------------------------------------------------
