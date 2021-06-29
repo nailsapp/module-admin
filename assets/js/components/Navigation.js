@@ -87,23 +87,26 @@ class Navigation {
     initButtons() {
 
         let buttons = document.getElementById('admin-nav-reset-buttons');
-        buttons.querySelector('a[data-action=reset]')
-            .addEventListener('click', (e) => {
-                e.preventDefault();
-                this.resetNav();
-            });
 
-        buttons.querySelector('a[data-action=open]')
-            .addEventListener('click', (e) => {
-                e.preventDefault();
-                this.openAll();
-            });
+        if (buttons) {
+            buttons.querySelector('a[data-action=reset]')
+                .addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.resetNav();
+                });
 
-        buttons.querySelector('a[data-action=close]')
-            .addEventListener('click', (e) => {
-                e.preventDefault();
-                this.closeAll();
-            });
+            buttons.querySelector('a[data-action=open]')
+                .addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.openAll();
+                });
+
+            buttons.querySelector('a[data-action=close]')
+                .addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.closeAll();
+                });
+        }
 
         return this;
     }
