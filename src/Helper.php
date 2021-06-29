@@ -450,6 +450,7 @@ class Helper
             return Helper::loadDateCell($mValue);
 
         } else {
+            $mValue = $mValue ?: '<span class="text-muted">&mdash;</span>';
             return '<td class="' . $sCellClass . '">' . $mValue . $sCellAdditional . '</td>';
         }
     }
