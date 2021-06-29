@@ -31,7 +31,7 @@ use Nails\Factory;
 class Helper
 {
     protected static $aHeaderButtons = [];
-    protected static $aModals = [];
+    protected static $aModals        = [];
 
     // --------------------------------------------------------------------------
 
@@ -685,7 +685,7 @@ class Helper
 
         ob_start();
         ?>
-        <input type="hidden" data-tabgroup="<?=$sGroup?>" name="<?=$sGroup?>" value="<?=set_value($sGroup)?>"/>
+        <input type="hidden" data-tabgroup="<?=$sGroup?>" name="<?=$sGroup?>" value="<?=set_value($sGroup)?>" />
         <ul class="tabs" data-tabgroup="<?=$sGroup?>" data-active-tab-input="#<?=$sGroup?>">
             <?php
             foreach ($aTabs as &$aTab) {
