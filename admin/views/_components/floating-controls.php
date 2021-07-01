@@ -65,6 +65,7 @@ $sNotesProvider = $aFloatingConfig['notes']['provider'] ?? null;
                 data-model-name="<?=$sNotesModel?>"
                 data-model-provider="<?=$sNotesProvider?>"
                 data-id="<?=$oItem->id?>"
+                data-show-count="true"
         >
             <?=$sNotesBtnText?>
         </button>

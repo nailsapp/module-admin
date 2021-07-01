@@ -35,9 +35,13 @@ class Notes {
                 let title = $btn.data('modal-title') || 'Notes';
                 let width = $btn.data('modal-width') || 500;
                 let maxHeight = $btn.data('modal-max-height') || 750;
+                let showCount = $btn.data('show-count');
+
+                if (showCount) {
+                    $btn.append($counter);
+                }
 
                 $btn
-                    .append($counter)
                     .on('click', () => {
 
                         let $modal = $('<div>')
@@ -57,16 +61,20 @@ class Notes {
                             $modal,
                             modelName,
                             modelProvider,
-                            itemId
+                            itemId,
+                            showCount,
+                            $counter
                         );
 
                         return false;
                     });
 
-                this.countNotes(modelName, modelProvider, itemId)
-                    .done((count) => {
-                        this.setCounter(count);
-                    });
+                if (showCount) {
+                    this.countNotes(modelName, modelProvider, itemId)
+                        .done((count) => {
+                            this.setCounter($counter, count);
+                        });
+                }
             });
 
         return this;
@@ -80,8 +88,10 @@ class Notes {
      * @param {String} modelName The model name
      * @param {String} modelProvider The model provider
      * @param {Number} itemId The item's ID
+     * @param {Boolean} showCount Whether the button is showing a counter
+     * @param {jQuery} $btnOpener The element which contains the counter
      */
-    load($modal, modelName, modelProvider, itemId) {
+    load($modal, modelName, modelProvider, itemId, showCount, $counter) {
 
         $modal.html($('<p>').text('Loading...'));
 
@@ -104,7 +114,9 @@ class Notes {
                                 response.data[i].id,
                                 response.data[i].message,
                                 response.data[i].user,
-                                response.data[i].date
+                                response.data[i].date,
+                                showCount,
+                                $counter
                             )
                         );
                     }
@@ -131,8 +143,10 @@ class Notes {
                                         )
                                     );
 
-                                this.setCounter(('.admin-notes__note', $modal).length)
-                                    .centerModal($modal, true);
+                                if (showCount) {
+                                    this.setCounter($counter, $('.admin-notes__note', $modal).length)
+                                        .centerModal($modal, true);
+                                }
                             });
                     });
 
@@ -305,9 +319,11 @@ class Notes {
      * @param {String} message The message string
      * @param {Object} user The user object
      * @param {String} date The date string
+     * @param {Boolean} showCount Whether the button is showing a counter
+     * @param {jQuery} $btnOpener The element which contains the counter
      * @return {jQuery}
      */
-    renderMessageItem($modal, id, message, user, date) {
+    renderMessageItem($modal, id, message, user, date, showCount, $counter) {
 
         let $li = $('<li>').addClass('admin-notes__note');
         let $message = $('<div>').addClass('admin-notes__note__message').html(message);
@@ -323,7 +339,9 @@ class Notes {
                         $li.remove();
                         this.centerModal($modal, false);
                         let count = $('.admin-notes__note', $modal).length;
-                        this.setCounter(count);
+                        if (showCount) {
+                            this.setCounter($counter, count);
+                        }
                         if (count === 0) {
                             $('.admin-notes__empty', $modal).show();
                         }
@@ -348,8 +366,8 @@ class Notes {
      * @param {Number} count The value
      * @return {Notes}
      */
-    setCounter(count) {
-        $('.admin-notes__counter').text(count || '');
+    setCounter($element, count) {
+        $element.text(count || '');
         return this;
     }
 
