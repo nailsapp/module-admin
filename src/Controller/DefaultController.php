@@ -210,6 +210,16 @@ abstract class DefaultController extends Base
     const CONFIG_INDEX_PAGE_ID = '';
 
     /**
+     * Enable or disable the "Notes" feature on the index
+     */
+    const CONFIG_INDEX_NOTES_ENABLE = false;
+
+    /**
+     * Enable or disable the "Notes" count on note buttons
+     */
+    const CONFIG_INDEX_NOTES_COUNT = false;
+
+    /**
      * Fields which should be marked as readonly when creating an item
      */
     const CONFIG_CREATE_READONLY_FIELDS = [];
@@ -257,6 +267,11 @@ abstract class DefaultController extends Base
      * The ID to give the edit page
      */
     const CONFIG_EDIT_PAGE_ID = '';
+
+    /**
+     * Enable or disable the "Notes" feature
+     */
+    const CONFIG_EDIT_NOTES_ENABLE = true;
 
     /**
      * Additional data to pass into the getAll call on the delete view
@@ -312,11 +327,6 @@ abstract class DefaultController extends Base
      * When sorting, this string is passed to supporting functions
      */
     const EDIT_MODE_SORT = 'SORT';
-
-    /**
-     * Enable or disable the "Notes" feature
-     */
-    const EDIT_ENABLE_NOTES = true;
 
     /**
      * Enable or disable the "last modified" check on save
@@ -1324,6 +1334,8 @@ abstract class DefaultController extends Base
             'INDEX_NUMERIC_FIELDS'   => static::CONFIG_INDEX_NUMERIC_FIELDS,
             'INDEX_CENTERED_FIELDS'  => static::CONFIG_INDEX_CENTERED_FIELDS,
             'INDEX_PAGE_ID'          => static::CONFIG_INDEX_PAGE_ID,
+            'INDEX_NOTES_ENABLE'     => static::CONFIG_INDEX_NOTES_ENABLE,
+            'INDEX_NOTES_COUNT'      => static::CONFIG_INDEX_NOTES_COUNT,
             'CREATE_READONLY_FIELDS' => static::CONFIG_CREATE_READONLY_FIELDS,
             'CREATE_IGNORE_FIELDS'   => static::CONFIG_CREATE_IGNORE_FIELDS,
             'EDIT_HEADER_BUTTONS'    => static::CONFIG_EDIT_HEADER_BUTTONS,
@@ -1331,12 +1343,12 @@ abstract class DefaultController extends Base
             'EDIT_IGNORE_FIELDS'     => static::CONFIG_EDIT_IGNORE_FIELDS,
             'EDIT_DATA'              => static::CONFIG_EDIT_DATA,
             'EDIT_PAGE_ID'           => static::CONFIG_EDIT_PAGE_ID,
+            'EDIT_NOTES_ENABLE'      => static::CONFIG_EDIT_NOTES_ENABLE,
             'DELETE_DATA'            => static::CONFIG_DELETE_DATA,
             'SORT_DATA'              => static::CONFIG_SORT_DATA,
             'SORT_LABEL'             => static::CONFIG_SORT_LABEL,
             'SORT_COLUMNS'           => static::CONFIG_SORT_COLUMNS,
             'FIELDSET_ORDER'         => static::CONFIG_EDIT_FIELDSET_ORDER,
-            'ENABLE_NOTES'           => static::EDIT_ENABLE_NOTES,
             'FIELDS'                 => $oModel->describeFields(),
             'FLOATING_CONFIG'        => [
                 'last_modified' => [
@@ -1349,7 +1361,7 @@ abstract class DefaultController extends Base
                     ],
                 ],
                 'notes'         => [
-                    'enabled'  => static::EDIT_ENABLE_NOTES,
+                    'enabled'  => static::CONFIG_EDIT_NOTES_ENABLE,
                     'model'    => static::CONFIG_MODEL_NAME,
                     'provider' => static::CONFIG_MODEL_PROVIDER,
                 ],
@@ -1578,6 +1590,17 @@ abstract class DefaultController extends Base
                         return static::isCopyButtonEnabled($oItem);
                     },
                 ],
+                $aConfig['INDEX_NOTES_ENABLE'] ? [
+                    'url'   => '#',
+                    'label' => 'Notes',
+                    'class' => 'btn-default js-admin-notes',
+                    'attr'  => implode(' ', [
+                        'data-model-name="' . $aConfig['MODEL_NAME'] . '"',
+                        'data-model-provider="' . $aConfig['MODEL_PROVIDER'] . '"',
+                        'data-id="{{id}}"',
+                        'data-show-count="' . json_encode($aConfig['INDEX_NOTES_COUNT']) . '"',
+                    ]),
+                ] : null,
             ])
         );
 
