@@ -16,6 +16,9 @@ foreach ($aFieldSets as $sLabel => $aFields) {
             if (is_string($aFields)) {
                 echo $aFields;
 
+            } elseif ($aFields instanceof \Closure) {
+                echo call_user_func($aFields, $oItem ?? null);
+
             } else {
                 foreach ($aFields as $iIndex => $oField) {
                     if (empty($oField->key)) {
