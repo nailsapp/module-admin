@@ -625,27 +625,26 @@ class Helper
     /**
      * Generates a dynamic table
      *
-     * @param string $sKey    The key to give items in the table
-     * @param array  $aFields The fields to render
-     * @param array  $aData   Data to populate the table with
+     * @param string $sKey        The key to give items in the table
+     * @param array  $aFields     The fields to render
+     * @param array  $aData       Data to populate the table with
+     * @param bool   $bIsSortable Whether the table is sortable, or not
      *
-     * @return string
+     * @return \Nails\Admin\Factory\Helper\DynamicTable
      * @throws FactoryException
      */
-    public static function dynamicTable($sKey, array $aFields, array $aData = [])
-    {
-        /** @var View $oView */
-        $oView = Factory::service('View');
-        return $oView
-            ->load(
-                'admin/_components/dynamic-table',
-                [
-                    'sKey'    => $sKey,
-                    'aFields' => $aFields,
-                    'aData'   => $aData,
-                ],
-                true
-            );
+    public static function dynamicTable(
+        $sKey = '',
+        array $aFields = [],
+        array $aData = [],
+        bool $bIsSortable = true
+    ): \Nails\Admin\Factory\Helper\DynamicTable {
+
+        return Factory::factory('HelperDynamicTable', Constants::MODULE_SLUG)
+            ->setKey($sKey)
+            ->setFields($aFields)
+            ->setData($aData)
+            ->setIsSortable($bIsSortable);
     }
 
     // --------------------------------------------------------------------------

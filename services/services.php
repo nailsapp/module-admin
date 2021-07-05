@@ -146,6 +146,13 @@ return [
                 return new Factory\Email\DataExport\Fail();
             }
         },
+        'HelperDynamicTable'           => function (): Factory\Helper\DynamicTable {
+            if (class_exists('\App\Admin\Helper\DynamicTable')) {
+                return new \App\Admin\Helper\DynamicTable();
+            } else {
+                return new Factory\Helper\DynamicTable();
+            }
+        },
         'Nav'                          => function (): Factory\Nav {
             if (class_exists('\App\Admin\Factory\Nav')) {
                 return new \App\Admin\Factory\Nav();
