@@ -8,7 +8,7 @@
 return <<<'EOD'
 <?php
 
-namespace App\DataExport\Source;
+namespace App\Admin\DataExport\Source;
 
 use Nails\Admin\Constants;
 use Nails\Admin\DataExport\SourceResponse;

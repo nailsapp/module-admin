@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Create extends BaseMaker
 {
     const RESOURCE_PATH = NAILS_PATH . 'module-admin/resources/console/';
-    const EXPORT_PATH   = NAILS_APP_PATH . 'src/DataExport/Source/';
+    const EXPORT_PATH   = NAILS_APP_PATH . 'src/Admin/DataExport/Source/';
 
     // --------------------------------------------------------------------------
 
