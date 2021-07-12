@@ -1254,6 +1254,7 @@ abstract class DefaultController extends Base
             $oDb->transaction()->start();
             $this->beforeCreateAndEdit(static::EDIT_MODE_CREATE);
             $this->beforeCreate();
+            $this->beforeCopy($oItem);
 
             $oNewItem = $oModel->copy($oItem->id, true);
             if (empty($oNewItem)) {
@@ -1264,6 +1265,7 @@ abstract class DefaultController extends Base
 
             $this->afterCreateAndEdit(static::EDIT_MODE_CREATE, $oNewItem);
             $this->afterCreate($oNewItem);
+            $this->afterCopy($oNewItem, $oItem);
             $this->addToChangeLog(static::EDIT_MODE_CREATE, $oNewItem);
             $oDb->transaction()->commit();
 
@@ -1995,6 +1997,19 @@ abstract class DefaultController extends Base
     // --------------------------------------------------------------------------
 
     /**
+     * Executed before an item is copied
+     *
+     * @param Resource $oItem The item being copied
+     *
+     * @return void
+     */
+    protected function beforeCopy(Resource $oItem): void
+    {
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
      * Executed before an item is deleted
      *
      * @param Resource $oItem The item being deleted
@@ -2044,6 +2059,20 @@ abstract class DefaultController extends Base
      * @return void
      */
     protected function afterCreate(Resource $oNewItem): void
+    {
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Executed after an item is copied
+     *
+     * @param Resource $oNewItem The new item
+     * @param Resource $oOldItem The original item
+     *
+     * @return void
+     */
+    protected function afterCopy(Resource $oNewItem, Resource $oOldItem): void
     {
     }
 
