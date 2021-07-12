@@ -1263,7 +1263,7 @@ abstract class DefaultController extends Base
 
             //  @todo (Pablo - 2019-12-10) - Add support for classes which implement Localised trait
 
-            $this->afterCreateAndEdit(static::EDIT_MODE_CREATE, $oNewItem);
+            $this->afterCreateAndEdit(static::EDIT_MODE_CREATE, $oNewItem, $oItem);
             $this->afterCreate($oNewItem);
             $this->afterCopy($oNewItem, $oItem);
             $this->addToChangeLog(static::EDIT_MODE_CREATE, $oNewItem);
