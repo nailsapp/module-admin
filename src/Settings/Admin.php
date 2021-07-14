@@ -84,7 +84,7 @@ class Admin implements Interfaces\Component\Settings
             ->setPlaceholder('Specify IP addresses to whitelist either comma seperated or on new lines.')
             ->setInfo('Your current IP address is: <code>' . $oInput->ipAddress() . '</code>')
             ->setRenderFormatter(function ($mValue) {
-                return implode(PHP_EOL, $mValue);
+                return is_array($mValue) ? implode(PHP_EOL, $mValue) : '';
             })
             ->setSaveFormatter(function ($mValue) {
                 return $this->prepareWhitelist($mValue);
