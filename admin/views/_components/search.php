@@ -141,22 +141,24 @@
 
     // --------------------------------------------------------------------------
 
-    echo '<span class="filterText">';
+    if ($perPage) {
+        echo '<span class="filterText">';
 
-    //  Results per page
-    $options = [
-        10  => 10,
-        25  => 25,
-        50  => 50,
-        75  => 75,
-        100 => 100,
-    ];
+        //  Results per page
+        $options = [
+            10  => 10,
+            25  => 25,
+            50  => 50,
+            75  => 75,
+            100 => 100,
+        ];
 
-    echo 'Show';
-    echo form_dropdown('perPage', $options, $perPage, 'class="select2 filter--per-page"');
-    echo 'results per page.';
+        echo 'Show';
+        echo form_dropdown('perPage', $options, $perPage, 'class="select2 filter--per-page"');
+        echo 'results per page.';
 
-    echo '</span>';
+        echo '</span>';
+    }
 
     // --------------------------------------------------------------------------
 
