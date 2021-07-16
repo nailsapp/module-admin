@@ -104,7 +104,7 @@ class Admin extends Base
 
         //  Save to the DB
         $bResult = $this->oUserMetaService->update(
-            Config::get('NAILS_DB_PREFIX') . 'user_meta_admin',
+            $this->getUserMetaTable(),
             $userId,
             $existing
         );
@@ -135,7 +135,7 @@ class Admin extends Base
 
         } else {
 
-            $oRow = $this->oUserMetaService->get(Config::get('NAILS_DB_PREFIX') . 'user_meta_admin', $userId);
+            $oRow = $this->oUserMetaService->get($this->getUserMetaTable(), $userId);
 
             if (!empty($oRow)) {
 
@@ -191,7 +191,7 @@ class Admin extends Base
         $userId = $this->adminDataGetUserId($userId);
 
         $bResult = $this->oUserMetaService->update(
-            Config::get('NAILS_DB_PREFIX') . 'user_meta_admin',
+            $this->getUserMetaTable(),
             $userId,
             [
                 'nav_state' => null,
@@ -226,5 +226,17 @@ class Admin extends Base
         }
 
         return $userId;
+    }
+
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns the table for admin user meta
+     *
+     * @return string
+     */
+    public function getUserMetaTable(): string
+    {
+        return Config::get('NAILS_DB_PREFIX') . 'user_meta_admin';
     }
 }
