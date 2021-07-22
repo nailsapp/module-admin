@@ -101,7 +101,7 @@ class Widget
 
         return $oModel->getAll([
             'where' => [
-                ['created_by', $oUser->id],
+                [$oModel->getColumnCreatedBy(), $oUser->id],
             ],
         ]);
     }

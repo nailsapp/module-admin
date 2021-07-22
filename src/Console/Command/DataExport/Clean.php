@@ -74,7 +74,7 @@ class Clean extends Base
 
                 $aToClean = $oModel->getAll([
                     'where' => [
-                        ['modified <', $oNow->format('Y-m-d H:i:s')],
+                        [$oModel->getColumnModified() . ' <', $oNow->format('Y-m-d H:i:s')],
                     ],
                 ]);
 

@@ -220,12 +220,12 @@ class ChangeLog extends Base
             $oDate          = Factory::factory('DateTime');
 
             for ($i = 0; $i < count($this->aChanges); $i++) {
-                $this->aChanges[$i]['changes']     = array_values($this->aChanges[$i]['changes']);
-                $this->aChanges[$i]['changes']     = json_encode($this->aChanges[$i]['changes']);
-                $this->aChanges[$i]['created']     = $oDate->format('Y-m-d H:i:s');
-                $this->aChanges[$i]['created_by']  = activeUser('id');
-                $this->aChanges[$i]['modified']    = $oDate->format('Y-m-d H:i:s');
-                $this->aChanges[$i]['modified_by'] = activeUser('id');
+                $this->aChanges[$i]['changes']                    = array_values($this->aChanges[$i]['changes']);
+                $this->aChanges[$i]['changes']                    = json_encode($this->aChanges[$i]['changes']);
+                $this->aChanges[$i][$this->getColumnCreated()]    = $oDate->format('Y-m-d H:i:s');
+                $this->aChanges[$i][$this->getColumnCreatedBy()]  = activeUser('id');
+                $this->aChanges[$i][$this->getColumnModified()]   = $oDate->format('Y-m-d H:i:s');
+                $this->aChanges[$i][$this->getColumnModifiedBy()] = activeUser('id');
             }
 
             $oDb = Factory::service('Database');

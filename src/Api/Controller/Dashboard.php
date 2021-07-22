@@ -114,7 +114,7 @@ class Dashboard extends BaseApi
         $oModel       = Factory::model('DashboardWidget', Constants::MODULE_SLUG);
         $aExistingIds = $oModel->getIds([
             'where' => [
-                ['created_by', activeUser('id')],
+                [$oModel->getColumnCreatedBy(), activeUser('id')],
             ],
         ]);
 
@@ -152,7 +152,7 @@ class Dashboard extends BaseApi
                 '`id` NOT IN (%s)',
                 $aTouchedIds
             ) : null,
-            ['created_by', activeUser('id')],
+            [$oModel->getColumnCreatedBy(), activeUser('id')],
         ]));
 
         /** @var Api\Factory\ApiResponse $oApiResponse */

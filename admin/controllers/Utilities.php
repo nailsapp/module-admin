@@ -184,8 +184,8 @@ class Utilities extends Base
 
         $oModel  = Factory::model('Export', Constants::MODULE_SLUG);
         $aRecent = $oModel->getAll([
-            'where' => [['created_by', activeUser('id')]],
-            'sort'  => [['created', 'desc']],
+            'where' => [[$oModel->getColumnCreatedBy(), activeUser('id')]],
+            'sort'  => [[$oModel->getColumnCreated(), 'desc']],
             'limit' => 10,
         ]);
 
