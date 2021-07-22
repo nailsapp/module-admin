@@ -5,7 +5,13 @@
         }
 
         @extend .alert;
-        @extend .alert-info;
+
+        position: sticky;
+        top: $header-height + 5;
+        z-index: 1;
+        background-color: rgb(241, 112, 0);
+        border-color: rgb(200, 93, 0);
+        color: #ffffff;
 
         ul {
             li {
