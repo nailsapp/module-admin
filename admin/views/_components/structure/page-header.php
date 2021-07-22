@@ -82,92 +82,44 @@ if (!empty($sPageTitle) || !empty($aHeaderButtons)) {
     <?php
 }
 
-if (!empty($error)) {
-    ?>
-    <div class="alert alert-danger">
-        <span class="alert__close">&times;</span>
-        <p>
-            <strong>
-                <b class="alert-icon fa fa-times-circle"></b>
-                Sorry, something went wrong.
-            </strong>
-        </p>
-        <p><?=$error?></p>
-    </div>
-    <?php
-}
+$aAlerts = [
+    'error'    => ['danger', 'fa-times-circle', 'Sorry, something went wrong.'],
+    'success'  => ['success', 'fa-check-circle', 'Success!'],
+    'info'     => ['info'],
+    'warning'  => ['warning'],
 
-if (!empty($negative)) {
-    ?>
-    <div class="alert alert-danger">
-        <span class="alert__close">&times;</span>
-        <p><?=$negative?></p>
-    </div>
-    <?php
-}
+    //  @deprecated (Pablo - 2021-07-22)
+    'negative' => ['danger'],
+    'positive' => ['success'],
+    'message'  => ['warning'],
+    'notice'   => ['info'],
+];
 
-if (!empty($success)) {
-    ?>
-    <div class="alert alert-success">
-        <span class="alert__close">&times;</span>
-        <p>
-            <strong>
-                <b class="alert-icon fa fa-check-circle"></b>
-                Success!
-            </strong>
-        </p>
-        <p><?=$success?></p>
-    </div>
-    <?php
-}
+foreach ($aAlerts as $sType => $aAlert) {
 
-if (!empty($positive)) {
-    ?>
-    <div class="alert alert-success">
-        <span class="alert__close">&times;</span>
-        <p><?=$positive?></p>
-    </div>
-    <?php
-}
+    //  Variable variable
+    if (!empty($$sType)) {
 
-if (!empty($info)) {
-    ?>
-    <div class="alert alert-info">
-        <span class="alert__close">&times;</span>
-        <p><?=$info?></p>
-    </div>
-    <?php
-}
+        [$sClass, $sIcon, $sTitle] = array_pad($aAlert, 3, null);
 
-if (!empty($warning)) {
-    ?>
-    <div class="alert alert-warning">
-        <span class="alert__close">&times;</span>
-        <p>
-            <strong>
-                <b class="alert-icon fa fa-exclamation-circle"></b>
-                Heads up!
-            </strong>
-        </p>
-        <p><?=$warning?></p>
-    </div>
-    <?php
-}
+        ?>
+        <div class="alert alert-<?=$sClass?>">
+            <span class="alert__close">&times;</span>
+            <?php
+            if (!empty($sTitle)) {
+                echo sprintf(
+                    '<p><strong>%s %s</strong></p>',
+                    $sIcon ? '<b class="alert-icon fa ' . $sIcon . '"></b>' : '',
+                    $sTitle
+                );
+            }
 
-if (!empty($message)) {
-    ?>
-    <div class="alert alert-warning">
-        <span class="alert__close">&times;</span>
-        <p><?=$message?></p>
-    </div>
-    <?php
-}
-
-if (!empty($notice)) {
-    ?>
-    <div class="alert alert-info">
-        <span class="alert__close">&times;</span>
-        <p><?=$notice?></p>
-    </div>
-    <?php
+            echo sprintf(
+                '<p>%s</p>',
+                $$sType
+            )
+            ?>
+        </div>
+        <?php
+    }
 }
